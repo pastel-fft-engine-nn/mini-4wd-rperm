@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>Mini4WD Hyper RPM Analyzer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+  :root {
+    --bg-color: #f3f4f6;
+    --panel-bg: #ffffff;
+    --panel-border: #e5e7eb;
+    --text-color: #1f2937;
+    --text-muted: #6b7280;
+    --accent-color: #3b82f6;
+    --accent-hover: #2563eb;
+    --grid-color: rgba(209, 213, 219, 0.6);
+    --scanline-color: rgba(59, 130, 246, 0.15);
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+  }
+
+  .dark-theme {
+    --bg-color: #0b0f1a;
+    --panel-bg: #111827;
+    --panel-border: #1f2937;
+    --text-color: #e8ecf7;
+    --text-muted: #9ca3af;
+    --accent-color: #2563eb;
+    --accent-hover: #1d4ed8;
+    --grid-color: rgba(55, 65, 81, 0.4);
+    --scanline-color: rgba(37, 99, 235, 0.2);
+  }
+
+  body {
+    margin: 0;
+    padding: 20px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  h1, h2, h3 { margin-top: 0; }
+  h1 { text-align: center; font-size: 24px; margin-bottom: 20px; }
+
+  #themeTooltip {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background: #3b82f6;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: none;
+    animation: bounce 2s infinite;
+  }
+  #themeTooltip::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 25px;
+    border-width: 0 8px 8px 8px;
+    border-style: solid;
+    border-color: transparent transparent #3b82f6 transparent;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .theme-toggle-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+  .theme-btn {
+    width: auto; padding: 6px 12px; background: var(--panel-bg);
+    border: 1px solid var(--panel-border); color: var(--text-color);
+  }
+
+  .section {
+    background: var(--panel-bg);
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid var(--panel-border);
+  }
+  .section h2 {
+    font-size: 18px;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .metrics-display {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    background: rgba(0,0,0,0.05);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  .dark-theme .metrics-display { background: rgba(0,0,0,0.2); }
+  .metric-box { font-size: 14px; color: var(--text-muted); }
+  .metric-box span { display: block; font-size: 20px; font-weight: bold; color: var(--text-color); }
+  .metric-large { grid-column: span 2; border-bottom: 1px solid var(--panel-border); padding-bottom: 5px; }
+  .metric-large span { font-size: 32px; color: #10b981; }
+
+  button {
+    width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px;
+    border: none; background: var(--accent-color); color: white;
+    font-weight: bold; cursor: pointer; transition: background 0.2s;
+  }
+  button:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #4b5563; }
+  .btn-secondary:hover { background: #374151; }
+  .btn-danger { background: var(--danger-color); }
+  .btn-danger:hover { background: var(--danger-hover); }
+  .btn-sm { padding: 4px 8px; font-size: 11px; width: auto; margin: 0; }
+  .button-row { display: flex; gap: 8px; margin-top: 8px; }
+
+  details summary { font-weight: bold; cursor: pointer; padding: 5px 0; color: var(--accent-color); }
+  .slider-group { margin-top: 10px; }
+  .slider-item { margin-bottom: 12px; }
+  .slider-item label { display: flex; justify-content: space-between; font-size: 13px; }
+  input[type="range"] { width: 100%; margin-top: 4px; }
+  select, input[type="number"] {
+    width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--panel-border);
+    background: var(--bg-color); color: var(--text-color); box-sizing: border-box;
+  }
+
+  .filter-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+    background: rgba(0,0,0,0.05);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--panel-border);
+  }
+  .dark-theme .filter-container { background: rgba(0,0,0,0.15); }
+  .filter-container label { font-size: 12px; color: var(--text-muted); display: block; }
+  @media (max-width: 640px) { .filter-container { grid-template-columns: repeat(2, 1fr); } }
+
+  .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px; }
+  .preset-btn { font-size: 11px; padding: 6px 2px; background: #4b5563; }
+  .dark-theme .preset-btn { background: #374151; }
+
+  #spectrumCanvas { width: 100%; height: 180px; background: #000; border-radius: 8px; display: block; }
+  .timelapse-container { margin-top: 10px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 6px; }
+
+  .table-responsive { overflow-x: auto; margin-top: 10px; border-radius: 8px; border: 1px solid var(--panel-border); }
+  table { width: 100%; border-collapse: collapse; background: var(--panel-bg); }
+  th, td { border: 1px solid var(--panel-border); padding: 8px; font-size: 12px; text-align: center; }
+  th { background: rgba(0,0,0,0.04); color: var(--text-color); font-weight: bold; }
+  .dark-theme th { background: rgba(255,255,255,0.05); }
+
+  .current-volt-row {
+    background: rgba(59, 130, 246, 0.12) !important;
+    font-weight: bold;
+    box-shadow: inset 0 0 4px rgba(59, 130, 246, 0.2);
+  }
+  .dark-theme .current-volt-row {
+    background: rgba(37, 99, 235, 0.25) !important;
+  }
+  .current-volt-row td:first-child {
+    color: #2563eb;
+  }
+  .dark-theme .current-volt-row td:first-child {
+    color: #00e5ff;
+    text-shadow: 0 0 8px rgba(0,229,255,0.6);
+  }
+
+  @media print {
+    body { background: white; color: black; }
+    .section { page-break-inside: avoid; border: 1px solid #000; }
+    button, details, .theme-toggle-container, .timelapse-container, .filter-container { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="themeTooltip">✨ ここからライト/ダークテーマを切り替えられます！</div>
+
+<div class="theme-toggle-container">
+  <button class="theme-btn" id="themeToggleBtn">🌓 テーマ切替</button>
+</div>
+
+<h1>Mini4WD Hyper RPM Analyzer</h1>
+
+<div class="grid-2">
+  <div>
+    <div class="section">
+      <h2>リアルタイム計測</h2>
+      
+      <div class="metrics-display">
+        <div class="metric-box metric-large">リアルタイム回転数 <span id="rpmValue">0 RPM</span></div>
+        <div class="metric-box">設定電圧 <span id="dispVolt">3.0 V</span></div>
+        <div class="metric-box">設定ギヤ比 <span id="dispGear">3.5 :1</span></div>
+        <div class="metric-box">タイヤ外径 <span id="dispTire">25.0 mm</span></div>
+        <div class="metric-box">走行速度 <span id="speedValue">0.0 km/h</span></div>
+        <div class="metric-box">極数設定 <span id="dispPoles">1 P</span></div>
+      </div>
+
+      <div class="metrics-display" style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);">
+        <div class="metric-box">セッション平均 <span id="sessAvg">0</span></div>
+        <div class="metric-box">最高回転数 <span id="sessMax">0</span></div>
+        <div class="metric-box">最低回転数 <span id="sessMin">0</span></div>
+        <div class="metric-box">計測フレーム <span id="sessCount">0</span></div>
+      </div>
+
+      <button id="startBtn">▶ 計測開始</button>
+      <div class="button-row">
+        <button id="lockBtn" class="btn-secondary">🔒 ロック</button>
+        <button id="saveBtn">💾 データを保存する</button>
+        <button id="resetBtn" class="btn-danger">♻ リセット</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>高精度スペクトラム表示</h2>
+      <canvas id="spectrumCanvas"></canvas>
+      
+      <div class="timelapse-container">
+        <label style="font-size:12px; font-weight:bold;">⏳ タイムラプス・タイムライン</label>
+        <input type="range" id="timelapseSlider" min="0" max="0" value="0" disabled>
+        <div class="button-row">
+          <button id="tlPlayBtn" class="btn-secondary" style="padding:4px;" disabled>▶ 再生</button>
+          <button id="tlResetBtn" class="btn-danger" style="padding:4px;" disabled>クリア</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="section">
+      <details open>
+        <summary>🛠️ アナライザー基本設定 (クリックで開閉)</summary>
+        
+        <div class="slider-group">
+          <div class="slider-item">
+            <label><span>電圧 (V)</span><span id="valVolt">3.0V</span></label>
+            <input id="slideVolt" type="range" min="2.2" max="3.4" step="0.1" value="3.0">
+          </div>
+          
+          <div class="slider-item">
+            <label><span>ギヤ比</span><span id="valGear">3.5:1</span></label>
+            <input id="slideGear" type="range" min="0" max="6" step="1" value="0">
+          </div>
+
+          <div class="slider-item">
+            <label><span>タイヤ径 (mm)</span><span id="valTire">25.0mm</span></label>
+            <input id="slideTire" type="range" min="22.0" max="40.0" step="0.1" value="25.0">
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label style="font-size:12px;">モーター極数 (デフォルト: 1)</label>
+              <input id="inputPoles" type="number" min="1" max="12" value="1">
+            </div>
+            <div>
+              <label style="font-size:12px;">ノイズ閾値 (デフォルト: -120)</label>
+              <input id="inputNoise" type="number" min="-140" max="-30" value="-120">
+            </div>
+          </div>
+        </div>
+
+        <h3>設定プリセット (10スロット)</h3>
+        <div class="preset-grid">
+          <script>
+            for(let i=1; i<=10; i++){
+              document.write(`<button class="preset-btn" onclick="managePreset(${i})">P${i}</button>`);
+            }
+          </script>
+        </div>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:5px; text-align:center;">※クリックで読込 / ダブルクリックで現在値を保存</p>
+      </details>
+    </div>
+
+    <div class="section">
+      <h2>📋 電圧・ギヤ比別 車輪回転数＆時速 比較表</h2>
+      <p style="font-size:11px; color:var(--text-muted);">縦軸に電圧、横軸にギヤ比を配した総当たり表です。スライダー連動行がハイライトされます。</p>
+      <div class="table-responsive">
+        <table id="matrixTable"></table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🏎️ 複数モーター性能比較ベンチ</h2>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>モーター名</th>
+              <th>電圧</th>
+              <th>MAX RPM</th>
+              <th>AVG RPM</th>
+              <th>最高時速</th>
+            </tr>
+          </thead>
+          <tbody id="motorCompareTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>📋 全体計測履歴一覧</h2>
+  
+  <div class="filter-container">
+    <div>
+      <label for="filterName">モーター名フィルター</label>
+      <select id="filterName" onchange="applyFilters()"><option value="">すべて</option></select>
+    </div>
+    <div>
+      <label for="filterVolt">電圧フィルター</label>
+      <select id="filterVolt" onchange="applyFilters()"><option value="">すべて</option></select>
+    </div>
+    <div>
+      <label for="filterGear">ギヤ比フィルター</label>
+      <select id="filterGear" onchange="applyFilters()"><option value="">すべて</option></select>
+    </div>
+    <div>
+      <label for="filterTire">タイヤ径フィルター</label>
+      <select id="filterTire" onchange="applyFilters()"><option value="">すべて</option></select>
+    </div>
+  </div>
+
+  <div class="button-row" style="max-width: 650px; margin-bottom: 12px; flex-wrap: wrap;">
+    <button id="exportCSV" class="btn-secondary" style="width:auto;">CSV出力</button>
+    <button id="exportExcel" class="btn-secondary" style="width:auto;">Excel出力</button>
+    <button onclick="window.print()" style="background:#10b981; width:auto;">🖨️ レポート印刷</button>
+    <button id="clearAllBtn" class="btn-danger" style="width:auto; margin-left:auto;">⚠️ 履歴全削除</button>
+  </div>
+
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>計測日</th>
+          <th>モーター名</th>
+          <th>MAX RPM</th>
+          <th>AVG RPM</th>
+          <th>電圧</th>
+          <th>使用ギヤ比</th>
+          <th>タイヤ径</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="historyTable"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+/* ============================
+   グローバル定数・変数
+============================ */
+const GEAR_VALUES = [3.5, 3.7, 4.0, 4.1, 4.2, 4.5, 5.0];
+const MATRIX_VOLTS = [3.4, 3.3, 3.2, 3.1, 3.0, 2.9, 2.8, 2.7, 2.6, 2.5, 2.4, 2.3, 2.2];
+
+let audioCtx = null;
+let analyser = null;
+let micSource = null;
+let running = false;
+let locked = false;
+
+let spectrumArray = null;
+const fftSize = 8192;
+
+let currentSessionRPMs = [];
+let globalTimelapseLog = [];
+let isPlayingTimelapse = false;
+let timelapseTimer = null;
+
+const startBtn = document.getElementById("startBtn");
+const lockBtn = document.getElementById("lockBtn");
+const saveBtn = document.getElementById("saveBtn");
+const resetBtn = document.getElementById("resetBtn");
+const canvas = document.getElementById("spectrumCanvas");
+const ctx = canvas.getContext("2d");
+
+const slideVolt = document.getElementById("slideVolt");
+const slideGear = document.getElementById("slideGear");
+const slideTire = document.getElementById("slideTire");
+const inputPoles = document.getElementById("inputPoles");
+const inputNoise = document.getElementById("inputNoise");
+
+const timelapseSlider = document.getElementById("timelapseSlider");
+const tlPlayBtn = document.getElementById("tlPlayBtn");
+const tlResetBtn = document.getElementById("tlResetBtn");
+
+let chart = null;
+let lockedData = null;
+
+/* ============================
+   初期設定・テーマ・吹き出し
+============================ */
+window.addEventListener("click", () => {
+  const tooltip = document.getElementById("themeTooltip");
+  if (tooltip) tooltip.remove();
+}, { once: true });
+
+document.getElementById("themeToggleBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  document.body.classList.toggle("dark-theme");
+});
+
+function updateSliderLabels() {
+  const currentVolt = parseFloat(slideVolt.value);
+  const currentGear = GEAR_VALUES[slideGear.value];
+  const currentTire = parseFloat(slideTire.value);
+
+  document.getElementById("valVolt").textContent = currentVolt.toFixed(1) + "V";
+  document.getElementById("valGear").textContent = currentGear.toFixed(1) + ":1";
+  document.getElementById("valTire").textContent = currentTire.toFixed(1) + "mm";
+
+  document.getElementById("dispVolt").textContent = currentVolt.toFixed(1) + " V";
+  document.getElementById("dispGear").textContent = currentGear.toFixed(1) + " :1";
+  document.getElementById("dispTire").textContent = currentTire.toFixed(1) + " mm";
+  document.getElementById("dispPoles").textContent = parseInt(inputPoles.value) + " P";
+
+  if (!locked) {
+    const max = currentSessionRPMs.length > 0 ? Math.max(...currentSessionRPMs) : 0;
+    generateMatrixTable(max, currentVolt);
+  }
+}
+[slideVolt, slideGear, slideTire, inputPoles].forEach(el => el.addEventListener("input", updateSliderLabels));
+
+/* ============================
+   プリセット機能
+============================ */
+let lastPresetClickTime = 0;
+function managePreset(slot) {
+  const now = Date.now();
+  const key = `rpm_preset_${slot}`;
+
+  if (now - lastPresetClickTime < 300) {
+    const config = {
+      volt: slideVolt.value,
+      gearIdx: slideGear.value,
+      tire: slideTire.value,
+      poles: inputPoles.value,
+      noise: inputNoise.value
+    };
+    localStorage.setItem(key, JSON.stringify(config));
+    alert(`スロット P${slot} に現在の条件を保存しました。`);
+  } else {
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const config = JSON.parse(saved);
+      slideVolt.value = config.volt;
+      slideGear.value = config.gearIdx;
+      slideTire.value = config.tire;
+      inputPoles.value = config.poles || 1;
+      inputNoise.value = config.noise || -120;
+      updateSliderLabels();
+    } else {
+      alert(`P${slot} は空です。ダブルクリックで現在の条件を保存できます。`);
+    }
+  }
+  lastPresetClickTime = now;
+}
+
+/* ============================
+   Audioエンジン & 解析ロジック
+============================ */
+async function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = fftSize;
+    analyser.smoothingTimeConstant = 0.4;
+    spectrumArray = new Uint8Array(analyser.frequencyBinCount);
+  }
+  analyser.minDecibels = parseFloat(inputNoise.value) || -120;
+
+  if (!micSource) {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+    micSource = audioCtx.createMediaStreamSource(stream);
+    micSource.connect(analyser);
+  }
+}
+
+function estimateFrequencyAdvanced() {
+  if (!analyser) return 0;
+  analyser.getByteFrequencyData(spectrumArray);
+
+  const sampleRate = audioCtx.sampleRate;
+  const binResolution = sampleRate / fftSize;
+
+  const minBin = Math.floor(80 / binResolution);
+  const maxBin = Math.min(Math.floor(3000 / binResolution), spectrumArray.length - 2);
+
+  let maxVal = 0;
+  let maxIndex = -1;
+
+  for (let i = minBin; i <= maxBin; i++) {
+    if (spectrumArray[i] > maxVal) {
+      maxVal = spectrumArray[i];
+      maxIndex = i;
+    }
+  }
+  if (maxIndex <= minBin || maxVal < 15) return 0;
+
+  const yAlpha = spectrumArray[maxIndex - 1];
+  const yBeta  = spectrumArray[maxIndex];
+  const yGamma = spectrumArray[maxIndex + 1];
+
+  const denominator = 2 * (2 * yBeta - yAlpha - yGamma);
+  let p = 0;
+  if (denominator !== 0) p = (yGamma - yAlpha) / denominator;
+
+  return (maxIndex + p) * binResolution;
+}
+
+function calculateMetrics(freq) {
+  if (freq <= 0) return { motorRPM: 0, speed: 0 };
+  const targetGear = GEAR_VALUES[slideGear.value];
+  const tireDiameter = parseFloat(slideTire.value);
+  const poles = parseInt(inputPoles.value) || 1;
+
+  const motorRPM = (freq * 60) / poles;
+  const axleRPM = motorRPM / targetGear;
+  const speed = axleRPM * (Math.PI * (tireDiameter / 1000)) * 60 / 1000;
+
+  return { motorRPM, speed };
+}
+
+/* ============================
+   描画関係
+============================ */
+function drawSpectrumGrid() {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+
+  if (canvas.width !== Math.floor(w * dpr) || canvas.height !== Math.floor(h * dpr)) {
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+  }
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, w, h);
+
+  const targetFreqs = [200, 500, 1000, 1500, 2000, 2500];
+  ctx.strokeStyle = "rgba(75, 85, 99, 0.4)";
+  ctx.lineWidth = 1;
+  ctx.fillStyle = "#9ca3af";
+  ctx.font = "10px sans-serif";
+
+  targetFreqs.forEach(f => {
+    const x = ((f - 80) / (3000 - 80)) * w;
+    if (x >= 0 && x <= w) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      ctx.fillText(f, x + 4, h - 6);
+    }
+  });
+
+  for (let y = h / 4; y < h; y += h / 4) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  const scanY = (Date.now() % 3000) / 3000 * h;
+  ctx.fillStyle = "rgba(37, 99, 235, 0.15)";
+  ctx.fillRect(0, scanY, w, 2);
+
+  ctx.restore();
+}
+
+function renderWaveform() {
+  if (!analyser) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  analyser.getByteFrequencyData(spectrumArray);
+  ctx.fillStyle = "rgba(37, 99, 235, 0.7)";
+
+  for (let i = 0; i < spectrumArray.length; i++) {
+    const f = i * audioCtx.sampleRate / fftSize;
+    if (f < 80 || f > 3000) continue;
+    const x = ((f - 80) / (3000 - 80)) * w;
+    const barHeight = (spectrumArray[i] / 255) * h;
+    ctx.fillRect(x, h - barHeight, 2, barHeight);
+  }
+
+  ctx.restore();
+}
+
+/* ============================
+   メインループ
+============================ */
+function mainLoop() {
+  drawSpectrumGrid();
+
+  if (running && !locked && !isPlayingTimelapse) {
+    const freq = estimateFrequencyAdvanced();
+    const { motorRPM, speed } = calculateMetrics(freq);
+
+    if (motorRPM > 0) {
+      currentSessionRPMs.push(motorRPM);
+      globalTimelapseLog.push({
+        time: Date.now(), freq: freq, rpm: motorRPM, speed: speed,
+        volt: slideVolt.value, gear: GEAR_VALUES[slideGear.value], tire: slideTire.value
+      });
+      updateTimelapseUI();
+    }
+
+    document.getElementById("rpmValue").textContent = Math.round(motorRPM) + " RPM";
+    document.getElementById("speedValue").textContent = speed.toFixed(1) + " km/h";
+
+    if (currentSessionRPMs.length > 0) {
+      const max = Math.max(...currentSessionRPMs);
+      const min = Math.min(...currentSessionRPMs);
+      const avg = currentSessionRPMs.reduce((a,b)=>a+b, 0) / currentSessionRPMs.length;
+
+      document.getElementById("sessMax").textContent = Math.round(max);
+      document.getElementById("sessMin").textContent = Math.round(min);
+      document.getElementById("sessAvg").textContent = Math.round(avg);
+      document.getElementById("sessCount").textContent = currentSessionRPMs.length;
+
+      generateMatrixTable(max, parseFloat(slideVolt.value));
+    }
+
+    renderWaveform();
+  } else {
+    renderWaveform();
+  }
+
+  requestAnimationFrame(mainLoop);
+}
+/* ============================
+   📋 写真様式準拠：全電圧×全ギヤ比マトリクス生成
+============================ */
+function generateMatrixTable(baseMotorRPM, currentVolt) {
+  const table = document.getElementById("matrixTable");
+  table.innerHTML = "";
+  const tire = parseFloat(slideTire.value);
+  const curVoltStr = currentVolt.toFixed(1);
+
+  let theadHTML = `<thead><tr>
+    <th>電圧</th>
+    <th style="color: var(--accent-color);">モーター<br><span style="font-size:10px;">RPM</span></th>`;
+  GEAR_VALUES.forEach(g => {
+    theadHTML += `<th style="color: #f59e0b;">${g.toFixed(1)}:1<br><span style="font-size:9px; font-weight:normal; opacity:0.8;">RPM / KM/H</span></th>`;
+  });
+  theadHTML += `</tr></thead>`;
+
+  let tbodyHTML = "<tbody>";
+
+  MATRIX_VOLTS.forEach(v => {
+    const isCurrent = (v.toFixed(1) === curVoltStr);
+    const rowClass = isCurrent ? ' class="current-volt-row"' : '';
+
+    tbodyHTML += `<tr${rowClass}>`;
+    tbodyHTML += `<td style="font-weight:bold;">${v.toFixed(1)}V</td>`;
+
+    let estMotorRPM = 0;
+    if (baseMotorRPM > 0 && currentVolt > 0) {
+      estMotorRPM = baseMotorRPM * (v / currentVolt);
+    }
+
+    tbodyHTML += `<td style="font-weight:500;">${estMotorRPM > 0 ? Math.round(estMotorRPM) : "---"}</td>`;
+
+    GEAR_VALUES.forEach(g => {
+      if (estMotorRPM > 0) {
+        const wheelRPM = estMotorRPM / g;
+        const speed = wheelRPM * (Math.PI * (tire / 1000)) * 60 / 1000;
+        tbodyHTML += `<td>
+          <div style="font-weight:bold;">${Math.round(wheelRPM)}</div>
+          <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">${speed.toFixed(1)} km/h</div>
+        </td>`;
+      } else {
+        tbodyHTML += `<td>
+          <div style="opacity:0.4;">---</div>
+          <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">--- km/h</div>
+        </td>`;
+      }
+    });
+
+    tbodyHTML += `</tr>`;
+  });
+
+  tbodyHTML += "</tbody>";
+  table.innerHTML = theadHTML + tbodyHTML;
+}
+
+/* ============================
+   タイムラプス
+============================ */
+function updateTimelapseUI() {
+  if (globalTimelapseLog.length > 0) {
+    timelapseSlider.max = globalTimelapseLog.length - 1;
+    timelapseSlider.disabled = false; 
+    tlPlayBtn.disabled = false; 
+    tlResetBtn.disabled = false;
+  } else {
+    timelapseSlider.disabled = true; 
+    tlPlayBtn.disabled = true; 
+    tlResetBtn.disabled = true;
+  }
+}
+
+timelapseSlider.addEventListener("input", () => {
+  const frame = globalTimelapseLog[timelapseSlider.value];
+  if (!frame) return;
+  document.getElementById("rpmValue").textContent = Math.round(frame.rpm) + " RPM";
+  document.getElementById("speedValue").textContent = frame.speed.toFixed(1) + " km/h";
+  generateMatrixTable(frame.rpm, parseFloat(frame.volt));
+});
+
+tlPlayBtn.addEventListener("click", () => {
+  if (isPlayingTimelapse) {
+    clearInterval(timelapseTimer); 
+    tlPlayBtn.textContent = "▶ 再生"; 
+    isPlayingTimelapse = false;
+  } else {
+    isPlayingTimelapse = true; 
+    running = false; 
+    startBtn.textContent = "▶ 計測開始"; 
+    tlPlayBtn.textContent = "⏸ 停止";
+    let idx = parseInt(timelapseSlider.value);
+    timelapseTimer = setInterval(() => {
+      if (idx >= globalTimelapseLog.length) {
+        clearInterval(timelapseTimer); 
+        tlPlayBtn.textContent = "▶ 再生"; 
+        isPlayingTimelapse = false; 
+        return;
+      }
+      timelapseSlider.value = idx;
+      timelapseSlider.dispatchEvent(new Event('input'));
+      idx++;
+    }, 50);
+  }
+});
+
+tlResetBtn.addEventListener("click", () => {
+  clearInterval(timelapseTimer); 
+  globalTimelapseLog = [];
+  timelapseSlider.value = 0; 
+  timelapseSlider.max = 0; 
+  updateTimelapseUI();
+  isPlayingTimelapse = false; 
+  tlPlayBtn.textContent = "▶ 再生";
+});
+
+/* ============================
+   ベンチ＆履歴管理
+============================ */
+function updateMotorCompareTable(history) {
+  const tbody = document.getElementById("motorCompareTableBody");
+  tbody.innerHTML = "";
+
+  const motorMap = {};
+  history.forEach(item => {
+    if (!motorMap[item.name]) motorMap[item.name] = [];
+    motorMap[item.name].push(item);
+  });
+
+  const names = Object.keys(motorMap);
+  if (names.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);">データがありません。</td></tr>`;
+    return;
+  }
+
+  names.forEach(name => {
+    const runs = motorMap[name];
+    const maxRPM = Math.max(...runs.map(r => r.maxRpm));
+    const maxSpeed = Math.max(...runs.map(r => r.maxSpeed));
+    const avgRPM = Math.round(runs.reduce((sum, r) => sum + r.avgRpm, 0) / runs.length);
+    const volts = [...new Set(runs.map(r => r.volt + "V"))].join(", ");
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="font-weight:bold;">🏎️ ${name}</td>
+      <td>${volts}</td>
+      <td style="color:#ef4444; font-weight:bold;">${maxRPM}</td>
+      <td>${avgRPM}</td>
+      <td style="color:#10b981; font-weight:bold;">${maxSpeed.toFixed(1)} km/h</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function populateFilterOptions(history) {
+  const names = [...new Set(history.map(h => h.name))];
+  const volts = [...new Set(history.map(h => h.volt))].sort();
+  const gears = [...new Set(history.map(h => h.gear))].sort();
+  const tires = [...new Set(history.map(h => h.tire))].sort();
+
+  updateSelectOptions("filterName", names);
+  updateSelectOptions("filterVolt", volts, "V");
+  updateSelectOptions("filterGear", gears, ":1");
+  updateSelectOptions("filterTire", tires, "mm");
+}
+
+function updateSelectOptions(elementId, array, suffix = "") {
+  const select = document.getElementById(elementId);
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">すべて</option>';
+  array.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item;
+    opt.textContent = item + suffix;
+    if (item.toString() === currentVal) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+function applyFilters() {
+  const history = JSON.parse(localStorage.getItem("rpmHistoryV3") || "[]");
+
+  const fName = document.getElementById("filterName").value;
+  const fVolt = document.getElementById("filterVolt").value;
+  const fGear = document.getElementById("filterGear").value;
+  const fTire = document.getElementById("filterTire").value;
+
+  const filtered = history.filter(h => {
+    return (!fName || h.name === fName) &&
+           (!fVolt || h.volt === fVolt) &&
+           (!fGear || h.gear === fGear) &&
+           (!fTire || h.tire === fTire);
+  });
+
+  renderHistoryRows(filtered);
+  drawHistoryChart(filtered);
+}
+
+function renderHistoryRows(data) {
+  const tbody = document.getElementById("historyTable");
+  tbody.innerHTML = "";
+
+  data.forEach((item) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${item.date}</td>
+      <td style="font-weight:bold;">${item.name}</td>
+      <td style="color:#ef4444; font-weight:bold;">${item.maxRpm}</td>
+      <td>${item.avgRpm}</td>
+      <td>${item.volt} V</td>
+      <td style="font-weight:bold;">${item.gear}:1</td>
+      <td>${item.tire} mm</td>
+      <td><button class="btn-danger btn-sm" onclick="deleteRecord(${item.id})">削除</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateAllHistoryComponents() {
+  const history = JSON.parse(localStorage.getItem("rpmHistoryV3") || "[]");
+  populateFilterOptions(history);
+  updateMotorCompareTable(history);
+  applyFilters();
+}
+
+/* ============================
+   保存・削除
+============================ */
+saveBtn.addEventListener("click", () => {
+  if (!lockedData) {
+    alert("一度計測を【停止】し、【ロック】を行ってから保存してください。");
+    return;
+  }
+
+  const motorName = prompt("計測したモーター名や電池の組み合わせを入力:", "カスタムモーター");
+  if (motorName === null) return;
+  const finalName = motorName.trim() === "" ? "未命名モーター" : motorName.trim();
+
+  const history = JSON.parse(localStorage.getItem("rpmHistoryV3") || "[]");
+
+  lockedData.name = finalName;
+  lockedData.id = Date.now();
+
+  history.push(lockedData);
+  localStorage.setItem("rpmHistoryV3", JSON.stringify(history));
+
+  updateAllHistoryComponents();
+  alert(`「${finalName}」のデータを保存しました！`);
+
+  locked = false; 
+  lockedData = null;
+  lockBtn.textContent = "🔒 ロック";
+});
+
+window.deleteRecord = function(id) {
+  if (!confirm("このレコードを削除しますか？")) return;
+  let history = JSON.parse(localStorage.getItem("rpmHistoryV3") || "[]");
+  history = history.filter(item => item.id !== id);
+  localStorage.setItem("rpmHistoryV3", JSON.stringify(history));
+  updateAllHistoryComponents();
+};
+
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+  if (!confirm("⚠️ 本当にすべての履歴データを完全に消去しますか？")) return;
+  localStorage.removeItem("rpmHistoryV3");
+  updateAllHistoryComponents();
+});
+
+/* ============================
+   リセット
+============================ */
+resetBtn.addEventListener("click", () => {
+  running = false; 
+  locked = false; 
+  lockedData = null; 
+  currentSessionRPMs = [];
+
+  startBtn.textContent = "▶ 計測開始"; 
+  lockBtn.textContent = "🔒 ロック";
+
+  document.getElementById("rpmValue").textContent = "0 RPM";
+  document.getElementById("speedValue").textContent = "0.0 km/h";
+  document.getElementById("sessMax").textContent = "0";
+  document.getElementById("sessMin").textContent = "0";
+  document.getElementById("sessAvg").textContent = "0";
+  document.getElementById("sessCount").textContent = "0";
+
+  generateMatrixTable(0, parseFloat(slideVolt.value));
+});
+
+/* ============================
+   CSV / Excel 出力
+============================ */
+document.getElementById("exportCSV").addEventListener("click", () => {
+  const history = JSON.parse(localStorage.getItem("rpmHistoryV3") || "[]");
+  if (history.length === 0) return alert("データがありません");
+
+  let csv = "計測日,モーター名,MAX RPM,AVG RPM,電圧(V),ギヤ比,タイヤ径(mm)\n";
+  history.forEach(h => { 
+    csv += `${h.date},${h.name},${h.maxRpm},${h.avgRpm},${h.volt},${h.gear},${h.tire}\n`; 
+  });
+
+  const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; 
+  a.download = `mini4wd_rpm_${new Date().toISOString().split('T')[0]}.csv`; 
+  a.click();
+});
+
+document.getElementById("exportExcel").addEventListener("click", () => {
+  const history = JSON.parse(localStorage.getItem("rpmHistoryV3") || "[]");
+  if (history.length === 0) return alert("データがありません");
+
+  let excelTemplate = `<html><head><meta charset="UTF-8"></head><body><table border="1">
+  <tr style="background-color:#3b82f6; color:white; font-weight:bold;">
+  <th>計測日</th><th>モーター名</th><th>MAX RPM</th><th>AVG RPM</th><th>電圧(V)</th><th>ギヤ比</th><th>タイヤ径(mm)</th></tr>`;
+
+  history.forEach(h => {
+    excelTemplate += `<tr><td>${h.date}</td><td>${h.name}</td><td>${h.maxRpm}</td><td>${h.avgRpm}</td><td>${h.volt}</td><td>${h.gear}</td><td>${h.tire}</td></tr>`;
+  });
+
+  excelTemplate += `</table></body></html>`;
+
+  const blob = new Blob([excelTemplate], { type: "application/vnd.ms-excel;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; 
+  a.download = `mini4wd_ledger_${new Date().toISOString().split('T')[0]}.xls`; 
+  a.click();
+});
+
+/* ============================
+   データ推移グラフ削除版：空関数
+============================ */
+function drawHistoryChart(data) {
+  // グラフ非表示モード：何もしない（副作用ゼロ）
+}
+
+/* ============================
+   初期起動
+============================ */
+updateSliderLabels();
+generateMatrixTable(0, parseFloat(slideVolt.value));
+updateAllHistoryComponents();
+requestAnimationFrame(mainLoop);
+</script>
+
+</body>
+</html>
