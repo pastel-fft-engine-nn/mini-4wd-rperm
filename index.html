@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini4WD RPM Analyzer</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <!-- ナビバー -->
+  <div class="nav-bar">
+    <div class="nav-left">
+      <button id="navMainBtn" class="nav-btn active" onclick="switchPage('main')">⏱</button>
+      <button id="navHistoryBtn" class="nav-btn" onclick="switchPage('history')">📋</button>
+      <button id="navSettingsBtn" class="nav-btn">⚙</button>
+    </div>
+  </div>
+
+  <!-- メインページ -->
+  <div id="pageMain" class="view-page active">
+    <div class="grid-2">
+
+      <!-- 左：リアルタイム計測 -->
+      <div class="section">
+        <h2>リアルタイム計測</h2>
+
+        <div class="metrics-display">
+          <div class="metric-box metric-large">
+            リアルタイム回転数
+            <span id="rpmValue">0 RPM</span>
+          </div>
+
+          <div class="metric-box">
+            設定電圧
+            <span id="dispVolt">3.0 V</span>
+          </div>
+
+          <div class="metric-box">
+            設定ギヤ比
+            <span id="dispGear">3.5 :1</span>
+          </div>
+
+          <div class="metric-box">
+            タイヤ径
+            <span id="dispTire">25.0 mm</span>
+          </div>
+
+          <div class="metric-box">
+            走行速度
+            <span id="speedValue">0.0 km/h</span>
+          </div>
+
+          <div class="metric-box">
+            極数設定
+            <span id="dispPoles">1 P</span>
+          </div>
+
+          <div class="metric-box">
+            セッション平均
+            <span id="sessAvg">0</span>
+          </div>
+
+          <div class="metric-box">
+            最高回転数
+            <span id="sessMax">0</span>
+          </div>
+
+          <div class="metric-box">
+            最低回転数
+            <span id="sessMin">0</span>
+          </div>
+
+          <div class="metric-box">
+            計測フレーム
+            <span id="sessCount">0</span>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="startBtn">▶ 計測</button>
+          <button id="lockBtn" class="btn-secondary">🔒</button>
+          <button id="saveBtn" class="btn-secondary">💾 保存</button>
+          <button id="resetBtn" class="btn-danger">リセット</button>
+        </div>
+
+        <div class="spectrum-wrapper">
+          <canvas id="spectrumCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- 右：基本設定 -->
+      <div class="section">
+        <h2>基本設定</h2>
+
+        <div class="slider-group">
+
+          <div class="slider-item">
+            <label>電圧 <span id="valVolt">3.0V</span></label>
+            <input id="slideVolt" type="range" min="2.2" max="3.4" step="0.1" value="3.0" />
+          </div>
+
+          <div class="slider-item">
+            <label>ギヤ比 <span id="valGear">3.5:1</span></label>
+            <input id="slideGear" type="range" min="0" max="6" step="1" value="0" />
+          </div>
+
+          <div class="slider-item">
+            <label>タイヤ径 <span id="valTire">25.0mm</span></label>
+            <input id="slideTire" type="range" min="20" max="40" step="0.5" value="25" />
+          </div>
+
+          <div class="slider-item">
+            <label>極数</label>
+            <input id="inputPoles" type="number" min="1" max="4" value="1" />
+          </div>
+
+          <div class="slider-item">
+            <label>ノイズ閾値</label>
+            <input id="inputNoise" type="number" value="-120" />
+          </div>
+
+          <div class="slider-item">
+            <label>キャリブレーション</label>
+            <input id="inputCalib" type="number" step="0.01" value="1.00" />
+          </div>
+
+          <div class="slider-item">
+            <label>慣らし状態 <span id="valPhase">慣らし前</span></label>
+            <select id="inputPhase">
+              <option value="before">慣らし前</option>
+              <option value="after">慣らし後</option>
+            </select>
+          </div>
+
+        </div>
+
+        <h3>設定プリセット（8スロット）</h3>
+        <div id="presetGrid" class="preset-grid"></div>
+
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>電圧・ギヤ比別 車輪回転数＆時速 比較表</h2>
+      <div class="table-responsive">
+        <table id="matrixTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 履歴ページ -->
+  <div id="pageHistory" class="view-page">
+    <div class="section">
+      <h2>履歴一覧</h2>
+
+      <div class="filter-container">
+        <select id="filterName"></select>
+        <select id="filterVolt"></select>
+        <select id="filterGear"></select>
+        <select id="filterTire"></select>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>日時</th>
+              <th>名前</th>
+              <th>MAX RPM</th>
+              <th>AVG RPM</th>
+              <th>Volt</th>
+              <th>Gear</th>
+              <th>Tire</th>
+              <th>Phase</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="historyTable"></tbody>
+        </table>
+      </div>
+
+      <button id="exportCSV" class="btn-secondary">CSV出力</button>
+      <button id="exportExcel" class="btn-secondary">Excel出力</button>
+      <button id="clearAllBtn" class="btn-danger">履歴全削除</button>
+　　　<div class="section" style="height: 260px;">
+    <h2>履歴グラフ</h2>
+    <canvas id="historyChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 設定モーダル -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>設定</h3>
+
+      <div class="modal-item">
+        <label>ノイズ閾値</label>
+        <input id="inputNoise" type="number" value="-120" />
+      </div>
+
+      <button id="modalCloseBtn" class="btn-secondary">閉じる</button>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/preset.js"></script>
+  <script src="js/ui.js"></script>
+
+</body>
+</html>
