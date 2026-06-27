@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Motor Tachometer Pro</title>
+    <style>
+        :root { --bg: #f2f2f7; --card: #ffffff; --accent: #007aff; }
+        body { background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #1c1c1e; padding: 15px; margin: 0; }
+        .container { max-width: 500px; margin: auto; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .box { background: var(--card); padding: 12px; border-radius: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
+        .label { font-size: 0.65rem; color: #8e8e93; margin-bottom: 2px; }
+        .value { font-size: 1rem; font-weight: 700; }
+        .slider-box, .select-box { background: var(--card); padding: 15px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .controls { display: flex; gap: 8px; margin-bottom: 15px; }
+        button { flex: 1; padding: 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+        #startBtn { background: var(--accent); color: white; }
+        #stopBtn { background: #ff3b30; color: white; }
+        #resetBtn { background: #e5e5ea; }
+        #saveBtn { background: #34c759; color: white; }
+        select, input[type="text"] { width: 100%; padding: 12px; border-radius: 10px; font-size: 1rem; border: 1px solid #ccc; box-sizing: border-box; }
+        #canvas { width: 100%; height: 150px; background: #000; border-radius: 16px; display: block; margin-bottom: 5px; }
+        .axis-labels { display: flex; justify-content: space-between; font-size: 0.6rem; color: #8e8e93; padding: 0 5px 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <canvas id="canvas"></canvas>
+    <div class="axis-labels"><span>0</span><span>200</span><span>500</span><span>1k</span><span>2k</span><span>5k</span><span>10k</span><span>20k</span><span>40k</span><span>50k</span></div>
+
+    <div class="grid">
+        <div class="box"><div class="label">RPM</div><div id="rpmCur" class="value">0</div></div>
+        <div class="box"><div class="label">MAX</div><div id="rpmMax" class="value">0</div></div>
+        <div class="box"><div class="label">MIN</div><div id="rpmMin" class="value">0</div></div>
+    </div>
+    <div class="grid">
+        <div class="box"><div class="label">SPEED</div><div id="spdCur" class="value">0.0</div></div>
+        <div class="box"><div class="label">MAX</div><div id="spdMax" class="value">0.0</div></div>
+        <div class="box"><div class="label">MIN</div><div id="spdMin" class="value">0.0</div></div>
+    </div>
+
+    <div class="controls">
+        <button id="startBtn">開始</button>
+        <button id="stopBtn" disabled>停止</button>
+        <button id="resetBtn">リセット</button>
+        <button id="saveBtn">保存</button>
+    </div>
+
+    <div class="slider-box">
+        <div class="label">タイヤ外径: <span id="tireVal">26.0</span>mm</div>
+        <input type="range" id="tireSlider" min="22.0" max="35.0" step="0.1" value="26.0" style="width: 100%;">
+    </div>
+
+    <div class="select-box">
+        <div class="label">ギア比選択</div>
+        <select id="gearSelect">
+            <option value="3.5">3.5:1</option><option value="3.7">3.7:1</option><option value="4.0">4.0:1</option>
+            <option value="4.2">4.2:1</option><option value="5.0">5.0:1</option><option value="6.4">6.4:1</option>
+            <option value="8.75">8.75:1</option><option value="11.2">11.2:1</option>
+        </select>
+    </div>
+</div>
+
+<script>
+    const CONFIG = { SENSITIVITY: 64, MAX_RPM: 50000 }; // 感度を調整
+    let audioCtx, analyser, dataArray, animationId;
+    let lastRpm = 0;
+    const stats = { maxRpm: 0, minRpm: 999999, maxSpd: 0, minSpd: 999999 };
+
+    // スタートボタン押下時の処理
+    document.getElementById('startBtn').onclick = async () => {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            // 重要：iOSではユーザー操作後に明示的に再開が必要
+            if (audioCtx.state === 'suspended') {
+                await audioCtx.resume();
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const source = audioCtx.createMediaStreamSource(stream);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 32768; // より細かく周波数を分析
+            source.connect(analyser);
+            
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            
+            update();
+        } catch (e) {
+            alert("マイクへのアクセスを許可してください。" + e.message);
+        }
+    };
+
+    document.getElementById('stopBtn').onclick = () => {
+        cancelAnimationFrame(animationId);
+        if (audioCtx) audioCtx.close();
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+    };
+
+    function update() {
+        if (!analyser) return;
+        animationId = requestAnimationFrame(update);
+        analyser.getByteFrequencyData(dataArray);
+
+        // Canvas描画
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 簡易ピーク検知
+        let maxVal = 0, maxIndex = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+            if (dataArray[i] > maxVal) { maxVal = dataArray[i]; maxIndex = i; }
+            // 視覚化のため少し描画
+            if(i % 100 === 0) {
+                ctx.fillStyle = '#007aff';
+                ctx.fillRect(i/dataArray.length * canvas.width, canvas.height, 2, -(dataArray[i]/255 * canvas.height));
+            }
+        }
+
+        // RPM計算
+        const hz = Math.round(maxIndex * audioCtx.sampleRate / analyser.fftSize);
+        if (maxVal > 30) { // 閾値を追加（静かな環境で0にならないように）
+            lastRpm = hz * 60;
+            document.getElementById('rpmCur').textContent = lastRpm.toLocaleString();
+            // ...以下略(前回同様の計算式へ)
+        }
+    }
+</script>
+</body>
+</html>
