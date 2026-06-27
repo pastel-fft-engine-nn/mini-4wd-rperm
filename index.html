@@ -2,23 +2,24 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Motor Tachometer Pro</title>
     <style>
         :root { --bg: #f2f2f7; --card: #ffffff; --accent: #007aff; }
-        body { background-color: var(--bg); font-family: -apple-system, sans-serif; color: #1c1c1e; padding: 15px; }
-        .container { max-width: 500px; margin: auto; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .box { background: var(--card); padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
-        .label { font-size: 0.6rem; color: #8e8e93; margin-bottom: 2px; }
-        .value { font-size: 1rem; font-weight: 700; }
-        .slider-box { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .controls { display: flex; gap: 8px; margin-bottom: 15px; }
-        button { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; }
+        body { background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #1c1c1e; padding: 20px; margin: 0; }
+        .container { max-width: 100%; margin: auto; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .box { background: var(--card); padding: 15px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; }
+        .label { font-size: 0.7rem; color: #8e8e93; margin-bottom: 5px; }
+        .value { font-size: 1.2rem; font-weight: 800; }
+        .slider-box { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .controls { display: flex; gap: 12px; margin-bottom: 20px; }
+        button { flex: 1; padding: 18px; border-radius: 14px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; }
         #startBtn { background: var(--accent); color: white; }
         #stopBtn { background: #ff3b30; color: white; }
         #resetBtn { background: #e5e5ea; }
-        #canvas { width: 100%; height: 130px; background: #000; border-radius: 12px; display: block; }
-        .axis-labels { display: flex; justify-content: space-between; font-size: 0.6rem; color: #8e8e93; padding: 5px 5px 0; }
+        #canvas { width: 100%; height: 180px; background: #000; border-radius: 16px; display: block; touch-action: none; }
+        .axis-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: #8e8e93; padding: 10px 5px; }
     </style>
 </head>
 <body>
@@ -26,7 +27,7 @@
 <div class="container">
     <div class="slider-box">
         <div class="label">タイヤ外径: <span id="tireVal">26.0</span>mm</div>
-        <input type="range" id="tireSlider" min="22.0" max="35.0" step="0.1" value="26.0" style="width: 100%;">
+        <input type="range" id="tireSlider" min="22.0" max="35.0" step="0.1" value="26.0" style="width: 100%; height: 30px;">
     </div>
     <div class="controls">
         <button id="startBtn">開始</button>
@@ -65,11 +66,13 @@
     const ctx = el.canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    window.onload = () => {
+    function resizeCanvas() {
         el.canvas.width = el.canvas.offsetWidth * dpr;
         el.canvas.height = el.canvas.offsetHeight * dpr;
         ctx.scale(dpr, dpr);
-    };
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
     el.tire.oninput = () => el.tireVal.textContent = el.tire.value;
     el.reset.onclick = () => {
@@ -79,15 +82,22 @@
     };
 
     el.start.onclick = async () => {
+        // iPhone向け：AudioContextの作成と再開
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const source = audioCtx.createMediaStreamSource(stream);
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 16384;
-        source.connect(analyser);
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
-        el.start.disabled = true; el.stop.disabled = false;
-        update();
+        await audioCtx.resume(); 
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const source = audioCtx.createMediaStreamSource(stream);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 16384;
+            source.connect(analyser);
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            el.start.disabled = true; el.stop.disabled = false;
+            update();
+        } catch (err) {
+            alert("マイクへのアクセスが拒否されました。設定を確認してください。");
+        }
     };
 
     el.stop.onclick = () => { cancelAnimationFrame(animationId); audioCtx.close(); el.start.disabled = false; el.stop.disabled = true; };
@@ -104,7 +114,7 @@
         let maxVal = 0, maxIndex = 0;
         ctx.beginPath();
         ctx.strokeStyle = '#007aff';
-        ctx.lineWidth = 0.75;
+        ctx.lineWidth = 1.5;
         for (let i = 0; i < dataArray.length; i++) {
             if (dataArray[i] > maxVal) { maxVal = dataArray[i]; maxIndex = i; }
             const x = (i / dataArray.length) * cw;
@@ -119,9 +129,9 @@
             const spd = ((el.tire.value * Math.PI * rpm * 60) / 1000000);
             
             if (rpm > stats.maxRpm) stats.maxRpm = rpm;
-            if (rpm < stats.minRpm) stats.minRpm = rpm;
+            if (rpm < stats.minRpm || stats.minRpm === 999999) stats.minRpm = rpm;
             if (spd > stats.maxSpd) stats.maxSpd = spd;
-            if (spd < stats.minSpd) stats.minSpd = spd;
+            if (spd < stats.minSpd || stats.minSpd === 999999) stats.minSpd = spd;
 
             el.rpmCur.textContent = rpm.toLocaleString();
             el.rpmMax.textContent = stats.maxRpm.toLocaleString();
@@ -131,20 +141,16 @@
             el.spdMin.textContent = stats.minSpd.toFixed(1);
 
             const pos = (rpm / CONFIG.MAX_RPM) * cw;
-            // 縦線の描画
             ctx.strokeStyle = '#ff3b30';
-            ctx.lineWidth = 1.0;
+            ctx.lineWidth = 2.0;
             ctx.beginPath(); ctx.moveTo(pos, 0); ctx.lineTo(pos, ch); ctx.stroke();
 
-            // 数値オーバーレイの背景と文字
             const text = `${rpm.toLocaleString()} RPM`;
-            ctx.font = 'bold 12px monospace';
-            const textWidth = ctx.measureText(text).width;
-            
+            ctx.font = 'bold 14px sans-serif';
             ctx.fillStyle = 'rgba(0,0,0,0.6)';
-            ctx.fillRect(pos + 5, 5, textWidth + 6, 16);
+            ctx.fillRect(pos + 5, 5, 80, 20);
             ctx.fillStyle = '#ff3b30';
-            ctx.fillText(text, pos + 8, 17);
+            ctx.fillText(text, pos + 8, 20);
         }
     }
 </script>
