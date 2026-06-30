@@ -78,25 +78,19 @@ UI.saveCancelBtn.addEventListener("click", () => {
 
 /* 保存モーダル：保存する */
 UI.saveConfirmBtn.addEventListener("click", () => {
-  const name = UI.saveNameInput.value.trim();
-  const motor = UI.motorTypeSelect.value;
+  const name = UI.saveNameInput.value.trim();
+  const motor = UI.motorTypeSelect.value;
 
-  if (name.length === 0) {
-    alert("名前を入力してください");
-    return;
-  }
+  if (name.length === 0) {
+    alert("名前を入力してください");
+    return;
+  }
 
-  if (motor.length === 0) {
-    alert("モーター種類を選択してください");
-    return;
-  }
-
-  saveCurrentHistory(name, motor);
-  UI.saveModal.classList.add("hidden");
-  UI.saveNameInput.value = "";
-  UI.motorTypeSelect.value = "";
+  saveCurrentHistory(name, motor);
+  UI.saveModal.classList.add("hidden");
+  UI.saveNameInput.value = "";
+  UI.motorTypeSelect.value = "";
 });
-
 
 /* リセット */
 UI.resetBtn.addEventListener("click", () => {
