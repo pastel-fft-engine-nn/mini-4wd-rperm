@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RPM Analyzer</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-title">RPM Analyzer</div>
+    <div class="header-buttons">
+      <button id="historyBtn">履歴</button>
+      <button id="settingsBtn">設定</button>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- リアルタイム計測 -->
+    <section class="card">
+      <div class="card-title">リアルタイム計測</div>
+
+      <div class="fft-header">FFTスペクトラム</div>
+      <canvas id="waveCanvas"></canvas>
+
+      <div class="rpm-grid">
+        <div><span>RPM</span><span id="rpmNow">0</span></div>
+        <div><span>MAX</span><span id="rpmMax">0</span></div>
+        <div><span>MIN</span><span id="rpmMin">0</span></div>
+      </div>
+
+      <div class="speed-grid">
+        <div><span>SPEED</span><span id="speedNow">0.00 km/h</span></div>
+        <div><span>TOP</span><span id="speedTop">0.00 km/h</span></div>
+        <div><span>MIN</span><span id="speedMin">0.00 km/h</span></div>
+      </div>
+
+      <div class="status-line" id="statusLine">MEASURING — 計測待機中</div>
+
+      <div class="realtime-buttons">
+        <button class="primary-btn" id="startBtn">計測開始</button>
+        <button class="secondary-btn" id="lockBtn">ロック</button>
+        <button class="secondary-btn" id="saveBtn">保存</button>
+        <button class="secondary-btn" id="resetBtn">リセット</button>
+      </div>
+    </section>
+
+    <!-- 計測条件 -->
+    <section class="card">
+      <div class="card-title">計測条件</div>
+
+      <div class="setting-row">
+        <span>電圧</span><span id="voltageLabel">2.8 V</span>
+      </div>
+      <input id="voltageRange" type="range" min="2.2" max="3.4" step="0.1" value="2.8" />
+
+      <div class="setting-row">
+        <span>ギヤ比</span><span id="gearLabel">3.5:1</span>
+      </div>
+      <input id="gearRange" type="range" min="0" max="4" step="1" value="0" />
+
+      <div class="setting-row">
+        <span>タイヤ径</span><span id="tireLabel">26.0 mm</span>
+      </div>
+      <input id="tireRange" type="range" min="24" max="30" step="0.5" value="26.0" />
+    </section>
+
+    <!-- 比較表 -->
+    <section class="card">
+      <div class="card-title">比較表</div>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>電圧 (V)</th>
+            <th>モーターRPM</th>
+            <th>3.5:1 km/h</th>
+            <th>3.7:1 km/h</th>
+            <th>4.0:1 km/h</th>
+          </tr>
+        </thead>
+        <tbody id="comparisonBody"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- 履歴モーダル -->
+  <div id="historyModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-title">履歴</div>
+
+      <div class="history-filter">
+        <select id="filterVoltage"><option value="">電圧指定なし</option></select>
+        <select id="filterGear"><option value="">ギヤ比指定なし</option></select>
+        <select id="filterTire"><option value="">タイヤ径指定なし</option></select>
+        <select id="filterMotor"><option value="">モーター指定なし</option></select>
+        <select id="filterName"><option value="">名前指定なし</option></select>
+      </div>
+
+      <div class="history-header-fixed">
+        <span>日付</span>
+        <span>名前</span>
+        <span>モーター</span>
+        <span>電圧</span>
+        <span>ギヤ比</span>
+        <span>タイヤ径</span>
+        <span>RPM</span>
+        <span>SPEED</span>
+      </div>
+
+      <div class="history-list" id="historyList"></div>
+
+      <button id="closeHistory" class="close-btn">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 保存モーダル -->
+  <div id="saveModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-title">保存</div>
+
+      <div class="setting-item">
+        <div class="setting-label">名前（8文字まで）</div>
+        <input id="saveNameInput" type="text" maxlength="8" class="text-input" />
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">モーター種類</div>
+        <select id="motorTypeSelect" class="text-input">
+          <option value="">選択なし</option>
+          <option value="アトミック">アトミック</option>
+          <option value="レブ">レブ</option>
+          <option value="トルク">トルク</option>
+          <option value="ハイパーダッシュ">ハイパーダッシュ</option>
+          <option value="マッハダッシュ">マッハダッシュ</option>
+          <option value="パワーダッシュ">パワーダッシュ</option>
+          <option value="ライトダッシュ">ライトダッシュ</option>
+        </select>
+      </div>
+
+      <div class="save-buttons">
+        <button id="saveConfirmBtn" class="primary-btn">保存する</button>
+        <button id="saveCancelBtn" class="close-btn">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 設定モーダル -->
+  <div id="settingsModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <button id="helpButton" class="help-btn">？</button>
+
+      <div id="helpText" class="help-text hidden">
+        <p><strong>ノイズ閾値：</strong>不要な信号や乱れ（ノイズ）をどこまで許容するかの調整</p>
+        <p><strong>モーター極数：</strong>内部磁石の総数に応じた計算用パラメータ</p>
+        <p><strong>RPM補正係数：</strong>実測との差を補正するための係数</p>
+        <p><strong>走行負荷：</strong>好みの負荷を仮想的に加えるための係数</p>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">ノイズ閾値</div>
+        <input id="noiseRange" type="range" min="0" max="100" step="1" value="20" />
+        <div id="noiseLabel">20 dB</div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">モーター極数</div>
+        <div id="poleMotorLabel">2</div>
+        <input id="motorPoleRange" type="range" min="1" max="1" value="1" disabled />
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">RPM補正係数</div>
+        <input id="rpmCalRange" type="range" min="0.5" max="1.5" step="0.01" value="1.00" />
+        <div id="rpmCalLabel">1.00</div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">走行負荷（-100%〜+100%）</div>
+        <input id="loadFactorRange" type="range" min="-100" max="100" step="1" value="0" />
+        <div id="loadFactorLabel">0%</div>
+      </div>
+
+      <button id="closeSettings" class="close-btn">閉じる</button>
+    </div>
+  </div>
+
+  <script src="js/preset.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html> 
