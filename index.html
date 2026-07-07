@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Motor Lab: Scope & Spectrogram</title>
+    <style>
+        body { font-family: sans-serif; background-color: #111; color: #0f0; text-align: center; }
+        canvas { display: block; margin: 5px auto; background: #000; border: 1px solid #333; }
+        .controls { margin: 15px; }
+        button { font-size: 1.2em; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+        #info { font-size: 1.8em; font-family: monospace; color: #fff; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Motor Audio Analysis</h1>
+    <div id="info">Peak: --- Hz | --- RPM</div>
+    <div class="controls">
+        <button id="startBtn">START</button>
+        <button id="stopBtn" disabled>STOP</button>
+    </div>
+    <canvas id="scopeCanvas" width="1000" height="200"></canvas>
+    <canvas id="specCanvas" width="1000" height="300"></canvas>
+
+    <script>
+        const scope = document.getElementById('scopeCanvas').getContext('2d');
+        const spec = document.getElementById('specCanvas').getContext('2d');
+        const info = document.getElementById('info');
+        let audioCtx, analyser, dataArray, animationId;
+
+        document.getElementById('startBtn').onclick = async () => {
+            audioCtx = new AudioContext();
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const source = audioCtx.createMediaStreamSource(stream);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 4096;
+            source.connect(analyser);
+
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            loop();
+        };
+
+        function loop() {
+            analyser.getByteTimeDomainData(dataArray); // 波形用
+            const freqData = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(freqData); // 周波数用
+
+            // 1. オシロスコープ描画
+            scope.clearRect(0, 0, 1000, 200);
+            scope.strokeStyle = '#0f0';
+            scope.lineWidth = 2;
+            scope.beginPath();
+            for (let i = 0; i < dataArray.length; i++) {
+                const x = i * (1000 / dataArray.length);
+                const y = (dataArray[i] / 255) * 200;
+                i === 0 ? scope.moveTo(x, y) : scope.lineTo(x, y);
+            }
+            scope.stroke();
+
+            // 2. スペクトログラム描画 (100-1000Hz)
+            const imgData = spec.getImageData(1, 0, 999, 300);
+            spec.putImageData(imgData, 0, 0);
+            let maxVal = 0, peakFreq = 0;
+            for (let i = 0; i < freqData.length; i++) {
+                const freq = i * (audioCtx.sampleRate / 8192);
+                if (freq >= 100 && freq <= 1000) {
+                    const y = 300 - ((freq - 100) / 900) * 300;
+                    const val = freqData[i];
+                    spec.fillStyle = `rgb(${val}, ${val/2}, ${255-val})`;
+                    spec.fillRect(999, y, 1, 2);
+                    if (val > maxVal) { maxVal = val; peakFreq = freq; }
+                }
+            }
+
+            // 3. リアルタイム数値表示
+            if (maxVal > 100) info.innerText = `Peak: ${Math.round(peakFreq)} Hz | ${Math.round(peakFreq*60)} RPM`;
+            animationId = requestAnimationFrame(loop);
+        }
+
+        document.getElementById('stopBtn').onclick = () => {
+            cancelAnimationFrame(animationId);
+            audioCtx.close();
+            location.reload();
+        };
+    </script>
+</body>
+</html>
