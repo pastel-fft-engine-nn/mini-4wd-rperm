@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RPM Analyzer</title>
+
+<style>
+/* ===== style.css を統合 ===== */
+body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #333;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: #f5f7ff;
+  border-bottom: 1px solid #dce3f7;
+}
+.header-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #4a6cff;
+}
+.header-buttons {
+  display: flex;
+  gap: 16px;
+}
+.header-buttons button {
+  padding: 16px 26px;
+  border-radius: 999px;
+  background: #e6ecff;
+  color: #4a6cff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+.main-container {
+  padding: 16px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.card {
+  background: #f5f7fc;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+#waveCanvas {
+  width: 100%;
+  height: 160px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.08);
+}
+.rpm-grid,
+.speed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.rpm-grid div,
+.speed-grid div {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+.rpm-grid span:last-child,
+.speed-grid span:last-child {
+  font-weight: 700;
+  margin-top: 2px;
+}
+.status-line {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #666;
+}
+.realtime-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+.primary-btn,
+.secondary-btn {
+  padding: 14px 0;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: none;
+}
+.primary-btn {
+  background: #ff4fa3;
+  color: #fff;
+}
+.secondary-btn {
+  background: #e6ecff;
+  color: #4a6cff;
+}
+input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: #e3e7f5;
+  outline: none;
+  margin-top: 6px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  border: 2px solid #4a6cff;
+}
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+.comparison-table th,
+.comparison-table td {
+  border: 1px solid #dce3f7;
+  padding: 6px;
+  text-align: right;
+}
+.comparison-table th:first-child,
+.comparison-table td:first-child {
+  text-align: left;
+}
+.highlight-row {
+  background: rgba(120, 160, 255, 0.18);
+}
+.highlight-col {
+  background: rgba(255, 150, 200, 0.18);
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+.modal {
+  width: 100%;
+  max-width: 480px;
+  background: #f5f7fc;
+  border-radius: 18px 18px 0 0;
+  padding: 18px;
+  position: relative;
+}
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.hidden {
+  display: none;
+}
+.history-filter {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.history-filter select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #c7d6ff;
+  background: #ffffff;
+  font-size: 0.9rem;
+}
+.history-header-fixed {
+  position: sticky;
+  top: 0;
+  background: #e6ecff;
+  padding: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: grid;
+  grid-template-columns: 90px 70px 80px 60px 70px 70px 60px 80px;
+  border-bottom: 1px solid #c7d6ff;
+}
+.history-list {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.history-row {
+  display: grid;
+  grid-template-columns: 90px 70px 80px 60px 70px 70px 60px 80px;
+  padding: 8px;
+  border-bottom: 1px solid #e3e7f5;
+  font-size: 0.9rem;
+}
+.text-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #c7d6ff;
+  background: #ffffff;
+  font-size: 1rem;
+}
+.save-buttons {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.close-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 16px 0;
+  border-radius: 999px;
+  background: #e6ecff;
+  color: #4a6cff;
+  font-weight: 700;
+  font-size: 1.6rem;
+  border: none;
+}
+.help-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e6ecff;
+  color: #4a6cff;
+  font-weight: 700;
+  border: none;
+  font-size: 1.2rem;
+}
+.help-text {
+  margin-top: 14px;
+  background: #f5f7ff;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-title">RPM Analyzer</div>
+  <div class="header-buttons">
+    <button id="historyBtn">履歴</button>
+    <button id="settingsBtn">設定</button>
+  </div>
+</header>
+
+<main class="main-container">
+  <section class="card">
+    <div class="card-title">リアルタイム計測</div>
+    <div class="fft-header">FFTスペクトラム</div>
+    <canvas id="waveCanvas"></canvas>
+
+    <div class="rpm-grid">
+      <div><span>RPM</span><span id="rpmNow">0</span></div>
+      <div><span>MAX</span><span id="rpmMax">0</span></div>
+      <div><span>MIN</span><span id="rpmMin">0</span></div>
+    </div>
+
+    <div class="speed-grid">
+      <div><span>SPEED</span><span id="speedNow">0.00 km/h</span></div>
+      <div><span>TOP</span><span id="speedTop">0.00 km/h</span></div>
+      <div><span>MIN</span><span id="speedMin">0.00 km/h</span></div>
+    </div>
+
+    <div class="status-line" id="statusLine">MEASURING — 計測待機中</div>
+
+    <div class="realtime-buttons">
+      <button class="primary-btn" id="startBtn">計測開始</button>
+      <button class="secondary-btn" id="lockBtn">ロック</button>
+      <button class="secondary-btn" id="saveBtn">保存</button>
+      <button class="secondary-btn" id="resetBtn">リセット</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title">計測条件</div>
+
+    <div class="setting-row">
+      <span>電圧</span><span id="voltageLabel">2.8 V</span>
+    </div>
+    <input id="voltageRange" type="range" min="2.2" max="3.4" step="0.1" value="2.8" />
+
+    <div class="setting-row">
+      <span>ギヤ比</span><span id="gearLabel">3.5:1</span>
+    </div>
+    <input id="gearRange" type="range" min="0" max="4" step="1" value="0" />
+
+    <div class="setting-row">
+      <span>タイヤ径</span><span id="tireLabel">26.0 mm</span>
+    </div>
+    <input id="tireRange" type="range" min="24" max="30" step="0.5" value="26.0" />
+  </section>
+
+  <section class="card">
+    <div class="card-title">比較表</div>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>電圧 (V)</th>
+          <th>モーターRPM</th>
+          <th>3.5:1 km/h</th>
+          <th>3.7:1 km/h</th>
+          <th>4.0:1 km/h</th>
+        </tr>
+      </thead>
+      <tbody id="comparisonBody"></tbody>
+    </table>
+  </section>
+</main>
+
+<!-- 履歴モーダル -->
+<div id="historyModalBackdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-title">履歴</div>
+
+    <div class="history-filter">
+      <select id="filterVoltage"><option value="">電圧指定なし</option></select>
+      <select id="filterGear"><option value="">ギヤ比指定なし</option></select>
+      <select id="filterTire"><option value="">タイヤ径指定なし</option></select>
+      <select id="filterMotor"><option value="">モーター指定なし</option></select>
+      <select id="filterName"><option value="">名前指定なし</option></select>
+    </div>
+
+    <div class="history-header-fixed">
+      <span>日付</span>
+      <span>名前</span>
+      <span>モーター</span>
+      <span>電圧</span>
+      <span>ギヤ比</span>
+      <span>タイヤ径</span>
+      <span>RPM</span>
+      <span>SPEED</span>
+    </div>
+
+    <div class="history-list" id="historyList"></div>
+
+    <button id="closeHistory" class="close-btn">閉じる</button>
+  </div>
+</div>
+
+<!-- 保存モーダル -->
+<div id="saveModalBackdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-title">保存</div>
+
+    <div class="setting-item">
+      <div class="setting-label">名前（8文字まで）</div>
+      <input id="saveNameInput" type="text" maxlength="8" class="text-input" />
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-label">モーター種類</div>
+      <select id="motorTypeSelect" class="text-input">
+        <option value="">選択なし</option>
+        <option value="アトミック">アトミック</option>
+        <option value="レブ">レブ</option>
+        <option value="トルク">トルク</option>
+        <option value="ハイパーダッシュ">ハイパーダッシュ</option>
+        <option value="マッハダッシュ">マッハダッシュ</option>
+        <option value="パワーダッシュ">パワーダッシュ</option>
+        <option value="ライトダッシュ">ライトダッシュ</option>
+      </select>
+    </div>
+
+    <div class="save-buttons">
+      <button id="saveConfirmBtn" class="primary-btn">保存する</button>
+      <button id="saveCancelBtn" class="close-btn">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- 設定モーダル -->
+<div id="settingsModalBackdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <button id="helpButton" class="help-btn">？</button>
+
+    <div id="helpText" class="help-text hidden">
+      <p><strong>ノイズ閾値：</strong>不要な信号や乱れ（ノイズ）をどこまで許容するかの調整</p>
+      <p><strong>モーター極数：</strong>内部磁石の総数に応じた計算用パラメータ</p>
+      <p><strong>RPM補正係数：</strong>実測との差を補正するための係数</p>
+      <p><strong>走行負荷：</strong>好みの負荷を仮想的に加えるための係数</p>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-label">ノイズ閾値</div>
+      <input id="noiseRange" type="range" min="0" max="100" step="1" value="20" />
+      <div id="noiseLabel">20 dB</div>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-label">モーター極数</div>
+      <div id="poleMotorLabel">2</div>
+      <input id="motorPoleRange" type="range" min="1" max="1" value="1" disabled />
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-label">RPM補正係数</div>
+      <input id="rpmCalRange" type="range" min="0.5" max="1.5" step="0.01" value="1.00" />
+      <div id="rpmCalLabel">1.00</div>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-label">走行負荷（-100%〜+100%）</div>
+      <input id="loadFactorRange" type="range" min="-100" max="100" step="1" value="0" />
+      <div id="loadFactorLabel">0%</div>
+    </div>
+
+    <button id="closeSettings" class="close-btn">閉じる</button>
+  </div>
+</div>
+
+<!-- ===== preset.js ===== -->
+<script>
+const PRESET = {
+  voltage: document.getElementById("voltageRange"),
+  gear: document.getElementById("gearRange"),
+  tire: document.getElementById("tireRange"),
+
+  voltageLabel: document.getElementById("voltageLabel"),
+  gearLabel: document.getElementById("gearLabel"),
+  tireLabel: document.getElementById("tireLabel"),
+
+  noise: document.getElementById("noiseRange"),
+  rpmCal: document.getElementById("rpmCalRange"),
+  load: document.getElementById("loadFactorRange"),
+
+  noiseLabel: document.getElementById("noiseLabel"),
+  rpmCalLabel: document.getElementById("rpmCalLabel"),
+  loadLabel: document.getElementById("loadFactorLabel"),
+  poleLabel: document.getElementById("poleMotorLabel"),
+};
+
+const gearOptions = ["3.5:1", "3.7:1", "4.0:1", "4.2:1", "4.5:1"];
+
+function loadPresets() {
+  const sv = localStorage.getItem("preset_voltage");
+  const sg = localStorage.getItem("preset_gearIndex");
+  const st = localStorage.getItem("preset_tire");
+  const sn = localStorage.getItem("preset_noise");
+  const sr = localStorage.getItem("preset_rpmCal");
+  const sl = localStorage.getItem("preset_load");
+
+  if (sv !== null) PRESET.voltage.value = sv;
+  if (sg !== null) PRESET.gear.value = sg;
+  if (st !== null) PRESET.tire.value = st;
+  if (sn !== null) PRESET.noise.value = sn;
+  if (sr !== null) PRESET.rpmCal.value
