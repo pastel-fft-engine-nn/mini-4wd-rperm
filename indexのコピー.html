@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Mini4WD RPM Analyzer — 8192 FFT + Lock + History + Comparison</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    font-family: sans-serif;
+    background: #f5f7fb;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+
+  h2 {
+    text-align: center;
+    padding: 20px 0 10px;
+    margin: 0;
+  }
+
+  /* ===== Buttons ===== */
+  button {
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  #startBtn { background: #28a745; color: #fff; }
+  #lockBtn  { background: #ff4fa3; color: #fff; }
+  #saveBtn  { background: #007bff; color: #fff; }
+  #resetBtn { background: #dc3545; color: #fff; }
+
+  /* ===== Canvas ===== */
+  #waveCanvas {
+    width: 100%;
+    height: 160px;
+    background: #000;
+    display: block;
+    border-radius: 10px;
+    margin: 10px 0;
+  }
+
+  /* ===== Display Boxes ===== */
+  .display-box {
+    background: #fff;
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin: 10px auto;
+    max-width: 420px;
+    text-align: center;
+  }
+
+  .value-big {
+    font-size: 48px;
+    font-weight: bold;
+    color: #007bff;
+  }
+
+  /* ===== Sliders ===== */
+  .slider-box {
+    max-width: 420px;
+    margin: 0 auto 20px;
+    background: #fff;
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .slider-box label {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  /* ===== Comparison Table ===== */
+  #comparisonTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  #comparisonTable th, #comparisonTable td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .highlight-row { background: #ffe8f6; }
+  .highlight-col { background: #e0f0ff; }
+
+  /* ===== History ===== */
+  #historyModalBackdrop,
+  #settingsModalBackdrop,
+  #saveModalBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .hidden { display: none; }
+
+  .modal-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 420px;
+  }
+
+  .history-row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    padding: 6px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+  }
+
+  #statusLine {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<h2>Mini4WD RPM Analyzer — 8192 FFT + Lock + History + Comparison</h2>
+
+<div id="statusLine">MEASURING — 計測待機中</div>
+
+<!-- ===== Buttons ===== -->
+<div style="max-width:420px; margin:0 auto;">
+  <button id="startBtn">計測開始</button>
+  <button id="lockBtn">ロック</button>
+  <button id="saveBtn">保存</button>
+  <button id="resetBtn">リセット</button>
+</div>
+
+<!-- ===== FFT Canvas ===== -->
+<canvas id="waveCanvas"></canvas>
+
+<!-- ===== RPM / SPEED Display ===== -->
+<div class="display-box">
+  <div>現在の回転数</div>
+  <div id="rpmNow" class="value-big">0</div>
+  <div>最大: <span id="rpmMax">0</span> ／ 最小: <span id="rpmMin">0</span></div>
+</div>
+
+<div class="display-box">
+  <div>現在の速度</div>
+  <div id="speedNow" class="value-big">0.00 km/h</div>
+  <div>最高: <span id="speedTop">0.00 km/h</span> ／ 最低: <span id="speedMin">0.00 km/h</span></div>
+</div>
+
+<!-- ===== Sliders ===== -->
+<div class="slider-box">
+  <label>電圧 (2.2〜3.4V)</label>
+  <input type="range" id="voltageRange" min="2.2" max="3.4" step="0.1" value="3.0">
+  <div>現在: <span id="voltageLabel">3.0</span> V</div>
+</div>
+
+<div class="slider-box">
+  <label>ギヤ比</label>
+  <select id="gearRange" style="width:100%; padding:8px; font-size:16px;">
+    <option value="0">3.5:1</option>
+    <option value="1">4.2:1</option>
+    <option value="2">5.0:1</option>
+    <option value="3">6.4:1</option>
+  </select>
+</div>
+
+<div class="slider-box">
+  <label>タイヤ径 (22.0〜34.0mm)</label>
+  <input type="range" id="tireRange" min="22.0" max="34.0" step="0.1" value="26.0">
+  <div>現在: <span id="tireLabel">26.0</span> mm</div>
+</div>
+
+<div class="slider-box">
+  <label>RPM補正係数</label>
+  <input type="range" id="rpmCalRange" min="0.80" max="1.20" step="0.01" value="1.00">
+  <div>現在: <span id="rpmCalLabel">1.00</span></div>
+</div>
+
+<div class="slider-box">
+  <label>負荷係数 (+0〜+20%)</label>
+  <input type="range" id="loadFactorRange" min="0" max="20" step="1" value="0">
+  <div>現在: <span id="loadFactorLabel">0</span>%</div>
+</div>
+
+<!-- ===== Comparison Table ===== -->
+<div class="display-box">
+  <h3>比較表（ロック値 × 電圧 × ギヤ比）</h3>
+  <table id="comparisonTable">
+    <thead>
+      <tr>
+        <th>電圧</th>
+        <th>RPM</th>
+        <th>3.5:1</th>
+        <th>4.2:1</th>
+        <th>5.0:1</th>
+        <th>6.4:1</th>
+      </tr>
+    </thead>
+    <tbody id="comparisonBody"></tbody>
+  </table>
+</div>
+
+<!-- ===== History Modal ===== -->
+<div id="historyModalBackdrop" class="hidden">
+  <div class="modal-box">
+    <h3>履歴</h3>
+    <div id="historyList"></div>
+    <button id="closeHistory">閉じる</button>
+  </div>
+</div>
+
+<!-- ===== Save Modal ===== -->
+<div id="saveModalBackdrop" class="hidden">
+  <div class="modal-box">
+    <h3>保存</h3>
+    <input id="saveNameInput" placeholder="名前" style="width:100%; padding:8px; margin-bottom:10px;">
+    <select id="motorTypeSelect" style="width:100%; padding:8px; margin-bottom:10px;">
+      <option value="">モーターを選択</option>
+      <option>アトミック</option>
+      <option>レブ</option>
+      <option>トルク</option>
+      <option>ハイパーダッシュ</option>
+      <option>マッハダッシュ</option>
+    </select>
+    <button id="saveConfirmBtn">保存する</button>
+    <button id="saveCancelBtn">キャンセル</button>
+  </div>
+</div>
+<!-- ===== preset.js ===== -->
+<script>
+/* ============================
+   プリセット保存・復元
+============================ */
+
+function savePreset() {
+  const preset = {
+    voltage: document.getElementById("voltageRange").value,
+    gear: document.getElementById("gearRange").value,
+    tire: document.getElementById("tireRange").value,
+    rpmCal: document.getElementById("rpmCalRange").value,
+    loadFactor: document.getElementById("loadFactorRange").value
+  };
+
+  localStorage.setItem("rpmPreset", JSON.stringify(preset));
+}
+
+function loadPreset() {
+  const preset = JSON.parse(localStorage.getItem("rpmPreset") || "null");
+  if (!preset) return;
+
+  document.getElementById("voltageRange").value = preset.voltage;
+  document.getElementById("gearRange").value = preset.gear;
+  document.getElementById("tireRange").value = preset.tire;
+  document.getElementById("rpmCalRange").value = preset.rpmCal;
+  document.getElementById("loadFactorRange").value = preset.loadFactor;
+
+  updatePresetLabels();
+}
+
+function updatePresetLabels() {
+  document.getElementById("voltageLabel").textContent =
+    document.getElementById("voltageRange").value;
+
+  document.getElementById("tireLabel").textContent =
+    document.getElementById("tireRange").value;
+
+  document.getElementById("rpmCalLabel").textContent =
+    document.getElementById("rpmCalRange").value;
+
+  document.getElementById("loadFactorLabel").textContent =
+    document.getElementById("loadFactorRange").value;
+}
+
+/* スライダー変更時にプリセット保存 */
+["voltageRange","gearRange","tireRange","rpmCalRange","loadFactorRange"]
+  .forEach(id => {
+    document.getElementById(id).addEventListener("input", () => {
+      updatePresetLabels();
+      savePreset();
+    });
+  });
+
+/* 初期ロード */
+loadPreset();
+updatePresetLabels();
+</script>
+<!-- ===== ui.js ===== -->
+<script>
+/* ============================================================
+   UI イベント制御（ロック・保存モーダル・履歴・比較表）
+============================================================ */
+
+/* ===== DOM ===== */
+const startBtn = document.getElementById("startBtn");
+const lockBtn  = document.getElementById("lockBtn");
+const saveBtn  = document.getElementById("saveBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+const saveModalBackdrop = document.getElementById("saveModalBackdrop");
+const saveConfirmBtn    = document.getElementById("saveConfirmBtn");
+const saveCancelBtn     = document.getElementById("saveCancelBtn");
+const saveNameInput     = document.getElementById("saveNameInput");
+const motorTypeSelect   = document.getElementById("motorTypeSelect");
+
+const historyModalBackdrop = document.getElementById("historyModalBackdrop");
+const historyList          = document.getElementById("historyList");
+const closeHistory         = document.getElementById("closeHistory");
+
+const comparisonBody = document.getElementById("comparisonBody");
+
+/* ===== 状態 ===== */
+let measuring = false;
+let locked = false;
+
+let lockedSnapshot = null;
+
+let historyData = JSON.parse(localStorage.getItem("rpmHistory") || "[]");
+
+/* ============================================================
+   ロック処理
+============================================================ */
+function lockCurrent() {
+  if (locked) return;
+
+  locked = true;
+  lockBtn.textContent = "ロック解除";
+
+  lockedSnapshot = {
+    rpm: currentRpm,
+    speed: currentSpeed,
+    voltage: document.getElementById("voltageRange").value,
+    gear: document.getElementById("gearRange").value,
+    tire: document.getElementById("tireRange").value,
+    rpmCal: document.getElementById("rpmCalRange").value,
+    loadFactor: document.getElementById("loadFactorRange").value
+  };
+
+  generateComparisonTableFromLock();
+}
+
+function unlockCurrent() {
+  locked = false;
+  lockBtn.textContent = "ロック";
+  lockedSnapshot = null;
+  comparisonBody.innerHTML = "";
+}
+
+/* ============================================================
+   比較表生成
+============================================================ */
+const gearOptions = [3.5, 4.2, 5.0, 6.4];
+
+function generateComparisonTableFromLock() {
+  if (!lockedSnapshot) return;
+
+  const baseRpm = lockedSnapshot.rpm;
+  const baseVoltage = parseFloat(lockedSnapshot.voltage);
+
+  comparisonBody.innerHTML = "";
+
+  for (let v = 2.2; v <= 3.4; v += 0.1) {
+    const rpm = baseRpm * (v / baseVoltage);
+
+    const row = document.createElement("tr");
+
+    const tdV = document.createElement("td");
+    tdV.textContent = v.toFixed(1);
+    row.appendChild(tdV);
+
+    const tdRpm = document.createElement("td");
+    tdRpm.textContent = Math.round(rpm);
+    row.appendChild(tdRpm);
+
+    gearOptions.forEach((g, idx) => {
+      const speed = computeSpeedFromRpm(rpm, g).speed;
+      const td = document.createElement("td");
+      td.textContent = speed.toFixed(2);
+
+      if (v.toFixed(1) === lockedSnapshot.voltage) td.classList.add("highlight-row");
+      if (idx == lockedSnapshot.gear) td.classList.add("highlight-col");
+
+      row.appendChild(td);
+    });
+
+    comparisonBody.appendChild(row);
+  }
+}
+
+/* スライダー変更時に比較表更新 */
+["voltageRange","gearRange","tireRange","rpmCalRange","loadFactorRange"]
+  .forEach(id => {
+    document.getElementById(id).addEventListener("input", () => {
+      if (locked) generateComparisonTableFromLock();
+    });
+  });
+
+/* ============================================================
+   履歴保存
+============================================================ */
+function saveCurrentHistory() {
+  if (!lockedSnapshot) return;
+
+  const name = saveNameInput.value.trim();
+  const motor = motorTypeSelect.value;
+
+  if (!name || !motor) return;
+
+  const entry = {
+    name,
+    motor,
+    rpm: lockedSnapshot.rpm,
+    speed: lockedSnapshot.speed,
+    voltage: lockedSnapshot.voltage,
+    gear: lockedSnapshot.gear,
+    tire: lockedSnapshot.tire,
+    date: new Date().toLocaleString()
+  };
+
+  historyData.push(entry);
+  localStorage.setItem("rpmHistory", JSON.stringify(historyData));
+
+  saveModalBackdrop.classList.add("hidden");
+}
+
+/* 履歴表示 */
+function showHistory() {
+  historyList.innerHTML = "";
+
+  historyData.forEach(h => {
+    const row = document.createElement("div");
+    row.className = "history-row";
+    row.innerHTML = `
+      <div>${h.name}</div>
+      <div>${h.motor}</div>
+      <div>${Math.round(h.rpm)}</div>
+      <div>${h.speed.toFixed(2)}</div>
+      <div>${h.voltage}</div>
+      <div>${gearOptions[h.gear]}</div>
+      <div>${h.tire}</div>
+      <div>${h.date}</div>
+    `;
+    historyList.appendChild(row);
+  });
+
+  historyModalBackdrop.classList.remove("hidden");
+}
+
+/* ============================================================
+   ボタンイベント
+============================================================ */
+startBtn.addEventListener("click", () => {
+  if (!measuring) {
+    measuring = true;
+    startBtn.textContent = "計測停止";
+    startMic();
+  } else {
+    measuring = false;
+    startBtn.textContent = "計測開始";
+    stopMic();
+  }
+});
+
+lockBtn.addEventListener("click", () => {
+  if (!locked) lockCurrent();
+  else unlockCurrent();
+});
+
+saveBtn.addEventListener("click", () => {
+  if (!lockedSnapshot) return;
+  saveModalBackdrop.classList.remove("hidden");
+});
+
+saveConfirmBtn.addEventListener("click", saveCurrentHistory);
+saveCancelBtn.addEventListener("click", () => {
+  saveModalBackdrop.classList.add("hidden");
+});
+
+resetBtn.addEventListener("click", () => {
+  measuring = false;
+  locked = false;
+  lockedSnapshot = null;
+
+  currentRpm = 0;
+  currentSpeed = 0;
+  maxRpmVal = 0;
+  minRpmVal = 0;
+  maxSpeedVal = 0;
+  minSpeedVal = 0;
+
+  rpmNow.textContent = "0";
+  rpmMax.textContent = "0";
+  rpmMin.textContent = "0";
+
+  speedNow.textContent = "0.00 km/h";
+  speedTop.textContent = "0.00 km/h";
+  speedMin.textContent = "0.00 km/h";
+
+  comparisonBody.innerHTML = "";
+
+  stopMic();
+  startBtn.textContent = "計測開始";
+});
+
+closeHistory.addEventListener("click", () => {
+  historyModalBackdrop.classList.add("hidden");
+});
+</script>
+<!-- ===== main.js ===== -->
+<script>
+/* ============================================================
+   8192 FFT + Peak Detection + RPM/Speed Calculation
+============================================================ */
+
+/* ===== Audio ===== */
+let audioContext = null;
+let analyser = null;
+let micStream = null;
+let dataArray = null;
+let running = false;
+
+const FFT_SIZE = 8192;
+
+/* ===== Canvas ===== */
+const waveCanvas = document.getElementById("waveCanvas");
+const ctx = waveCanvas.getContext("2d");
+
+/* ===== Measurement Values ===== */
+let currentRpm = 0;
+let currentSpeed = 0;
+
+let maxRpmVal = 0;
+let minRpmVal = 0;
+
+let maxSpeedVal = 0;
+let minSpeedVal = 0;
+
+/* ============================================================
+   Start Microphone (8192 FFT)
+============================================================ */
+async function startMic() {
+  if (running) return;
+
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  analyser = audioContext.createAnalyser();
+  analyser.fftSize = FFT_SIZE;
+
+  const binCount = analyser.frequencyBinCount;
+  dataArray = new Uint8Array(binCount);
+
+  const source = audioContext.createMediaStreamSource(micStream);
+  source.connect(analyser);
+
+  running = true;
+  loopFFT();
+}
+
+/* ============================================================
+   Stop Microphone
+============================================================ */
+function stopMic() {
+  running = false;
+
+  if (audioContext) audioContext.suspend();
+  if (micStream) {
+    micStream.getTracks().forEach(t => t.stop());
+    micStream = null;
+  }
+}
+
+/* ============================================================
+   Precise Peak Detection (8192 FFT)
+============================================================ */
+function getPrecisePeakHz(data, fftSize, sampleRate) {
+  const binToHz = sampleRate / fftSize;
+
+  let maxVal = -Infinity;
+  let maxIdx = -1;
+
+  for (let i = 1; i < data.length - 1; i++) {
+    const v = data[i];
+    if (v > maxVal) {
+      maxVal = v;
+      maxIdx = i;
+    }
+  }
+  if (maxIdx <= 0 || maxIdx >= data.length - 1) return 0;
+
+  const y1 = data[maxIdx - 1];
+  const y2 = data[maxIdx];
+  const y3 = data[maxIdx + 1];
+
+  const denom = (y1 - 2 * y2 + y3);
+  const offset = denom === 0 ? 0 : (y1 - y3) / (2 * denom);
+  const peakBin = maxIdx + offset;
+
+  return peakBin * binToHz;
+}
+
+/* ============================================================
+   Speed Calculation
+============================================================ */
+function computeSpeedFromRpm(rpm, gearOverride = null) {
+  const voltage = parseFloat(document.getElementById("voltageRange").value);
+  const gearIdx = parseInt(document.getElementById("gearRange").value);
+  const tire = parseFloat(document.getElementById("tireRange").value);
+  const rpmCal = parseFloat(document.getElementById("rpmCalRange").value);
+  const loadFactor = parseFloat(document.getElementById("loadFactorRange").value);
+
+  const gearOptions = [3.5, 4.2, 5.0, 6.4];
+  const gear = gearOverride || gearOptions[gearIdx];
+
+  const adjustedRpm = rpm * rpmCal * (1 - loadFactor / 100);
+
+  const tireMeter = tire / 1000;
+  const speed = adjustedRpm * tireMeter * Math.PI * 60 / gear / 1000;
+
+  return { adjustedRpm, speed };
+}
+
+/* ============================================================
+   FFT Loop (RPM + Speed Update)
+============================================================ */
+function loopFFT() {
+  if (!running || !analyser) return;
+  requestAnimationFrame(loopFFT);
+
+  const w = waveCanvas.width;
+  const h = waveCanvas.height;
+
+  analyser.getByteFrequencyData(dataArray);
+
+  /* ===== Draw FFT ===== */
+  ctx.clearRect(0, 0, w, h);
+  ctx.beginPath();
+  ctx.strokeStyle = "#ff4fa3";
+  ctx.lineWidth = 1.2;
+
+  const step = dataArray.length / w;
+  const scale = h / 256;
+
+  for (let x = 0; x < w; x++) {
+    const bin = Math.floor(x * step);
+    const v = dataArray[bin];
+    const y = h - v * scale;
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  /* ===== Peak Detection ===== */
+  const peakHz = getPrecisePeakHz(dataArray, analyser.fftSize, audioContext.sampleRate);
+  if (peakHz <= 0) return;
+
+  /* ===== RPM / Speed ===== */
+  const rawRpm = peakHz * 60;
+  const { adjustedRpm, speed } = computeSpeedFromRpm(rawRpm);
+
+  currentRpm = adjustedRpm;
+  currentSpeed = speed;
+
+  /* ===== Max/Min RPM ===== */
+  if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
+  if (minRpmVal === 0 || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
+
+  /* ===== Max/Min Speed（ロック中は最高速度を更新しない） ===== */
+  if (!locked) {
+    if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
+  }
+  if (minSpeedVal === 0 || speed < minSpeedVal) minSpeedVal = speed;
+
+  /* ===== Display Update ===== */
+  rpmNow.textContent = Math.round(adjustedRpm);
+  rpmMax.textContent = Math.round(maxRpmVal);
+  rpmMin.textContent = Math.round(minRpmVal);
+
+  speedNow.textContent = speed.toFixed(2) + " km/h";
+  speedTop.textContent = maxSpeedVal.toFixed(2) + " km/h";
+  speedMin.textContent = minSpeedVal.toFixed(2) + " km/h";
+}
+</script>
+<script>
+/* ============================================================
+   Lock / Unlock
+============================================================ */
+
+function lockCurrent() {
+  if (locked) return;
+
+  locked = true;
+  lockBtn.textContent = "ロック解除";
+
+  lockedSnapshot = {
+    rpm: currentRpm,
+    speed: currentSpeed,
+    voltage: document.getElementById("voltageRange").value,
+    gear: document.getElementById("gearRange").value,
+    tire: document.getElementById("tireRange").value,
+    rpmCal: document.getElementById("rpmCalRange").value,
+    loadFactor: document.getElementById("loadFactorRange").value
+  };
+
+  generateComparisonTableFromLock();
+}
+
+function unlockCurrent() {
+  locked = false;
+  lockBtn.textContent = "ロック";
+  lockedSnapshot = null;
+  comparisonBody.innerHTML = "";
+}
+
+/* ============================================================
+   Comparison Table (Lock-based)
+============================================================ */
+
+const gearOptions = [3.5, 4.2, 5.0, 6.4];
+
+function generateComparisonTableFromLock() {
+  if (!lockedSnapshot) return;
+
+  const baseRpm = lockedSnapshot.rpm;
+  const baseVoltage = parseFloat(lockedSnapshot.voltage);
+
+  comparisonBody.innerHTML = "";
+
+  for (let v = 2.2; v <= 3.4; v += 0.1) {
+    const rpm = baseRpm * (v / baseVoltage);
+
+    const row = document.createElement("tr");
+
+    const tdV = document.createElement("td");
+    tdV.textContent = v.toFixed(1);
+    row.appendChild(tdV);
+
+    const tdRpm = document.createElement("td");
+    tdRpm.textContent = Math.round(rpm);
+    row.appendChild(tdRpm);
+
+    gearOptions.forEach((g, idx) => {
+      const speed = computeSpeedFromRpm(rpm, g).speed;
+      const td = document.createElement("td");
+      td.textContent = speed.toFixed(2);
+
+      if (v.toFixed(1) === lockedSnapshot.voltage) td.classList.add("highlight-row");
+      if (idx == lockedSnapshot.gear) td.classList.add("highlight-col");
+
+      row.appendChild(td);
+    });
+
+    comparisonBody.appendChild(row);
+  }
+}
+
+/* スライダー変更時に比較表更新 */
+["voltageRange","gearRange","tireRange","rpmCalRange","loadFactorRange"]
+  .forEach(id => {
+    document.getElementById(id).addEventListener("input", () => {
+      if (locked) generateComparisonTableFromLock();
+    });
+  });
+
+/* ============================================================
+   Save Modal → History
+============================================================ */
+
+function saveCurrentHistory() {
+  if (!lockedSnapshot) return;
+
+  const name = saveNameInput.value.trim();
+  const motor = motorTypeSelect.value;
+
+  if (!name || !motor) return;
+
+  const entry = {
+    name,
+    motor,
+    rpm: lockedSnapshot.rpm,
+    speed: lockedSnapshot.speed,
+    voltage: lockedSnapshot.voltage,
+    gear: lockedSnapshot.gear,
+    tire: lockedSnapshot.tire,
+    date: new Date().toLocaleString()
+  };
+
+  historyData.push(entry);
+  localStorage.setItem("rpmHistory", JSON.stringify(historyData));
+
+  saveModalBackdrop.classList.add("hidden");
+}
+
+/* 履歴表示 */
+function showHistory() {
+  historyList.innerHTML = "";
+
+  historyData.forEach(h => {
+    const row = document.createElement("div");
+    row.className = "history-row";
+    row.innerHTML = `
+      <div>${h.name}</div>
+      <div>${h.motor}</div>
+      <div>${Math.round(h.rpm)}</div>
+      <div>${h.speed.toFixed(2)}</div>
+      <div>${h.voltage}</div>
+      <div>${gearOptions[h.gear]}</div>
+      <div>${h.tire}</div>
+      <div>${h.date}</div>
+    `;
+    historyList.appendChild(row);
+  });
+
+  historyModalBackdrop.classList.remove("hidden");
+}
+
+/* ============================================================
+   Buttons
+============================================================ */
+
+startBtn.addEventListener("click", () => {
+  if (!measuring) {
+    measuring = true;
+    startBtn.textContent = "計測停止";
+    startMic();
+  } else {
+    measuring = false;
+    startBtn.textContent = "計測開始";
+    stopMic();
+  }
+});
+
+lockBtn.addEventListener("click", () => {
+  if (!locked) lockCurrent();
+  else unlockCurrent();
+});
+
+saveBtn.addEventListener("click", () => {
+  if (!lockedSnapshot) return;
+  saveModalBackdrop.classList.remove("hidden");
+});
+
+saveConfirmBtn.addEventListener("click", saveCurrentHistory);
+saveCancelBtn.addEventListener("click", () => {
+  saveModalBackdrop.classList.add("hidden");
+});
+
+resetBtn.addEventListener("click", () => {
+  measuring = false;
+  locked = false;
+  lockedSnapshot = null;
+
+  currentRpm = 0;
+  currentSpeed = 0;
+  maxRpmVal = 0;
+  minRpmVal = 0;
+  maxSpeedVal = 0;
+  minSpeedVal = 0;
+
+  rpmNow.textContent = "0";
+  rpmMax.textContent = "0";
+  rpmMin.textContent = "0";
+
+  speedNow.textContent = "0.00 km/h";
+  speedTop.textContent = "0.00 km/h";
+  speedMin.textContent = "0.00 km/h";
+
+  comparisonBody.innerHTML = "";
+
+  stopMic();
+  startBtn.textContent = "計測開始";
+});
+
+closeHistory.addEventListener("click", () => {
+  historyModalBackdrop.classList.add("hidden");
+});
+</script>
