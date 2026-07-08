@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- 画面の拡大縮小禁止 -->
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 user-scalable=no">
+
+  <title>RPM Analyzer — Advanced FFT</title>
+
+  <style>
+
+    /* ============================================================
+       Base
+    ============================================================ */
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       Header
+    ============================================================ */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      background: #f5f7ff;
+      border-bottom: 1px solid #dce3f7;
+    }
+
+    .header-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #4a6cff;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .header-buttons button {
+      padding: 16px 26px;
+      border-radius: 999px;
+      background: #e6ecff;
+      color: #4a6cff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      transform: scale(1.15);
+    }
+
+    /* ============================================================
+       Main Container
+    ============================================================ */
+    .main-container {
+      padding: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ============================================================
+       Card
+    ============================================================ */
+    .card {
+      background: #f5f7fc;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    /* ============================================================
+       FFT Spectrum
+    ============================================================ */
+    #waveCanvas {
+      width: 75%;
+      height: 160px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.08);
+      margin: 0 auto;
+      display: block;
+    }
+
+    /* ============================================================
+       RPM / SPEED Display
+       ★ 元の位置に戻す（margin-left: 0）
+    ============================================================ */
+
+    .rpm-grid,
+    .speed-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+      margin-left: 0; /* ★固定解除 → 元の位置 */
+    }
+
+    .rpm-grid div, .speed-grid div {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9rem;
+    }
+
+    .rpm-grid span:last-child,
+    .speed-grid span:last-child {
+      font-weight: 700;
+      margin-top: 2px;
+      text-align: right;
+      font-size: 1.2rem;
+    }
+
+    /* ============================================================
+       Status Line
+    ============================================================ */
+    .status-line {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    /* ============================================================
+       Buttons
+    ============================================================ */
+    .realtime-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .primary-btn, .secondary-btn {
+      padding: 14px 0;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: none;
+    }
+
+    .primary-btn {
+      background: #ff4fa3;
+      color: #fff;
+    }
+
+    .secondary-btn {
+      background: #e6ecff;
+      color: #4a6cff;
+    }
+
+    /* ============================================================
+       Sliders
+    ============================================================ */
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 999px;
+      background: #e3e7f5;
+      outline: none;
+      margin-top: 10px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 42px;
+      height: 27px;
+      background: #ffffff;
+      border-radius: 999px;
+      border: 2px solid #4a6cff;
+    }
+
+    /* ============================================================
+       AutoRange UI
+    ============================================================ */
+    .autorange-block {
+      margin-top: 16px;
+      padding: 12px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .autorange-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .toggle-switch {
+      width: 48px;
+      height: 26px;
+      background: #ccc;
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .toggle-switch::after {
+      content: "";
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: #4a6cff;
+    }
+
+    .toggle-switch.active::after {
+      left: 24px;
+    }
+
+    /* ============================================================
+       Calibration UI
+    ============================================================ */
+    .cal-block {
+      margin-top: 16px;
+      padding: 12px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .cal-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .cal-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .cal-input-row input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #c7d6ff;
+      font-size: 0.9rem;
+    }
+
+    .cal-btn {
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: #ff4fa3;
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      font-size: 0.9rem;
+    }
+
+    .cal-factor {
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    /* ============================================================
+       Comparison Table
+    ============================================================ */
+    .comparison-wrapper {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .comparison-table {
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      min-width: 650px;
+    }
+
+    .comparison-table th, .comparison-table td {
+      border: 1px solid #dce3f7;
+      padding: 6px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .comparison-table th:first-child,
+    .comparison-table td:first-child {
+      text-align: left;
+    }
+
+    /* ============================================================
+       Modal Common
+    ============================================================ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: #f5f7fc;
+      border-radius: 18px 18px 0 0;
+      padding: 18px;
+      position: relative;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <div class="header">
+    <div class="header-title">RPM Analyzer</div>
+    <div class="header-buttons">
+      <button id="historyBtn">履歴</button>
+      <button id="settingsBtn">設定</button>
+    </div>
+  </div>
+
+  <!-- ===== Main Container ===== -->
+  <div class="main-container">
+
+    <!-- ===== リアルタイム計測 ===== -->
+    <section class="card">
+      <div class="card-title">リアルタイム計測</div>
+
+      <div class="fft-header">FFTスペクトラム（RPM軸）</div>
+      <canvas id="waveCanvas"></canvas>
+
+      <!-- 上段：RPM / MAX / MIN -->
+      <div class="rpm-grid">
+        <div><span>RPM</span><span id="rpmNow">0</span></div>
+        <div><span>MAX</span><span id="rpmMax">0</span></div>
+        <div><span>MIN</span><span id="rpmMin">0</span></div>
+      </div>
+
+      <!-- 下段：SPEED / TOP / MIN -->
+      <div class="speed-grid">
+        <div><span>SPEED</span><span id="speedNow">0.00 km/h</span></div>
+        <div><span>TOP</span><span id="speedTop">0.00 km/h</span></div>
+        <div><span>MIN</span><span id="speedMin">0.00 km/h</span></div>
+      </div>
+
+      <div class="status-line" id="statusLine">READY — 計測待機中</div>
+
+      <div class="realtime-buttons">
+        <button class="primary-btn" id="startBtn">計測開始</button>
+        <button class="secondary-btn" id="lockBtn">ロック</button>
+        <button class="secondary-btn" id="saveBtn">保存</button>
+        <button class="secondary-btn" id="resetBtn">リセット</button>
+      </div>
+    </section>
+
+    <!-- ===== 計測条件 + AutoRange ===== -->
+    <details class="card" id="conditionBlock">
+      <summary class="card-title">計測条件・比較表</summary>
+
+      <!-- 電圧 -->
+      <div class="setting-row">
+        <span>電圧</span><span id="voltageLabel">2.8</span>
+      </div>
+      <input id="voltageRange" type="range" min="2.2" max="3.4" step="0.1" value="2.8" />
+
+      <!-- ギヤ比 -->
+      <div class="setting-row">
+        <span>ギヤ比</span><span id="gearLabel">3.5:1</span>
+      </div>
+      <input id="gearRange" type="range" min="0" max="7" step="1" value="0" />
+
+      <!-- タイヤ径 -->
+      <div class="setting-row">
+        <span>タイヤ径</span><span id="tireLabel">26.0 mm</span>
+      </div>
+      <input id="tireRange" type="range" min="22.0" max="34.0" step="0.1" value="26.0" />
+
+      <!-- ===== AutoRange ブロック ===== -->
+      <div class="autorange-block">
+        <div class="autorange-title">AutoRange（自動レンジ調整）</div>
+
+        <div class="toggle-row">
+          <span>AutoRange を使用する</span>
+          <div id="autoRangeToggle" class="toggle-switch"></div>
+        </div>
+
+        <div class="setting-row">
+          <span>最小RPM</span><span id="minRpmLabel">5000</span>
+        </div>
+        <input id="minRpmSlider" type="range" min="5000" max="60000" value="5000" />
+
+        <div class="setting-row">
+          <span>最大RPM</span><span id="maxRpmLabel">55000</span>
+        </div>
+        <input id="maxRpmSlider" type="range" min="5000" max="60000" value="55000" />
+      </div>
+
+      <!-- ===== 比較表（横スクロール） ===== -->
+      <div class="comparison-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>電圧</th>
+              <th>RPM</th>
+              <th>3.5:1<br>(km/h)</th>
+              <th>3.7:1<br>(km/h)</th>
+              <th>4.0:1<br>(km/h)</th>
+              <th>4.2:1<br>(km/h)</th>
+              <th>5.0:1<br>(km/h)</th>
+              <th>6.4:1<br>(km/h)</th>
+              <th>8.75:1<br>(km/h)</th>
+              <th>11.2:1<br>(km/h)</th>
+            </tr>
+          </thead>
+          <tbody id="comparisonBody"></tbody>
+        </table>
+      </div>
+
+    </details>
+
+  </div><!-- main-container 終了 -->
+
+  <!-- ===== 履歴モーダル ===== -->
+  <div id="historyModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+
+      <div class="modal-title">履歴一覧</div>
+
+      <!-- フィルタ -->
+      <div class="history-filter">
+        <select id="filterVoltage"><option value="">電圧</option></select>
+        <select id="filterGear"><option value="">ギヤ比</option></select>
+        <select id="filterTire"><option value="">タイヤ径</option></select>
+        <select id="filterMotor"><option value="">モーター</option></select>
+        <select id="filterName"><option value="">名前</option></select>
+      </div>
+
+      <!-- ヘッダー -->
+      <div class="history-header-fixed">
+        <span>日付</span>
+        <span>名前</span>
+        <span>モーター</span>
+        <span>速度</span>
+        <span>RPM</span>
+        <span>電圧</span>
+        <span>ギヤ比</span>
+        <span>タイヤ径</span>
+        <span>削除</span>
+      </div>
+
+      <!-- 履歴リスト -->
+      <div class="history-list" id="historyList"></div>
+
+      <button id="closeHistory" class="close-btn">閉じる</button>
+    </div>
+  </div>
+
+  <!-- ===== 保存モーダル ===== -->
+  <div id="saveModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-title">保存</div>
+
+      <div class="setting-item">
+        <div class="setting-label">名前（8文字まで）</div>
+        <input id="saveNameInput" type="text" maxlength="8" class="text-input" />
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">モーター種類</div>
+        <select id="motorTypeSelect" class="text-input">
+          <option value="">選択なし</option>
+          <option value="N">N</option>
+          <option value="RT">RT</option>
+          <option value="TT">TT</option>
+          <option value="AT">AT</option>
+          <option value="D1">D1</option>
+          <option value="D2">D2</option>
+          <option value="LD">LD</option>
+          <option value="HD">HD</option>
+          <option value="PD">PD</option>
+          <option value="SD">SD</option>
+          <option value="NP">NP</option>
+          <option value="RTP">RTP</option>
+          <option value="TTP">TTP</option>
+          <option value="ATP">ATP</option>
+          <option value="LDP">LDP</option>
+          <option value="HDP">HDP</option>
+          <option value="MDP">MDP</option>
+        </select>
+      </div>
+
+      <div class="save-buttons">
+        <button id="saveConfirmBtn" class="primary-btn">保存する</button>
+        <button id="saveCancelBtn" class="close-btn">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 設定モーダル ===== -->
+  <div id="settingsModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+
+      <button id="helpButton" class="help-btn">？</button>
+
+      <div class="modal-title">設定</div>
+
+      <!-- 説明文 -->
+      <div id="helpText" class="help-text">
+        ・ノイズ閾値：FFTのノイズ除去レベル  
+        ・RPM補正係数：計測値の補正倍率  
+        ・走行負荷：実走行時の負荷を反映  
+      </div>
+
+      <!-- ノイズ閾値 -->
+      <div class="setting-item">
+        <div class="setting-label">ノイズ閾値</div>
+        <input id="noiseRange" type="range" min="0" max="100" step="1" value="20" />
+        <div id="noiseLabel">20 dB</div>
+      </div>
+
+      <!-- RPM補正係数（既存） -->
+      <div class="setting-item">
+        <div class="setting-label">RPM補正係数</div>
+        <input id="rpmCalRange" type="range" min="0.5" max="1.5" step="0.01" value="1.00" />
+        <div id="rpmCalLabel">1.00</div>
+      </div>
+
+      <!-- 走行負荷 -->
+      <div class="setting-item">
+        <div class="setting-label">走行負荷（-100%〜+100%）</div>
+        <input id="loadFactorRange" type="range" min="-100" max="100" step="1" value="0" />
+        <div id="loadFactorLabel">0%</div>
+      </div>
+
+      <!-- ===== Calibration ブロック ===== -->
+      <div class="cal-block">
+        <div class="cal-title">Calibration（既知RPM補正）</div>
+
+        <div class="toggle-row">
+          <span>Calibration を使用する</span>
+          <div id="calToggle" class="toggle-switch"></div>
+        </div>
+
+        <div class="cal-input-row">
+          <input id="knownRpmInput" type="number" placeholder="例: 30000" />
+          <button id="applyCalButton" class="cal-btn">この値で合わせる</button>
+        </div>
+
+        <div class="cal-factor">
+          現在の補正係数: <span id="calFactorLabel">1.0000</span>
+        </div>
+      </div>
+
+      <button id="settingsResetBtn" class="settings-reset-btn">設定を初期化</button>
+
+      <button id="closeSettings" class="close-btn">閉じる</button>
+    </div>
+  </div>
+
+<!-- ============================= -->
+<!-- JS1 : UIイベント（モーダル・ボタン・ロック制御・履歴削除） -->
+<!-- ============================= -->
+<script>
+const UI = {
+  historyBtn: document.getElementById("historyBtn"),
+  settingsBtn: document.getElementById("settingsBtn"),
+
+  historyModal: document.getElementById("historyModalBackdrop"),
+  settingsModal: document.getElementById("settingsModalBackdrop"),
+
+  closeHistory: document.getElementById("closeHistory"),
+  closeSettings: document.getElementById("closeSettings"),
+
+  helpButton: document.getElementById("helpButton"),
+  helpText: document.getElementById("helpText"),
+
+  startBtn: document.getElementById("startBtn"),
+  lockBtn: document.getElementById("lockBtn"),
+  saveBtn: document.getElementById("saveBtn"),
+  resetBtn: document.getElementById("resetBtn"),
+
+  saveModal: document.getElementById("saveModalBackdrop"),
+  saveNameInput: document.getElementById("saveNameInput"),
+  motorTypeSelect: document.getElementById("motorTypeSelect"),
+  saveConfirmBtn: document.getElementById("saveConfirmBtn"),
+  saveCancelBtn: document.getElementById("saveCancelBtn"),
+
+  statusLine: document.getElementById("statusLine"),
+
+  settingsResetBtn: document.getElementById("settingsResetBtn"),
+
+  /* AutoRange */
+  autoRangeToggle: document.getElementById("autoRangeToggle"),
+  minRpmSlider: document.getElementById("minRpmSlider"),
+  maxRpmSlider: document.getElementById("maxRpmSlider"),
+  minRpmLabel: document.getElementById("minRpmLabel"),
+  maxRpmLabel: document.getElementById("maxRpmLabel"),
+
+  /* Calibration */
+  calToggle: document.getElementById("calToggle"),
+  knownRpmInput: document.getElementById("knownRpmInput"),
+  applyCalButton: document.getElementById("applyCalButton"),
+  calFactorLabel: document.getElementById("calFactorLabel"),
+};
+
+let measuring = false;
+let locked = false;
+
+/* AutoRange ON/OFF 状態 */
+let autoRangeEnabled = false;
+
+/* Calibration ON/OFF 状態 */
+let calibrationEnabled = false;
+
+/* 履歴モーダル */
+UI.historyBtn.addEventListener("click", () => {
+  UI.historyModal.classList.remove("hidden");
+});
+UI.closeHistory.addEventListener("click", () => {
+  UI.historyModal.classList.add("hidden");
+});
+
+/* 設定モーダル */
+UI.settingsBtn.addEventListener("click", () => {
+  UI.settingsModal.classList.remove("hidden");
+});
+UI.closeSettings.addEventListener("click", () => {
+  UI.settingsModal.classList.add("hidden");
+});
+
+/* 説明文 ON/OFF */
+UI.helpButton.addEventListener("click", () => {
+  UI.helpText.style.display =
+    UI.helpText.style.display === "none" ? "block" : "none";
+});
+
+/* 設定リセット（ノイズ閾値・RPM補正係数・走行負荷のみ） */
+UI.settingsResetBtn.addEventListener("click", () => {
+  noiseRange.value = 20;
+  rpmCalRange.value = 1.00;
+  loadFactorRange.value = 0;
+
+  noiseLabel.textContent = "20 dB";
+  rpmCalLabel.textContent = "1.00";
+  loadFactorLabel.textContent = "0%";
+
+  localStorage.setItem("preset_noise", 20);
+  localStorage.setItem("preset_rpmCal", 1.00);
+  localStorage.setItem("preset_load", 0);
+});
+
+/* 計測開始 / 停止 */
+UI.startBtn.addEventListener("click", () => {
+  measuring = !measuring;
+
+  if (measuring) {
+    UI.startBtn.textContent = "計測停止";
+    UI.statusLine.textContent = "MEASURING — 計測中";
+  } else {
+    UI.startBtn.textContent = "計測開始";
+    UI.statusLine.textContent = "READY — 計測待機中";
+  }
+});
+
+/* ロック（全ての数字を停止） */
+UI.lockBtn.addEventListener("click", () => {
+  locked = !locked;
+
+  if (locked) {
+    UI.lockBtn.textContent = "ロック解除";
+    UI.statusLine.textContent = "LOCKED — ロック中";
+  } else {
+    UI.lockBtn.textContent = "ロック";
+    UI.statusLine.textContent = "MEASURING — 計測中";
+  }
+});
+
+/* 保存モーダルを開く */
+UI.saveBtn.addEventListener("click", () => {
+  UI.saveModal.classList.remove("hidden");
+});
+
+/* 保存モーダル：キャンセル */
+UI.saveCancelBtn.addEventListener("click", () => {
+  UI.saveModal.classList.add("hidden");
+});
+
+/* 保存モーダル：保存する */
+UI.saveConfirmBtn.addEventListener("click", () => {
+  const name = UI.saveNameInput.value.trim();
+  const motor = UI.motorTypeSelect.value;
+
+  if (name.length === 0) {
+    alert("名前を入力してください");
+    return;
+  }
+
+  saveCurrentHistory(name, motor);
+
+  UI.saveModal.classList.add("hidden");
+  UI.saveNameInput.value = "";
+  UI.motorTypeSelect.value = "";
+});
+
+/* リセット */
+UI.resetBtn.addEventListener("click", () => {
+  measuring = false;
+  locked = false;
+
+  UI.startBtn.textContent = "計測開始";
+  UI.lockBtn.textContent = "ロック";
+  UI.statusLine.textContent = "READY — 計測待機中";
+
+  resetMeasurement();
+});
+
+/* 履歴フィルタ：選択したら即反映 */
+filterVoltage.addEventListener("change", renderHistory);
+filterGear.addEventListener("change", renderHistory);
+filterTire.addEventListener("change", renderHistory);
+filterMotor.addEventListener("change", renderHistory);
+filterName.addEventListener("change", renderHistory);
+
+/* ============================================================
+   AutoRange ON/OFF トグル
+============================================================ */
+UI.autoRangeToggle.addEventListener("click", () => {
+  autoRangeEnabled = !autoRangeEnabled;
+  UI.autoRangeToggle.classList.toggle("active", autoRangeEnabled);
+});
+
+/* ============================================================
+   Calibration ON/OFF トグル
+============================================================ */
+UI.calToggle.addEventListener("click", () => {
+  calibrationEnabled = !calibrationEnabled;
+  UI.calToggle.classList.toggle("active", calibrationEnabled);
+
+  UI.knownRpmInput.disabled = !calibrationEnabled;
+  UI.applyCalButton.disabled = !calibrationEnabled;
+
+  if (!calibrationEnabled) {
+    calFactor = 1.0;
+    UI.calFactorLabel.textContent = "1.0000";
+  }
+});
+</script>
+
+<!-- ============================= -->
+<!-- JS2 : プリセット管理（電圧・ギヤ比・タイヤ径・補正） -->
+<!-- ============================= -->
+<script>
+const PRESET = {
+  voltage: document.getElementById("voltageRange"),
+  gear: document.getElementById("gearRange"),
+  tire: document.getElementById("tireRange"),
+
+  voltageLabel: document.getElementById("voltageLabel"),
+  gearLabel: document.getElementById("gearLabel"),
+  tireLabel: document.getElementById("tireLabel"),
+
+  noise: document.getElementById("noiseRange"),
+  rpmCal: document.getElementById("rpmCalRange"),
+  load: document.getElementById("loadFactorRange"),
+
+  noiseLabel: document.getElementById("noiseLabel"),
+  rpmCalLabel: document.getElementById("rpmCalLabel"),
+  loadLabel: document.getElementById("loadFactorLabel"),
+};
+
+/* ギヤ比（拡張版） */
+const gearOptions = [
+  "3.5:1",
+  "3.7:1",
+  "4.0:1",
+  "4.2:1",
+  "5.0:1",
+  "6.4:1",
+  "8.75:1",
+  "11.2:1"
+];
+
+/* プリセット読み込み */
+function loadPresets() {
+  const sv = localStorage.getItem("preset_voltage");
+  const sg = localStorage.getItem("preset_gearIndex");
+  const st = localStorage.getItem("preset_tire");
+  const sn = localStorage.getItem("preset_noise");
+  const sr = localStorage.getItem("preset_rpmCal");
+  const sl = localStorage.getItem("preset_load");
+
+  if (sv !== null) PRESET.voltage.value = sv;
+  if (sg !== null) PRESET.gear.value = sg;
+  if (st !== null) PRESET.tire.value = st;
+  if (sn !== null) PRESET.noise.value = sn;
+  if (sr !== null) PRESET.rpmCal.value = sr;
+  if (sl !== null) PRESET.load.value = sl;
+
+  updatePresetLabels();
+}
+
+/* ラベル更新 */
+function updatePresetLabels() {
+  PRESET.voltageLabel.textContent =
+    parseFloat(PRESET.voltage.value).toFixed(1);
+
+  PRESET.gearLabel.textContent =
+    gearOptions[parseInt(PRESET.gear.value, 10)];
+
+  PRESET.tireLabel.textContent =
+    parseFloat(PRESET.tire.value).toFixed(1) + " mm";
+
+  PRESET.noiseLabel.textContent = PRESET.noise.value + " dB";
+  PRESET.rpmCalLabel.textContent = parseFloat(PRESET.rpmCal.value).toFixed(2);
+  PRESET.loadLabel.textContent = PRESET.load.value + "%";
+}
+
+/* 保存 */
+function savePresets() {
+  localStorage.setItem("preset_voltage", PRESET.voltage.value);
+  localStorage.setItem("preset_gearIndex", PRESET.gear.value);
+  localStorage.setItem("preset_tire", PRESET.tire.value);
+  localStorage.setItem("preset_noise", PRESET.noise.value);
+  localStorage.setItem("preset_rpmCal", PRESET.rpmCal.value);
+  localStorage.setItem("preset_load", PRESET.load.value);
+}
+
+/* イベント */
+PRESET.voltage.addEventListener("input", () => {
+  updatePresetLabels();
+  savePresets();
+});
+PRESET.gear.addEventListener("input", () => {
+  updatePresetLabels();
+  savePresets();
+});
+PRESET.tire.addEventListener("input", () => {
+  updatePresetLabels();
+  savePresets();
+});
+PRESET.noise.addEventListener("input", () => {
+  updatePresetLabels();
+  savePresets();
+});
+PRESET.rpmCal.addEventListener("input", () => {
+  updatePresetLabels();
+  savePresets();
+});
+PRESET.load.addEventListener("input", () => {
+  updatePresetLabels();
+  savePresets();
+});
+
+/* 初期ロード */
+loadPresets();
+</script>
+<!-- ============================= -->
+<!-- JS3 : 集音ロジック（8192 FFT + AutoRange + Calibration 統合版） -->
+<!-- ============================= -->
+<script>
+/* ============================================================
+   Audio / FFT 基本設定
+============================================================ */
+let audioCtx = null;
+let analyser = null;
+let dataArray = null;
+let stream = null;
+
+let running = false;
+let lastRpm = null;
+let lastPeakBin = null;
+
+const FFT_SIZE = 8192;
+
+/* Canvas は既存 UI の waveCanvas を使用 */
+const canvas = document.getElementById("waveCanvas");
+const ctx = canvas.getContext("2d");
+
+/* AutoRange 状態（Part3 で定義済み） */
+let autoRangeLocked = false;
+
+/* Calibration 状態（Part3 で定義済み） */
+let calFactor = 1.0;
+
+/* ============================================================
+   Canvas リサイズ
+============================================================ */
+function resizeCanvas() {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+/* ============================================================
+   AutoRange：スムージング係数
+============================================================ */
+function getSmoothAlpha(rpm) {
+  if (rpm < 20000) return 0.30;
+  if (rpm < 30000) return 0.25;
+  if (rpm < 40000) return 0.20;
+  return 0.18;
+}
+
+/* ============================================================
+   AutoRange：自動レンジ調整
+============================================================ */
+function autoAdjustRange(rpm) {
+  if (!autoRangeEnabled) return;
+  if (autoRangeLocked) return;
+
+  const span = 5000;
+  const min = Math.max(5000, rpm - span);
+  const max = Math.min(60000, rpm + span);
+
+  UI.minRpmSlider.value = Math.round(min);
+  UI.maxRpmSlider.value = Math.round(max);
+
+  UI.minRpmLabel.textContent = UI.minRpmSlider.value;
+  UI.maxRpmLabel.textContent = UI.maxRpmSlider.value;
+}
+
+/* ============================================================
+   Audio Start
+============================================================ */
+async function startAudio() {
+  if (running) return;
+  running = true;
+
+  resizeCanvas();
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = FFT_SIZE;
+
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+  const source = audioCtx.createMediaStreamSource(stream);
+  source.connect(analyser);
+
+  lastRpm = null;
+  lastPeakBin = null;
+  autoRangeLocked = false;
+
+  loop();
+}
+
+/* ============================================================
+   Audio Stop
+============================================================ */
+function stopAudio() {
+  running = false;
+
+  if (audioCtx) audioCtx.suspend();
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+
+  rpmNow.textContent = "0";
+  UI.statusLine.textContent = "READY — 計測待機中";
+}
+
+/* ============================================================
+   ピーク検出（高精度）
+============================================================ */
+function getPrecisePeakHz(data, fftSize, sampleRate) {
+  const minRpm = parseInt(UI.minRpmSlider.value, 10);
+  const maxRpm = parseInt(UI.maxRpmSlider.value, 10);
+
+  const minFreq = minRpm / 60;
+  const maxFreq = maxRpm / 60;
+
+  const binToHz = sampleRate / fftSize;
+  const minBin = Math.floor(minFreq / binToHz);
+  const maxBin = Math.floor(maxFreq / binToHz);
+
+  const len = data.length;
+  const from = Math.max(1, Math.min(minBin, len - 2));
+  const to   = Math.max(2, Math.min(maxBin, len - 1));
+
+  let maxVal = -Infinity;
+  let maxIdx = -1;
+
+  /* 直前のピーク周辺を優先検索 */
+  if (lastPeakBin !== null) {
+    const searchRadius = 5;
+    const center = Math.floor(lastPeakBin);
+    const sFrom = Math.max(from, center - searchRadius);
+    const sTo   = Math.min(to,   center + searchRadius);
+
+    for (let i = sFrom; i <= sTo; i++) {
+      const v = data[i];
+      if (v > maxVal) {
+        maxVal = v;
+        maxIdx = i;
+      }
+    }
+  }
+
+  /* 見つからなければ全域検索 */
+  if (maxIdx === -1) {
+    for (let i = from; i <= to; i++) {
+      const v = data[i];
+      if (v > maxVal) {
+        maxVal = v;
+        maxIdx = i;
+      }
+    }
+  }
+
+  if (maxIdx <= from || maxIdx >= to) return 0;
+
+  /* パラボリック補間 */
+  const y1 = data[maxIdx - 1];
+  const y2 = data[maxIdx];
+  const y3 = data[maxIdx + 1];
+
+  const denom = (y1 - 2 * y2 + y3);
+  const offset = denom === 0 ? 0 : (y1 - y3) / (2 * denom);
+  const peakBin = maxIdx + offset;
+
+  lastPeakBin = peakBin;
+
+  return peakBin * binToHz;
+}
+
+/* ============================================================
+   FFT Loop
+============================================================ */
+function loop() {
+  if (!running) return;
+  requestAnimationFrame(loop);
+
+  const w = canvas.width;
+  const h = canvas.height;
+
+  analyser.getByteFrequencyData(dataArray);
+
+  /* FFT描画 */
+  ctx.clearRect(0, 0, w, h);
+  ctx.beginPath();
+  ctx.strokeStyle = "#00ff9d";
+  ctx.lineWidth = 1.2;
+
+  const step = dataArray.length / w;
+  const scale = h / 256;
+
+  for (let x = 0; x < w; x++) {
+    const bin = Math.floor(x * step);
+    const v = dataArray[bin];
+    const y = h - v * scale;
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  /* ロック中は更新しない */
+  if (locked) return;
+
+  /* ピーク周波数 → RPM */
+  const peakHz = getPrecisePeakHz(dataArray, analyser.fftSize, audioCtx.sampleRate);
+  if (peakHz <= 0) return;
+
+  const rawRpm = peakHz * 60;
+
+  /* Calibration ON/OFF */
+  const calibratedRpm = calibrationEnabled ? rawRpm * calFactor : rawRpm;
+
+  /* スムージング */
+  const alpha = getSmoothAlpha(calibratedRpm);
+  let displayRpm = calibratedRpm;
+
+  if (lastRpm !== null) {
+    displayRpm = lastRpm * (1 - alpha) + calibratedRpm * alpha;
+  }
+  lastRpm = displayRpm;
+
+  /* AutoRange */
+  autoAdjustRange(displayRpm);
+
+  /* RPM 表示 */
+  rpmNow.textContent = Math.round(displayRpm);
+
+  /* MAX/MIN 更新 */
+  const rpmVal = Math.round(displayRpm);
+  if (rpmVal > parseInt(rpmMax.textContent)) rpmMax.textContent = rpmVal;
+  if (parseInt(rpmMin.textContent) === 0 || rpmVal < parseInt(rpmMin.textContent))
+    rpmMin.textContent = rpmVal;
+
+  /* SPEED 計算（既存ロジック） */
+  const { adjustedRpm, speed } = computeSpeedFromRpm(displayRpm);
+  speedNow.textContent = speed.toFixed(2) + " km/h";
+
+  if (speed > parseFloat(speedTop.textContent)) speedTop.textContent = speed.toFixed(2) + " km/h";
+  if (parseFloat(speedMin.textContent) === 0 || speed < parseFloat(speedMin.textContent))
+    speedMin.textContent = speed.toFixed(2) + " km/h";
+}
+
+/* ============================================================
+   Start / Stop ボタン（既存 UI）
+============================================================ */
+UI.startBtn.addEventListener("click", () => {
+  if (!running) {
+    startAudio();
+  } else {
+    stopAudio();
+  }
+});
+
+UI.resetBtn.addEventListener("click", () => {
+  stopAudio();
+  resetMeasurement();
+});
+
+/* ============================================================
+   Calibration：既知RPMで補正
+============================================================ */
+UI.applyCalButton.addEventListener("click", () => {
+  if (!calibrationEnabled) return;
+
+  const knownRpm = parseFloat(UI.knownRpmInput.value);
+  if (!knownRpm || knownRpm <= 0) return;
+  if (!lastRpm || lastRpm <= 0) return;
+
+  const rawRpm = lastRpm / calFactor;
+  if (rawRpm <= 0) return;
+
+  const newFactor = knownRpm / rawRpm;
+  if (newFactor > 0 && newFactor < 2) {
+    calFactor = newFactor;
+    UI.calFactorLabel.textContent = calFactor.toFixed(4);
+    localStorage.setItem("mini4wd_cal_factor_8192", calFactor.toFixed(6));
+  }
+});
+
+/* ============================================================
+   初期ロード：補正係数読み込み
+============================================================ */
+(function loadCalFactor() {
+  const saved = localStorage.getItem("mini4wd_cal_factor_8192");
+  if (saved !== null) {
+    const v = parseFloat(saved);
+    if (!isNaN(v) && v > 0 && v < 2) calFactor = v;
+  }
+  UI.calFactorLabel.textContent = calFactor.toFixed(4);
+})();
+</script>
+</body>
+</html>
