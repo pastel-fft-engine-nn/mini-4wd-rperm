@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>RPM Analyzer — Advanced FFT</title>
 
+  <!-- ダブルタップ拡大禁止 / ピンチズーム禁止 -->
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0,
                  user-scalable=no, maximum-scale=1.0">
@@ -28,12 +29,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 18px;
+      padding: 10px 18px;   /* ★縮小 */
       background: #f5f7ff;
       border-bottom: 1px solid #dce3f7;
     }
     .header-title {
-      font-size: 1.1rem;
+      font-size: 1.1rem;    /* ★縮小 */
       font-weight: 700;
       color: #4a6cff;
     }
@@ -42,8 +43,8 @@
       gap: 12px;
     }
     .header-buttons button {
-      padding: 14px 0;
-      width: 110px;
+      padding: 14px 0;      /* ★保存ボタンと同じ高さ */
+      width: 110px;         /* ★保存ボタンと同じ幅 */
       border-radius: 999px;
       background: #e6ecff;
       color: #4a6cff;
@@ -51,7 +52,7 @@
       font-weight: 700;
       border: none;
       box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-      transform: none;
+      transform: none;      /* ★拡大解除 */
     }
 
     /* ============================================================
@@ -171,7 +172,7 @@
     }
 
     /* ============================================================
-       Comparison Table
+       比較表（スマホ最適化）
     ============================================================ */
     .comparison-wrapper {
       overflow-x: auto;
@@ -214,11 +215,44 @@
       font-size: 0.95rem;
     }
 
+    .comparison-table th small {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
     .highlight-row {
-      background: rgba(120,160,255,0.12) !important;
+      background: rgba(120, 160, 255, 0.12) !important;
     }
     .highlight-col {
-      background: rgba(255,150,200,0.12) !important;
+      background: rgba(255, 150, 200, 0.12) !important;
+    }
+
+    /* ============================================================
+       Modal Common
+    ============================================================ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: #f5f7fc;
+      border-radius: 18px 18px 0 0;
+      padding: 18px;
+      position: relative;
+    }
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .hidden {
+      display: none;
     }
 
     /* ============================================================
@@ -247,17 +281,28 @@
       box-sizing: border-box;
     }
 
-    /* ★追加：検索ボタンの正しい位置指定 */
-    .history-filter-actions {
-      grid-column: 3 / 4;
-      grid-row: 2 / 3;
-      display: flex;
-      align-items: flex-end;
+    /* ============================================================
+       履歴検索ボタン（位置 & 高さ調整）
+    ============================================================ */
+    #historySearchBtn {
+      width: 100%;
+      height: 48px;          /* ★プルダウンと同じ高さ */
+      padding: 0;
+      border-radius: 10px;
+      background: #4a6cff;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      margin-top: 4px;       /* ★名前プルダウンに近づける */
     }
 
     /* ============================================================
        History List（列幅調整）
     ============================================================ */
+    .history-scroll {
+      overflow-x: auto;
+    }
     .history-header-row {
       background: #e6ecff;
       padding: 8px;
@@ -265,8 +310,8 @@
       font-weight: 700;
       display: grid;
       grid-template-columns:
-        96px   /* 日付（8桁） */
-        120px  /* 名前（全角8文字） */
+        96px   /* ★日付（8桁） */
+        120px  /* ★名前（全角8文字） */
         80px
         80px
         80px
@@ -295,7 +340,7 @@
     }
 
     /* ============================================================
-       Save Modal
+       Save Modal（保存するボタン統一）
     ============================================================ */
     .text-input {
       width: 100%;
@@ -312,25 +357,13 @@
       display: flex;
       align-items: center;
     }
+
     #saveConfirmBtn {
       width: 100%;
       padding: 16px 0;
       border-radius: 999px;
       background: #ff4fa3;
       color: #fff;
-      font-weight: 700;
-      font-size: 1.6rem;
-      border: none;
-      margin-top: 12px;
-    }
-
-    /* ★追加：設定リセットボタンの崩れ防止 */
-    #settingsResetBtn {
-      width: 100%;
-      padding: 16px 0;
-      border-radius: 999px;
-      background: #e6ecff;
-      color: #4a6cff;
       font-weight: 700;
       font-size: 1.6rem;
       border: none;
@@ -397,7 +430,7 @@
       </div>
     </section>
 
-    <!-- ===== 計測条件・比較表 ===== -->
+    <!-- ===== 計測条件・比較表（常時表示） ===== -->
     <section class="card" id="conditionBlock">
       <div class="card-title">計測条件・比較表</div>
 
@@ -475,7 +508,6 @@
           <select id="filterName"></select>
         </div>
 
-        <!-- ★検索ボタンは history-filter-actions として CSS で位置制御 -->
         <div class="history-filter-actions">
           <button id="historySearchBtn">検索</button>
         </div>
@@ -581,7 +613,7 @@
     </div>
   </div>
 <!-- ============================= -->
-<!-- JS1 : UIイベント（モーダル・ボタン・ロック制御・保存・検索） -->
+<!-- JS1 : UIイベント（モーダル・ボタン・ロック制御・検索ボタン） -->
 <!-- ============================= -->
 <script>
   const UI = {
@@ -647,8 +679,8 @@
       UI.startBtn.textContent = "計測停止";
       UI.statusLine.textContent = "MEASURING — 計測中";
 
-      lockedSnapshot = null;
-      comparisonBody.innerHTML = "";
+      lockedSnapshot = null;          // 仮ロック削除
+      comparisonBody.innerHTML = "";  // 比較表クリア
 
       startMic();
     } else {
@@ -665,7 +697,7 @@
       UI.lockBtn.textContent = "ロック解除";
       UI.statusLine.textContent = "LOCKED — ロック中";
 
-      lockCurrent();
+      lockCurrent();  // ★補正後RPMを保存して比較表を計算
     } else {
       locked = false;
       UI.lockBtn.textContent = "ロック";
@@ -1049,11 +1081,11 @@
   ============================================================ */
   function lockCurrent() {
     lockedSnapshot = {
-      rpm: currentRpm,
-      speed: currentSpeed
+      rpm: currentRpm,     // ★補正後RPMを保存
+      speed: currentSpeed  // ★補正後速度を保存
     };
 
-    generateComparisonTableFromLock();
+    generateComparisonTableFromLock(); // ロック直後に比較表更新
   }
 
   function unlockCurrent() {
@@ -1062,14 +1094,15 @@
   }
 
   /* ============================================================
-     Comparison Table（電圧計算修正済み）
+     Comparison Table (Lock基準)
+     ★電圧計算修正済み
   ============================================================ */
   function generateComparisonTableFromLock() {
     if (!lockedSnapshot) return;
 
     const baseRpm = lockedSnapshot.rpm;
     const tire = parseFloat(document.getElementById("tireRange").value);
-    const currentVoltage = parseFloat(document.getElementById("voltageRange").value);
+    const currentVoltage = parseFloat(document.getElementById("voltageRange").value); // ★修正：toFixed禁止
 
     comparisonBody.innerHTML = "";
 
@@ -1083,6 +1116,7 @@
       tdV.textContent = voltage.toFixed(1);
       tr.appendChild(tdV);
 
+      // ★正しい電圧比計算
       const rpm = Math.round(baseRpm * (voltage / currentVoltage));
 
       const tdR = document.createElement("td");
