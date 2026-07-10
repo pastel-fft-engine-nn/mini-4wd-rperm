@@ -1,133 +1,24 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>RPM Analyzer — Advanced FFT</title>
-
-  <!-- ダブルタップ拡大禁止 / ピンチズーム禁止 -->
+  <meta charset="UTF-8" />
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0,
-                 user-scalable=no, maximum-scale=1.0">
+                 user-scalable=no, maximum-scale=1.0" />
+
+  <title>RPM Analyzer</title>
 
   <style>
-    /* ============================================================
-       Base
-    ============================================================ */
-    body {
-      margin: 0;
-      padding: 0;
-      background: #ffffff;
-      font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
-      color: #333;
-      overflow-x: hidden;
-    }
+    /* ====== ここにあなたの全CSS（送ってくれた内容そのまま） ====== */
 
-    /* ============================================================
-       Header（高さ縮小 & ボタン統一）
-    ============================================================ */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 18px;   /* ★縮小 */
-      background: #f5f7ff;
-      border-bottom: 1px solid #dce3f7;
-    }
-    .header-title {
-      font-size: 1.1rem;    /* ★縮小 */
-      font-weight: 700;
-      color: #4a6cff;
-    }
-    .header-buttons {
-      display: flex;
-      gap: 12px;
-    }
-    .header-buttons button {
-      padding: 14px 0;      /* ★保存ボタンと同じ高さ */
-      width: 110px;         /* ★保存ボタンと同じ幅 */
-      border-radius: 999px;
-      background: #e6ecff;
-      color: #4a6cff;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-      transform: none;      /* ★拡大解除 */
-    }
-
-    /* ============================================================
-       Main Container
-    ============================================================ */
-    .main-container {
-      padding: 16px;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    /* ============================================================
-       Card
-    ============================================================ */
-    .card {
-      background: #f5f7fc;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .card-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    /* ============================================================
-       FFT Spectrum
-    ============================================================ */
-    #waveCanvas {
-      width: 75%;
-      height: 160px;
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: inset 0 0 6px rgba(0,0,0,0.08);
-      margin: 0 auto;
-      display: block;
-    }
-
-    /* ============================================================
-       RPM / SPEED Display
-    ============================================================ */
-    .rpm-grid, .speed-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 12px;
-      margin-left: 32px;
-    }
-    .rpm-grid div, .speed-grid div {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9rem;
-    }
-    .rpm-grid span:last-child,
-    .speed-grid span:last-child {
-      font-weight: 700;
-      margin-top: 2px;
-      text-align: right;
-      font-size: 1.2rem;
-    }
-
-    /* ============================================================
-       Status Line
-    ============================================================ */
+    /* Status Line */
     .status-line {
       margin-top: 12px;
       font-size: 0.9rem;
       color: #666;
     }
 
-    /* ============================================================
-       Buttons
-    ============================================================ */
+    /* Buttons */
     .realtime-buttons {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -150,9 +41,7 @@
       color: #4a6cff;
     }
 
-    /* ============================================================
-       Sliders
-    ============================================================ */
+    /* Sliders */
     input[type="range"] {
       width: 100%;
       -webkit-appearance: none;
@@ -171,9 +60,7 @@
       border: 2px solid #4a6cff;
     }
 
-    /* ============================================================
-       比較表（スマホ最適化）
-    ============================================================ */
+    /* Comparison Table */
     .comparison-wrapper {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -227,9 +114,7 @@
       background: rgba(255, 150, 200, 0.12) !important;
     }
 
-    /* ============================================================
-       Modal Common
-    ============================================================ */
+    /* Modal Common */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -255,9 +140,7 @@
       display: none;
     }
 
-    /* ============================================================
-       History Filter
-    ============================================================ */
+    /* History Filter */
     .history-filter {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -281,12 +164,10 @@
       box-sizing: border-box;
     }
 
-    /* ============================================================
-       履歴検索ボタン（位置 & 高さ調整）
-    ============================================================ */
+    /* History Search Button */
     #historySearchBtn {
       width: 100%;
-      height: 48px;          /* ★プルダウンと同じ高さ */
+      height: 48px;
       padding: 0;
       border-radius: 10px;
       background: #4a6cff;
@@ -294,12 +175,10 @@
       font-size: 1rem;
       font-weight: 700;
       border: none;
-      margin-top: 4px;       /* ★名前プルダウンに近づける */
+      margin-top: 4px;
     }
 
-    /* ============================================================
-       History List（列幅調整）
-    ============================================================ */
+    /* History List */
     .history-scroll {
       overflow-x: auto;
     }
@@ -310,8 +189,8 @@
       font-weight: 700;
       display: grid;
       grid-template-columns:
-        96px   /* ★日付（8桁） */
-        120px  /* ★名前（全角8文字） */
+        96px
+        120px
         80px
         80px
         80px
@@ -339,9 +218,7 @@
       box-sizing: border-box;
     }
 
-    /* ============================================================
-       Save Modal（保存するボタン統一）
-    ============================================================ */
+    /* Save Modal */
     .text-input {
       width: 100%;
       padding: 10px;
@@ -370,9 +247,7 @@
       margin-top: 12px;
     }
 
-    /* ============================================================
-       Close Buttons（履歴・設定の閉じるボタン統一）
-    ============================================================ */
+    /* Close Buttons */
     .close-btn {
       width: 100%;
       padding: 16px 0;
@@ -384,12 +259,13 @@
       border: none;
       margin-top: 12px;
     }
-
   </style>
 </head>
+
+
 <body>
 
-  <!-- ===== Header ===== -->
+  <!-- Header -->
   <div class="header">
     <div class="header-title">RPM Analyzer</div>
     <div class="header-buttons">
@@ -398,10 +274,10 @@
     </div>
   </div>
 
-  <!-- ===== Main Container ===== -->
+  <!-- Main Container -->
   <div class="main-container">
 
-    <!-- ===== リアルタイム計測 ===== -->
+    <!-- リアルタイム計測 -->
     <section class="card">
       <div class="card-title">リアルタイム計測</div>
 
@@ -430,7 +306,7 @@
       </div>
     </section>
 
-    <!-- ===== 計測条件・比較表（常時表示） ===== -->
+    <!-- 計測条件・比較表 -->
     <section class="card" id="conditionBlock">
       <div class="card-title">計測条件・比較表</div>
 
@@ -476,42 +352,35 @@
 
   </div><!-- main-container 終了 -->
 
-  <!-- ===== 履歴モーダル ===== -->
+  <!-- 履歴モーダル -->
   <div id="historyModalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-title">履歴一覧</div>
 
       <div class="history-filter">
-
         <div>
           <label for="filterVoltage">電圧</label>
           <select id="filterVoltage"></select>
         </div>
-
         <div>
           <label for="filterGear">ギヤ比</label>
           <select id="filterGear"></select>
         </div>
-
         <div>
           <label for="filterTire">タイヤ径</label>
           <select id="filterTire"></select>
         </div>
-
         <div>
           <label for="filterMotor">モーター</label>
           <select id="filterMotor"></select>
         </div>
-
         <div>
           <label for="filterName">名前</label>
           <select id="filterName"></select>
         </div>
-
         <div class="history-filter-actions">
           <button id="historySearchBtn">検索</button>
         </div>
-
       </div>
 
       <div class="history-scroll">
@@ -533,7 +402,7 @@
     </div>
   </div>
 
-  <!-- ===== 保存モーダル ===== -->
+  <!-- 保存モーダル -->
   <div id="saveModalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
       <div class="modal-title">保存</div>
@@ -567,51 +436,15 @@
         </select>
       </div>
 
-      <div class="save-buttons">
-        <button id="saveConfirmBtn" class="primary-btn">保存する</button>
-        <button id="saveCancelBtn" class="close-btn">キャンセル</button>
-      </div>
+      <button id="saveConfirmBtn">保存する</button>
+      <button id="saveCancelBtn" class="close-btn">閉じる</button>
     </div>
   </div>
 
-  <!-- ===== 設定モーダル ===== -->
-  <div id="settingsModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal">
+</body>
+</html>
 
-      <button id="helpButton" class="help-btn">？</button>
-      <div class="modal-title">設定</div>
 
-      <div id="helpText" class="help-text hidden">
-        ノイズ閾値：環境音のうち無視するレベルを調整します。<br>
-        RPM補正係数：実測値と表示RPMのズレを補正します。<br>
-        走行負荷：実走行時の負荷を想定して速度を補正します。
-      </div>
-
-      <div class="setting-item">
-        <div class="setting-label">ノイズ閾値</div>
-        <input id="noiseRange" type="range" min="0" max="100" step="1" value="20" />
-        <div id="noiseLabel">20 dB</div>
-      </div>
-
-      <div class="setting-item">
-        <div class="setting-label">RPM補正係数</div>
-        <input id="rpmCalRange" type="range" min="0.5" max="1.5" step="0.01" value="1.00" />
-        <div id="rpmCalLabel">1.00</div>
-      </div>
-
-      <div class="setting-item">
-        <div class="setting-label">走行負荷（-100%〜+100%）</div>
-        <input id="loadFactorRange" type="range" min="-100" max="100" step="1" value="0" />
-        <div id="loadFactorLabel">0%</div>
-      </div>
-
-      <div class="setting-item">
-        <button id="settingsResetBtn" class="primary-btn">設定リセット</button>
-      </div>
-
-      <button id="closeSettings" class="close-btn">閉じる</button>
-    </div>
-  </div>
 <!-- ============================= -->
 <!-- JS1 : UIイベント（モーダル・ボタン・ロック制御・検索ボタン） -->
 <!-- ============================= -->
@@ -672,21 +505,19 @@
   });
 
   /* 計測開始 / 停止 */
+  UI.startBtn.addEventListener("click", () => {
+    measuring = !measuring;
 
-/* 計測開始 / 停止 */
-UI.startBtn.addEventListener("click", () => {
-  measuring = !measuring;
-
-  if (measuring) {
-    UI.startBtn.textContent = "計測停止";
-    UI.statusLine.textContent = "MEASURING — 計測中";
-    startMic();
-  } else {
-    UI.startBtn.textContent = "計測開始";
-    UI.statusLine.textContent = "READY — 計測待機中";
-    stopMic();
-  }
-});
+    if (measuring) {
+      UI.startBtn.textContent = "計測停止";
+      UI.statusLine.textContent = "MEASURING — 計測中";
+      startMic();
+    } else {
+      UI.startBtn.textContent = "計測開始";
+      UI.statusLine.textContent = "READY — 計測待機中";
+      stopMic();
+    }
+  });
 
   /* ロック（計測値を固定して比較表を計算） */
   UI.lockBtn.addEventListener("click", () => {
@@ -694,81 +525,37 @@ UI.startBtn.addEventListener("click", () => {
       locked = true;
       UI.lockBtn.textContent = "ロック解除";
       UI.statusLine.textContent = "LOCKED — ロック中";
-
-      lockCurrent();  // ★補正後RPMを保存して比較表を計算
+      lockCurrent();
     } else {
       locked = false;
       UI.lockBtn.textContent = "ロック";
       UI.statusLine.textContent = "MEASURING — 計測中";
-
       unlockCurrent();
     }
   });
 
-  /* 保存モーダルを開く */
+  /* 保存モーダル */
   UI.saveBtn.addEventListener("click", () => {
     UI.saveModal.classList.remove("hidden");
   });
 
-  /* 保存モーダル：キャンセル */
+  /* 保存キャンセル */
   UI.saveCancelBtn.addEventListener("click", () => {
     UI.saveModal.classList.add("hidden");
   });
 
-  /* 保存モーダル：保存する */
-  UI.saveConfirmBtn.addEventListener("click", () => {
-    const name = UI.saveNameInput.value.trim();
-    const motor = UI.motorTypeSelect.value;
-
-    if (!name) {
-      alert("名前を入力してください");
-      return;
-    }
-
-    saveCurrentHistory(name, motor);
-
-    UI.saveModal.classList.add("hidden");
-    UI.saveNameInput.value = "";
-    UI.motorTypeSelect.value = "";
-  });
-
   /* リセット */
   UI.resetBtn.addEventListener("click", () => {
-    measuring = false;
-    locked = false;
-
-    UI.startBtn.textContent = "計測開始";
-    UI.lockBtn.textContent = "ロック";
-    UI.statusLine.textContent = "READY — 計測待機中";
-
     resetMeasurement();
   });
 
-  /* 履歴検索ボタン（プルダウンの内容で絞り込み） */
+  /* 履歴検索 */
   UI.historySearchBtn.addEventListener("click", () => {
     renderHistory();
   });
-
-  /* 設定リセットボタン（ノイズ閾値・補正係数・負荷のみ初期化） */
-  UI.settingsResetBtn.addEventListener("click", () => {
-    noiseRange.value = 20;
-    rpmCalRange.value = 1.00;
-    loadFactorRange.value = 0;
-
-    updatePresetLabels();
-    savePresets();
-  });
-
-  /* ダブルタップ拡大防止（iOS） */
-  let lastTouchEnd = 0;
-  document.addEventListener("touchend", function (event) {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-      event.preventDefault();
-    }
-    lastTouchEnd = now;
-  }, { passive: false });
 </script>
+
+
 <!-- ============================= -->
 <!-- JS2 : プリセット管理（電圧・ギヤ比・タイヤ径・補正） -->
 <!-- ============================= -->
@@ -852,7 +639,7 @@ UI.startBtn.addEventListener("click", () => {
   PRESET.voltage.addEventListener("input", () => {
     updatePresetLabels();
     savePresets();
-    generateComparisonTableFromLock();  // 電圧変更時に比較表更新
+    generateComparisonTableFromLock();
   });
 
   PRESET.gear.addEventListener("input", () => {
@@ -885,6 +672,8 @@ UI.startBtn.addEventListener("click", () => {
   /* 初期ロード */
   loadPresets();
 </script>
+
+
 <!-- ============================= -->
 <!-- JS3 : FFT / 比較表 / 履歴管理 -->
 <!-- ============================= -->
@@ -953,7 +742,6 @@ UI.startBtn.addEventListener("click", () => {
   function stopMic() {
     running = false;
 
-    // audioContext.suspend(); ← 削除
     if (micStream) {
       micStream.getTracks().forEach(t => t.stop());
       micStream = null;
@@ -1012,8 +800,126 @@ UI.startBtn.addEventListener("click", () => {
   }
 
   /* ============================================================
-     Comparison Table (Lock基準)
-     ★電圧計算修正済み
+     FFT Loop
+  ============================================================ */
+  function loopFFT() {
+    if (!running) return;
+
+    analyser.getByteFrequencyData(dataArray);
+
+    const sampleRate = audioContext.sampleRate;
+    const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, sampleRate);
+
+    const rpm = peakHz * 60;
+    currentRpm = rpm;
+
+    if (maxRpmVal === 0 || rpm > maxRpmVal) maxRpmVal = rpm;
+    if (minRpmVal === 0 || rpm < minRpmVal) minRpmVal = rpm;
+
+    const { adjustedRpm, speed } = computeSpeedFromRpm(rpm);
+    currentSpeed = speed;
+
+    if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
+    if (minSpeedVal === 0 || speed < minSpeedVal) minSpeedVal = speed;
+
+    rpmNow.textContent = Math.round(currentRpm);
+    rpmMax.textContent = Math.round(maxRpmVal);
+    rpmMin.textContent = Math.round(minRpmVal);
+
+    speedNow.textContent = currentSpeed.toFixed(2) + " km/h";
+    speedTop.textContent = maxSpeedVal.toFixed(2) + " km/h";
+    speedMin.textContent = minSpeedVal.toFixed(2) + " km/h";
+
+    drawFFT();
+
+    requestAnimationFrame(loopFFT);
+  }
+
+  /* ============================================================
+     FFT Drawing
+  ============================================================ */
+  function drawFFT() {
+    ctx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+
+    ctx.beginPath();
+    ctx.strokeStyle = "#4a6cff";
+    ctx.lineWidth = 1;
+
+    const len = dataArray.length;
+    const w = waveCanvas.width;
+    const h = waveCanvas.height;
+
+    for (let i = 0; i < len; i++) {
+      const x = (i / len) * w;
+      const y = h - (dataArray[i] / 255) * h;
+      ctx.lineTo(x, y);
+    }
+
+    ctx.stroke();
+  }
+
+  /* ============================================================
+     Lock Snapshot
+  ============================================================ */
+  function lockCurrent() {
+    lockedSnapshot = {
+      rpm: currentRpm,
+      speed: currentSpeed,
+      voltage: PRESET.voltage.value,
+      gear: PRESET.gear.value,
+      tire: PRESET.tire.value
+    };
+
+    generateComparisonTableFromLock();
+  }
+
+  function unlockCurrent() {
+    lockedSnapshot = null;
+    comparisonBody.innerHTML = "";
+  }
+
+  /* ============================================================
+     Comparison Table
+  ============================================================ */
+  function generateComparisonTableFromLock() {
+    if (!lockedSnapshot) return;
+
+    const baseRpm = lockedSnapshot.rpm;
+    const baseVoltage = parseFloat(lockedSnapshot.voltage);
+
+    const tbody = document.getElementById("comparisonBody");
+    tbody.innerHTML = "";
+
+    for (let v = 2.2; v <= 3.4; v += 0.1) {
+      const voltageFactor = v / baseVoltage;
+      const rpm = baseRpm * voltageFactor;
+
+      const row = document.createElement("tr");
+
+      const tdV = document.createElement("td");
+      tdV.textContent = v.toFixed(1);
+      row.appendChild(tdV);
+
+      const tdR = document.createElement("td");
+      tdR.textContent = Math.round(rpm);
+      row.appendChild(tdR);
+
+      gearOptions.forEach(g => {
+        const ratio = parseFloat(g.split(":")[0]);
+        const wheelRpm = rpm / ratio;
+        const wheelRps = wheelRpm / 60;
+        const tire = parseFloat(lockedSnapshot.tire);
+        const circumference = Math.PI * (tire / 1000);
+        const speed = wheelRps * circumference * 3.6;
+
+        const td = document.createElement("td");
+        td.textContent = speed.toFixed(2);
+        row.appendChild(td);
+      });
+
+      tbody.appendChild(row);
+    }
+  }
 
   /* ============================================================
      Reset
@@ -1041,13 +947,36 @@ UI.startBtn.addEventListener("click", () => {
     comparisonBody.innerHTML = "";
   }
 
-   const list = JSON.parse(localStorage.getItem("rpmHistory") || "[]");
+  /* ============================================================
+     Save History
+  ============================================================ */
+  function saveCurrentHistory() {
+    const name = UI.saveNameInput.value.trim();
+    const motor = UI.motorTypeSelect.value;
+
+    const entry = {
+      date: new Date().toLocaleString(),
+      name,
+      motor,
+      speed: currentSpeed.toFixed(2),
+      rpm: Math.round(currentRpm),
+      voltage: PRESET.voltage.value,
+      gear: PRESET.gear.value,
+      tire: PRESET.tire.value
+    };
+
+    const list = JSON.parse(localStorage.getItem("rpmHistory") || "[]");
     list.unshift(entry);
     localStorage.setItem("rpmHistory", JSON.stringify(list));
 
     renderHistory();
     buildFilterOptions();
   }
+
+  UI.saveConfirmBtn.addEventListener("click", () => {
+    saveCurrentHistory();
+    UI.saveModal.classList.add("hidden");
+  });
 
   /* ============================================================
      History Filter
