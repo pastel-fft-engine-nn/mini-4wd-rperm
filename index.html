@@ -892,6 +892,9 @@
 <!-- JS3 : FFT / 比較表 / 履歴管理（完全統合版） -->
 <!-- ============================= -->
 <script>
+const comparisonBody = document.getElementById("comparisonBody");
+const historyBody = document.getElementById("historyBody");
+
   /* ============================================================
      FFT / Audio
   ============================================================ */
@@ -937,39 +940,34 @@ const historyBody = document.getElementById("historyBody");
 
   let lockedSnapshot = null;
 
-  /* ============================================================
-     Start Microphone
-  ============================================================ */
-  async function startMic() {
-    if (running) return;
+async function startMic() {
+  if (running) return;
 
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = FFT_SIZE;
+  analyser = audioContext.createAnalyser();
+  analyser.fftSize = FFT_SIZE;
 
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-    const source = audioContext.createMediaStreamSource(micStream);
-    source.connect(analyser);
+  const source = audioContext.createMediaStreamSource(micStream);
+  source.connect(analyser);
 
-    running = true;
-    loopFFT();
+  running = true;
+  loopFFT();
+}
+
+function stopMic() {
+  running = false;
+
+  if (audioContext) audioContext.suspend();
+  if (micStream) {
+    micStream.getTracks().forEach(t => t.stop());
+    micStream = null;
   }
+}
 
-  /* ============================================================
-     Stop Microphone
-  ============================================================ */
-  function stopMic() {
-    running = false;
-
-    if (audioContext) audioContext.suspend();
-    if (micStream) {
-      micStream.getTracks().forEach(t => t.stop());
-      micStream = null;
-    }
-  }
 
   /* ============================================================
      Precise Peak Detection（dB変換＋ノイズ閾値）
