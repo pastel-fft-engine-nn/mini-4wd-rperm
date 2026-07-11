@@ -331,6 +331,17 @@
 
     /* 説明書き */
     UI.helpButton.addEventListener("click", () => UI.helpText.classList.toggle("hidden"));
+UI.startBtn.addEventListener("click", async () => {
+  try {
+    UI.statusLine.textContent = "MIC — 許可待ち";
+    await startMic();
+    UI.statusLine.textContent = "MIC — 計測中";
+  } catch (e) {
+    UI.statusLine.textContent = "MIC — 許可が必要です";
+    console.error(e);
+  }
+});
+
   </script>
 
   <!-- ===== JS2 : プリセット管理 ===== -->
