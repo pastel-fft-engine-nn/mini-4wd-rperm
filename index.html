@@ -892,54 +892,52 @@
 <!-- JS3 : FFT / 比較表 / 履歴管理（完全統合版） -->
 <!-- ============================= -->
 <script>
+/* ============================================================
+   DOM refs
+============================================================ */
 const comparisonBody = document.getElementById("comparisonBody");
 const historyBody = document.getElementById("historyBody");
 
-  /* ============================================================
-     FFT / Audio
-  ============================================================ */
-  let audioContext = null;
-  let analyser = null;
-  let micStream = null;
-  let dataArray = null;
-  let running = false;
+/* ============================================================
+   FFT / Audio
+============================================================ */
+let audioContext = null;
+let analyser = null;
+let micStream = null;
+let dataArray = null;
+let running = false;
 
-  const FFT_SIZE = 8192;
+const FFT_SIZE = 8192;
 
-  /* ============================================================
-     Canvas
-  ============================================================ */
-  const waveCanvas = document.getElementById("waveCanvas");
-  const ctx = waveCanvas.getContext("2d");
-
+/* ============================================================
+   Canvas
+============================================================ */
 const waveCanvas = document.getElementById("waveCanvas");
 const ctx = waveCanvas.getContext("2d");
 
-/* ここに追加 */
-const comparisonBody = document.getElementById("comparisonBody");
-const historyBody = document.getElementById("historyBody");
+function resizeCanvas() {
+  waveCanvas.width = waveCanvas.clientWidth;
+  waveCanvas.height = waveCanvas.clientHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
+/* ============================================================
+   Measurement Values
+============================================================ */
+let currentRpm = 0;
+let maxRpmVal = 0;
+let minRpmVal = 0;
 
-  function resizeCanvas() {
-    waveCanvas.width = waveCanvas.clientWidth;
-    waveCanvas.height = waveCanvas.clientHeight;
-  }
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
+let currentSpeed = 0;
+let maxSpeedVal = 0;
+let minSpeedVal = 0;
 
-  /* ============================================================
-     Measurement Values
-  ============================================================ */
-  let currentRpm = 0;
-  let maxRpmVal = 0;
-  let minRpmVal = 0;
+let lockedSnapshot = null;
 
-  let currentSpeed = 0;
-  let maxSpeedVal = 0;
-  let minSpeedVal = 0;
-
-  let lockedSnapshot = null;
-
+/* ============================================================
+   Start Microphone
+============================================================ */
 async function startMic() {
   if (running) return;
 
@@ -958,6 +956,9 @@ async function startMic() {
   loopFFT();
 }
 
+/* ============================================================
+   Stop Microphone
+============================================================ */
 function stopMic() {
   running = false;
 
@@ -968,250 +969,248 @@ function stopMic() {
   }
 }
 
+/* ============================================================
+   Precise Peak Detection（dB変換＋ノイズ閾値）
+============================================================ */
+function getPrecisePeakHz(data, fftSize, sampleRate) {
+  const binToHz = sampleRate / fftSize;
+  const noiseThreshold = parseFloat(PRESET.noise.value);
 
-  /* ============================================================
-     Precise Peak Detection（dB変換＋ノイズ閾値）
-  ============================================================ */
-  function getPrecisePeakHz(data, fftSize, sampleRate) {
-    const binToHz = sampleRate / fftSize;
-    const noiseThreshold = parseFloat(PRESET.noise.value);
+  let maxVal = -Infinity;
+  let maxIdx = -1;
 
-    let maxVal = -Infinity;
-    let maxIdx = -1;
+  for (let i = 1; i < data.length - 1; i++) {
+    const v = data[i];
+    const db = 20 * Math.log10(v / 255);
 
-    for (let i = 1; i < data.length - 1; i++) {
-      const v = data[i];
-      const db = 20 * Math.log10(v / 255);
+    if (db < noiseThreshold) continue;
 
-      if (db < noiseThreshold) continue;
-
-      if (db > maxVal) {
-        maxVal = db;
-        maxIdx = i;
-      }
-    }
-
-    if (maxIdx <= 0 || maxIdx >= data.length - 1) return 0;
-
-    const y1 = data[maxIdx - 1];
-    const y2 = data[maxIdx];
-    const y3 = data[maxIdx + 1];
-
-    const denom = (y1 - 2 * y2 + y3);
-    const offset = denom === 0 ? 0 : (y1 - y3) / (2 * denom);
-
-    const peakBin = maxIdx + offset;
-    return peakBin * binToHz;
-  }
-
-  /* ============================================================
-     Speed Calculation
-  ============================================================ */
-  function computeSpeedFromRpm(rpm) {
-    const tire = parseFloat(PRESET.tire.value);
-    const gearIndex = parseInt(PRESET.gear.value, 10);
-    const gearRatio = parseFloat(gearOptions[gearIndex].split(":")[0]);
-
-    const rpmCal = parseFloat(PRESET.rpmCal.value);
-    const loadFactor = parseFloat(PRESET.load.value) / 100;
-
-    const adjustedRpm = rpm * rpmCal;
-    const wheelRpm = adjustedRpm / gearRatio;
-    const wheelRps = wheelRpm / 60;
-    const circumference = Math.PI * (tire / 1000);
-
-    let speed = wheelRps * circumference * 3.6;
-    speed *= 1 + loadFactor;
-
-    return { adjustedRpm, speed };
-  }
-
-  /* ============================================================
-     FFT Loop（横軸RPM）
-  ============================================================ */
-  function loopFFT() {
-    if (!running) return;
-    requestAnimationFrame(loopFFT);
-
-    analyser.getByteFrequencyData(dataArray);
-
-    const w = waveCanvas.width;
-    const h = waveCanvas.height;
-
-    ctx.clearRect(0, 0, w, h);
-    ctx.beginPath();
-    ctx.strokeStyle = "#ff4fa3";
-    ctx.lineWidth = 2;
-
-    const sampleRate = audioContext.sampleRate;
-    const binToHz = sampleRate / FFT_SIZE;
-
-    for (let x = 0; x < w; x++) {
-      const bin = Math.floor((x / w) * dataArray.length);
-      const hz = bin * binToHz;
-      const rpm = hz * 60;
-
-      if (rpm < 5000 || rpm > 60000) continue;
-
-      const v = dataArray[bin];
-      const y = h - (v / 255) * h;
-
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-
-    if (locked) return;
-
-    const peakHz = getPrecisePeakHz(dataArray, analyser.fftSize, audioContext.sampleRate);
-    if (peakHz > 0) {
-
-      /* ★極数固定（2極） */
-      const rawRpm = peakHz * 60;
-
-      const { adjustedRpm, speed } = computeSpeedFromRpm(rawRpm);
-
-      currentRpm = adjustedRpm;
-      currentSpeed = speed;
-
-      if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
-      if (minRpmVal === 0 || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
-
-      if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
-      if (minSpeedVal === 0 || speed < minSpeedVal) minSpeedVal = speed;
-
-      rpmNow.textContent = Math.round(adjustedRpm);
-      rpmMax.textContent = Math.round(maxRpmVal);
-      rpmMin.textContent = Math.round(minRpmVal);
-
-      speedNow.textContent = speed.toFixed(2) + " km/h";
-      speedTop.textContent = maxSpeedVal.toFixed(2) + " km/h";
-      speedMin.textContent = minSpeedVal.toFixed(2) + " km/h";
-
-      generateComparisonTableFromLock();
+    if (db > maxVal) {
+      maxVal = db;
+      maxIdx = i;
     }
   }
 
-  /* ============================================================
-     Lock Snapshot（条件も保存）
-  ============================================================ */
-  function lockCurrent() {
-    lockedSnapshot = {
-      rpm: currentRpm,
-      speed: currentSpeed,
+  if (maxIdx <= 0 || maxIdx >= data.length - 1) return 0;
 
-      voltage: PRESET.voltage.value,
-      gearIndex: PRESET.gear.value,
-      tire: PRESET.tire.value,
-      rpmCal: PRESET.rpmCal.value,
-      load: PRESET.load.value,
+  const y1 = data[maxIdx - 1];
+  const y2 = data[maxIdx];
+  const y3 = data[maxIdx + 1];
 
-      maxRpm: maxRpmVal,
-      maxSpeed: maxSpeedVal
-    };
+  const denom = (y1 - 2 * y2 + y3);
+  const offset = denom === 0 ? 0 : (y1 - y3) / (2 * denom);
+
+  const peakBin = maxIdx + offset;
+  return peakBin * binToHz;
+}
+
+/* ============================================================
+   Speed Calculation
+============================================================ */
+function computeSpeedFromRpm(rpm) {
+  const tire = parseFloat(PRESET.tire.value);
+  const gearIndex = parseInt(PRESET.gear.value, 10);
+  const gearRatio = parseFloat(gearOptions[gearIndex].split(":")[0]);
+
+  const rpmCal = parseFloat(PRESET.rpmCal.value);
+  const loadFactor = parseFloat(PRESET.load.value) / 100;
+
+  const adjustedRpm = rpm * rpmCal;
+  const wheelRpm = adjustedRpm / gearRatio;
+  const wheelRps = wheelRpm / 60;
+  const circumference = Math.PI * (tire / 1000);
+
+  let speed = wheelRps * circumference * 3.6;
+  speed *= 1 + loadFactor;
+
+  return { adjustedRpm, speed };
+}
+
+/* ============================================================
+   FFT Loop
+============================================================ */
+function loopFFT() {
+  if (!running) return;
+  requestAnimationFrame(loopFFT);
+
+  analyser.getByteFrequencyData(dataArray);
+
+  const w = waveCanvas.width;
+  const h = waveCanvas.height;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.beginPath();
+  ctx.strokeStyle = "#ff4fa3";
+  ctx.lineWidth = 2;
+
+  const sampleRate = audioContext.sampleRate;
+  const binToHz = sampleRate / FFT_SIZE;
+
+  for (let x = 0; x < w; x++) {
+    const bin = Math.floor((x / w) * dataArray.length);
+    const hz = bin * binToHz;
+    const rpm = hz * 60;
+
+    if (rpm < 5000 || rpm > 60000) continue;
+
+    const v = dataArray[bin];
+    const y = h - (v / 255) * h;
+
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  if (locked) return;
+
+  const peakHz = getPrecisePeakHz(dataArray, analyser.fftSize, audioContext.sampleRate);
+  if (peakHz > 0) {
+
+    /* ★極数固定（2極） */
+    const rawRpm = peakHz * 60;
+
+    const { adjustedRpm, speed } = computeSpeedFromRpm(rawRpm);
+
+    currentRpm = adjustedRpm;
+    currentSpeed = speed;
+
+    if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
+    if (minRpmVal === 0 || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
+
+    if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
+    if (minSpeedVal === 0 || speed < minSpeedVal) minSpeedVal = speed;
+
+    rpmNow.textContent = Math.round(adjustedRpm);
+    rpmMax.textContent = Math.round(maxRpmVal);
+    rpmMin.textContent = Math.round(minRpmVal);
+
+    speedNow.textContent = speed.toFixed(2) + " km/h";
+    speedTop.textContent = maxSpeedVal.toFixed(2) + " km/h";
+    speedMin.textContent = minSpeedVal.toFixed(2) + " km/h";
 
     generateComparisonTableFromLock();
   }
+}
 
-  function unlockCurrent() {
-    lockedSnapshot = null;
-    comparisonBody.innerHTML = "";
-  }
+/* ============================================================
+   Lock Snapshot（条件も保存）
+============================================================ */
+function lockCurrent() {
+  lockedSnapshot = {
+    rpm: currentRpm,
+    speed: currentSpeed,
 
-  /* ============================================================
-     比較表生成（ロック時の条件を優先）
-  ============================================================ */
-  function generateComparisonTableFromLock() {
-    if (!lockedSnapshot) return;
+    voltage: PRESET.voltage.value,
+    gearIndex: PRESET.gear.value,
+    tire: PRESET.tire.value,
+    rpmCal: PRESET.rpmCal.value,
+    load: PRESET.load.value,
 
-    const voltage = parseFloat(lockedSnapshot.voltage);
-    const gearIndex = parseInt(lockedSnapshot.gearIndex, 10);
-    const tire = parseFloat(lockedSnapshot.tire);
-    const rpmCal = parseFloat(lockedSnapshot.rpmCal);
-    const loadFactor = parseFloat(lockedSnapshot.load) / 100;
+    maxRpm: maxRpmVal,
+    maxSpeed: maxSpeedVal
+  };
 
-    const baseRpm = lockedSnapshot.rpm;
+  generateComparisonTableFromLock();
+}
 
-    comparisonBody.innerHTML = "";
+function unlockCurrent() {
+  lockedSnapshot = null;
+  comparisonBody.innerHTML = "";
+}
 
-    const gearRatio = parseFloat(gearOptions[gearIndex].split(":")[0]);
-    const wheelRpm = baseRpm / gearRatio;
-    const wheelRps = wheelRpm / 60;
-    const circumference = Math.PI * (tire / 1000);
-    let speed = wheelRps * circumference * 3.6;
-    speed *= 1 + loadFactor;
+/* ============================================================
+   Comparison Table（ロック条件で生成）
+============================================================ */
+function generateComparisonTableFromLock() {
+  if (!lockedSnapshot) return;
 
+  const voltage = parseFloat(lockedSnapshot.voltage);
+  const gearIndex = parseInt(lockedSnapshot.gearIndex, 10);
+  const tire = parseFloat(lockedSnapshot.tire);
+  const loadFactor = parseFloat(lockedSnapshot.load) / 100;
+
+  const baseRpm = lockedSnapshot.rpm;
+
+  comparisonBody.innerHTML = "";
+
+  const gearRatio = parseFloat(gearOptions[gearIndex].split(":")[0]);
+  const wheelRpm = baseRpm / gearRatio;
+  const wheelRps = wheelRpm / 60;
+  const circumference = Math.PI * (tire / 1000);
+  let speed = wheelRps * circumference * 3.6;
+  speed *= 1 + loadFactor;
+
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${voltage.toFixed(1)} V</td>
+    <td>${gearOptions[gearIndex]}</td>
+    <td>${tire.toFixed(1)} mm</td>
+    <td>${Math.round(baseRpm)}</td>
+    <td>${speed.toFixed(2)} km/h</td>
+  `;
+  comparisonBody.appendChild(row);
+}
+
+/* ============================================================
+   Save History（ロック優先）
+============================================================ */
+function saveCurrentHistory(name, motor) {
+  const rpm = lockedSnapshot ? lockedSnapshot.rpm : currentRpm;
+  const speed = lockedSnapshot ? lockedSnapshot.speed : currentSpeed;
+
+  const entry = {
+    name,
+    motor,
+    rpm,
+    speed,
+    maxRpm: maxRpmVal,
+    maxSpeed: maxSpeedVal,
+    date: new Date().toLocaleString()
+  };
+
+  const list = JSON.parse(localStorage.getItem("historyList") || "[]");
+  list.push(entry);
+  localStorage.setItem("historyList", JSON.stringify(list));
+
+  renderHistory();
+}
+
+/* ============================================================
+   History Render
+============================================================ */
+function renderHistory() {
+  const list = JSON.parse(localStorage.getItem("historyList") || "[]");
+  historyBody.innerHTML = "";
+
+  list.forEach(item => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${voltage.toFixed(1)} V</td>
-      <td>${gearOptions[gearIndex]}</td>
-      <td>${tire.toFixed(1)} mm</td>
-      <td>${Math.round(baseRpm)}</td>
-      <td>${speed.toFixed(2)} km/h</td>
+      <td>${item.name}</td>
+      <td>${item.motor}</td>
+      <td>${Math.round(item.rpm)}</td>
+      <td>${item.speed.toFixed(2)} km/h</td>
+      <td>${Math.round(item.maxRpm)}</td>
+      <td>${item.maxSpeed.toFixed(2)} km/h</td>
+      <td>${item.date}</td>
     `;
-    comparisonBody.appendChild(row);
-  }
+    historyBody.appendChild(row);
+  });
+}
 
-  /* ============================================================
-     履歴保存（ロック優先）
-  ============================================================ */
-  function saveCurrentHistory(name, motor) {
-    const rpm = lockedSnapshot ? lockedSnapshot.rpm : currentRpm;
-    const speed = lockedSnapshot ? lockedSnapshot.speed : currentSpeed;
+/* ============================================================
+   Reset
+============================================================ */
+function resetMeasurement() {
+  currentRpm = 0;
+  maxRpmVal = 0;
+  minRpmVal = 0;
 
-    const entry = {
-      name,
-      motor,
-      rpm,
-      speed,
-      maxRpm: maxRpmVal,
-      maxSpeed: maxSpeedVal,
-      date: new Date().toLocaleString()
-    };
+  currentSpeed = 0;
+  maxSpeedVal = 0;
+  minSpeedVal = 0;
 
-    const list = JSON.parse(localStorage.getItem("historyList") || "[]");
-    list.push(entry);
-    localStorage.setItem("historyList", JSON.stringify(list));
-
-    renderHistory();
-  }
-
-  /* ============================================================
-     履歴表示
-  ============================================================ */
-  function renderHistory() {
-    const list = JSON.parse(localStorage.getItem("historyList") || "[]");
-    historyBody.innerHTML = "";
-
-    list.forEach(item => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${item.name}</td>
-        <td>${item.motor}</td>
-        <td>${Math.round(item.rpm)}</td>
-        <td>${item.speed.toFixed(2)} km/h</td>
-        <td>${Math.round(item.maxRpm)}</td>
-        <td>${item.maxSpeed.toFixed(2)} km/h</td>
-        <td>${item.date}</td>
-      `;
-      historyBody.appendChild(row);
-    });
-  }
-
-  /* ============================================================
-     リセット
-  ============================================================ */
-  function resetMeasurement() {
-    currentRpm = 0;
-    maxRpmVal = 0;
-    minRpmVal = 0;
-
-    currentSpeed = 0;
-    maxSpeedVal = 0;
-    minSpeedVal = 0;
-
-    lockedSnapshot = null;
-    comparisonBody.innerHTML = "";
-  }
+  lockedSnapshot = null;
+  comparisonBody.innerHTML = "";
+}
 </script>
 
