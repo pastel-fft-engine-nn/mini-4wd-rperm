@@ -1124,32 +1124,53 @@ function unlockCurrent() {
 function generateComparisonTableFromLock() {
   if (!lockedSnapshot) return;
 
-  const voltage = parseFloat(lockedSnapshot.voltage);
-  const gearIndex = parseInt(lockedSnapshot.gearIndex, 10);
+  const baseRpm = lockedSnapshot.rpm;
+  const currentVoltage = parseFloat(lockedSnapshot.voltage);
+  const currentGear = gearOptions[parseInt(lockedSnapshot.gearIndex)];
+
   const tire = parseFloat(lockedSnapshot.tire);
   const loadFactor = parseFloat(lockedSnapshot.load) / 100;
 
-  const baseRpm = lockedSnapshot.rpm;
-
   comparisonBody.innerHTML = "";
 
-  const gearRatio = parseFloat(gearOptions[gearIndex].split(":")[0]);
-  const wheelRpm = baseRpm / gearRatio;
-  const wheelRps = wheelRpm / 60;
-  const circumference = Math.PI * (tire / 1000);
-  let speed = wheelRps * circumference * 3.6;
-  speed *= 1 + loadFactor;
+  for (let v = 2.2; v <= 3.4; v += 0.1) {
+    const voltage = parseFloat(v.toFixed(1));
+    const rpm = Math.round(baseRpm * (voltage / currentVoltage));
 
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td>${voltage.toFixed(1)} V</td>
-    <td>${gearOptions[gearIndex]}</td>
-    <td>${tire.toFixed(1)} mm</td>
-    <td>${Math.round(baseRpm)}</td>
-    <td>${speed.toFixed(2)} km/h</td>
-  `;
-  comparisonBody.appendChild(row);
+    const tr = document.createElement("tr");
+    if (voltage === currentVoltage) tr.classList.add("highlight-row");
+
+    // 電圧
+    const tdV = document.createElement("td");
+    tdV.textContent = voltage.toFixed(1);
+    tr.appendChild(tdV);
+
+    // RPM
+    const tdR = document.createElement("td");
+    tdR.textContent = rpm;
+    tr.appendChild(tdR);
+
+    // ギヤ比ごとの速度
+    gearOptions.forEach(g => {
+      const gearRatio = parseFloat(g.split(":")[0]);
+      const wheelRpm = rpm / gearRatio;
+      const wheelRps = wheelRpm / 60;
+      const circumference = Math.PI * (tire / 1000);
+      let speed = wheelRps * circumference * 3.6;
+      speed *= 1 + loadFactor;
+
+      const td = document.createElement("td");
+      td.textContent = speed.toFixed(2);
+
+      if (g === currentGear) td.classList.add("highlight-col");
+
+      tr.appendChild(td);
+    });
+
+    comparisonBody.appendChild(tr);
+  }
 }
+
 
 /* ============================================================
    Save History（ロック優先）
