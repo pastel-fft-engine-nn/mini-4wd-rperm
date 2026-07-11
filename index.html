@@ -106,6 +106,104 @@
   z-index: 9999;
 }
 
+/* ===== テーブルの罫線を復活 ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table td, table th {
+  border: 1px solid #dce3f7;
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* 比較表の背景 */
+.comparison-table {
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* ===== 履歴リストの罫線 ===== */
+.history-row {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  border-bottom: 1px solid #dce3f7;
+  padding: 6px 0;
+  font-size: 0.9rem;
+}
+
+/* ===== ボタンの形・色・大きさを元に戻す ===== */
+.header-buttons button {
+  background: #e6ecff;
+  color: #4a6cff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* 保存ボタンとキャンセルボタンのサイズ統一 */
+#saveConfirmBtn {
+  width: 100%;
+  padding: 16px 0;
+  border-radius: 999px;
+  background: #ff4fa3;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+#saveCancelBtn {
+  width: 100%;
+  padding: 16px 0;
+  border-radius: 999px;
+  background: #e6ecff;
+  color: #4a6cff;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* ===== 保存モーダルの入力欄を修正 ===== */
+#saveNameInput {
+  height: 48px;
+  font-size: 1rem;
+}
+
+/* ===== プルダウンの色・大きさを修正 ===== */
+select {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid #c7d6ff;
+  background: #ffffff;
+  padding: 6px;
+  font-size: 0.9rem;
+}
+
+/* 履歴モーダルのフィルター配置を整える */
+.history-filter {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* 設定リセットボタンのサイズ統一 */
+#settingsResetBtn {
+  width: 100%;
+  padding: 16px 0;
+  border-radius: 999px;
+  background: #ff4fa3;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+
   </style>
 </head>
 <body>
