@@ -1126,6 +1126,12 @@ poleCount: 2   // ★ミニ四駆は 2極
 
     const rawRpm = peakHz * 60;
 
++ // ★ RPM を 5000〜60000 に制限
++ if (rawRpm < 5000 || rawRpm > 60000) return;
+
+const { adjustedRpm, speed } = computeSpeedFromRpm(rawRpm);
+
+
     const alpha = getSmoothAlpha(rawRpm);
     let displayRpm = rawRpm;
     if (lastRpm !== null) {
