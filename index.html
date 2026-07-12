@@ -1088,21 +1088,27 @@ function loop() {
   }
   ctx.stroke();
 
-  const peakHz = getPrecisePeakHz(dataArray, analyser.fftSize, audioCtx.sampleRate);
-  if (peakHz > 0) {
-    const rawRpm = peakHz * 60;
-    const calibratedRpm = rawRpm * calFactor;
+  const rawRpm = peakHz * 60;
+const calibratedRpm = rawRpm * calFactor;
 
-    const alpha = getSmoothAlpha(calibratedRpm);
-    let displayRpm = calibratedRpm;
-    if (lastRpm !== null) {
-      displayRpm = lastRpm * (1 - alpha) + calibratedRpm * alpha;
-    }
-    lastRpm = displayRpm;
+const alpha = getSmoothAlpha(calibratedRpm);
+let displayRpm = calibratedRpm;
+if (lastRpm !== null) {
+  displayRpm = lastRpm * (1 - alpha) + calibratedRpm * alpha;
+}
+lastRpm = displayRpm;
 
-    autoAdjustRange(displayRpm);
+autoAdjustRange(displayRpm);
 
-    document.getElementById("rpmFinal").textContent = Math.round(displayRpm);
+// ★ ここに入れる（最重要）
+currentRpm = displayRpm;
+rpmNow.textContent = Math.round(displayRpm);
+
+const { adjustedRpm, speed } = computeSpeedFromRpm(displayRpm);
+currentSpeed = speed;
+
+speedNow.textContent = speed.toFixed(2) + " km/h";
+
   }
 }
 
