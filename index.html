@@ -476,6 +476,18 @@
 
   </div><!-- main-container 終了 -->
 
+<div class="setting-row">
+  <label>RPM表示下限</label>
+  <input id="rpmMinLimit" type="number" value="5000" min="0" max="200000">
+</div>
+
+<div class="setting-row">
+  <label>RPM表示上限</label>
+  <input id="rpmMaxLimit" type="number" value="60000" min="0" max="200000">
+</div>
+
+
+
   <!-- ===== 履歴モーダル ===== -->
   <div id="historyModalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
@@ -612,10 +624,15 @@
       <button id="closeSettings" class="close-btn">閉じる</button>
     </div>
   </<script>
-<script>
+
+
+
+
 /* ============================= */
 /* JS1 : UIイベント（モーダル・ボタン・ロック制御・検索ボタン） */
 /* ============================= */
+
+<script>
 const UI = {
   historyBtn: document.getElementById("historyBtn"),
   settingsBtn: document.getElementById("settingsBtn"),
@@ -651,25 +668,15 @@ let measuring = false;
 let locked = false;
 
 /* 履歴モーダル */
-UI.historyBtn.addEventListener("click", () => {
-  UI.historyModal.classList.remove("hidden");
-});
-UI.closeHistory.addEventListener("click", () => {
-  UI.historyModal.classList.add("hidden");
-});
+UI.historyBtn.addEventListener("click", () => UI.historyModal.classList.remove("hidden"));
+UI.closeHistory.addEventListener("click", () => UI.historyModal.classList.add("hidden"));
 
 /* 設定モーダル */
-UI.settingsBtn.addEventListener("click", () => {
-  UI.settingsModal.classList.remove("hidden");
-});
-UI.closeSettings.addEventListener("click", () => {
-  UI.settingsModal.classList.add("hidden");
-});
+UI.settingsBtn.addEventListener("click", () => UI.settingsModal.classList.remove("hidden"));
+UI.closeSettings.addEventListener("click", () => UI.settingsModal.classList.add("hidden"));
 
-/* 説明書き表示 */
-UI.helpButton.addEventListener("click", () => {
-  UI.helpText.classList.toggle("hidden");
-});
+/* 説明書き */
+UI.helpButton.addEventListener("click", () => UI.helpText.classList.toggle("hidden"));
 
 /* 計測開始 / 停止 */
 UI.startBtn.addEventListener("click", () => {
@@ -690,30 +697,16 @@ UI.startBtn.addEventListener("click", () => {
   }
 });
 
-/* ロック（計測値を固定して比較表を計算） */
+/* ロック */
 UI.lockBtn.addEventListener("click", () => {
-  if (!locked) {
-    locked = true;
-    UI.lockBtn.textContent = "ロック解除";
-    UI.statusLine.textContent = "LOCKED — ロック中";
-
-    lockCurrent();
-  } else {
-    unlockCurrent();
-  }
+  if (!locked) lockCurrent();
+  else unlockCurrent();
 });
 
-/* 保存モーダルを開く */
-UI.saveBtn.addEventListener("click", () => {
-  UI.saveModal.classList.remove("hidden");
-});
+/* 保存モーダル */
+UI.saveBtn.addEventListener("click", () => UI.saveModal.classList.remove("hidden"));
+UI.saveCancelBtn.addEventListener("click", () => UI.saveModal.classList.add("hidden"));
 
-/* 保存モーダル：キャンセル */
-UI.saveCancelBtn.addEventListener("click", () => {
-  UI.saveModal.classList.add("hidden");
-});
-
-/* 保存モーダル：保存する */
 UI.saveConfirmBtn.addEventListener("click", () => {
   const name = UI.saveNameInput.value.trim();
   const motor = UI.motorTypeSelect.value;
@@ -742,12 +735,10 @@ UI.resetBtn.addEventListener("click", () => {
   resetMeasurement();
 });
 
-/* 履歴検索ボタン（プルダウンの内容で絞り込み） */
-UI.historySearchBtn.addEventListener("click", () => {
-  renderHistory();
-});
+/* 履歴検索 */
+UI.historySearchBtn.addEventListener("click", () => renderHistory());
 
-/* 設定リセットボタン（ノイズ閾値・補正係数・負荷のみ初期化） */
+/* 設定リセット */
 UI.settingsResetBtn.addEventListener("click", () => {
   noiseRange.value = 20;
   rpmCalRange.value = 1.00;
@@ -757,19 +748,20 @@ UI.settingsResetBtn.addEventListener("click", () => {
   savePresets();
 });
 
-/* ダブルタップ拡大防止（iOS） */
+/* iOS ダブルタップ防止 */
 let lastTouchEnd = 0;
 document.addEventListener("touchend", function (event) {
   const now = Date.now();
-  if (now - lastTouchEnd <= 300) {
-    event.preventDefault();
-  }
+  if (now - lastTouchEnd <= 300) event.preventDefault();
   lastTouchEnd = now;
 }, { passive: false });
+</script>
 
-/* ============================= */
-/* JS2 : プリセット管理（電圧・ギヤ比・タイヤ径・補正） */
-/* ============================= */
+<script>
+/* ============================================================
+   JS2 : プリセット管理（電圧・ギヤ比・タイヤ径・補正）
+============================================================ */
+
 const PRESET = {
   voltage: document.getElementById("voltageRange"),
   gear: document.getElementById("gearRange"),
@@ -849,7 +841,7 @@ function savePresets() {
 PRESET.voltage.addEventListener("input", () => {
   updatePresetLabels();
   savePresets();
-  generateComparisonTableFromLock();
+  generateComparisonTableFromLock();  // 電圧変更時に比較表更新
 });
 
 PRESET.gear.addEventListener("input", () => {
@@ -881,12 +873,14 @@ PRESET.load.addEventListener("input", () => {
 
 /* 初期ロード */
 loadPresets();
+</script>
 
-/* ============================= */
-/* JS3 : FFT / 比較表 / 履歴管理 */
-/* ============================= */
 
-/* History Filter */
+<script>
+/* ============================================================
+   JS3 : 履歴フィルタ / 履歴レンダリング
+============================================================ */
+
 const filterVoltage = document.getElementById("filterVoltage");
 const filterGear = document.getElementById("filterGear");
 const filterTire = document.getElementById("filterTire");
@@ -944,7 +938,6 @@ function applyHistoryFilter(list) {
   });
 }
 
-/* History Render */
 function renderHistory() {
   const list = JSON.parse(localStorage.getItem("rpmHistory") || "[]");
   const filtered = applyHistoryFilter(list);
@@ -971,8 +964,13 @@ function renderHistory() {
 /* 初期化 */
 renderHistory();
 buildFilterOptions();
+</script>
 
-/* FFT / Audio（許可が消えない構造） */
+<script>
+/* ============================================================
+   JS3-2 : FFT / Audio（許可が消えない構造）
+============================================================ */
+
 let audioContext = null;
 let analyser = null;
 let micStream = null;
@@ -1003,7 +1001,16 @@ let minSpeedVal = 0;
 
 let lockedSnapshot = null;
 
-/* Start Microphone（許可が消えない版） */
+/* UI Elements */
+const rpmNow = document.getElementById("rpmNow");
+const rpmMax = document.getElementById("rpmMax");
+const rpmMin = document.getElementById("rpmMin");
+
+const speedNow = document.getElementById("speedNow");
+const speedTop = document.getElementById("speedTop");
+const speedMin = document.getElementById("speedMin");
+
+/* Start Microphone（許可が消えない構造） */
 async function startMic() {
   if (running) return;
   running = true;
@@ -1035,7 +1042,7 @@ async function startMic() {
   loopFFT();
 }
 
-/* Stop Microphone（track.stopしない） */
+/* Stop Microphone（track.stop を使わない） */
 function stopMic() {
   running = false;
 
@@ -1044,7 +1051,7 @@ function stopMic() {
   }
 }
 
-/* Precise Peak Detection（全域探索版） */
+/* Precise Peak Detection */
 function getPrecisePeakHz(data, fftSize, sampleRate) {
   const binToHz = sampleRate / fftSize;
 
@@ -1091,15 +1098,7 @@ function computeSpeedFromRpm(rpm) {
   return { adjustedRpm, speed };
 }
 
-/* FFT Loop（横軸RPM） */
-const rpmNow = document.getElementById("rpmNow");
-const rpmMax = document.getElementById("rpmMax");
-const rpmMin = document.getElementById("rpmMin");
-
-const speedNow = document.getElementById("speedNow");
-const speedTop = document.getElementById("speedTop");
-const speedMin = document.getElementById("speedMin");
-
+/* FFT Loop（RPM軸描画＋表示制限） */
 function loopFFT() {
   if (!running) return;
   requestAnimationFrame(loopFFT);
@@ -1117,12 +1116,13 @@ function loopFFT() {
   const sampleRate = audioContext.sampleRate;
   const binToHz = sampleRate / FFT_SIZE;
 
+  /* RPM軸で描画（範囲外は描画しない） */
   for (let x = 0; x < w; x++) {
     const bin = Math.floor((x / w) * dataArray.length);
     const hz = bin * binToHz;
     const rpm = hz * 60;
 
-    if (rpm < 5000 || rpm > 60000) continue;
+    if (rpm < rpmMinLimit || rpm > rpmMaxLimit) continue;
 
     const v = dataArray[bin];
     const y = h - (v / 255) * h;
@@ -1142,25 +1142,42 @@ function loopFFT() {
     currentRpm = adjustedRpm;
     currentSpeed = speed;
 
+    /* MAX / MIN 更新 */
     if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
     if (minRpmVal === 0 || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
 
     if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
     if (minSpeedVal === 0 || speed < minSpeedVal) minSpeedVal = speed;
 
-    rpmNow.textContent = Math.round(adjustedRpm);
-    rpmMax.textContent = Math.round(maxRpmVal);
-    rpmMin.textContent = Math.round(minRpmVal);
+    /* ★ RPM/SPEED 表示制限（範囲外は "--"） */
+    const dispNowRpm = limitDisplay(Math.round(currentRpm));
+    const dispMaxRpm = limitDisplay(Math.round(maxRpmVal));
+    const dispMinRpm = limitDisplay(Math.round(minRpmVal));
 
-    speedNow.textContent = speed.toFixed(2) + " km/h";
-    speedTop.textContent = maxSpeedVal.toFixed(2) + " km/h";
-    speedMin.textContent = minSpeedVal.toFixed(2) + " km/h";
+    rpmNow.textContent = dispNowRpm;
+    rpmMax.textContent = dispMaxRpm;
+    rpmMin.textContent = dispMinRpm;
 
+    speedNow.textContent =
+      dispNowRpm === "--" ? "-- km/h" : currentSpeed.toFixed(2) + " km/h";
+    speedTop.textContent =
+      dispMaxRpm === "--" ? "-- km/h" : maxSpeedVal.toFixed(2) + " km/h";
+    speedMin.textContent =
+      dispMinRpm === "--" ? "-- km/h" : minSpeedVal.toFixed(2) + " km/h";
+
+    /* 比較表更新 */
     generateComparisonTableFromLock();
   }
 }
+</script>
 
-/* Lock / Unlock */
+
+<script>
+/* ============================================================
+   JS3-3 : 比較表 / ロック / 履歴保存
+============================================================ */
+
+/* ロック処理 */
 function lockCurrent() {
   locked = true;
   UI.lockBtn.textContent = "ロック解除";
@@ -1174,6 +1191,7 @@ function lockCurrent() {
   generateComparisonTableFromLock();
 }
 
+/* ロック解除 */
 function unlockCurrent() {
   locked = false;
   lockedSnapshot = null;
@@ -1187,7 +1205,7 @@ function unlockCurrent() {
   UI.statusLine.textContent = "MEASURING — 計測中";
 }
 
-/* Comparison Table (Lock基準) */
+/* 比較表生成（RPM/SPEED 表示制限に完全対応） */
 function generateComparisonTableFromLock() {
   if (!lockedSnapshot) return;
 
@@ -1203,16 +1221,20 @@ function generateComparisonTableFromLock() {
 
     if (voltage === currentVoltage) tr.classList.add("highlight-row");
 
+    /* 電圧 */
     const tdV = document.createElement("td");
     tdV.textContent = voltage.toFixed(1);
     tr.appendChild(tdV);
 
+    /* RPM（範囲制限） */
     const rpm = Math.round(baseRpm * (voltage / currentVoltage));
+    const rpmDisp = limitDisplay(rpm);
 
     const tdR = document.createElement("td");
-    tdR.textContent = rpm;
+    tdR.textContent = rpmDisp;
     tr.appendChild(tdR);
 
+    /* SPEED（RPMが範囲外なら "--"） */
     gearOptions.forEach(g => {
       const gearRatio = parseFloat(g.split(":")[0]);
       const wheelRpm = rpm / gearRatio;
@@ -1221,7 +1243,8 @@ function generateComparisonTableFromLock() {
       const speed = wheelRps * circumference * 3.6;
 
       const td = document.createElement("td");
-      td.textContent = speed.toFixed(2);
+      td.textContent =
+        rpmDisp === "--" ? "--" : speed.toFixed(2);
 
       const currentGear = gearOptions[parseInt(document.getElementById("gearRange").value)];
       if (g === currentGear) td.classList.add("highlight-col");
@@ -1233,7 +1256,7 @@ function generateComparisonTableFromLock() {
   }
 }
 
-/* Reset */
+/* 計測リセット */
 function resetMeasurement() {
   running = false;
   stopMic();
@@ -1246,18 +1269,18 @@ function resetMeasurement() {
   maxSpeedVal = 0;
   minSpeedVal = 0;
 
-  rpmNow.textContent = "0";
-  rpmMax.textContent = "0";
-  rpmMin.textContent = "0";
+  rpmNow.textContent = "--";
+  rpmMax.textContent = "--";
+  rpmMin.textContent = "--";
 
-  speedNow.textContent = "0.00 km/h";
-  speedTop.textContent = "0.00 km/h";
-  speedMin.textContent = "0.00 km/h";
+  speedNow.textContent = "-- km/h";
+  speedTop.textContent = "-- km/h";
+  speedMin.textContent = "-- km/h";
 
   comparisonBody.innerHTML = "";
 }
 
-/* Save History */
+/* 日付フォーマット */
 function formatDateYYYYMMDD(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -1265,18 +1288,23 @@ function formatDateYYYYMMDD(date) {
   return `${y}${m}${d}`;
 }
 
+/* 履歴保存（RPM/SPEED 表示制限に完全対応） */
 function saveCurrentHistory(name, motorType) {
   const voltage = parseFloat(document.getElementById("voltageRange").value).toFixed(1);
   const gearIndex = parseInt(document.getElementById("gearRange").value, 10);
   const gearStr = gearOptions[gearIndex];
   const tire = parseFloat(document.getElementById("tireRange").value).toFixed(1);
 
+  const safeRpm = limitDisplay(Math.round(currentRpm));
+  const safeSpeed =
+    safeRpm === "--" ? "--" : currentSpeed.toFixed(2);
+
   const entry = {
     date: formatDateYYYYMMDD(new Date()),
     name,
     motor: motorType,
-    speed: currentSpeed.toFixed(2),
-    rpm: Math.round(currentRpm),
+    speed: safeSpeed,
+    rpm: safeRpm,
     voltage,
     gear: gearStr,
     tire
@@ -1291,8 +1319,51 @@ function saveCurrentHistory(name, motorType) {
 }
 </script>
 
-    
-    
-    
-    
-  
+
+<div class="setting-row">
+  <label>RPM表示下限</label>
+  <input id="rpmMinLimit" type="number" value="5000" min="0" max="200000">
+</div>
+
+<div class="setting-row">
+  <label>RPM表示上限</label>
+  <input id="rpmMaxLimit" type="number" value="60000" min="0" max="200000">
+</div>
+
+<script>
+/* ============================================================
+   RPM/SPEED 表示制限（ユーザー変更可能）
+============================================================ */
+
+let rpmMinLimit = 5000;
+let rpmMaxLimit = 60000;
+
+/* 保存された値をロード */
+(function loadRpmLimits() {
+  const min = localStorage.getItem("rpmMinLimit");
+  const max = localStorage.getItem("rpmMaxLimit");
+  if (min !== null) rpmMinLimit = parseInt(min, 10);
+  if (max !== null) rpmMaxLimit = parseInt(max, 10);
+
+  document.getElementById("rpmMinLimit").value = rpmMinLimit;
+  document.getElementById("rpmMaxLimit").value = rpmMaxLimit;
+})();
+
+/* UI変更イベント */
+document.getElementById("rpmMinLimit").addEventListener("input", () => {
+  rpmMinLimit = parseInt(document.getElementById("rpmMinLimit").value, 10);
+  localStorage.setItem("rpmMinLimit", rpmMinLimit);
+});
+
+document.getElementById("rpmMaxLimit").addEventListener("input", () => {
+  rpmMaxLimit = parseInt(document.getElementById("rpmMaxLimit").value, 10);
+  localStorage.setItem("rpmMaxLimit", rpmMaxLimit);
+});
+
+/* 表示制限関数（全表示がこれを通る） */
+function limitDisplay(value) {
+  if (typeof value !== "number") return "--";
+  if (value >= rpmMinLimit && value <= rpmMaxLimit) return value;
+  return "--";
+}
+</script>
