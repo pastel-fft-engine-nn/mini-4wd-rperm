@@ -636,6 +636,8 @@
       <button id="closeSettings" class="close-btn">閉じる</button>
     </div>
   </div>
+
+
 <!-- ============================= -->
 <!-- JS1 : UIイベント（モーダル・ボタン・ロック制御・検索ボタン） -->
 <!-- ============================= -->
@@ -706,11 +708,14 @@
       lockedSnapshot = null;          // 仮ロック削除
       comparisonBody.innerHTML = "";  // 比較表クリア
 
-      startMic();
+      // ★唯一の差し替えポイント（壊さない）
+      startAudio();
     } else {
       UI.startBtn.textContent = "計測開始";
       UI.statusLine.textContent = "READY — 計測待機中";
-      stopMic();
+
+      // ★唯一の差し替えポイント（壊さない）
+      stopAudio();
     }
   });
 
@@ -777,7 +782,7 @@
 
   /* 設定リセットボタン（ノイズ閾値・補正係数・負荷のみ初期化） */
   UI.settingsResetBtn.addEventListener("click", () => {
-    noiseRange.value = -80;
+    noiseRange.value = 20;
     rpmCalRange.value = 1.00;
     loadFactorRange.value = 0;
 
@@ -795,6 +800,9 @@
     lastTouchEnd = now;
   }, { passive: false });
 </script>
+
+
+
 <!-- ============================= -->
 <!-- JS2 : プリセット管理（電圧・ギヤ比・タイヤ径・補正） -->
 <!-- ============================= -->
@@ -1297,5 +1305,3 @@ poleCount: 2   // ★ミニ四駆は 2極
     speedMin.textContent = "0.00 km/h";
   }
 </script>
-
-
