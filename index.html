@@ -777,7 +777,7 @@
 
   /* 設定リセットボタン（ノイズ閾値・補正係数・負荷のみ初期化） */
   UI.settingsResetBtn.addEventListener("click", () => {
-    noiseRange.value = 20;
+    noiseRange.value = -80;
     rpmCalRange.value = 1.00;
     loadFactorRange.value = 0;
 
@@ -815,6 +815,8 @@
     noiseLabel: document.getElementById("noiseLabel"),
     rpmCalLabel: document.getElementById("rpmCalLabel"),
     loadLabel: document.getElementById("loadFactorLabel"),
+
+poleCount: 2   // ★ミニ四駆は 2極
   };
 
   /* ギヤ比（拡張版） */
@@ -955,7 +957,6 @@ let maxSpeedVal = 0;
 let minSpeedVal = 0;
 
 let lockedSnapshot = null;
-let locked = false; // ロック状態フラグ
 
 /* ============================================================
    Start Microphone
