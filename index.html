@@ -310,50 +310,62 @@ function getPrecisePeakHz(data, fftSize, sampleRate) {
   const maxBin = Math.floor(maxFreq / binToHz);
 
   const len = data.length;
-  const from = Math.max(1, Math.min(minBin, len - 2));
-  const to   = Math.max(2, Math.min(maxBin, len - 1));
+  const from = Math.max(2, Math.min(minBin, len - 3));
+  const to   = Math.max(3, Math.min(maxBin, len - 2));
 
-  let maxVal = -Infinity;
-  let maxIdx = -1;
+  let bestIdx = -1;
+  let bestVal = -Infinity;
 
+  // ★ 1) 前回ピークの周囲を優先探索（±10bin）
   if (lastPeakBin !== null) {
-    const searchRadius = 5;
     const center = Math.floor(lastPeakBin);
-    const sFrom = Math.max(from, center - searchRadius);
-    const sTo   = Math.min(to,   center + searchRadius);
+    const radius = 10;
+    const sFrom = Math.max(from, center - radius);
+    const sTo   = Math.min(to,   center + radius);
+
     for (let i = sFrom; i <= sTo; i++) {
       const v = data[i];
-      if (v > maxVal) {
-        maxVal = v;
-        maxIdx = i;
+      if (v > bestVal) {
+        bestVal = v;
+        bestIdx = i;
       }
     }
   }
 
-  if (maxIdx === -1) {
+  // ★ 2) 全域探索（バックアップ）
+  if (bestIdx === -1) {
     for (let i = from; i <= to; i++) {
       const v = data[i];
-      if (v > maxVal) {
-        maxVal = v;
-        maxIdx = i;
+      if (v > bestVal) {
+        bestVal = v;
+        bestIdx = i;
       }
     }
   }
 
-  if (maxIdx <= from || maxIdx >= to) return 0;
+  if (bestIdx <= from || bestIdx >= to) return 0;
 
-  const y1 = data[maxIdx - 1];
-  const y2 = data[maxIdx];
-  const y3 = data[maxIdx + 1];
+  // ★ 3) “山の形” をチェック（ノイズ除外）
+  const L = data[bestIdx - 1];
+  const C = data[bestIdx];
+  const R = data[bestIdx + 1];
 
-  const denom = (y1 - 2 * y2 + y3);
-  const offset = denom === 0 ? 0 : (y1 - y3) / (2 * denom);
-  const peakBin = maxIdx + offset;
+  // 左右が極端に低い → ノイズの尖り
+  if (C - Math.max(L, R) < 3) return 0;
+
+  // 左右の傾きが不自然 → ノイズ
+  if (Math.abs(L - R) > 40) return 0;
+
+  // ★ 4) 3点補間（より安定化）
+  const denom = (L - 2 * C + R);
+  const offset = denom === 0 ? 0 : (L - R) / (2 * denom);
+  const peakBin = bestIdx + offset;
 
   lastPeakBin = peakBin;
 
   return peakBin * binToHz;
 }
+
 
 function loop() {
   if (!running) return;
