@@ -718,19 +718,19 @@ function drawFFT() {
 function detectPeak2000Hz_StrongRange() {
   const nyquist = SAMPLE_RATE / 2;
 
-  const maxHz = 2000;  // ★ ここが最重要：4000 → 2000 に戻す
+  const maxHz = 2000;  // ★ 高周波ノイズを拾わない
   const maxIndex = Math.floor(maxHz / nyquist * fftBuffer.length);
 
   analyser.getFloatFrequencyData(fftBuffer);
 
-  // 平均（dB）
+  // ★ 平均（dB）
   let sum = 0;
   for (let i = 0; i <= maxIndex; i++) sum += fftBuffer[i];
   const avg = sum / maxIndex;
 
-  // dB値は負なので「加算」でフィルタする
-  const minThreshold = avg + 10;   // 平均より10dB強い
-  const maxThreshold = avg + 25;   // 平均より25dB強い
+  // ★ マイクに近い音だけ拾うフィルタ
+  const minThreshold = avg + 5;    // ★ 少し強い音
+  const maxThreshold = avg + 20;   // ★ 強すぎるノイズは除外
 
   let bestIndex = -1;
   let bestValue = -Infinity;
@@ -738,12 +738,14 @@ function detectPeak2000Hz_StrongRange() {
   for (let i = 1; i < maxIndex - 1; i++) {
     const v = fftBuffer[i];
 
-    if (v < minThreshold) continue;
-    if (v > maxThreshold) continue;
+    if (v < minThreshold) continue;  // ★ 弱い音は無視
+    if (v > maxThreshold) continue;  // ★ 強すぎる音も無視
 
     const left = fftBuffer[i - 1];
     const right = fftBuffer[i + 1];
-    if (v - Math.max(left, right) < 2) continue;
+
+    // ★ 周囲差フィルタ（1.5dBで十分）
+    if (v - Math.max(left, right) < 1.5) continue;
 
     if (v > bestValue) {
       bestValue = v;
