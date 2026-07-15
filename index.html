@@ -753,62 +753,58 @@
     /* =============================
        ピーク検出（ノイズ対策込み）
     ============================= */
-    function detectPeak() {
-      if (!analyser) return null;
+function detectPeak() {
+  if (!analyser) return null;
 
-      const nyquist = SAMPLE_RATE / 2;
+  const nyquist = SAMPLE_RATE / 2;
 
-      const minRpm = parseInt(UI.rpmMinLimit.value, 10);
-      const maxRpm = parseInt(UI.rpmMaxLimit.value, 10);
+  const minRpm = parseInt(UI.rpmMinLimit.value, 10);
+  const maxRpm = parseInt(UI.rpmMaxLimit.value, 10);
 
-      const minHz = minRpm / 60;
-      const maxHz = maxRpm / 60;
+  const minHz = minRpm / 60;
+  const maxHz = maxRpm / 60;
 
-      const minIndex = Math.floor(minHz / nyquist * fftBuffer.length);
-      const maxIndex = Math.floor(maxHz / nyquist * fftBuffer.length);
+  const minIndex = Math.floor(minHz / nyquist * fftBuffer.length);
+  const maxIndex = Math.floor(maxHz / nyquist * fftBuffer.length);
 
-      let bestIndex = -1;
-      let bestValue = -Infinity;
+  let bestIndex = -1;
+  let bestValue = -Infinity;
 
-      for (let i = minIndex; i <= maxIndex; i++) {
-        const v = fftBuffer[i];
-        if (v > bestValue) {
-          bestValue = v;
-          bestIndex = i;
-        }
-      }
-
-      if (bestIndex < 0) return null;
-
-      const peakHz = bestIndex * nyquist / fftBuffer.length;
-
-      // ノイズ閾値（設定モーダル）
-      const noiseDb = parseFloat(UI.noiseRange.value); // 例: 20dB
-      if (bestValue < -noiseDb) {
-        return null; // ノイズ以下 → 無音扱い
-      }
-
-      // 最小周波数チェック（200Hz未満はノイズ扱い）
-      if (peakHz < 200) {
-        return null;
-      }
-
-      // 周囲との差が小さい → ノイズ扱い
-      const left = fftBuffer[bestIndex - 1] || -200;
-      const right = fftBuffer[bestIndex + 1] || -200;
-      const localMax = Math.max(left, right);
-
-      if (bestValue - localMax < 6) {
-        return null; // 6dB以上の差がない → ノイズ
-      }
-
-      // 無音判定（全体的に弱い場合）
-      if (bestValue < -80) {
-        return null;
-      }
-
-      return peakHz;
+  for (let i = minIndex; i <= maxIndex; i++) {
+    const v = fftBuffer[i];
+    if (v > bestValue) {
+      bestValue = v;
+      bestIndex = i;
     }
+  }
+
+  if (bestIndex < 0) return null;
+
+  const peakHz = bestIndex * nyquist / fftBuffer.length;
+
+  /* ---- ノイズ閾値（弱め） ---- */
+  const noiseDb = parseFloat(UI.noiseRange.value);
+  if (bestValue < -noiseDb) {
+    return null;
+  }
+
+  /* ---- 最小周波数（弱め） ---- */
+  if (peakHz < 80) {   // ← 200 → 80 に緩和
+    return null;
+  }
+
+  /* ---- 周囲との差（弱め） ---- */
+  const left = fftBuffer[bestIndex - 1] || -200;
+  const right = fftBuffer[bestIndex + 1] || -200;
+  const localMax = Math.max(left, right);
+
+  if (bestValue - localMax < 3) { // ← 6 → 3 に緩和
+    return null;
+  }
+
+  return peakHz;
+}
+
 
     /* =============================
        RPM計算（2極補正込み）
