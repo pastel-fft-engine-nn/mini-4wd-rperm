@@ -718,7 +718,7 @@ function drawFFT() {
 function detectPeak2000Hz_StrongRange() {
   const nyquist = SAMPLE_RATE / 2;
 
-  const maxHz = 2000;  // ★ 2000Hz 上限固定
+  const maxHz = 4000;  // ★ 4000Hz 上限固定
   const maxIndex = Math.floor(maxHz / nyquist * fftBuffer.length);
 
   // ★ 平均振幅（dB）を計算
@@ -728,8 +728,8 @@ function detectPeak2000Hz_StrongRange() {
   }
   const avg = sum / maxIndex;
 
-  // ★ 振幅レンジ（平均×3〜平均×5）
-  const minThreshold = avg * 3;   // 下限
+  // ★ 振幅レンジ（平均×2〜平均×5）
+  const minThreshold = avg * 2;   // 下限
   const maxThreshold = avg * 5;   // 上限
 
   let bestIndex = -1;
@@ -738,7 +738,7 @@ function detectPeak2000Hz_StrongRange() {
   for (let i = 1; i < maxIndex - 1; i++) {
     const v = fftBuffer[i];
 
-    // ★ 振幅が平均×3〜×5の間だけ採用
+    // ★ 振幅が平均×2〜×5の間だけ採用
     if (v < minThreshold) continue;
     if (v > maxThreshold) continue;
 
