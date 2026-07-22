@@ -1,4 +1,4 @@
-０７２２−１２
+０７２２−２２
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -32,7 +32,8 @@
     .comparison-table thead th { position:sticky; top:0; background:#f0f3ff; z-index:3; font-weight:700; padding:12px 8px; font-size:0.9rem; }
     .comparison-table td:first-child, .comparison-table th:first-child { position:sticky; left:0; background:#fff; z-index:2; }
     .comparison-table td { padding:14px 8px; font-size:0.95rem; }
-    .highlight { background:#ffe6f0 !important; font-weight:bold; }
+    .highlight-row { background:#ffe6f0 !important; font-weight:bold; }
+    .highlight-col { background:#e6f0ff !important; font-weight:bold; }
     .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:flex; justify-content:center; align-items:flex-end; }
     .modal { width:100%; max-width:480px; background:#f5f7fc; border-radius:18px 18px 0 0; padding:18px; position:relative; margin:0 auto; }
     .modal-title { font-size:1.1rem; font-weight:700; margin-bottom:12px; }
@@ -374,16 +375,22 @@
     function buildComparisonTable() {
       UI.comparisonBody.innerHTML = "";
       const voltages = [2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4];
+      const currentGear = gearRatios[state.gearIndex];
+
       voltages.forEach(v => {
         const baseRpm = state.rpmNow || 30000;
         const scale = v / state.voltage;
         const rpm = baseRpm * scale;
         const tr = document.createElement("tr");
-        if (Math.abs(v - state.voltage) < 0.05) tr.classList.add("highlight");
+        if (Math.abs(v - state.voltage) < 0.05) tr.classList.add("highlight-row");
         tr.innerHTML = `<td>${v.toFixed(1)} V</td><td>${Math.round(rpm)}</td>`;
+
         gearRatios.forEach(gr => {
+          const td = document.createElement("td");
           const sp = computeSpeed(rpm, gr, state.tireMm).toFixed(2);
-          tr.innerHTML += `<td>${sp}</td>`;
+          td.textContent = sp;
+          if (Math.abs(gr - currentGear) < 0.01) td.classList.add("highlight-col");
+          tr.appendChild(td);
         });
         UI.comparisonBody.appendChild(tr);
       });
@@ -437,6 +444,19 @@
     UI.saveCancelBtn.addEventListener("click", () => UI.saveModal.classList.add("hidden"));
     UI.settingsBtn2.addEventListener("click", () => UI.settingsModal.classList.remove("hidden"));
     UI.closeSettings.addEventListener("click", () => UI.settingsModal.classList.add("hidden"));
+
+    // 設定スライダー
+    UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value + " dB");
+    UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = UI.rpmCalRange.value);
+    UI.loadFactorRange.addEventListener("input", () => UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%");
+
+    UI.settingsResetBtn.addEventListener("click", () => {
+      UI.noiseRange.value = 20; UI.noiseLabel.textContent = "20 dB";
+      UI.rpmCalRange.value = 1.00; UI.rpmCalLabel.textContent = "1.00";
+      UI.loadFactorRange.value = 0; UI.loadFactorLabel.textContent = "0%";
+    });
+
+    UI.helpButton.addEventListener("click", () => UI.helpText.classList.toggle("hidden"));
 
     // 計測条件変更で比較表更新
     UI.voltageRange.addEventListener("input", () => {
