@@ -1,4 +1,4 @@
-0722−3
+0722−4
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -105,53 +105,6 @@
     </section>
 
     <!-- 他のカード（計測条件・比較表）は元のコードからコピーしてここに貼ってください -->
- <!-- =============================
-         FFT カード
-    ============================== -->
-    <section class="card">
-      <div class="card-title">FFT Spectrum</div>
-      <canvas id="waveCanvas"></canvas>
-
-      <div class="rpm-grid">
-        <div><span>RPM</span><span id="rpmNow">--</span></div>
-        <div><span>MAX</span><span id="rpmMax">--</span></div>
-        <div><span>MIN</span><span id="rpmMin">--</span></div>
-      </div>
-
-      <div class="speed-grid">
-        <div><span>SPEED</span><span id="speedNow">-- km/h</span></div>
-        <div><span>TOP</span><span id="speedTop">-- km/h</span></div>
-        <div><span>MIN</span><span id="speedMin">-- km/h</span></div>
-      </div>
-
-      <div class="rpm-limit-box">
-        <div class="rpm-limit-row">
-          <label>RPM表示下限</label>
-          <input id="rpmMinLimit" type="range" min="0" max="5000" value="5000">
-          <span id="rpmMinLimitValue">5000</span>
-        </div>
-        <div class="rpm-limit-row">
-          <label>RPM表示上限</label>
-          <input id="rpmMaxLimit" type="range" min="30000" max="80000" value="60000">
-          <span id="rpmMaxLimitValue">60000</span>
-        </div>
-      </div>
-
-      <div id="statusLine" class="status-line">READY — 計測待機中</div>
-
-      <div class="realtime-buttons-2row">
-        <div class="btn-row">
-          <button id="startBtn" class="primary-btn">計測開始</button>
-          <button id="lockBtn" class="secondary-btn">ロック</button>
-          <button id="saveBtn" class="secondary-btn">保存</button>
-        </div>
-        <div class="btn-row">
-          <button id="historyBtn2" class="secondary-btn">履歴</button>
-          <button id="settingsBtn2" class="secondary-btn">設定</button>
-          <button id="resetBtn" class="secondary-btn">リセット</button>
-        </div>
-      </div>
-    </section>
 
     <!-- =============================
          計測条件カード
