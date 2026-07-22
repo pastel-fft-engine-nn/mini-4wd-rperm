@@ -453,7 +453,7 @@
     /* =============================
        改善版集音機能 + 元の全機能
     ============================= */
-    const SAMPLE_RATE = 44100;
+    const SAMPLE_RATE = 48000;
     const FFT_SIZE = 16384;
 
     let audioContext = null;
@@ -545,13 +545,6 @@
       fftBuffer = new Float32Array(analyser.frequencyBinCount);
     }
 
-    function resizeCanvas() {
-      const canvas = UI.waveCanvas;
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = canvas.clientWidth * dpr;
-      canvas.height = 160 * dpr;
-    }
-
     function drawFFT() {
       if (!analyser) return;
       analyser.getFloatFrequencyData(fftBuffer);
@@ -560,10 +553,10 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
       ctx.strokeStyle = "#4a6cff";
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2;
       for (let x = 0; x < canvas.width; x++) {
         const idx = Math.floor(x * fftBuffer.length / canvas.width);
-        const norm = Math.max(0, (fftBuffer[idx] + 110) / 110);
+        const norm = Math.max(0, (fftBuffer[idx] + 120) / 120);
         const y = canvas.height * (1 - norm);
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
@@ -574,23 +567,25 @@
     function detectPeak() {
       if (!analyser) return null;
       analyser.getFloatFrequencyData(fftBuffer);
-      let bestIndex = -1, bestValue = -Infinity;
+      const nyquist = SAMPLE_RATE / 2;
+      let bestIndex = -1;
+      let bestValue = -Infinity;
       for (let i = 0; i < fftBuffer.length; i++) {
         if (fftBuffer[i] > bestValue) {
           bestValue = fftBuffer[i];
           bestIndex = i;
         }
       }
-      const nyquist = SAMPLE_RATE / 2;
+      if (bestIndex < 0) return null;
       return bestIndex * nyquist / fftBuffer.length;
     }
 
     function computeRpm(peakHz) {
       if (!peakHz) return 0;
       let rpm = peakHz * 60;
-      const cal = parseFloat(UI.rpmCalRange.value || 1.00);
+      const cal = parseFloat(UI.rpmCalRange ? UI.rpmCalRange.value : 1.0);
       rpm *= cal;
-      const loadFactor = parseFloat(UI.loadFactorRange.value || 0);
+      const loadFactor = parseFloat(UI.loadFactorRange ? UI.loadFactorRange.value : 0);
       rpm *= (1 - loadFactor / 100);
       return rpm;
     }
@@ -708,6 +703,107 @@
 
     window.addEventListener('load', () => {
       resizeCanvas();
+      UI.voltageLabel.textContent = state.voltage.toFixed(1) + " V";
+      UI.gearLabel.textContent = "4.0:1";
+      UI.tireLabel.textContent = "26.0 mm";
+    });
+      function computeSpeed(rpm, gearRatio, tireMm) {
+      const wheelRpm = rpm / gearRatio;
+      const tireM = tireMm / 1000;
+      const speedMps = wheelRpm * tireM * Math.PI / 60;
+      return speedMps * 3.6;
+    }
+
+    function updateRealtimeUI(rpm) {
+      if (!rpm || !isFinite(rpm)) return;
+      state.rpmNow = rpm;
+      state.rpmMax = Math.max(state.rpmMax, rpm);
+      state.rpmMin = Math.min(state.rpmMin, rpm);
+
+      const gearRatio = gearRatios[state.gearIndex] || 4.0;
+      const speedNow = computeSpeed(rpm, gearRatio, state.tireMm);
+      const speedTop = computeSpeed(state.rpmMax, gearRatio, state.tireMm);
+      const speedMin = computeSpeed(state.rpmMin, gearRatio, state.tireMm);
+
+      state.speedNow = speedNow;
+      state.speedTop = speedTop;
+      state.speedMin = speedMin;
+
+      UI.rpmNow.textContent = Math.round(state.rpmNow);
+      UI.rpmMax.textContent = Math.round(state.rpmMax);
+      UI.rpmMin.textContent = Math.round(state.rpmMin);
+      UI.speedNow.textContent = speedNow.toFixed(2) + " km/h";
+      UI.speedTop.textContent = speedTop.toFixed(2) + " km/h";
+      UI.speedMin.textContent = speedMin.toFixed(2) + " km/h";
+    }
+
+    function buildComparisonTable() {
+      if (!UI.comparisonBody) return;
+      UI.comparisonBody.innerHTML = "";
+      const voltages = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4];
+      voltages.forEach(v => {
+        const baseRpm = state.rpmNow || 30000;
+        const scale = v / state.voltage;
+        const rpm = baseRpm * scale;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${v.toFixed(1)} V</td><td>${Math.round(rpm)}</td>`;
+        gearRatios.forEach(gr => {
+          const sp = computeSpeed(rpm, gr, state.tireMm).toFixed(2);
+          tr.innerHTML += `<td>${sp}</td>`;
+        });
+        UI.comparisonBody.appendChild(tr);
+      });
+    }
+
+    function loop() {
+      if (!running || locked) {
+        requestAnimationFrame(loop);
+        return;
+      }
+      drawFFT();
+      const peakHz = detectPeak();
+      const rpm = computeRpm(peakHz);
+      updateRealtimeUI(rpm);
+      buildComparisonTable();
+      requestAnimationFrame(loop);
+    }
+
+    // ボタンイベント
+    UI.startBtn.addEventListener("click", async () => {
+      if (!audioContext) {
+        await initAudio();
+      }
+      running = true;
+      locked = false;
+      UI.statusLine.textContent = "MEASURING — 計測中";
+      loop();
+    });
+
+    UI.lockBtn.addEventListener("click", () => {
+      locked = !locked;
+      UI.lockBtn.textContent = locked ? "ロック解除" : "ロック";
+      UI.statusLine.textContent = locked ? "LOCKED — 値固定中" : "MEASURING — 計測中";
+    });
+
+    UI.resetBtn.addEventListener("click", () => {
+      state.rpmNow = 0;
+      state.rpmMax = 0;
+      state.rpmMin = Infinity;
+      state.speedNow = 0;
+      state.speedTop = 0;
+      state.speedMin = Infinity;
+      UI.rpmNow.textContent = "--";
+      UI.rpmMax.textContent = "--";
+      UI.rpmMin.textContent = "--";
+      UI.speedNow.textContent = "-- km/h";
+      UI.speedTop.textContent = "-- km/h";
+      UI.speedMin.textContent = "-- km/h";
+      UI.statusLine.textContent = "READY — 計測待機中";
+    });
+
+    // スライダー初期化
+    window.addEventListener('load', () => {
+      resizeCanvas(); // 必要なら追加
       UI.voltageLabel.textContent = state.voltage.toFixed(1) + " V";
       UI.gearLabel.textContent = "4.0:1";
       UI.tireLabel.textContent = "26.0 mm";
