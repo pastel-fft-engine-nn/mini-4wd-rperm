@@ -1,5 +1,5 @@
-0722−6　
-基準コードα
+0722−7　
+基準コード
 
 
 <!DOCTYPE html>
@@ -664,45 +664,23 @@ const UI = {
   closeSettings: document.getElementById("closeSettings"),
 };
 
-/* =============================
-   Audio 初期化（集音機能 完全版）
-============================= */
+/* ---- Audio 初期化 ---- */
 async function initAudio() {
-  if (audioContext) return;  // 二重初期化防止
+  if (audioContext) return;
 
-  // AudioContext 作成（サンプルレート固定）
   audioContext = new (window.AudioContext || window.webkitAudioContext)({
     sampleRate: SAMPLE_RATE
   });
 
-  // マイク入力取得
-  micStream = await navigator.mediaDevices.getUserMedia({
-    audio: {
-      echoCancellation: false,
-      noiseSuppression: false,
-      autoGainControl: false
-    }
-  });
-
-  // マイク → AudioContext
+  micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const source = audioContext.createMediaStreamSource(micStream);
 
-  // AnalyserNode（FFT用）
   analyser = audioContext.createAnalyser();
   analyser.fftSize = FFT_SIZE;
   analyser.smoothingTimeConstant = 0.0;
 
-  // マイク → FFT
   source.connect(analyser);
-
-  // FFTバッファ
-  fftBuffer = new Float32Array(analyser.frequencyBinCount);
-
-  console.log("🎤 集音機能：初期化完了");
-fftBuffer = new Float32Array(analyser.frequencyBinCount);
-
 }
-
 
 /* ---- FFT 描画 ---- */
 function drawFFT() {
@@ -1039,9 +1017,7 @@ function loop() {
 /* ---- 計測開始 ---- */
 UI.startBtn.addEventListener("click", async () => {
   if (!audioContext) {
-    await initAudio();  // 集音初期化
-  } else if (audioContext.state === "suspended") {
-    await audioContext.resume();
+    await initAudio();           // JS1
   }
 
   running = true;
@@ -1049,9 +1025,8 @@ UI.startBtn.addEventListener("click", async () => {
 
   UI.statusLine.textContent = "MEASURING — 計測中";
 
-  mainLoop();  // JS1 のメインループ
+  loop();                        // JS4 main loop
 });
-
 
 /* ---- ロック ---- */
 UI.lockBtn.addEventListener("click", () => {
