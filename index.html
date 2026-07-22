@@ -1,4 +1,5 @@
-0722−2
+0722−3
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -23,6 +24,39 @@
     .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:flex; justify-content:center; align-items:flex-end; }
     .modal { width:100%; max-width:480px; background:#f5f7fc; border-radius:18px 18px 0 0; padding:18px; }
     .hidden { display:none; }
+.rpm-limit-box {
+  margin: 16px 0;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.rpm-limit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.rpm-limit-row label {
+  width: 80px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.limit-slider {
+  flex: 1;
+  margin: 0 12px;
+}
+
+.limit-value {
+  width: 70px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
   </style>
 </head>
 <body>
@@ -40,18 +74,21 @@
         <div><span>TOP</span><span id="speedTop">-- km/h</span></div>
         <div><span>MIN</span><span id="speedMin">-- km/h</span></div>
       </div>
+
+            <!-- RPM 表示範囲 -->
       <div class="rpm-limit-box">
         <div class="rpm-limit-row">
           <label>RPM表示下限</label>
-          <input id="rpmMinLimit" type="range" min="0" max="5000" value="5000">
-          <span id="rpmMinLimitValue">5000</span>
+          <input id="rpmMinLimit" type="range" min="0" max="10000" value="5000" class="limit-slider">
+          <span id="rpmMinLimitValue" class="limit-value">5000</span>
         </div>
         <div class="rpm-limit-row">
           <label>RPM表示上限</label>
-          <input id="rpmMaxLimit" type="range" min="30000" max="80000" value="60000">
-          <span id="rpmMaxLimitValue">60000</span>
+          <input id="rpmMaxLimit" type="range" min="10000" max="80000" value="60000" class="limit-slider">
+          <span id="rpmMaxLimitValue" class="limit-value">60000</span>
         </div>
       </div>
+
       <div id="statusLine" class="status-line">READY — 計測待機中</div>
       <div class="realtime-buttons-2row">
         <div class="btn-row">
@@ -359,27 +396,32 @@
     }
 
     function drawFFT() {
-      if (!analyser) return;
-      analyser.getFloatFrequencyData(fftBuffer);
-      const ctx = UI.waveCanvas.getContext("2d");
-      ctx.clearRect(0, 0, UI.waveCanvas.width, UI.waveCanvas.height);
+  if (!analyser) return;
+  analyser.getFloatFrequencyData(fftBuffer);
+  const ctx = UI.waveCanvas.getContext("2d");
+  const w = UI.waveCanvas.width;
+  const h = UI.waveCanvas.height;
+  ctx.clearRect(0, 0, w, h);
 
-      const nyquist = SAMPLE_RATE / 2;
-      const minIndex = 0;
-      const maxIndex = fftBuffer.length - 1;
+  ctx.beginPath();
+  ctx.strokeStyle = "#4a6cff";
+  ctx.lineWidth = 2.5;
 
-      ctx.beginPath();
-      ctx.strokeStyle = "#4a6cff";
-      ctx.lineWidth = 2;
+  const step = Math.floor(fftBuffer.length / w);
 
-      for (let i = minIndex; i <= maxIndex; i++) {
-        const x = (i / maxIndex) * UI.waveCanvas.width;
-        const norm = Math.max(0, (fftBuffer[i] + 100) / 100);
-        const y = UI.waveCanvas.height * (1 - norm);
-        i === minIndex ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
+  for (let x = 0; x < w; x++) {
+    let maxVal = -Infinity;
+    for (let i = 0; i < step; i++) {
+      const idx = Math.floor(x * (fftBuffer.length / w)) + i;
+      if (idx < fftBuffer.length) maxVal = Math.max(maxVal, fftBuffer[idx]);
     }
+    const norm = Math.max(0, (maxVal + 110) / 110);
+    const y = h * (1 - norm);
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
 
     function detectPeak() {
       if (!analyser) return null;
