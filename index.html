@@ -848,7 +848,7 @@ function loopFFT() {
 
   const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
 
-  if (peakHz > 0 && running) {
+if (peakHz > 0 && running) {   // ← "if" に修正
   if (ignoreFrames > 0) {
     ignoreFrames--;
     return;
