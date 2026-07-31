@@ -1,4 +1,4 @@
-０００００
+７７７７７
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -58,8 +58,9 @@
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
       margin-bottom: 10px;
+      cursor: pointer;
     }
     .card-title {
       font-size: 0.9rem;
@@ -124,10 +125,15 @@
       color: var(--accent-blue);
       letter-spacing: 0.12em;
     }
+    .audio-indicator { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 12px; background: #f0f7ff; border-radius: 10px; font-size: 0.8rem; color: var(--text-sub); }
+    .audio-bars { display: flex; gap: 3px; align-items: flex-end; height: 20px; }
+    .audio-bar { width: 4px; height: 6px; background: var(--accent-blue); border-radius: 2px; transition: height 0.1s ease; }
+
     .rpm-limit-section {
       background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
       border-radius: var(--radius-md);
       padding: 10px 12px;
+      margin-top: 10px;
       margin-bottom: 10px;
       border: 1px solid #d5dbf0;
     }
@@ -236,15 +242,15 @@
     table {
       border-collapse: collapse;
       width: 100%;
-      min-width: 760px;
-      font-size: 0.8rem;
+      min-width: 700px;
+      font-size: 0.75rem;
     }
     thead th {
       background: #e6ecff;
       position: sticky;
       top: 0;
       z-index: 3;
-      padding: 10px 8px;
+      padding: 8px 4px;
       font-weight: 700;
     }
     th:first-child, td:first-child {
@@ -255,12 +261,13 @@
       text-align: left;
     }
     td {
-      padding: 10px 8px;
+      padding: 8px 4px;
       border-bottom: 1px solid #dde2f2;
       text-align: right;
     }
     .highlight-row { background: rgba(31, 122, 255, 0.1) !important; }
     .highlight-col { background: rgba(255, 79, 163, 0.05) !important; }
+
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -276,7 +283,7 @@
       max-width: 480px;
       background: #f5f7fc;
       border-radius: 24px 24px 0 0;
-      padding: 24px 16px 40px;
+      padding: 20px 12px 30px;
       animation: slideUp 0.3s ease-out;
     }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -284,56 +291,60 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
-    .modal-title { font-size: 1.1rem; font-weight: 700; }
-    .modal-close { border: none; background: transparent; font-size: 2rem; cursor: pointer; color: var(--text-sub); }
-    
-    /* 履歴リストのスクロール対応 */
+    .modal-title { font-size: 1rem; font-weight: 700; }
+    .modal-close { border: none; background: transparent; font-size: 1.8rem; cursor: pointer; color: var(--text-sub); }
+
+    /* 履歴フィルタ */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #e1e4ee;
+    }
+    .filter-item { display: flex; flex-direction: column; gap: 4px; }
+    .filter-item label { font-size: 0.7rem; color: var(--text-sub); font-weight: 600; }
+    .filter-item select { padding: 6px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.8rem; outline: none; }
+    .search-btn-row { grid-column: span 2; display: flex; justify-content: flex-end; }
+
     .history-table-wrapper {
       margin-top: 6px;
       border-radius: var(--radius-md);
       border: 1px solid #c7d6ff;
       overflow-x: auto;
-      max-height: 400px;
+      max-height: 350px;
       background: #ffffff;
     }
     .history-table {
       border-collapse: collapse;
       width: 100%;
-      min-width: 850px; /* すべての項目を表示するための最小幅 */
-      font-size: 0.8rem;
+      min-width: 650px; /* 余白を詰めてコンパクトに */
+      font-size: 0.7rem;
     }
     .history-table th, .history-table td {
-      padding: 10px 8px;
+      padding: 6px 4px;
       border-bottom: 1px solid #eef2ff;
       text-align: center;
       white-space: nowrap;
     }
-    .history-table thead th {
-      background: #e6ecff;
-      position: sticky;
-      top: 0;
-      z-index: 3;
-      font-weight: 700;
-    }
-    .delete-btn {
-      border: none;
-      background: #ffeef2;
-      color: #ff4b4b;
-      padding: 6px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.75rem;
-    }
+    .delete-btn { border: none; background: #ffeef2; color: #ff4b4b; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.7rem; }
 
     .input-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
     .input-row label { font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
     .input-row input, .input-row select { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-soft); font-size: 1rem; outline: none; }
-    .audio-indicator { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 12px; background: #f0f7ff; border-radius: 10px; font-size: 0.8rem; color: var(--text-sub); }
-    .audio-bars { display: flex; gap: 3px; align-items: flex-end; height: 20px; }
-    .audio-bar { width: 4px; height: 6px; background: var(--accent-blue); border-radius: 2px; transition: height 0.1s ease; }
+
+    /* アコーディオン */
+    .collapsible-content { display: none; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .collapsible-content.active { display: block; }
+    .toggle-icon::after { content: ' ▼'; font-size: 0.7rem; color: var(--text-sub); }
+    .active .toggle-icon::after { content: ' ▲'; }
+
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -348,7 +359,22 @@
       <div class="card-caption">高精度FFTエンジン</div>
     </div>
 
-    <!-- RPM表示制限 -->
+    <div class="wave-container">
+      <div class="wave-header">
+        <span>スペクトラム解析</span>
+        <span id="fftStatusLabel">READY</span>
+      </div>
+      <canvas id="spectrum"></canvas>
+    </div>
+
+    <div class="audio-indicator">
+      <span>マイク入力レベル:</span>
+      <div class="audio-bars" id="audioIndicator">
+        <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+      </div>
+    </div>
+
+    <!-- RPM表示制限（マイクレベルの直下） -->
     <div class="rpm-limit-section">
       <div class="rpm-limit-row">
         <div class="rpm-limit-label">
@@ -363,21 +389,6 @@
           <span class="rpm-limit-value" id="rpmMaxLimitValue">60000</span>
         </div>
         <input type="range" id="rpmMaxLimit" min="10000" max="100000" step="1000" value="60000" />
-      </div>
-    </div>
-
-    <div class="wave-container">
-      <div class="wave-header">
-        <span>スペクトラム解析</span>
-        <span id="fftStatusLabel">READY</span>
-      </div>
-      <canvas id="spectrum"></canvas>
-    </div>
-
-    <div class="audio-indicator">
-      <span>マイク入力レベル:</span>
-      <div class="audio-bars" id="audioIndicator">
-        <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
       </div>
     </div>
 
@@ -407,20 +418,25 @@
     </div>
   </section>
 
-  <section class="card">
-    <div class="card-header"><div class="card-title">計測条件</div></div>
-    <div class="settings-row">
-      <div class="setting-item">
-        <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">3.0 V</span></div>
-        <input type="range" id="voltageRange" min="2.2" max="3.4" step="0.1" value="3.0" />
-      </div>
-      <div class="setting-item">
-        <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">4.0:1</span></div>
-        <input type="range" id="gearRange" min="0" max="7" step="1" value="2" />
-      </div>
-      <div class="setting-item">
-        <div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">26.0 mm</span></div>
-        <input type="range" id="tireRange" min="20.0" max="35.0" step="0.1" value="26.0" />
+  <!-- 比較表条件（折りたたみ式） -->
+  <section class="card" id="conditionsCard">
+    <div class="card-header" onclick="toggleConditions()">
+      <div class="card-title">比較表条件 <span class="toggle-icon"></span></div>
+    </div>
+    <div class="collapsible-content" id="conditionsContent">
+      <div class="settings-row">
+        <div class="setting-item">
+          <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">3.0 V</span></div>
+          <input type="range" id="voltageRange" min="2.2" max="3.4" step="0.1" value="3.0" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">4.0:1</span></div>
+          <input type="range" id="gearRange" min="0" max="7" step="1" value="2" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">26.0 mm</span></div>
+          <input type="range" id="tireRange" min="20.0" max="35.0" step="0.1" value="26.0" />
+        </div>
       </div>
     </div>
   </section>
@@ -469,11 +485,27 @@
 
 <!-- 履歴モーダル -->
 <div class="modal-backdrop" id="historyModalBackdrop">
-  <div class="modal" style="max-width: 90vw; width: 95vw;">
+  <div class="modal" style="max-width: 95vw; width: 95vw;">
     <div class="modal-header">
       <div class="modal-title">計測履歴</div>
       <button class="modal-close" id="historyClose">×</button>
     </div>
+    
+    <!-- 履歴フィルタ -->
+    <div class="filter-grid">
+      <div class="filter-item"><label>日付</label><select id="filterDate"><option value="">すべて</option></select></div>
+      <div class="filter-item"><label>名前</label><select id="filterName"><option value="">すべて</option></select></div>
+      <div class="filter-item"><label>モーター</label><select id="filterMotor"><option value="">すべて</option></select></div>
+      <div class="filter-item"><label>速度</label><select id="filterSpeed"><option value="">すべて</option></select></div>
+      <div class="filter-item"><label>RPM</label><select id="filterRpm"><option value="">すべて</option></select></div>
+      <div class="filter-item"><label>電圧</label><select id="filterVoltage"><option value="">すべて</option></select></div>
+      <div class="filter-item"><label>ギヤ比</label><select id="filterGear"><option value="">すべて</option></select></div>
+      <div class="filter-item"><label>タイヤ径</label><select id="filterTire"><option value="">すべて</option></select></div>
+      <div class="search-btn-row">
+        <button class="primary-btn blue" id="historySearchBtn" style="padding: 6px 20px; font-size: 0.75rem;">検索</button>
+      </div>
+    </div>
+
     <div class="history-table-wrapper">
       <table class="history-table">
         <thead>
@@ -514,9 +546,6 @@
 </div>
 
 <script>
-/* ============================================================
-   0713最高のでき の集音構造をそのまま移植
-============================================================ */
 const FFT_SIZE = 8192;
 const gearOptions = ["3.5:1", "3.7:1", "4.0:1", "4.2:1", "5.0:1", "6.4:1", "8.75:1", "11.2:1"];
 
@@ -581,22 +610,33 @@ const UI = {
   saveModal: document.getElementById("saveModalBackdrop"),
   saveNameInput: document.getElementById("saveNameInput"),
   motorTypeSelect: document.getElementById("motorTypeSelect"),
-  historyList: document.getElementById("historyList")
+  historyList: document.getElementById("historyList"),
+  conditionsContent: document.getElementById("conditionsContent"),
+  conditionsCard: document.getElementById("conditionsCard"),
+  historySearchBtn: document.getElementById("historySearchBtn")
 };
 
-/* ========== 0713そのままの集音 ========== */
+const filters = {
+  date: document.getElementById("filterDate"),
+  name: document.getElementById("filterName"),
+  motor: document.getElementById("filterMotor"),
+  speed: document.getElementById("filterSpeed"),
+  rpm: document.getElementById("filterRpm"),
+  voltage: document.getElementById("filterVoltage"),
+  gear: document.getElementById("filterGear"),
+  tire: document.getElementById("filterTire")
+};
+
+function toggleConditions() {
+  UI.conditionsContent.classList.toggle("active");
+  UI.conditionsCard.classList.toggle("active");
+}
+
 async function startMic() {
   if (running) return;
   running = true;
-
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  }
-
-  if (!micStream) {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  }
-
+  if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  if (!micStream) micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   if (!analyser) {
     analyser = audioContext.createAnalyser();
     analyser.fftSize = FFT_SIZE;
@@ -604,11 +644,7 @@ async function startMic() {
     const source = audioContext.createMediaStreamSource(micStream);
     source.connect(analyser);
   }
-
-  if (audioContext.state === "suspended") {
-    await audioContext.resume();
-  }
-
+  if (audioContext.state === "suspended") await audioContext.resume();
   UI.fftStatusLabel.textContent = "ACTIVE";
   UI.statusLine.textContent = "MEASURING — 解析中";
   loopFFT();
@@ -616,31 +652,24 @@ async function startMic() {
 
 function stopMic() {
   running = false;
-  if (audioContext && audioContext.state === "running") {
-    audioContext.suspend();
-  }
+  if (audioContext && audioContext.state === "running") audioContext.suspend();
   UI.fftStatusLabel.textContent = "PAUSED";
   UI.statusLine.textContent = "STOPPED — 停止中";
+  UI.startBtn.textContent = "計測開始";
+  UI.startBtn.classList.replace("red", "blue");
 }
 
 function getPrecisePeakHz(data, fftSize, sampleRate) {
   const binToHz = sampleRate / fftSize;
   let maxVal = -Infinity;
   let maxIdx = -1;
-
   for (let i = 1; i < data.length - 1; i++) {
     const v = data[i];
-    if (v > maxVal) {
-      maxVal = v;
-      maxIdx = i;
-    }
+    if (v > maxVal) { maxVal = v; maxIdx = i; }
   }
   if (maxIdx <= 0 || maxIdx >= data.length - 1) return 0;
   if (maxVal < parseInt(UI.noiseRange.value)) return 0;
-
-  const y1 = data[maxIdx - 1];
-  const y2 = data[maxIdx];
-  const y3 = data[maxIdx + 1];
+  const y1 = data[maxIdx - 1], y2 = data[maxIdx], y3 = data[maxIdx + 1];
   const denom = (y1 - 2 * y2 + y3);
   const offset = denom === 0 ? 0 : (y1 - y3) / (2 * denom);
   return (maxIdx + offset) * binToHz;
@@ -648,18 +677,9 @@ function getPrecisePeakHz(data, fftSize, sampleRate) {
 
 function computeSpeedFromRpm(rpm) {
   const tire = parseFloat(UI.tireRange.value);
-  const gearIndex = parseInt(UI.gearRange.value, 10);
-  const gearRatio = parseFloat(gearOptions[gearIndex].split(":")[0]);
-  const rpmCal = parseFloat(UI.rpmCalRange.value);
-  const loadFactor = parseFloat(UI.loadFactorRange.value) / 100;
-
-  const adjustedRpm = rpm * rpmCal;
-  const wheelRpm = adjustedRpm / gearRatio;
-  const wheelRps = wheelRpm / 60;
-  const circumference = Math.PI * (tire / 1000);
-  let speed = wheelRps * circumference * 3.6;
-  speed *= 1 + loadFactor;
-
+  const gearRatio = parseFloat(gearOptions[UI.gearRange.value].split(":")[0]);
+  const adjustedRpm = rpm * parseFloat(UI.rpmCalRange.value);
+  const speed = (adjustedRpm / gearRatio) * (tire * Math.PI * 60) / 1000000 * (1 + parseFloat(UI.loadFactorRange.value) / 100);
   return { adjustedRpm, speed };
 }
 
@@ -673,68 +693,36 @@ function loopFFT() {
   if (!running) return;
   requestAnimationFrame(loopFFT);
   if (!analyser || !dataArray) return;
-
   analyser.getByteFrequencyData(dataArray);
-
-  const canvas = UI.spectrum;
-  const ctx = canvas.getContext("2d");
-  const dpr = window.devicePixelRatio || 1;
-  if (canvas.width !== canvas.clientWidth * dpr) {
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
-  }
+  const canvas = UI.spectrum, ctx = canvas.getContext("2d"), dpr = window.devicePixelRatio || 1;
+  if (canvas.width !== canvas.clientWidth * dpr) { canvas.width = canvas.clientWidth * dpr; canvas.height = canvas.clientHeight * dpr; }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const sampleRate = audioContext.sampleRate;
-  const binToHz = sampleRate / FFT_SIZE;
-
-  ctx.beginPath();
-  ctx.strokeStyle = "#ff4fa3";
-  ctx.lineWidth = 2 * dpr;
+  const binToHz = audioContext.sampleRate / FFT_SIZE;
+  ctx.beginPath(); ctx.strokeStyle = "#ff4fa3"; ctx.lineWidth = 2 * dpr;
   let started = false;
-
   for (let i = 0; i < dataArray.length; i++) {
     const rpm = i * binToHz * 60;
     if (rpm < rpmMinLimit || rpm > rpmMaxLimit) continue;
     const x = ((rpm - rpmMinLimit) / (rpmMaxLimit - rpmMinLimit)) * canvas.width;
     const y = canvas.height - (dataArray[i] / 255) * canvas.height;
-    if (!started) { ctx.moveTo(x, y); started = true; }
-    else { ctx.lineTo(x, y); }
+    if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
   }
   ctx.stroke();
-
   const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
-  let sum = 0;
-  for (let i = 0; i < 80; i++) sum += dataArray[i];
+  let sum = 0; for (let i = 0; i < 80; i++) sum += dataArray[i];
   const level = sum / 80;
-  bars.forEach((bar, i) => {
-    const h = Math.min(20, Math.max(4, (level / 255) * 40 - i * 3));
-    bar.style.height = h + "px";
-  });
-
+  bars.forEach((bar, i) => { bar.style.height = Math.min(20, Math.max(4, (level / 255) * 40 - i * 3)) + "px"; });
   if (locked) return;
-
-  const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, sampleRate);
+  const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
   if (peakHz > 0) {
-    const rawRpm = peakHz * 60;
-    const { adjustedRpm, speed } = computeSpeedFromRpm(rawRpm);
-
-    currentRpm = adjustedRpm;
-    currentSpeed = speed;
-
+    const { adjustedRpm, speed } = computeSpeedFromRpm(peakHz * 60);
+    currentRpm = adjustedRpm; currentSpeed = speed;
     if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
     if (minRpmVal === Infinity || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
     if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
     if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
-
-    const dispNow = limitDisplay(Math.round(currentRpm));
-    const dispMax = limitDisplay(Math.round(maxRpmVal));
-    const dispMin = limitDisplay(Math.round(minRpmVal));
-
-    UI.rpmNow.textContent = dispNow;
-    UI.rpmMax.textContent = dispMax;
-    UI.rpmMin.textContent = dispMin;
-
+    const dispNow = limitDisplay(Math.round(currentRpm)), dispMax = limitDisplay(Math.round(maxRpmVal)), dispMin = limitDisplay(Math.round(minRpmVal));
+    UI.rpmNow.textContent = dispNow; UI.rpmMax.textContent = dispMax; UI.rpmMin.textContent = dispMin;
     UI.speedNow.textContent = dispNow === "--" ? "--" : currentSpeed.toFixed(2);
     UI.speedTop.textContent = dispMax === "--" ? "--" : maxSpeedVal.toFixed(2);
     UI.speedMin.textContent = dispMin === "--" ? "--" : minSpeedVal.toFixed(2);
@@ -743,22 +731,15 @@ function loopFFT() {
 
 function buildComparisonTable(baseRpm) {
   const voltages = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4];
-  const currentV = parseFloat(UI.voltageRange.value);
-  const tire = parseFloat(UI.tireRange.value);
-  const load = 1 + parseFloat(UI.loadFactorRange.value) / 100;
-
+  const currentV = parseFloat(UI.voltageRange.value), tire = parseFloat(UI.tireRange.value), load = 1 + parseFloat(UI.loadFactorRange.value) / 100;
   UI.comparisonBody.innerHTML = "";
   voltages.forEach(v => {
-    const rpm = baseRpm * (v / currentV);
-    const tr = document.createElement("tr");
+    const rpm = baseRpm * (v / currentV), tr = document.createElement("tr");
     if (Math.abs(v - currentV) < 0.05) tr.classList.add("highlight-row");
     tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpm)}</td>`;
-
     gearOptions.forEach((g, idx) => {
-      const ratio = parseFloat(g.split(":")[0]);
-      const speed = (rpm / ratio) * (tire * Math.PI * 60) / 1000000 * load;
-      const td = document.createElement("td");
-      td.textContent = speed.toFixed(2);
+      const speed = (rpm / parseFloat(g.split(":")[0])) * (tire * Math.PI * 60) / 1000000 * load;
+      const td = document.createElement("td"); td.textContent = speed.toFixed(2);
       if (idx == UI.gearRange.value) td.classList.add("highlight-col");
       tr.appendChild(td);
     });
@@ -766,133 +747,81 @@ function buildComparisonTable(baseRpm) {
   });
 }
 
-/* ========== UIイベント ========== */
 UI.startBtn.addEventListener("click", async () => {
-  if (!running) {
-    UI.startBtn.textContent = "計測停止";
-    UI.startBtn.classList.replace("blue", "red");
-    await startMic();
-  } else {
-    stopMic();
-    UI.startBtn.textContent = "計測開始";
-    UI.startBtn.classList.replace("red", "blue");
-  }
+  if (!running) { UI.startBtn.textContent = "計測停止"; UI.startBtn.classList.replace("blue", "red"); await startMic(); }
+  else stopMic();
 });
 
 UI.lockBtn.addEventListener("click", () => {
-  locked = !locked;
-  UI.lockBtn.textContent = locked ? "ロック解除" : "ロック";
-  UI.lockBtn.classList.toggle("outline");
-  if (locked) {
-    lockedSnapshot = { rpm: currentRpm, speed: currentSpeed };
-    buildComparisonTable(currentRpm || 15000);
-    UI.statusLine.textContent = "LOCKED — ロック中";
-  } else {
-    lockedSnapshot = null;
-    UI.statusLine.textContent = "MEASURING — 解析中";
-  }
+  locked = !locked; UI.lockBtn.textContent = locked ? "ロック解除" : "ロック"; UI.lockBtn.classList.toggle("outline");
+  if (locked) { lockedSnapshot = { rpm: currentRpm, speed: currentSpeed }; buildComparisonTable(currentRpm || 15000); UI.statusLine.textContent = "LOCKED — ロック中"; }
+  else { lockedSnapshot = null; UI.statusLine.textContent = "MEASURING — 解析中"; }
 });
 
 UI.resetBtn.addEventListener("click", () => {
-  currentRpm = 0; maxRpmVal = 0; minRpmVal = Infinity;
-  currentSpeed = 0; maxSpeedVal = 0; minSpeedVal = Infinity;
+  stopMic();
+  currentRpm = 0; maxRpmVal = 0; minRpmVal = Infinity; currentSpeed = 0; maxSpeedVal = 0; minSpeedVal = Infinity;
   UI.rpmNow.textContent = "--"; UI.rpmMax.textContent = "--"; UI.rpmMin.textContent = "--";
   UI.speedNow.textContent = "--"; UI.speedTop.textContent = "--"; UI.speedMin.textContent = "--";
   UI.comparisonBody.innerHTML = "";
 });
 
-UI.voltageRange.addEventListener("input", () => {
-  UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V";
-  if (locked) buildComparisonTable(currentRpm);
-});
-UI.gearRange.addEventListener("input", () => {
-  UI.gearLabel.textContent = gearOptions[UI.gearRange.value];
-  if (locked) buildComparisonTable(currentRpm);
-});
-UI.tireRange.addEventListener("input", () => {
-  UI.tireLabel.textContent = parseFloat(UI.tireRange.value).toFixed(1) + " mm";
-  if (locked) buildComparisonTable(currentRpm);
-});
-
-UI.rpmMinLimit.addEventListener("input", () => {
-  rpmMinLimit = parseInt(UI.rpmMinLimit.value);
-  UI.rpmMinLimitValue.textContent = rpmMinLimit;
-});
-UI.rpmMaxLimit.addEventListener("input", () => {
-  rpmMaxLimit = parseInt(UI.rpmMaxLimit.value);
-  UI.rpmMaxLimitValue.textContent = rpmMaxLimit;
-});
-
+UI.voltageRange.addEventListener("input", () => { UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V"; if (locked) buildComparisonTable(currentRpm); });
+UI.gearRange.addEventListener("input", () => { UI.gearLabel.textContent = gearOptions[UI.gearRange.value]; if (locked) buildComparisonTable(currentRpm); });
+UI.tireRange.addEventListener("input", () => { UI.tireLabel.textContent = parseFloat(UI.tireRange.value).toFixed(1) + " mm"; if (locked) buildComparisonTable(currentRpm); });
+UI.rpmMinLimit.addEventListener("input", () => { rpmMinLimit = parseInt(UI.rpmMinLimit.value); UI.rpmMinLimitValue.textContent = rpmMinLimit; });
+UI.rpmMaxLimit.addEventListener("input", () => { rpmMaxLimit = parseInt(UI.rpmMaxLimit.value); UI.rpmMaxLimitValue.textContent = rpmMaxLimit; });
 UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
 UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2));
 UI.loadFactorRange.addEventListener("input", () => UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%");
-
 UI.settingsBtn.addEventListener("click", () => UI.settingsModal.style.display = "flex");
 document.getElementById("settingsClose").addEventListener("click", () => UI.settingsModal.style.display = "none");
-
-UI.historyBtn.addEventListener("click", () => {
-  renderHistory();
-  UI.historyModal.style.display = "flex";
-});
+UI.historyBtn.addEventListener("click", () => { populateFilters(); renderHistory(); UI.historyModal.style.display = "flex"; });
 document.getElementById("historyClose").addEventListener("click", () => UI.historyModal.style.display = "none");
-
 UI.saveBtn.addEventListener("click", () => UI.saveModal.style.display = "flex");
 document.getElementById("saveClose").addEventListener("click", () => UI.saveModal.style.display = "none");
 document.getElementById("saveCancelBtn").addEventListener("click", () => UI.saveModal.style.display = "none");
-
 document.getElementById("settingsResetBtn").addEventListener("click", () => {
   UI.noiseRange.value = 20; UI.rpmCalRange.value = 1.00; UI.loadFactorRange.value = 0;
   UI.noiseLabel.textContent = "20"; UI.rpmCalLabel.textContent = "1.00"; UI.loadFactorLabel.textContent = "0%";
 });
 
 document.getElementById("saveConfirmBtn").addEventListener("click", () => {
-  const name = UI.saveNameInput.value.trim() || "No Name";
-  const motor = UI.motorTypeSelect.value || "未選択";
-  const entry = {
-    date: new Date().toLocaleDateString(),
-    name, motor,
-    rpm: Math.round(currentRpm),
-    speed: currentSpeed.toFixed(2),
-    voltage: UI.voltageLabel.textContent,
-    gear: UI.gearLabel.textContent,
-    tire: UI.tireLabel.textContent
-  };
-  state.history.unshift(entry);
+  const name = UI.saveNameInput.value.trim() || "No Name", motor = UI.motorTypeSelect.value || "未選択";
+  state.history.unshift({ date: new Date().toLocaleDateString(), name, motor, rpm: Math.round(currentRpm), speed: currentSpeed.toFixed(2), voltage: UI.voltageLabel.textContent, gear: UI.gearLabel.textContent, tire: UI.tireLabel.textContent });
   localStorage.setItem("rpmHistory", JSON.stringify(state.history));
-  UI.saveModal.style.display = "none";
-  alert("保存しました");
+  UI.saveModal.style.display = "none"; alert("保存しました");
 });
 
+function populateFilters() {
+  const keys = ['date', 'name', 'motor', 'speed', 'rpm', 'voltage', 'gear', 'tire'];
+  keys.forEach(key => {
+    const select = filters[key];
+    const values = [...new Set(state.history.map(h => h[key]))].sort();
+    select.innerHTML = '<option value="">すべて</option>';
+    values.forEach(v => { const opt = document.createElement("option"); opt.value = v; opt.textContent = v; select.appendChild(opt); });
+  });
+}
+
 function renderHistory() {
-  UI.historyList.innerHTML = state.history.length ? "" : "<tr><td colspan='9' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
-  state.history.forEach((h, i) => {
+  const fValues = { date: filters.date.value, name: filters.name.value, motor: filters.motor.value, speed: filters.speed.value, rpm: filters.rpm.value, voltage: filters.voltage.value, gear: filters.gear.value, tire: filters.tire.value };
+  const filtered = state.history.filter(h => {
+    return Object.keys(fValues).every(k => !fValues[k] || String(h[k]) === fValues[k]);
+  });
+  UI.historyList.innerHTML = filtered.length ? "" : "<tr><td colspan='9' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
+  filtered.forEach((h, i) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${h.date}</td>
-      <td>${h.name}</td>
-      <td>${h.motor}</td>
-      <td>${h.speed}</td>
-      <td>${h.rpm}</td>
-      <td>${h.voltage}</td>
-      <td>${h.gear}</td>
-      <td>${h.tire}</td>
-      <td><button class="delete-btn" onclick="deleteHistory(${i})">削除</button></td>
-    `;
+    tr.innerHTML = `<td>${h.date}</td><td>${h.name}</td><td>${h.motor}</td><td>${h.speed}</td><td>${h.rpm}</td><td>${h.voltage}</td><td>${h.gear}</td><td>${h.tire}</td><td><button class="delete-btn" onclick="deleteHistory(${i})">削除</button></td>`;
     UI.historyList.appendChild(tr);
   });
 }
 
-window.deleteHistory = (i) => {
-  if(confirm("この履歴を削除しますか？")) {
-    state.history.splice(i, 1);
-    localStorage.setItem("rpmHistory", JSON.stringify(state.history));
-    renderHistory();
-  }
-};
+UI.historySearchBtn.addEventListener("click", renderHistory);
 
-window.onclick = (e) => {
-  if (e.target.classList.contains("modal-backdrop")) e.target.style.display = "none";
+window.deleteHistory = (i) => {
+  if (confirm("この履歴を削除しますか？")) { state.history.splice(i, 1); localStorage.setItem("rpmHistory", JSON.stringify(state.history)); renderHistory(); populateFilters(); }
 };
+window.onclick = (e) => { if (e.target.classList.contains("modal-backdrop")) e.target.style.display = "none"; };
 </script>
 </body>
 </html>
