@@ -1,4 +1,4 @@
-０００
+１１１
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -720,7 +720,7 @@ async function initAudio() {
 
     const source = audioContext.createMediaStreamSource(micStream);
 
-    // Safariは GainNode を挟むと無音になることがある → 直接接続
+    // Safariは GainNode を挟むと無音になる → 直接接続
     analyser = audioContext.createAnalyser();
 
     // Safariは 16384 を拒否することがある → 自動フォールバック
@@ -743,6 +743,7 @@ async function initAudio() {
     UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
   }
 }
+
 
 
 
