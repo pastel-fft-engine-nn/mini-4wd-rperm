@@ -1,4 +1,4 @@
-修正を反映した完全なコードです。
+８９８９８９
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -639,7 +639,7 @@ let micStream = null;
 let dataArray = null;
 let running = false;
 let locked = false;
-let ignoreFrames = 0;          // ★ 追加：再開直後の無視フレーム数
+let ignoreFrames = 0;
 
 let currentRpm = 0;
 let maxRpmVal = 0;
@@ -717,32 +717,40 @@ function toggleConditions() {
   UI.conditionsCard.classList.toggle("active");
 }
 
-/* ========== 0713集音構造 + リセット後安定化 ========== */
+/* ========== 0713集音構造 ========== */
 async function startMic() {
   if (running) return;
   running = true;
 
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (!micStream) {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  }
-  if (!analyser) {
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = FFT_SIZE;
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-    const source = audioContext.createMediaStreamSource(micStream);
-    source.connect(analyser);
-  }
-  if (audioContext.state === "suspended") {
-    await audioContext.resume();
-  }
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (!micStream) {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    }
+    if (!analyser) {
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = FFT_SIZE;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const source = audioContext.createMediaStreamSource(micStream);
+      source.connect(analyser);
+    }
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
 
-  ignoreFrames = 8;          // ★ 再開直後の8フレームはピークを無視
-  UI.fftStatusLabel.textContent = "ACTIVE";
-  UI.statusLine.textContent = "MEASURING — 解析中";
-  loopFFT();
+    ignoreFrames = 8;
+    UI.fftStatusLabel.textContent = "ACTIVE";
+    UI.statusLine.textContent = "MEASURING — 解析中";
+    loopFFT();
+  } catch (e) {
+    console.error(e);
+    running = false;
+    UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
+    UI.fftStatusLabel.textContent = "ERROR";
+    alert("マイクの使用が許可されていません。ブラウザの設定を確認してください。");
+  }
 }
 
 function stopMic() {
@@ -840,7 +848,6 @@ function loopFFT() {
 
   const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
 
-  // ★ 再開直後のフレームは無視
   if (peakHz > 0 && running) {
     if (ignoreFrames > 0) {
       ignoreFrames--;
@@ -894,30 +901,13 @@ function buildComparisonTable(baseRpm) {
 }
 
 /* ========== イベント ========== */
-UI.resetBtn.addEventListener("click", () => {
-  // 計測は止めない（running のまま）
-  currentRpm = 0;
-  maxRpmVal = 0;
-  minRpmVal = Infinity;
-  currentSpeed = 0;
-  maxSpeedVal = 0;
-  minSpeedVal = Infinity;
-
-  UI.rpmNow.textContent = "--";
-  UI.rpmMax.textContent = "--";
-  UI.rpmMin.textContent = "--";
-  UI.speedNow.textContent = "--";
-  UI.speedTop.textContent = "--";
-  UI.speedMin.textContent = "--";
-  UI.comparisonBody.innerHTML = "";
-
-  // ロック中なら解除しておく（任意）
-  if (locked) {
-    locked = false;
-    lockedSnapshot = null;
-    UI.lockBtn.textContent = "ロック";
-    UI.lockBtn.classList.add("outline");
-    UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
+UI.startBtn.addEventListener("click", async () => {
+  if (!running) {
+    UI.startBtn.textContent = "計測停止";
+    UI.startBtn.classList.replace("blue", "red");
+    await startMic();
+  } else {
+    stopMic();
   }
 });
 
@@ -931,19 +921,19 @@ UI.lockBtn.addEventListener("click", () => {
     UI.statusLine.textContent = "LOCKED — ロック中";
   } else {
     lockedSnapshot = null;
-    UI.statusLine.textContent = "MEASURING — 解析中";
+    UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
   }
 });
 
+/* リセット：表示だけ消す（計測は継続） */
 UI.resetBtn.addEventListener("click", () => {
-  stopMic();
-  ignoreFrames = 0;          // ★ 追加
   currentRpm = 0;
   maxRpmVal = 0;
   minRpmVal = Infinity;
   currentSpeed = 0;
   maxSpeedVal = 0;
   minSpeedVal = Infinity;
+
   UI.rpmNow.textContent = "--";
   UI.rpmMax.textContent = "--";
   UI.rpmMin.textContent = "--";
@@ -951,6 +941,14 @@ UI.resetBtn.addEventListener("click", () => {
   UI.speedTop.textContent = "--";
   UI.speedMin.textContent = "--";
   UI.comparisonBody.innerHTML = "";
+
+  if (locked) {
+    locked = false;
+    lockedSnapshot = null;
+    UI.lockBtn.textContent = "ロック";
+    UI.lockBtn.classList.add("outline");
+    UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
+  }
 });
 
 /* 履歴・設定・保存を開いても計測は継続 */
@@ -1094,6 +1092,3 @@ window.onclick = (e) => {
 </script>
 </body>
 </html>
-
-これで「最初は正しいのにリセット後から狂う」現象がかなり改善されるはずです。  
-試してみてください。
