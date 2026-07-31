@@ -848,7 +848,7 @@ function loopFFT() {
 
   const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
 
-  if (peakHz > 0 && running) {
+  f (peakHz > 0 && running) {
   if (ignoreFrames > 0) {
     ignoreFrames--;
     return;
@@ -863,19 +863,18 @@ function loopFFT() {
   if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
   if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
 
-  // CURRENT と MIN は表示制限を適用
+  // 表示上限・下限をすべてに厳守
   const dispNow = limitDisplay(Math.round(currentRpm));
+  const dispMax = limitDisplay(Math.round(maxRpmVal));
   const dispMin = limitDisplay(Math.round(minRpmVal));
 
-  // MAX / TOP は常に表示
   UI.rpmNow.textContent = dispNow;
-  UI.rpmMax.textContent = Math.round(maxRpmVal);          // 常に表示
+  UI.rpmMax.textContent = dispMax;
   UI.rpmMin.textContent = dispMin;
 
   UI.speedNow.textContent = dispNow === "--" ? "--" : currentSpeed.toFixed(2);
-  UI.speedTop.textContent = maxSpeedVal.toFixed(2);       // 常に表示
+  UI.speedTop.textContent = dispMax === "--" ? "--" : maxSpeedVal.toFixed(2);
   UI.speedMin.textContent = dispMin === "--" ? "--" : minSpeedVal.toFixed(2);
-}
 }
 
 function buildComparisonTable(baseRpm) {
