@@ -1,4 +1,3 @@
-０７３１−１
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -656,366 +655,490 @@
   </div>
 
   <script>
-    const SAMPLE_RATE = 48000;
-    const FFT_SIZE = 16384;
+/* -------------------------------------------------------
+   基本設定
+------------------------------------------------------- */
+const SAMPLE_RATE = 48000;
+const FFT_SIZE = 16384;
 
-    let audioContext = null;
-    let analyser = null;
-    let micStream = null;
-    let fftBuffer;
-    let micGainNode = null;
-    let running = false;
-    let locked = false;
-    let lastPeakIndex = null;
+let audioContext = null;
+let analyser = null;
+let micStream = null;
+let fftBuffer;
+let micGainNode = null;
+let running = false;
+let locked = false;
 
-    const gearRatios = [3.5, 3.7, 4.0, 4.2, 5.0, 6.4, 8.75, 11.2];
+const gearRatios = [3.5, 3.7, 4.0, 4.2, 5.0, 6.4, 8.75, 11.2];
 
-    const state = {
-      rpmNow: 0, rpmMax: 0, rpmMin: Infinity,
-      speedNow: 0, speedTop: 0, speedMin: Infinity,
-      voltage: 3.0, gearIndex: 2, tireMm: 26.0, history: []
-    };
+const state = {
+  rpmNow: 0, rpmMax: 0, rpmMin: Infinity,
+  speedNow: 0, speedTop: 0, speedMin: Infinity,
+  voltage: 3.0,
+  gearIndex: 2,
+  tireMm: 26.0,
+  history: []
+};
 
-    const UI = {
-      spectrum: document.getElementById("spectrum"),
-      avgRpm: document.getElementById("avgRpm"),
-      maxRpm: document.getElementById("maxRpm"),
-      minRpm: document.getElementById("minRpm"),
-      avgSpeed: document.getElementById("avgSpeed"),
-      maxSpeed: document.getElementById("maxSpeed"),
-      minSpeed: document.getElementById("minSpeed"),
-      statusLine: document.getElementById("statusLine"),
-      fftStatusLabel: document.getElementById("fftStatusLabel"),
-      audioIndicator: document.getElementById("audioIndicator"),
-      
-      startBtn: document.getElementById("startBtn"),
-      lockBtn: document.getElementById("lockBtn"),
-      saveBtn: document.getElementById("saveBtn"),
-      resetBtn: document.getElementById("resetBtn"),
-      historyBtn: document.getElementById("historyBtn"),
-      settingsBtn: document.getElementById("settingsBtn"),
-      
-      voltageRange: document.getElementById("voltageRange"),
-      voltageLabel: document.getElementById("voltageLabel"),
-      gearRange: document.getElementById("gearRange"),
-      gearLabel: document.getElementById("gearLabel"),
-      tireRange: document.getElementById("tireRange"),
-      tireLabel: document.getElementById("tireLabel"),
-      
-      rpmMaxLimit: document.getElementById("rpmMaxLimit"),
-      rpmMaxLimitValue: document.getElementById("rpmMaxLimitValue"),
-      noiseRange: document.getElementById("noiseRange"),
-      noiseLabel: document.getElementById("noiseLabel"),
-      rpmCalRange: document.getElementById("rpmCalRange"),
-      rpmCalLabel: document.getElementById("rpmCalLabel"),
-      loadFactorRange: document.getElementById("loadFactorRange"),
-      loadFactorLabel: document.getElementById("loadFactorLabel"),
-      micGainRange: document.getElementById("micGainRange"),
-      micGainLabel: document.getElementById("micGainLabel"),
-      
-      comparisonBody: document.getElementById("comparisonBody"),
-      
-      settingsModal: document.getElementById("settingsModalBackdrop"),
-      settingsClose: document.getElementById("settingsClose"),
-      
-      historyModal: document.getElementById("historyModalBackdrop"),
-      historyClose: document.getElementById("historyClose"),
-      historyList: document.getElementById("historyList"),
-      
-      saveModal: document.getElementById("saveModalBackdrop"),
-      saveClose: document.getElementById("saveClose"),
-      saveNameInput: document.getElementById("saveNameInput"),
-      motorTypeSelect: document.getElementById("motorTypeSelect"),
-      saveConfirmBtn: document.getElementById("saveConfirmBtn"),
-      saveCancelBtn: document.getElementById("saveCancelBtn")
-    };
+/* -------------------------------------------------------
+   UI参照
+------------------------------------------------------- */
+const UI = {
+  spectrum: document.getElementById("spectrum"),
+  avgRpm: document.getElementById("avgRpm"),
+  maxRpm: document.getElementById("maxRpm"),
+  minRpm: document.getElementById("minRpm"),
+  avgSpeed: document.getElementById("avgSpeed"),
+  maxSpeed: document.getElementById("maxSpeed"),
+  minSpeed: document.getElementById("minSpeed"),
+  statusLine: document.getElementById("statusLine"),
+  fftStatusLabel: document.getElementById("fftStatusLabel"),
+  audioIndicator: document.getElementById("audioIndicator"),
 
-    async function initAudio() {
-      if (audioContext) return;
-      try {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
-        micStream = await navigator.mediaDevices.getUserMedia({ 
-          audio: { 
-            echoCancellation: false, 
-            noiseSuppression: false, 
-            autoGainControl: false,
-            latency: 0.01
-          }
-        });
-        const source = audioContext.createMediaStreamSource(micStream);
-        
-        // マイクゲイン設定
-        micGainNode = audioContext.createGain();
-        micGainNode.gain.value = parseFloat(UI.micGainRange.value);
-        
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = FFT_SIZE;
-        analyser.smoothingTimeConstant = 0.1;
-        
-        source.connect(micGainNode);
-        micGainNode.connect(analyser);
-        fftBuffer = new Float32Array(analyser.frequencyBinCount);
-        UI.fftStatusLabel.textContent = "ACTIVE";
-      } catch (e) {
-        console.error(e);
-        UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
-      }
-    }
+  startBtn: document.getElementById("startBtn"),
+  lockBtn: document.getElementById("lockBtn"),
+  saveBtn: document.getElementById("saveBtn"),
+  resetBtn: document.getElementById("resetBtn"),
+  historyBtn: document.getElementById("historyBtn"),
+  settingsBtn: document.getElementById("settingsBtn"),
 
-    function updateAudioIndicator() {
-      if (!analyser || !fftBuffer) return;
-      analyser.getFloatFrequencyData(fftBuffer);
-      
-      let sum = 0;
-      for (let i = 0; i < fftBuffer.length; i++) {
-        sum += Math.abs(fftBuffer[i]);
-      }
-      const avg = sum / fftBuffer.length;
-      const normalized = Math.min(5, Math.max(0, (avg + 100) / 30));
-      
-      const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
-      bars.forEach((bar, i) => {
-        const level = Math.max(0, normalized - i * 0.8);
-        bar.style.height = (8 + level * 12) + "px";
-        bar.style.opacity = 0.3 + level * 0.7;
-      });
-    }
+  voltageRange: document.getElementById("voltageRange"),
+  voltageLabel: document.getElementById("voltageLabel"),
+  gearRange: document.getElementById("gearRange"),
+  gearLabel: document.getElementById("gearLabel"),
+  tireRange: document.getElementById("tireRange"),
+  tireLabel: document.getElementById("tireLabel"),
 
-    function drawFFT() {
-      if (!analyser) return;
-      analyser.getFloatFrequencyData(fftBuffer);
-      const canvas = UI.spectrum;
-      const ctx = canvas.getContext("2d");
-      const dpr = window.devicePixelRatio || 1;
-      
-      if (canvas.width !== canvas.clientWidth * dpr) {
-        canvas.width = canvas.clientWidth * dpr;
-        canvas.height = canvas.clientHeight * dpr;
-      }
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  rpmMaxLimit: document.getElementById("rpmMaxLimit"),
+  rpmMaxLimitValue: document.getElementById("rpmMaxLimitValue"),
+  noiseRange: document.getElementById("noiseRange"),
+  noiseLabel: document.getElementById("noiseLabel"),
+  rpmCalRange: document.getElementById("rpmCalRange"),
+  rpmCalLabel: document.getElementById("rpmCalLabel"),
+  loadFactorRange: document.getElementById("loadFactorRange"),
+  loadFactorLabel: document.getElementById("loadFactorLabel"),
+  micGainRange: document.getElementById("micGainRange"),
+  micGainLabel: document.getElementById("micGainLabel"),
 
-      const nyquist = audioContext.sampleRate / 2;
-      const maxRpm = parseInt(UI.rpmMaxLimit.value, 10) || 40000;
-      const maxHz = maxRpm / 60;
-      const maxIndex = Math.min(fftBuffer.length - 1, Math.floor(maxHz / nyquist * fftBuffer.length));
+  comparisonBody: document.getElementById("comparisonBody"),
 
-      // 背景グリッド
-      ctx.strokeStyle = "rgba(31, 122, 255, 0.1)";
-      ctx.lineWidth = 1;
-      for(let i=1; i<5; i++) {
-        const gx = (canvas.width / 5) * i;
-        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvas.height); ctx.stroke();
-      }
+  settingsModal: document.getElementById("settingsModalBackdrop"),
+  settingsClose: document.getElementById("settingsClose"),
 
-      ctx.beginPath();
-      ctx.strokeStyle = "#ff4fa3";
-      ctx.lineWidth = 2 * dpr;
-      ctx.lineJoin = "round";
+  historyModal: document.getElementById("historyModalBackdrop"),
+  historyClose: document.getElementById("historyClose"),
+  historyList: document.getElementById("historyList"),
 
-      for (let i = 0; i <= maxIndex; i++) {
-        const x = i / maxIndex * canvas.width;
-        const norm = Math.max(0, (fftBuffer[i] + 120) / 100);
-        const y = canvas.height * (1 - norm);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
+  saveModal: document.getElementById("saveModalBackdrop"),
+  saveClose: document.getElementById("saveClose"),
+  saveNameInput: document.getElementById("saveNameInput"),
+  motorTypeSelect: document.getElementById("motorTypeSelect"),
+  saveConfirmBtn: document.getElementById("saveConfirmBtn"),
+  saveCancelBtn: document.getElementById("saveCancelBtn")
+};
 
-    function detectPeakEnhanced() {
-      const nyquist = audioContext.sampleRate / 2;
-      const maxRpm = parseInt(UI.rpmMaxLimit.value, 10) || 40000;
-      const maxHz = maxRpm / 60;
-      const maxIndex = Math.min(fftBuffer.length - 1, Math.floor(maxHz / nyquist * fftBuffer.length));
+/* -------------------------------------------------------
+   Audio 初期化
+------------------------------------------------------- */
+async function initAudio() {
+  if (audioContext) return;
 
-      let bestIndex = -1;
-      let bestValue = -Infinity;
+  try {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)({
+      sampleRate: SAMPLE_RATE
+    });
 
-      for (let i = 10; i <= maxIndex; i++) {
-        const v = fftBuffer[i];
-        if (v > bestValue) {
-          bestValue = v;
-          bestIndex = i;
-        }
-      }
-
-      if (bestIndex < 1 || bestIndex >= fftBuffer.length - 1) return null;
-
-      const L = fftBuffer[bestIndex - 1];
-      const C = fftBuffer[bestIndex];
-      const R = fftBuffer[bestIndex + 1];
-
-      const noiseThreshold = parseFloat(UI.noiseRange.value);
-      if (Math.abs(C - L) < noiseThreshold && Math.abs(C - R) < noiseThreshold) return null;
-
-      const denom = (L - 2 * C + R);
-      const offset = denom === 0 ? 0 : (L - R) / (2 * denom);
-      const peakIndex = bestIndex + offset;
-      
-      return peakIndex * nyquist / fftBuffer.length;
-    }
-
-    function update() {
-      if (!running) return;
-      
-      drawFFT();
-      updateAudioIndicator();
-      
-      const peakHz = detectPeakEnhanced();
-      if (peakHz && !locked) {
-        let rpm = peakHz * 60;
-        rpm *= parseFloat(UI.rpmCalRange.value);
-        rpm *= (1 - parseFloat(UI.loadFactorRange.value) / 100);
-        
-        state.rpmNow = Math.round(rpm);
-        if (state.rpmNow > state.rpmMax) state.rpmMax = state.rpmNow;
-        if (state.rpmNow < state.rpmMin) state.rpmMin = state.rpmNow;
-
-        const gear = gearRatios[parseInt(UI.gearRange.value)];
-        const tire = parseFloat(UI.tireRange.value);
-        state.speedNow = (state.rpmNow / gear) * (tire * Math.PI * 60) / 1000000;
-        
-        if (state.speedNow > state.speedTop) state.speedTop = state.speedNow;
-        if (state.speedNow < state.speedMin) state.speedMin = state.speedNow;
-
-        UI.avgRpm.textContent = state.rpmNow;
-        UI.maxRpm.textContent = state.rpmMax;
-        UI.minRpm.textContent = state.rpmMin === Infinity ? "--" : state.rpmMin;
-        
-        UI.avgSpeed.textContent = state.speedNow.toFixed(2);
-        UI.maxSpeed.textContent = state.speedTop.toFixed(2);
-        UI.minSpeed.textContent = state.speedMin === Infinity ? "--" : state.speedMin.toFixed(2);
-        
-        UI.statusLine.textContent = "MEASURING — 解析中";
-      }
-      
-      requestAnimationFrame(update);
-    }
-
-    function buildComparisonTable(baseRpm) {
-      const voltages = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4];
-      const currentV = parseFloat(UI.voltageRange.value);
-      const tire = parseFloat(UI.tireRange.value);
-      
-      UI.comparisonBody.innerHTML = "";
-      voltages.forEach(v => {
-        const rpm = baseRpm * (v / currentV);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${v.toFixed(1)} V</td><td>${Math.round(rpm)}</td>`;
-        gearRatios.forEach(g => {
-          const speed = (rpm / g) * (tire * Math.PI * 60) / 1000000;
-          tr.innerHTML += `<td>${speed.toFixed(2)}</td>`;
-        });
-        UI.comparisonBody.appendChild(tr);
-      });
-    }
-
-    // UI Listeners
-    UI.startBtn.addEventListener("click", async () => {
-      if (!running) {
-        await initAudio();
-        running = true;
-        UI.startBtn.textContent = "計測停止";
-        UI.startBtn.classList.replace("blue", "red");
-        update();
-      } else {
-        running = false;
-        UI.startBtn.textContent = "計測開始";
-        UI.startBtn.classList.replace("red", "blue");
-        UI.fftStatusLabel.textContent = "PAUSED";
-        UI.statusLine.textContent = "STOPPED — 停止中";
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+        latency: 0.01
       }
     });
 
-    UI.lockBtn.addEventListener("click", () => {
-      locked = !locked;
-      UI.lockBtn.textContent = locked ? "ロック解除" : "ロック";
-      UI.lockBtn.classList.toggle("outline");
-      if (locked) {
-        buildComparisonTable(state.rpmNow || 15000);
-        UI.statusLine.textContent = "LOCKED — 表示固定中";
-      } else {
-        UI.statusLine.textContent = "MEASURING — 解析中";
-      }
+    const source = audioContext.createMediaStreamSource(micStream);
+
+    micGainNode = audioContext.createGain();
+    micGainNode.gain.value = parseFloat(UI.micGainRange.value);
+
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = FFT_SIZE;
+    analyser.smoothingTimeConstant = 0.1;
+
+    source.connect(micGainNode);
+    micGainNode.connect(analyser);
+
+    fftBuffer = new Float32Array(analyser.frequencyBinCount);
+
+    UI.fftStatusLabel.textContent = "ACTIVE";
+  } catch (e) {
+    console.error(e);
+    UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
+  }
+}
+
+/* -------------------------------------------------------
+   FFT描画
+------------------------------------------------------- */
+function drawFFT() {
+  if (!analyser || !fftBuffer) return;
+
+  analyser.getFloatFrequencyData(fftBuffer);
+
+  const canvas = UI.spectrum;
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+
+  if (canvas.width !== canvas.clientWidth * dpr) {
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const nyquist = audioContext.sampleRate / 2;
+  const maxRpm = parseInt(UI.rpmMaxLimit.value, 10);
+  const maxHz = maxRpm / 60;
+  const maxIndex = Math.floor(maxHz / nyquist * fftBuffer.length);
+
+  ctx.strokeStyle = "rgba(31,122,255,0.1)";
+  for (let i = 1; i < 5; i++) {
+    const x = (canvas.width / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#ff4fa3";
+  ctx.lineWidth = 2 * dpr;
+
+  for (let i = 0; i <= maxIndex; i++) {
+    const x = i / maxIndex * canvas.width;
+    const norm = Math.max(0, (fftBuffer[i] + 120) / 100);
+    const y = canvas.height * (1 - norm);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
+/* -------------------------------------------------------
+   音量インジケーター
+------------------------------------------------------- */
+function updateAudioIndicator() {
+  if (!analyser || !fftBuffer) return;
+
+  analyser.getFloatFrequencyData(fftBuffer);
+
+  let sum = 0;
+  for (let i = 0; i < fftBuffer.length; i++) sum += Math.abs(fftBuffer[i]);
+  const avg = sum / fftBuffer.length;
+  const normalized = Math.min(5, Math.max(0, (avg + 100) / 30));
+
+  const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
+  bars.forEach((bar, i) => {
+    const level = Math.max(0, normalized - i * 0.8);
+    bar.style.height = (8 + level * 12) + "px";
+    bar.style.opacity = 0.3 + level * 0.7;
+  });
+}
+
+/* -------------------------------------------------------
+   Peak検出
+------------------------------------------------------- */
+function detectPeakEnhanced() {
+  if (!audioContext || !fftBuffer) return null;
+
+  const nyquist = audioContext.sampleRate / 2;
+  const maxRpm = parseInt(UI.rpmMaxLimit.value, 10);
+  const maxHz = maxRpm / 60;
+  const maxIndex = Math.floor(maxHz / nyquist * fftBuffer.length);
+
+  let bestIndex = -1;
+  let bestValue = -Infinity;
+
+  for (let i = 10; i <= maxIndex; i++) {
+    const v = fftBuffer[i];
+    if (v > bestValue) {
+      bestValue = v;
+      bestIndex = i;
+    }
+  }
+
+  if (bestIndex < 1 || bestIndex >= fftBuffer.length - 1) return null;
+
+  const L = fftBuffer[bestIndex - 1];
+  const C = fftBuffer[bestIndex];
+  const R = fftBuffer[bestIndex + 1];
+
+  const noise = parseFloat(UI.noiseRange.value);
+  if (Math.abs(C - L) < noise && Math.abs(C - R) < noise) return null;
+
+  const denom = (L - 2 * C + R);
+  const offset = denom === 0 ? 0 : (L - R) / (2 * denom);
+
+  const peakIndex = bestIndex + offset;
+  return peakIndex * nyquist / fftBuffer.length;
+}
+
+/* -------------------------------------------------------
+   RPM / Speed 計算
+------------------------------------------------------- */
+function computeRpm(freqHz) {
+  let rpm = freqHz * 60;
+  rpm *= parseFloat(UI.rpmCalRange.value);
+  rpm *= (1 - parseFloat(UI.loadFactorRange.value) / 100);
+  return rpm;
+}
+
+function computeSpeed(rpm) {
+  const gear = gearRatios[state.gearIndex];
+  const tire = state.tireMm;
+  return (rpm / gear) * (tire * Math.PI * 60) / 1000000;
+}
+
+/* -------------------------------------------------------
+   UI更新
+------------------------------------------------------- */
+function updateRealtimeUI(rpm, speed) {
+  if (!locked) {
+    state.rpmNow = Math.round(rpm);
+    state.speedNow = speed;
+
+    state.rpmMax = Math.max(state.rpmMax, state.rpmNow);
+    state.rpmMin = Math.min(state.rpmMin, state.rpmNow);
+
+    state.speedTop = Math.max(state.speedTop, state.speedNow);
+    state.speedMin = Math.min(state.speedMin, state.speedNow);
+  }
+
+  UI.avgRpm.textContent = state.rpmNow || "--";
+  UI.maxRpm.textContent = state.rpmMax || "--";
+  UI.minRpm.textContent = state.rpmMin === Infinity ? "--" : state.rpmMin;
+
+  UI.avgSpeed.textContent = state.speedNow ? state.speedNow.toFixed(2) : "--";
+  UI.maxSpeed.textContent = state.speedTop ? state.speedTop.toFixed(2) : "--";
+  UI.minSpeed.textContent = state.speedMin === Infinity ? "--" : state.speedMin.toFixed(2);
+}
+
+/* -------------------------------------------------------
+   電圧別比較表
+------------------------------------------------------- */
+function buildComparisonTable(baseRpm) {
+  const voltages = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4];
+  const currentV = state.voltage;
+  const tire = state.tireMm;
+
+  UI.comparisonBody.innerHTML = "";
+
+  voltages.forEach(v => {
+    const rpm = baseRpm * (v / currentV);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${v.toFixed(1)} V</td><td>${Math.round(rpm)}</td>`;
+
+    gearRatios.forEach(g => {
+      const speed = (rpm / g) * (tire * Math.PI * 60) / 1000000;
+      tr.innerHTML += `<td>${speed.toFixed(2)}</td>`;
     });
 
-    UI.resetBtn.addEventListener("click", () => {
-      state.rpmMax = 0; state.rpmMin = Infinity;
-      state.speedTop = 0; state.speedMin = Infinity;
-      UI.maxRpm.textContent = "--"; UI.minRpm.textContent = "--";
-      UI.maxSpeed.textContent = "--"; UI.minSpeed.textContent = "--";
-      UI.avgRpm.textContent = "--"; UI.avgSpeed.textContent = "--";
-      UI.comparisonBody.innerHTML = "";
-    });
+    UI.comparisonBody.appendChild(tr);
+  });
+}
 
-    // Sliders
-    UI.voltageRange.addEventListener("input", () => UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V");
-    UI.gearRange.addEventListener("input", () => UI.gearLabel.textContent = gearRatios[UI.gearRange.value].toFixed(1) + ":1");
-    UI.tireRange.addEventListener("input", () => UI.tireLabel.textContent = parseFloat(UI.tireRange.value).toFixed(1) + " mm");
-    UI.rpmMaxLimit.addEventListener("input", () => UI.rpmMaxLimitValue.textContent = UI.rpmMaxLimit.value);
-    UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
-    UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2));
-    UI.loadFactorRange.addEventListener("input", () => UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%");
-    UI.micGainRange.addEventListener("input", () => {
-      UI.micGainLabel.textContent = parseFloat(UI.micGainRange.value).toFixed(1) + "x";
-      if (micGainNode) micGainNode.gain.value = parseFloat(UI.micGainRange.value);
-    });
+/* -------------------------------------------------------
+   メインループ
+------------------------------------------------------- */
+function update() {
+  if (!running) return;
 
-    // Modals
-    UI.settingsBtn.addEventListener("click", () => UI.settingsModal.style.display = "flex");
-    UI.settingsClose.addEventListener("click", () => UI.settingsModal.style.display = "none");
-    UI.historyBtn.addEventListener("click", () => {
+  drawFFT();
+  updateAudioIndicator();
+
+  const peakHz = detectPeakEnhanced();
+  if (peakHz && !locked) {
+    const rpm = computeRpm(peakHz);
+    const speed = computeSpeed(rpm);
+    updateRealtimeUI(rpm, speed);
+    UI.statusLine.textContent = "MEASURING — 解析中";
+  }
+
+  requestAnimationFrame(update);
+}
+
+/* -------------------------------------------------------
+   UIイベント
+------------------------------------------------------- */
+UI.startBtn.addEventListener("click", async () => {
+  if (!running) {
+    await initAudio();
+    running = true;
+    UI.startBtn.textContent = "計測停止";
+    UI.startBtn.classList.replace("blue", "red");
+    UI.statusLine.textContent = "MEASURING — 解析中";
+    update();
+  } else {
+    running = false;
+    UI.startBtn.textContent = "計測開始";
+    UI.startBtn.classList.replace("red", "blue");
+    UI.fftStatusLabel.textContent = "PAUSED";
+    UI.statusLine.textContent = "STOPPED — 停止中";
+  }
+});
+
+UI.lockBtn.addEventListener("click", () => {
+  locked = !locked;
+  UI.lockBtn.textContent = locked ? "ロック解除" : "ロック";
+  UI.lockBtn.classList.toggle("outline");
+
+  if (locked) {
+    buildComparisonTable(state.rpmNow || 15000);
+    UI.statusLine.textContent = "LOCKED — 表示固定中";
+  } else {
+    UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
+    UI.comparisonBody.innerHTML = "";
+  }
+});
+
+UI.resetBtn.addEventListener("click", () => {
+  state.rpmNow = 0;
+  state.rpmMax = 0;
+  state.rpmMin = Infinity;
+  state.speedNow = 0;
+  state.speedTop = 0;
+  state.speedMin = Infinity;
+
+  UI.avgRpm.textContent = "--";
+  UI.maxRpm.textContent = "--";
+  UI.minRpm.textContent = "--";
+  UI.avgSpeed.textContent = "--";
+  UI.maxSpeed.textContent = "--";
+  UI.minSpeed.textContent = "--";
+  UI.comparisonBody.innerHTML = "";
+});
+
+/* -------------------------------------------------------
+   スライダー
+------------------------------------------------------- */
+UI.voltageRange.addEventListener("input", () => {
+  state.voltage = parseFloat(UI.voltageRange.value);
+  UI.voltageLabel.textContent = state.voltage.toFixed(1) + " V";
+});
+
+UI.gearRange.addEventListener("input", () => {
+  state.gearIndex = parseInt(UI.gearRange.value);
+  UI.gearLabel.textContent = gearRatios[state.gearIndex].toFixed(1) + ":1";
+});
+
+UI.tireRange.addEventListener("input", () => {
+  state.tireMm = parseFloat(UI.tireRange.value);
+  UI.tireLabel.textContent = state.tireMm.toFixed(1) + " mm";
+});
+
+UI.rpmMaxLimit.addEventListener("input", () => {
+  UI.rpmMaxLimitValue.textContent = UI.rpmMaxLimit.value;
+});
+
+UI.noiseRange.addEventListener("input", () => {
+  UI.noiseLabel.textContent = UI.noiseRange.value;
+});
+
+UI.rpmCalRange.addEventListener("input", () => {
+  UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2);
+});
+
+UI.loadFactorRange.addEventListener("input", () => {
+  UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%";
+});
+
+UI.micGainRange.addEventListener("input", () => {
+  const gain = parseFloat(UI.micGainRange.value);
+  UI.micGainLabel.textContent = gain.toFixed(1) + "x";
+  if (micGainNode) micGainNode.gain.value = gain;
+});
+
+/* -------------------------------------------------------
+   モーダル
+------------------------------------------------------- */
+UI.settingsBtn.addEventListener("click", () => UI.settingsModal.style.display = "flex");
+UI.settingsClose.addEventListener("click", () => UI.settingsModal.style.display = "none");
+
+UI.historyBtn.addEventListener("click", () => {
+  renderHistory();
+  UI.historyModal.style.display = "flex";
+});
+UI.historyClose.addEventListener("click", () => UI.historyModal.style.display = "none");
+
+UI.saveBtn.addEventListener("click", () => UI.saveModal.style.display = "flex");
+UI.saveClose.addEventListener("click", () => UI.saveModal.style.display = "none");
+UI.saveCancelBtn.addEventListener("click", () => UI.saveModal.style.display = "none");
+
+/* -------------------------------------------------------
+   履歴保存
+------------------------------------------------------- */
+UI.saveConfirmBtn.addEventListener("click", () => {
+  const name = UI.saveNameInput.value || "No Name";
+  const type = UI.motorTypeSelect.value || "未選択";
+
+  const entry = {
+    name,
+    type,
+    rpm: state.rpmNow,
+    speed: state.speedNow.toFixed(2),
+    date: new Date().toLocaleString(),
+    voltage: UI.voltageLabel.textContent,
+    gear: UI.gearLabel.textContent
+  };
+
+  state.history.push(entry);
+  UI.saveModal.style.display = "none";
+  alert("保存しました");
+});
+
+function renderHistory() {
+  if (!state.history.length) {
+    UI.historyList.innerHTML =
+      "<div style='padding:20px; text-align:center; color:#999;'>履歴はありません</div>";
+    return;
+  }
+
+  UI.historyList.innerHTML = "";
+
+  state.history.forEach((h, i) => {
+    const div = document.createElement("div");
+    div.className = "history-row";
+    div.innerHTML = `
+      <div class="history-row-top">
+        <span>${h.name} (${h.type})</span>
+        <span>${h.rpm} RPM</span>
+      </div>
+      <div class="history-row-bottom">
+        <span>${h.date} | ${h.voltage} | ${h.gear}</span>
+        <button class="delete-btn" data-index="${i}">削除</button>
+      </div>
+    `;
+    UI.historyList.appendChild(div);
+  });
+
+  UI.historyList.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.index);
+      state.history.splice(idx, 1);
       renderHistory();
-      UI.historyModal.style.display = "flex";
-    });
-    UI.historyClose.addEventListener("click", () => UI.historyModal.style.display = "none");
-    UI.saveBtn.addEventListener("click", () => UI.saveModal.style.display = "flex");
-    UI.saveClose.addEventListener("click", () => UI.saveModal.style.display = "none");
-    UI.saveCancelBtn.addEventListener("click", () => UI.saveModal.style.display = "none");
-
-    UI.saveConfirmBtn.addEventListener("click", () => {
-      const name = UI.saveNameInput.value || "No Name";
-      const type = UI.motorTypeSelect.value || "未選択";
-      const entry = {
-        name, type,
-        rpm: state.rpmNow,
-        speed: state.speedNow.toFixed(2),
-        date: new Date().toLocaleString(),
-        voltage: UI.voltageLabel.textContent,
-        gear: UI.gearLabel.textContent
-      };
-      state.history.push(entry);
-      UI.saveModal.style.display = "none";
-      alert("保存しました");
-    });
-
-    function renderHistory() {
-      UI.historyList.innerHTML = state.history.length ? "" : "<div style='padding:20px; text-align:center; color:#999;'>履歴はありません</div>";
-      state.history.forEach((h, i) => {
-        const div = document.createElement("div");
-        div.className = "history-row";
-        div.innerHTML = `
-          <div class="history-row-top"><span>${h.name} (${h.type})</span><span>${h.rpm} RPM</span></div>
-          <div class="history-row-bottom">
-            <span>${h.date} | ${h.voltage} | ${h.gear}</span>
-            <button class="delete-btn" onclick="deleteHistory(${i})">削除</button>
-          </div>
-        `;
-        UI.historyList.appendChild(div);
-      });
-    }
-
-    window.deleteHistory = (i) => {
-      state.history.splice(i, 1);
-      renderHistory();
     };
+  });
+}
 
-    window.onclick = (e) => {
-      if (e.target.classList.contains("modal-backdrop")) {
-        e.target.style.display = "none";
-      }
-    };
+/* -------------------------------------------------------
+   モーダル外クリックで閉じる
+------------------------------------------------------- */
+window.addEventListener("click", (e) => {
+  if (e.target.classList.contains("modal-backdrop")) {
+    e.target.style.display = "none";
+  }
+});
   </script>
 </body>
 </html>
