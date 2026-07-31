@@ -4,36 +4,1106 @@
   <meta charset="UTF-8" />
   <title>RPM Analyzer - Pro FFT</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+
   <style>
-    :root {
-      --bg: #f5f7fc;
-      --card-bg: #ffffff;
-      --accent-blue: #1f7aff;
-      --accent-red: #ff4b4b;
-      --accent-gray: #cfd3dd;
-      --text-main: #1b1e27;
-      --text-sub: #7b8190;
-      --border-soft: #e1e4ee;
-      --radius-lg: 18px;
-      --radius-md: 14px;
-      --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.06);
-    }
+:root {
+  --bg: #f5f7fc;
+  --card-bg: #ffffff;
+  --accent-blue: #1f7aff;
+  --accent-red: #ff4b4b;
+  --accent-gray: #cfd3dd;
+  --text-main: #1b1e27;
+  --text-sub: #7b8190;
+  --border-soft: #e1e4ee;
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.06);
+}
 
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-    }
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
 
-    body {
-      margin: 0;
-      padding: 0;
-      background: radial-gradient(circle at top, #ffffff 0, #eef2fb 45%, #e3e7f7 100%);
-      color: var(--text-main);
-      overflow-x: hidden;
-    }
+body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at top, #ffffff 0, #eef2fb 45%, #e3e7f7 100%);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
 
-    .app-shell {
-      max-width: 480px;
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 12px 20px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.app-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 14px 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  margin-bottom: 14px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.card-caption {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+}
+
+.wave-container {
+  background: radial-gradient(circle at top, #ffffff 0, #e3e9ff 60%, #d6defa 100%);
+  border-radius: var(--radius-md);
+  padding: 8px 10px 10px;
+  border: 1px solid #dde3f5;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.wave-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
+  color: var(--text-sub);
+}
+
+canvas#spectrum {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  background: transparent;
+}
+
+.realtime-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.stat-block {
+  background: #f6f7fc;
+  border-radius: 12px;
+  padding: 6px 8px;
+  border: 1px solid #e3e6f4;
+}
+
+.stat-label {
+  color: var(--text-sub);
+  margin-bottom: 2px;
+  font-size: 0.75rem;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: right;
+  color: #ff4fa3;
+}
+
+.realtime-center {
+  text-align: center;
+  margin: 6px 0 10px;
+  font-size: 0.8rem;
+  color: var(--accent-blue);
+  letter-spacing: 0.12em;
+}
+
+.rpm-limit-section {
+  background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid #d5dbf0;
+}
+
+.rpm-limit-label {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.rpm-limit-value {
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.realtime-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.primary-btn, .secondary-btn {
+  border-radius: 999px;
+  padding: 12px 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.primary-btn.blue {
+  background: linear-gradient(135deg, #2a8bff, #1f7aff);
+  color: #ffffff;
+}
+
+.primary-btn.red {
+  background: linear-gradient(135deg, #ff6b6b, #ff4b4b);
+  color: #ffffff;
+}
+
+.secondary-btn.gray {
+  background: #eef1f8;
+  color: #4b5160;
+}
+
+.secondary-btn.outline {
+  background: #ffffff;
+  color: var(--accent-blue);
+  border: 1px solid #c9d5ff;
+}
+
+.primary-btn:active, .secondary-btn:active {
+  transform: scale(0.95);
+}
+
+.settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.setting-label {
+  color: var(--text-sub);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.setting-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+}
+
+input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: #e3e7f5;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--accent-blue);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.table-wrapper {
+  margin-top: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid #dde2f2;
+  overflow-x: auto;
+  max-height: 300px;
+  background: #f9fbff;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 640px;
+  font-size: 0.8rem;
+}
+
+thead {
+  background: #e6ecff;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+th, td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #dde2f2;
+  text-align: right;
+  white-space: nowrap;
+}
+
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background: #f3f6ff;
+  z-index: 2;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background: #f5f7ff;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  background: #f5f7fc;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+  padding: 20px 16px 30px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-sub);
+}
+
+.history-list {
+  border-radius: var(--radius-md);
+  border: 1px solid #c7d6ff;
+  background: #ffffff;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+}
+
+.history-row {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef2ff;
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+.history-row-top {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.history-row-bottom {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-sub);
+  font-size: 0.75rem;
+  align-items: center;
+}
+
+.delete-btn {
+  border: none;
+  background: #ffeef2;
+  color: #ff4b4b;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.input-row input, .input-row select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.input-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.input-modal-actions button {
+  flex: 1;
+}
+
+.audio-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #f0f7ff;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: var(--text-sub);
+}
+
+.audio-bars {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.audio-bar {
+  width: 3px;
+  height: 8px;
+  background: var(--accent-blue);
+  border-radius: 2px;
+}
+</style>
+
+</head>
+
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="app-title">RPM Analyzer</div>
+      <div class="header-right"></div>
+    </header>
+
+    <!-- ★ UI本体（あなたのオリジナル構造そのまま） -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">リアルタイム計測</div>
+        <div class="card-caption">FFT解析エンジン搭載</div>
+      </div>
+
+      <div class="rpm-limit-section">
+        <div class="rpm-limit-label">
+          <span>RPM表示上限</span>
+          <span class="rpm-limit-value" id="rpmMaxLimitValue">40000</span>
+        </div>
+        <input type="range" id="rpmMaxLimit" min="10000" max="80000" step="1000" value="40000" />
+      </div>
+
+      <div class="wave-container">
+        <div class="wave-header">
+          <span>スペクトラム解析</span>
+          <span id="fftStatusLabel">READY</span>
+        </div>
+        <canvas id="spectrum"></canvas>
+      </div>
+
+      <div class="audio-indicator">
+        <span>音量:</span>
+        <div class="audio-bars" id="audioIndicator">
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+        </div>
+      </div>
+
+      <div style="font-size:0.75rem; color:#ff4fa3; font-weight:600; margin:8px 0 4px;">MOTOR RPM</div>
+      <div class="realtime-stats">
+        <div class="stat-block"><div class="stat-label">CURRENT</div><div class="stat-value" id="avgRpm">--</div></div>
+        <div class="stat-block"><div class="stat-label">MAX</div><div class="stat-value" id="maxRpm">--</div></div>
+        <div class="stat-block"><div class="stat-label">MIN</div><div class="stat-value" id="minRpm">--</div></div>
+      </div>
+
+      <div style="font-size:0.75rem; color:#1f7aff; font-weight:600; margin:8px 0 4px;">SPEED (km/h)</div>
+      <div class="realtime-stats">
+        <div class="stat-block"><div class="stat-label">CURRENT</div><div class="stat-value" id="avgSpeed">--</div></div>
+        <div class="stat-block"><div class="stat-label">TOP</div><div class="stat-value" id="maxSpeed">--</div></div>
+        <div class="stat-block"><div class="stat-label">MIN</div><div class="stat-value" id="minSpeed">--</div></div>
+      </div>
+
+      <div class="realtime-center" id="statusLine">READY — 計測待機中</div>
+
+      <div class="realtime-buttons">
+        <button class="primary-btn blue" id="startBtn">計測開始</button>
+        <button class="secondary-btn outline" id="lockBtn">ロック</button>
+        <button class="secondary-btn gray" id="saveBtn">保存</button>
+        <button class="secondary-btn gray" id="historyBtn">履歴</button>
+        <button class="secondary-btn gray" id="settingsBtn">設定</button>
+        <button class="secondary-btn gray" id="resetBtn">リセット</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">計測条件</div>
+        <div class="card-caption">電圧・ギヤ比・タイヤ径</div>
+      </div>
+      <div class="settings-row">
+        <div class="setting-item">
+          <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">3.0 V</span></div>
+          <input type="range" id="voltageRange" min="2.2" max="3.4" step="0.1" value="3.0" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">4.0:1</span></div>
+          <input type="range" id="gearRange" min="0" max="7" step="1" value="2" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">26.0 mm</span></div>
+          <input type="range" id="tireRange" min="20.0" max="35.0" step="0.1" value="26.0" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">電圧別比較表</div>
+        <div class="card-caption">ロック時の条件を基準に算出</div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>電圧</th><th>RPM</th><th>3.5:1</th><th>3.7:1</th><th>4.0:1</th><th>4.2:1</th><th>5.0:1</th><th>6.4:1</th><th>8.75:1</th><th>11.2:1</th>
+            </tr>
+          </thead>
+          <tbody id="comparisonBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- 設定モーダル -->
+  <div class="modal-backdrop" id="settingsModalBackdrop">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">解析設定</div><button class="modal-close" id="settingsClose">×</button></div>
+      <div class="settings-row">
+        <div class="setting-item">
+          <div class="setting-label"><span>ノイズ閾値 (dB)</span><span class="setting-value" id="noiseLabel">20</span></div>
+          <input type="range" id="noiseRange" min="5" max="50" step="1" value="20" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div>
+          <input type="range" id="rpmCalRange" min="0.8" max="1.2" step="0.01" value="1.00" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>負荷補正 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
+          <input type="range" id="loadFactorRange" min="0" max="20" step="0.5" value="0" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>マイクゲイン</span><span class="setting-value" id="micGainLabel">1.0x</span></div>
+          <input type="range" id="micGainRange" min="0.5" max="3" step="0.1" value="1.0" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 履歴モーダル -->
+  <div class="modal-backdrop" id="historyModalBackdrop">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">計測履歴</div><button class="modal-close" id="historyClose">×</button></div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- 保存モーダル -->
+  <div class="modal-backdrop" id="saveModalBackdrop">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">計測結果の保存</div><button class="modal-close" id="saveClose">×</button></div>
+      <div class="input-row">
+        <label>名前 (マシン名など)</label>
+        <input type="text" id="saveNameInput" placeholder="例: MSフレキ" maxlength="12" />
+      </div>
+      <div class="input-row">
+        <label>モーター種類</label>
+        <select id="motorTypeSelect">
+          <option value="">未選択</option>
+          <optgroup label="PRO シリーズ">
+            <option>ノーマルPRO</option>
+            <option>レブチューンPRO</option>
+            <option>トルクチューンPRO</option>
+            <option>アトミックチューンPRO</option>
+            <option>ライトダッシュPRO</option>
+            <option>ハイパーダッシュPRO</option>
+            <option>マッハダッシュPRO</option>
+          </optgroup>
+          <optgroup label="スタンダード">
+            <option>ノーマル</option>
+            <option>レブチューン</option>
+            <option>トルクチューン</option>
+            <option>アトミックチューン</option>
+            <option>ライトダッシュ</option>
+            <option>ハイパーダッシュ3</option>
+            <option>パワーダッシュ</option>
+            <option>スプリントダッシュ</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="input-modal-actions">
+        <button class="secondary-btn gray" id="saveCancelBtn">キャンセル</button>
+        <button class="primary-btn blue" id="saveConfirmBtn">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+/* -------------------------------------------------------
+   基本設定
+------------------------------------------------------- */
+const SAMPLE_RATE = 48000;
+const FFT_SIZE = 16384;
+
+let audioContext = null;
+let analyser = null;
+let micStream = null;
+let fftBuffer;
+let micGainNode = null;
+let running = false;
+let locked = false;
+
+const gearRatios = [3.5, 3.7, 4.0, 4.2, 5.0, 6.4, 8.75, 11.2];
+
+const state = {
+  rpmNow: 0, rpmMax: 0, rpmMin: Infinity,
+  speedNow: 0, speedTop: 0, speedMin: Infinity,
+  voltage: 3.0,
+  gearIndex: 2,
+  tireMm: 26.0,
+  history: []
+};
+
+/* -------------------------------------------------------
+   UI参照
+------------------------------------------------------- */
+const UI = {
+  spectrum: document.getElementById("spectrum"),
+  avgRpm: document.getElementById("avgRpm"),
+  maxRpm: document.getElementById("maxRpm"),
+  minRpm: document.getElementById("minRpm"),
+  avgSpeed: document.getElementById("avgSpeed"),
+  maxSpeed: document.getElementById("maxSpeed"),
+  minSpeed: document.getElementById("minSpeed"),
+  statusLine: document.getElementById("statusLine"),
+  fftStatusLabel: document.getElementById("fftStatusLabel"),
+  audioIndicator: document.getElementById("audioIndicator"),
+
+  startBtn: document.getElementById("startBtn"),
+  lockBtn: document.getElementById("lockBtn"),
+  saveBtn: document.getElementById("saveBtn"),
+  resetBtn: document.getElementById("resetBtn"),
+  historyBtn: document.getElementById("historyBtn"),
+  settingsBtn: document.getElementById("settingsBtn"),
+
+  voltageRange: document.getElementById("voltageRange"),
+  voltageLabel: document.getElementById("voltageLabel"),
+  gearRange: document.getElementById("gearRange"),
+  gearLabel: document.getElementById("gearLabel"),
+  tireRange: document.getElementById("tireRange"),
+  tireLabel: document.getElementById("tireLabel"),
+
+  rpmMaxLimit: document.getElementById("rpmMaxLimit"),
+  rpmMaxLimitValue: document.getElementById("rpmMaxLimitValue"),
+  noiseRange: document.getElementById("noiseRange"),
+  noiseLabel: document.getElementById("noiseLabel"),
+  rpmCalRange: document.getElementById("rpmCalRange"),
+  rpmCalLabel: document.getElementById("rpmCalLabel"),
+  loadFactorRange: document.getElementById("loadFactorRange"),
+  loadFactorLabel: document.getElementById("loadFactorLabel"),
+  micGainRange: document.getElementById("micGainRange"),
+  micGainLabel: document.getElementById("micGainLabel"),
+
+  comparisonBody: document.getElementById("comparisonBody"),
+
+  settingsModal: document.getElementById("settingsModalBackdrop"),
+  settingsClose: document.getElementById("settingsClose"),
+
+  historyModal: document.getElementById("historyModalBackdrop"),
+  historyClose: document.getElementById("historyClose"),
+  historyList: document.getElementById("historyList"),
+
+  saveModal: document.getElementById("saveModalBackdrop"),
+  saveClose: document.getElementById("saveClose"),
+  saveNameInput: document.getElementById("saveNameInput"),
+  motorTypeSelect: document.getElementById("motorTypeSelect"),
+  saveConfirmBtn: document.getElementById("saveConfirmBtn"),
+  saveCancelBtn: document.getElementById("saveCancelBtn")
+};
+
+/* -------------------------------------------------------
+   Audio 初期化
+------------------------------------------------------- */
+async function initAudio() {
+  if (audioContext) return;
+
+  try {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)({
+      sampleRate: SAMPLE_RATE
+    });
+
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+        latency: 0.01
+      }
+    });
+
+    const source = audioContext.createMediaStreamSource(micStream);
+
+    micGainNode = audioContext.createGain();
+    micGainNode.gain.value = parseFloat(UI.micGainRange.value);
+
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = FFT_SIZE;
+    analyser.smoothingTimeConstant = 0.1;
+
+    source.connect(micGainNode);
+    micGainNode.connect(analyser);
+
+    fftBuffer = new Float32Array(analyser.frequencyBinCount);
+
+    UI.fftStatusLabel.textContent = "ACTIVE";
+  } catch (e) {
+    console.error(e);
+    UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
+  }
+}
+
+/* -------------------------------------------------------
+   FFT描画
+------------------------------------------------------- */
+function drawFFT() {
+  if (!analyser || !fftBuffer) return;
+
+  analyser.getFloatFrequencyData(fftBuffer);
+
+  const canvas = UI.spectrum;
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+
+  if (canvas.width !== canvas.clientWidth * dpr) {
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const nyquist = audioContext.sampleRate / 2;
+  const maxRpm = parseInt(UI.rpmMaxLimit.value, 10);
+  const maxHz = maxRpm / 60;
+  const maxIndex = Math.floor(maxHz / nyquist * fftBuffer.length);
+
+  ctx.strokeStyle = "rgba(31,122,255,0.1)";
+  for (let i = 1; i < 5; i++) {
+    const x = (canvas.width / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#ff4fa3";
+  ctx.lineWidth = 2 * dpr;
+
+  for (let i = 0; i <= maxIndex; i++) {
+    const x = i / maxIndex * canvas.width;
+    const norm = Math.max(0, (fftBuffer[i] + 120) / 100);
+    const y = canvas.height * (1 - norm);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
+/* -------------------------------------------------------
+   音量インジケーター
+------------------------------------------------------- */
+function updateAudioIndicator() {
+  if (!analyser || !fftBuffer) return;
+
+  analyser.getFloatFrequencyData(fftBuffer);
+
+  let sum = 0;
+  for (let i = 0; i < fftBuffer.length; i++) sum += Math.abs(fftBuffer[i]);
+  const avg = sum / fftBuffer.length;
+  const normalized = Math.min(5, Math.max(0, (avg + 100) / 30));
+
+  const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
+  bars.forEach((bar, i) => {
+    const level = Math.max(0, normalized - i * 0.8);
+    bar.style.height = (8 + level * 12) + "px";
+    bar.style.opacity = 0.3 + level * 0.7;
+  });
+}
+
+/* -------------------------------------------------------
+   Peak検出
+------------------------------------------------------- */
+function detectPeakEnhanced() {
+  if (!audioContext || !fftBuffer) return null;
+
+  const nyquist = audioContext.sampleRate / 2;
+  const maxRpm = parseInt(UI.rpmMaxLimit.value, 10);
+  const maxHz = maxRpm / 60;
+  const maxIndex = Math.floor(maxHz / nyquist * fftBuffer.length);
+
+  let bestIndex = -1;
+  let bestValue = -Infinity;
+
+  for (let i = 10; i <= maxIndex; i++) {
+    const v = fftBuffer[i];
+    if (v > bestValue) {
+      bestValue = v;
+      bestIndex = i;
+    }
+  }
+
+  if (bestIndex < 1 || bestIndex >= fftBuffer.length - 1) return null;
+
+  const L = fftBuffer[bestIndex - 1];
+  const C = fftBuffer[bestIndex];
+  const R = fftBuffer[bestIndex + 1];
+
+  const noise = parseFloat(UI.noiseRange.value);
+  if (Math.abs(C - L) < noise && Math.abs(C - R) < noise) return null;
+
+  const denom = (L - 2 * C + R);
+  const offset = denom === 0 ? 0 : (L - R) / (2 * denom);
+
+  const peakIndex = bestIndex + offset;
+  return peakIndex * nyquist / fftBuffer.length;
+}
+
+/* -------------------------------------------------------
+   RPM / Speed 計算
+------------------------------------------------------- */
+function computeRpm(freqHz) {
+  let rpm = freqHz * 60;
+  rpm *= parseFloat(UI.rpmCalRange.value);
+  rpm *= (1 - parseFloat(UI.loadFactorRange.value) / 100);
+  return rpm;
+}
+
+function computeSpeed(rpm) {
+  const gear = gearRatios[state.gearIndex];
+  const tire = state.tireMm;
+  return (rpm / gear) * (tire * Math.PI * 60) / 1000000;
+}
+
+/* -------------------------------------------------------
+   UI更新
+------------------------------------------------------- */
+function updateRealtimeUI(rpm, speed) {
+  if (!locked) {
+    state.rpmNow = Math.round(rpm);
+    state.speedNow = speed;
+
+    state.rpmMax = Math.max(state.rpmMax, state.rpmNow);
+    state.rpmMin = Math.min(state.rpmMin, state.rpmNow);
+
+    state.speedTop = Math.max(state.speedTop, state.speedNow);
+    state.speedMin = Math.min(state.speedMin, state.speedNow);
+  }
+
+  UI.avgRpm.textContent = state.rpmNow || "--";
+  UI.maxRpm.textContent = state.rpmMax || "--";
+  UI.minRpm.textContent = state.rpmMin === Infinity ? "--" : state.rpmMin;
+
+  UI.avgSpeed.textContent = state.speedNow ? state.speedNow.toFixed(2) : "--";
+  UI.maxSpeed.textContent = state.speedTop ? state.speedTop.toFixed(2) : "--";
+  UI.minSpeed.textContent = state.speedMin === Infinity ? "--" : state.speedMin.toFixed(2);
+}
+
+/* -------------------------------------------------------
+   電圧別比較表
+------------------------------------------------------- */
+function buildComparisonTable(baseRpm) {
+  const voltages = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4];
+  const currentV = state.voltage;
+  const tire = state.tireMm;
+
+  UI.comparisonBody.innerHTML = "";
+
+  voltages.forEach(v => {
+    const rpm = baseRpm * (v / currentV);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${v.toFixed(1)} V</td><td>${Math.round(rpm)}</td>`;
+
+    gearRatios.forEach(g => {
+      const speed = (rpm / g) * (tire * Math.PI * 60) / 1000000;
+      tr.innerHTML += `<td>${speed.toFixed(2)}</td>`;
+    });
+
+    UI.comparisonBody.appendChild(tr);
+  });
+}
+
+/* -------------------------------------------------------
+   メインループ
+------------------------------------------------------- */
+function update() {
+  if (!running) return;
+
+  drawFFT();
+  updateAudioIndicator();
+
+  const peakHz = detectPeakEnhanced();
+  if (peakHz && !locked) {
+    const rpm = computeRpm(peakHz);
+    const speed = computeSpeed(rpm);
+    updateRealtimeUI(rpm, speed);
+    UI.statusLine.textContent = "MEASURING — 解析中";
+  }
+
+  requestAnimationFrame(update);
+}
+
+/* -------------------------------------------------------
+   UIイベント
+------------------------------------------------------- */
+UI.startBtn.addEventListener("click", async () => {
+  if (!running) {
+    await initAudio();
+    running = true;
+    UI.startBtn.textContent = "計測停止";
+    UI.startBtn.classList.replace("blue", "red");
+    UI.statusLine.textContent = "MEASURING — 解析中";
+    update();
+  } else {
+    running = false;
+    UI.startBtn.textContent = "計測開始";
+    UI.startBtn.classList.replace("red", "blue");
+    UI.fftStatusLabel.textContent = "PAUSED";
+    UI.statusLine.textContent = "STOPPED — 停止中";
+  }
+});
+
+UI.lockBtn.addEventListener("click", () => {
+  locked = !locked;
+  UI.lockBtn.textContent = locked ? "ロック解除" : "ロック";
+  UI.lockBtn.classList.toggle("outline");
+
+  if (locked) {
+    buildComparisonTable(state.rpmNow || 15000);
+    UI.statusLine.textContent = "LOCKED — 表示固定中";
+  } else {
+    UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
+    UI.comparisonBody.innerHTML = "";
+  }
+});
+
+UI.resetBtn.addEventListener("click", () => {
+  state.rpmNow = 0;
+  state.rpmMax = 0;
+  state.rpmMin = Infinity;
+  state.speedNow = 0;
+  state.speedTop = 0;
+  state.speedMin = Infinity;
+
+  UI.avgRpm.textContent = "--";
+  UI.maxRpm.textContent = "--";
+  UI.minRpm.textContent = "--";
+  UI.avgSpeed.textContent = "--";
+  UI.maxSpeed.textContent = "--";
+  UI.minSpeed.textContent = "--";
+  UI.comparisonBody.innerHTML = "";
+});
+
+/* -------------------------------------------------------
+   スライダー
+------------------------------------------------------- */
+UI.voltageRange.addEventListener("input", () => {
+  state.voltage = parseFloat(UI.voltageRange.value);
+  UI.voltageLabel.textContent = state.voltage.toFixed(1) + " V";
+});
+
+UI.gearRange.addEventListener("input", () => {
+  state.gearIndex = parseInt(UI.gearRange.value);
+  UI.gearLabel.textContent = gearRatios[state.gearIndex].toFixed(1) + ":1";
+});
+
+UI.tireRange.addEventListener("input", () => {
+  state.tireMm = parseFloat(UI.tireRange.value);
+  UI.tireLabel.textContent = state.tireMm.toFixed(1) + " mm";
+});
+
+UI.rpmMaxLimit.addEventListener("input", () => {
+  UI.rpmMaxLimitValue.textContent = UI.rpmMaxLimit.value;
+});
+
+UI.noiseRange.addEventListener("input", () => {
+  UI.noiseLabel.textContent = UI.noiseRange.value;
+});
+
+UI.rpmCalRange.addEventListener("input", () => {
+  UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2);
+});
+
+UI.loadFactorRange.addEventListener("input", () => {
+  UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%";
+});
+
+UI.micGainRange.addEventListener("input", () => {
+  const gain = parseFloat(UI.micGainRange.value);
+  UI.micGainLabel.textContent = gain.toFixed(1) + "x";
+  if (micGainNode) micGainNode.gain.value = gain;
+});
+
+/* -------------------------------------------------------
+   モーダル
+------------------------------------------------------- */
+UI.settingsBtn.addEventListener("click", () => UI.settingsModal.style.display = "flex");
+UI.settingsClose.addEventListener("click", () => UI.settingsModal.style.display = "none");
+
+UI.historyBtn.addEventListener("click", () => {
+  renderHistory();
+  UI.historyModal.style.display = "flex";
+});
+UI.historyClose.addEventListener("click", () => UI.historyModal.style.display = "none");
+
+UI.saveBtn.addEventListener("click", () => UI.saveModal.style.display = "flex");
+UI.saveClose.addEventListener("click", () => UI.saveModal.style.display = "none");
+UI.saveCancelBtn.addEventListener("click", () => UI.saveModal.style.display = "none");
+
+/* -------------------------------------------------------
+   履歴保存
+------------------------------------------------------- */
+UI.saveConfirmBtn.addEventListener("click", () => {
+  const name = UI.saveNameInput.value || "No Name";
+  const type = UI.motorTypeSelect.value || "未選択";
+
+  const entry = {
+    name,
+    type,
+    rpm: state.rpmNow,
+    speed: state.speedNow.toFixed(2),
+    date: new Date().toLocaleString(),
+    voltage: UI.voltageLabel.textContent,
+    gear: UI.gearLabel.textContent
+  };
+
+  state.history.push(entry);
+  UI.saveModal.style.display = "none";
+  alert("保存しました");
+});
+
+function renderHistory() {
+  if (!state.history.length) {
+    UI.historyList.innerHTML =
+      "<div style='padding:20px; text-align:center; color:#999;'>履歴はありません</div>";
+    return;
+  }
+
+  UI.historyList.innerHTML = "";
+
+  state.history.forEach((h, i) => {
+    const div = document.createElement("div");
+    div.className = "history-row";
+    div.innerHTML = `
+      <div class="history-row-top">
+        <span>${h.name} (${h.type})</span>
+        <span>${h.rpm} RPM</span>
+      </div>
+      <div class="history-row-bottom">
+        <span>${h.date} | ${h.voltage} | ${h.gear}</span>
+        <button class="delete-btn" data-index="${i}">削除</button>
+      </div>
+    `;
+    UI.historyList.appendChild(div);
+  });
+
+  UI.historyList.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.index);
+      state.history.splice(idx, 1);
+      renderHistory();
+    };
+  });
+}
+
+/* -------------------------------------------------------
+   モーダル外クリックで閉じる
+------------------------------------------------------- */
+window.addEventListener("click", (e) => {
+  if (e.target.classList.contains("modal-backdrop")) {
+    e.target.style.display = "none";
+  }
+});
+</script>
+</body>
+</html>
       margin: 0 auto;
       padding: 16px 12px 20px;
     }
