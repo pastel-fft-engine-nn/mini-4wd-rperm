@@ -1,4 +1,4 @@
-４４４４４
+修正を反映した完全なコードです。
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -116,8 +116,6 @@ canvas#spectrum {
   color: var(--accent-blue);
   letter-spacing: 0.12em;
 }
-
-/* マイク入力レベルをタイトル横に */
 .header-right-audio {
   display: flex;
   align-items: center;
@@ -138,7 +136,6 @@ canvas#spectrum {
   border-radius: 2px;
   transition: height 0.1s ease;
 }
-
 .rpm-limit-section {
   background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
   border-radius: var(--radius-md);
@@ -186,7 +183,6 @@ canvas#spectrum {
 .secondary-btn.outline { background: #ffffff; color: var(--accent-blue); border: 1px solid #c9d5ff; }
 .primary-btn:active, .secondary-btn:active { transform: scale(0.95); }
 
-/* 比較表条件 - 行間を狭く・枠もコンパクトに */
 .settings-row {
   display: flex;
   flex-direction: column;
@@ -231,7 +227,6 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
   cursor: pointer;
 }
-
 .table-wrapper {
   margin-top: 6px;
   border-radius: var(--radius-md);
@@ -307,8 +302,6 @@ td {
   cursor: pointer;
   color: var(--text-sub);
 }
-
-/* 設定モーダル内の行間を狭く */
 .modal .settings-row {
   gap: 8px;
   padding: 0 0 4px;
@@ -320,7 +313,6 @@ td {
 .modal input[type="range"] {
   margin: 2px 0 0;
 }
-
 .filter-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -429,7 +421,6 @@ td {
   <section class="card">
     <div class="card-header">
       <div class="card-title">リアルタイム計測</div>
-      <!-- マイク入力レベルをタイトル横に -->
       <div class="header-right-audio">
         <span>マイク</span>
         <div class="audio-bars" id="audioIndicator">
@@ -648,6 +639,7 @@ let micStream = null;
 let dataArray = null;
 let running = false;
 let locked = false;
+let ignoreFrames = 0;          // ★ 追加：再開直後の無視フレーム数
 
 let currentRpm = 0;
 let maxRpmVal = 0;
@@ -725,7 +717,7 @@ function toggleConditions() {
   UI.conditionsCard.classList.toggle("active");
 }
 
-/* ========== 0713集音構造そのまま ========== */
+/* ========== 0713集音構造 + リセット後安定化 ========== */
 async function startMic() {
   if (running) return;
   running = true;
@@ -747,6 +739,7 @@ async function startMic() {
     await audioContext.resume();
   }
 
+  ignoreFrames = 8;          // ★ 再開直後の8フレームはピークを無視
   UI.fftStatusLabel.textContent = "ACTIVE";
   UI.statusLine.textContent = "MEASURING — 解析中";
   loopFFT();
@@ -766,9 +759,17 @@ function stopMic() {
 function getPrecisePeakHz(data, fftSize, sampleRate) {
   const binToHz = sampleRate / fftSize;
   let maxVal = -Infinity, maxIdx = -1;
-  for (let i = 1; i < data.length - 1; i++) {
+
+  // 低周波ノイズカット（3000RPM未満は無視）
+  const minRpm = 3000;
+  const minBin = Math.floor((minRpm / 60) / binToHz);
+
+  for (let i = Math.max(1, minBin); i < data.length - 1; i++) {
     const v = data[i];
-    if (v > maxVal) { maxVal = v; maxIdx = i; }
+    if (v > maxVal) {
+      maxVal = v;
+      maxIdx = i;
+    }
   }
   if (maxIdx <= 0 || maxIdx >= data.length - 1) return 0;
   if (maxVal < parseInt(UI.noiseRange.value)) return 0;
@@ -800,6 +801,7 @@ function loopFFT() {
   if (!analyser || !dataArray) return;
   analyser.getByteFrequencyData(dataArray);
 
+  // スペクトラム描画
   const canvas = UI.spectrum;
   const ctx = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
@@ -825,7 +827,7 @@ function loopFFT() {
   }
   ctx.stroke();
 
-  // マイクレベル（タイトル横）
+  // マイクレベル
   const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
   let sum = 0;
   for (let i = 0; i < 80; i++) sum += dataArray[i];
@@ -837,8 +839,15 @@ function loopFFT() {
   if (locked) return;
 
   const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
-  if (peakHz > 0 && running) {   // ← running チェックを追加
-  const { adjustedRpm, speed } = computeSpeedFromRpm(peakHz * 60);
+
+  // ★ 再開直後のフレームは無視
+  if (peakHz > 0 && running) {
+    if (ignoreFrames > 0) {
+      ignoreFrames--;
+      return;
+    }
+
+    const { adjustedRpm, speed } = computeSpeedFromRpm(peakHz * 60);
     currentRpm = adjustedRpm;
     currentSpeed = speed;
 
@@ -911,6 +920,7 @@ UI.lockBtn.addEventListener("click", () => {
 
 UI.resetBtn.addEventListener("click", () => {
   stopMic();
+  ignoreFrames = 0;          // ★ 追加
   currentRpm = 0;
   maxRpmVal = 0;
   minRpmVal = Infinity;
@@ -995,7 +1005,6 @@ document.getElementById("saveConfirmBtn").addEventListener("click", () => {
   });
   localStorage.setItem("rpmHistory", JSON.stringify(state.history));
   UI.saveModal.style.display = "none";
-  // alert削除済み
 });
 
 function populateFilters() {
@@ -1068,3 +1077,6 @@ window.onclick = (e) => {
 </script>
 </body>
 </html>
+
+これで「最初は正しいのにリセット後から狂う」現象がかなり改善されるはずです。  
+試してみてください。
