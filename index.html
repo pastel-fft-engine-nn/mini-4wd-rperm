@@ -21,7 +21,7 @@
 }
 * {
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Meiryo", "メイリオ", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 body {
@@ -849,31 +849,33 @@ function loopFFT() {
   const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
 
   if (peakHz > 0 && running) {
-    if (ignoreFrames > 0) {
-      ignoreFrames--;
-      return;
-    }
-
-    const { adjustedRpm, speed } = computeSpeedFromRpm(peakHz * 60);
-    currentRpm = adjustedRpm;
-    currentSpeed = speed;
-
-    if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
-    if (minRpmVal === Infinity || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
-    if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
-    if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
-
-    const dispNow = limitDisplay(Math.round(currentRpm));
-    const dispMax = limitDisplay(Math.round(maxRpmVal));
-    const dispMin = limitDisplay(Math.round(minRpmVal));
-
-    UI.rpmNow.textContent = dispNow;
-    UI.rpmMax.textContent = dispMax;
-    UI.rpmMin.textContent = dispMin;
-    UI.speedNow.textContent = dispNow === "--" ? "--" : currentSpeed.toFixed(2);
-    UI.speedTop.textContent = dispMax === "--" ? "--" : maxSpeedVal.toFixed(2);
-    UI.speedMin.textContent = dispMin === "--" ? "--" : minSpeedVal.toFixed(2);
+  if (ignoreFrames > 0) {
+    ignoreFrames--;
+    return;
   }
+
+  const { adjustedRpm, speed } = computeSpeedFromRpm(peakHz * 60);
+  currentRpm = adjustedRpm;
+  currentSpeed = speed;
+
+  if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
+  if (minRpmVal === Infinity || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
+  if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
+  if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
+
+  // CURRENT と MIN は表示制限を適用
+  const dispNow = limitDisplay(Math.round(currentRpm));
+  const dispMin = limitDisplay(Math.round(minRpmVal));
+
+  // MAX / TOP は常に表示
+  UI.rpmNow.textContent = dispNow;
+  UI.rpmMax.textContent = Math.round(maxRpmVal);          // 常に表示
+  UI.rpmMin.textContent = dispMin;
+
+  UI.speedNow.textContent = dispNow === "--" ? "--" : currentSpeed.toFixed(2);
+  UI.speedTop.textContent = maxSpeedVal.toFixed(2);       // 常に表示
+  UI.speedMin.textContent = dispMin === "--" ? "--" : minSpeedVal.toFixed(2);
+}
 }
 
 function buildComparisonTable(baseRpm) {
