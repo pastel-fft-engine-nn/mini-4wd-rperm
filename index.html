@@ -1,321 +1,340 @@
-８８８
-了解です。  
-**0713最高のできの集音構造をそのまま移植**した完全版を作りました。
-
-見た目・UI・ボタン配置・比較表などは前回のPROデザインを維持しつつ、マイク取得〜FFTループの部分だけ0713のロジックに差し替えています。
-
-```html
+０００００
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<title>RPM Analyzer PRO</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
-<style>
-:root {
-  --bg: #f5f7fc;
-  --card-bg: #ffffff;
-  --accent-blue: #1f7aff;
-  --accent-red: #ff4b4b;
-  --text-main: #1b1e27;
-  --text-sub: #7b8190;
-  --border-soft: #e1e4ee;
-  --radius-lg: 18px;
-  --radius-md: 14px;
-  --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.06);
-}
-* {
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-  -webkit-tap-highlight-color: transparent;
-}
-body {
-  margin: 0;
-  padding: 0;
-  background: radial-gradient(circle at top, #ffffff 0, #eef2fb 45%, #e3e7f7 100%);
-  color: var(--text-main);
-  overflow-x: hidden;
-}
-.app-shell {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 16px 12px 20px;
-}
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.app-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--accent-blue);
-}
-.card {
-  background: var(--card-bg);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-  padding: 14px 14px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  margin-bottom: 14px;
-}
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 10px;
-}
-.card-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-.card-caption {
-  font-size: 0.75rem;
-  color: var(--text-sub);
-}
-.wave-container {
-  background: radial-gradient(circle at top, #ffffff 0, #e3e9ff 60%, #d6defa 100%);
-  border-radius: var(--radius-md);
-  padding: 8px 10px 10px;
-  border: 1px solid #dde3f5;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-.wave-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-  font-size: 0.8rem;
-  color: var(--text-sub);
-}
-canvas#spectrum {
-  width: 100%;
-  height: 140px;
-  border-radius: 12px;
-  background: transparent;
-}
-.realtime-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  font-size: 0.8rem;
-  margin-bottom: 4px;
-}
-.stat-block {
-  background: #f6f7fc;
-  border-radius: 12px;
-  padding: 6px 8px;
-  border: 1px solid #e3e6f4;
-}
-.stat-label {
-  color: var(--text-sub);
-  margin-bottom: 2px;
-  font-size: 0.75rem;
-}
-.stat-value {
-  font-weight: 700;
-  font-size: 1.1rem;
-  text-align: right;
-  color: #ff4fa3;
-}
-.realtime-center {
-  text-align: center;
-  margin: 6px 0 10px;
-  font-size: 0.8rem;
-  color: var(--accent-blue);
-  letter-spacing: 0.12em;
-}
-.rpm-limit-section {
-  background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  margin-bottom: 10px;
-  border: 1px solid #d5dbf0;
-}
-.rpm-limit-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 8px;
-}
-.rpm-limit-label {
-  font-size: 0.75rem;
-  color: var(--text-sub);
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-}
-.rpm-limit-value {
-  font-weight: 700;
-  color: var(--accent-blue);
-}
-.realtime-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.primary-btn, .secondary-btn {
-  border-radius: 999px;
-  padding: 12px 0;
-  font-size: 0.8rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease;
-  text-align: center;
-}
-.primary-btn.blue {
-  background: linear-gradient(135deg, #2a8bff, #1f7aff);
-  color: #ffffff;
-}
-.primary-btn.red {
-  background: linear-gradient(135deg, #ff6b6b, #ff4b4b);
-  color: #ffffff;
-}
-.secondary-btn.gray {
-  background: #eef1f8;
-  color: #4b5160;
-}
-.secondary-btn.outline {
-  background: #ffffff;
-  color: var(--accent-blue);
-  border: 1px solid #c9d5ff;
-}
-.primary-btn:active, .secondary-btn:active {
-  transform: scale(0.95);
-}
-.settings-row {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 6px;
-}
-.setting-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 0.85rem;
-}
-.setting-label {
-  color: var(--text-sub);
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-.setting-value {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--accent-blue);
-}
-input[type="range"] {
-  width: 100%;
-  -webkit-appearance: none;
-  height: 8px;
-  border-radius: 999px;
-  background: #e3e7f5;
-  outline: none;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid var(--accent-blue);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-  cursor: pointer;
-}
-.table-wrapper {
-  margin-top: 6px;
-  border-radius: var(--radius-md);
-  border: 1px solid #dde2f2;
-  overflow-x: auto;
-  max-height: 300px;
-  background: #f9fbff;
-}
-table {
-  border-collapse: collapse;
-  width: 100%;
-  min-width: 760px;
-  font-size: 0.8rem;
-}
-thead th {
-  background: #e6ecff;
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  padding: 10px 8px;
-  font-weight: 700;
-}
-th:first-child, td:first-child {
-  position: sticky;
-  left: 0;
-  background: #f3f6ff;
-  z-index: 2;
-  text-align: left;
-}
-td {
-  padding: 10px 8px;
-  border-bottom: 1px solid #dde2f2;
-  text-align: right;
-}
-.highlight-row { background: rgba(31, 122, 255, 0.1) !important; }
-.highlight-col { background: rgba(255, 79, 163, 0.05) !important; }
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 100;
-  backdrop-filter: blur(4px);
-}
-.modal {
-  width: 100%;
-  max-width: 480px;
-  background: #f5f7fc;
-  border-radius: 24px 24px 0 0;
-  padding: 24px 16px 40px;
-  animation: slideUp 0.3s ease-out;
-}
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.modal-title { font-size: 1.1rem; font-weight: 700; }
-.modal-close { border: none; background: transparent; font-size: 2rem; cursor: pointer; color: var(--text-sub); }
-.history-list {
-  border-radius: var(--radius-md);
-  border: 1px solid #c7d6ff;
-  background: #ffffff;
-  max-height: 350px;
-  overflow-y: auto;
-}
-.history-row {
-  padding: 12px;
-  border-bottom: 1px solid #eef2ff;
-  font-size: 0.85rem;
-}
-.history-row-top { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 4px; }
-.history-row-bottom { display: flex; justify-content: space-between; color: var(--text-sub); font-size: 0.75rem; align-items: center; }
-.delete-btn { border: none; background: #ffeef2; color: #ff4b4b; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-.input-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.input-row label { font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
-.input-row input, .input-row select { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-soft); font-size: 1rem; outline: none; }
-.audio-indicator { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 12px; background: #f0f7ff; border-radius: 10px; font-size: 0.8rem; color: var(--text-sub); }
-.audio-bars { display: flex; gap: 3px; align-items: flex-end; height: 20px; }
-.audio-bar { width: 4px; height: 6px; background: var(--accent-blue); border-radius: 2px; transition: height 0.1s ease; }
-</style>
+  <meta charset="UTF-8" />
+  <title>RPM Analyzer PRO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f5f7fc;
+      --card-bg: #ffffff;
+      --accent-blue: #1f7aff;
+      --accent-red: #ff4b4b;
+      --text-main: #1b1e27;
+      --text-sub: #7b8190;
+      --border-soft: #e1e4ee;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.06);
+    }
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #ffffff 0, #eef2fb 45%, #e3e7f7 100%);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px 12px 20px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .app-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--accent-blue);
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      margin-bottom: 14px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .card-caption {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+    .wave-container {
+      background: radial-gradient(circle at top, #ffffff 0, #e3e9ff 60%, #d6defa 100%);
+      border-radius: var(--radius-md);
+      padding: 8px 10px 10px;
+      border: 1px solid #dde3f5;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .wave-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+    canvas#spectrum {
+      width: 100%;
+      height: 140px;
+      border-radius: 12px;
+      background: transparent;
+    }
+    .realtime-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+    .stat-block {
+      background: #f6f7fc;
+      border-radius: 12px;
+      padding: 6px 8px;
+      border: 1px solid #e3e6f4;
+    }
+    .stat-label {
+      color: var(--text-sub);
+      margin-bottom: 2px;
+      font-size: 0.75rem;
+    }
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-align: right;
+      color: #ff4fa3;
+    }
+    .realtime-center {
+      text-align: center;
+      margin: 6px 0 10px;
+      font-size: 0.8rem;
+      color: var(--accent-blue);
+      letter-spacing: 0.12em;
+    }
+    .rpm-limit-section {
+      background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      border: 1px solid #d5dbf0;
+    }
+    .rpm-limit-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .rpm-limit-label {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+    }
+    .rpm-limit-value {
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+    .realtime-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .primary-btn, .secondary-btn {
+      border-radius: 999px;
+      padding: 12px 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .primary-btn.blue {
+      background: linear-gradient(135deg, #2a8bff, #1f7aff);
+      color: #ffffff;
+    }
+    .primary-btn.red {
+      background: linear-gradient(135deg, #ff6b6b, #ff4b4b);
+      color: #ffffff;
+    }
+    .secondary-btn.gray {
+      background: #eef1f8;
+      color: #4b5160;
+    }
+    .secondary-btn.outline {
+      background: #ffffff;
+      color: var(--accent-blue);
+      border: 1px solid #c9d5ff;
+    }
+    .primary-btn:active, .secondary-btn:active {
+      transform: scale(0.95);
+    }
+    .settings-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+    .setting-label {
+      color: var(--text-sub);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .setting-value {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 8px;
+      border-radius: 999px;
+      background: #e3e7f5;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--accent-blue);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+      cursor: pointer;
+    }
+    .table-wrapper {
+      margin-top: 6px;
+      border-radius: var(--radius-md);
+      border: 1px solid #dde2f2;
+      overflow-x: auto;
+      max-height: 300px;
+      background: #f9fbff;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 760px;
+      font-size: 0.8rem;
+    }
+    thead th {
+      background: #e6ecff;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      padding: 10px 8px;
+      font-weight: 700;
+    }
+    th:first-child, td:first-child {
+      position: sticky;
+      left: 0;
+      background: #f3f6ff;
+      z-index: 2;
+      text-align: left;
+    }
+    td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #dde2f2;
+      text-align: right;
+    }
+    .highlight-row { background: rgba(31, 122, 255, 0.1) !important; }
+    .highlight-col { background: rgba(255, 79, 163, 0.05) !important; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: #f5f7fc;
+      border-radius: 24px 24px 0 0;
+      padding: 24px 16px 40px;
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 1.1rem; font-weight: 700; }
+    .modal-close { border: none; background: transparent; font-size: 2rem; cursor: pointer; color: var(--text-sub); }
+    
+    /* 履歴リストのスクロール対応 */
+    .history-table-wrapper {
+      margin-top: 6px;
+      border-radius: var(--radius-md);
+      border: 1px solid #c7d6ff;
+      overflow-x: auto;
+      max-height: 400px;
+      background: #ffffff;
+    }
+    .history-table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 850px; /* すべての項目を表示するための最小幅 */
+      font-size: 0.8rem;
+    }
+    .history-table th, .history-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #eef2ff;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .history-table thead th {
+      background: #e6ecff;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      font-weight: 700;
+    }
+    .delete-btn {
+      border: none;
+      background: #ffeef2;
+      color: #ff4b4b;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    .input-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .input-row label { font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
+    .input-row input, .input-row select { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-soft); font-size: 1rem; outline: none; }
+    .audio-indicator { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 12px; background: #f0f7ff; border-radius: 10px; font-size: 0.8rem; color: var(--text-sub); }
+    .audio-bars { display: flex; gap: 3px; align-items: flex-end; height: 20px; }
+    .audio-bar { width: 4px; height: 6px; background: var(--accent-blue); border-radius: 2px; transition: height 0.1s ease; }
+  </style>
 </head>
 <body>
 <div class="app-shell">
@@ -358,11 +377,7 @@ td {
     <div class="audio-indicator">
       <span>マイク入力レベル:</span>
       <div class="audio-bars" id="audioIndicator">
-        <div class="audio-bar"></div>
-        <div class="audio-bar"></div>
-        <div class="audio-bar"></div>
-        <div class="audio-bar"></div>
-        <div class="audio-bar"></div>
+        <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
       </div>
     </div>
 
@@ -454,12 +469,21 @@ td {
 
 <!-- 履歴モーダル -->
 <div class="modal-backdrop" id="historyModalBackdrop">
-  <div class="modal">
+  <div class="modal" style="max-width: 90vw; width: 95vw;">
     <div class="modal-header">
       <div class="modal-title">計測履歴</div>
       <button class="modal-close" id="historyClose">×</button>
     </div>
-    <div class="history-list" id="historyList"></div>
+    <div class="history-table-wrapper">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>日付</th><th>名前</th><th>モーター</th><th>速度</th><th>RPM</th><th>電圧</th><th>ギヤ比</th><th>タイヤ径</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="historyList"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -478,25 +502,8 @@ td {
       <label>モーター種類</label>
       <select id="motorTypeSelect">
         <option value="">選択なし</option>
-        <optgroup label="PRO シリーズ">
-          <option>ノーマルPRO</option>
-          <option>レブチューンPRO</option>
-          <option>トルクチューンPRO</option>
-          <option>アトミックチューンPRO</option>
-          <option>ライトダッシュPRO</option>
-          <option>ハイパーダッシュPRO</option>
-          <option>マッハダッシュPRO</option>
-        </optgroup>
-        <optgroup label="スタンダード">
-          <option>ノーマル</option>
-          <option>レブチューン</option>
-          <option>トルクチューン</option>
-          <option>アトミックチューン</option>
-          <option>ライトダッシュ</option>
-          <option>ハイパーダッシュ3</option>
-          <option>パワーダッシュ</option>
-          <option>スプリントダッシュ</option>
-        </optgroup>
+        <optgroup label="PRO シリーズ"><option>ノーマルPRO</option><option>レブチューンPRO</option><option>トルクチューンPRO</option><option>アトミックチューンPRO</option><option>ライトダッシュPRO</option><option>ハイパーダッシュPRO</option><option>マッハダッシュPRO</option></optgroup>
+        <optgroup label="スタンダード"><option>ノーマル</option><option>レブチューン</option><option>トルクチューン</option><option>アトミックチューン</option><option>ライトダッシュ</option><option>ハイパーダッシュ3</option><option>パワーダッシュ</option><option>スプリントダッシュ</option></optgroup>
       </select>
     </div>
     <div style="display:flex; gap:10px; margin-top:10px;">
@@ -522,10 +529,10 @@ let locked = false;
 
 let currentRpm = 0;
 let maxRpmVal = 0;
-let minRpmVal = 0;
+let minRpmVal = Infinity;
 let currentSpeed = 0;
 let maxSpeedVal = 0;
-let minSpeedVal = 0;
+let minSpeedVal = Infinity;
 let lockedSnapshot = null;
 
 let rpmMinLimit = 5000;
@@ -573,20 +580,21 @@ const UI = {
   historyModal: document.getElementById("historyModalBackdrop"),
   saveModal: document.getElementById("saveModalBackdrop"),
   saveNameInput: document.getElementById("saveNameInput"),
-  motorTypeSelect: document.getElementById("motorTypeSelect")
+  motorTypeSelect: document.getElementById("motorTypeSelect"),
+  historyList: document.getElementById("historyList")
 };
 
 /* ========== 0713そのままの集音 ========== */
 async function startMic() {
   if (running) return;
-  running = true; // ★0713と同じ位置
+  running = true;
 
   if (!audioContext) {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
   }
 
   if (!micStream) {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true }); // ★制約なし
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   }
 
   if (!analyser) {
@@ -615,7 +623,6 @@ function stopMic() {
   UI.statusLine.textContent = "STOPPED — 停止中";
 }
 
-/* Precise Peak Detection（0713と同じ） */
 function getPrecisePeakHz(data, fftSize, sampleRate) {
   const binToHz = sampleRate / fftSize;
   let maxVal = -Infinity;
@@ -629,8 +636,6 @@ function getPrecisePeakHz(data, fftSize, sampleRate) {
     }
   }
   if (maxIdx <= 0 || maxIdx >= data.length - 1) return 0;
-
-  // ノイズ閾値
   if (maxVal < parseInt(UI.noiseRange.value)) return 0;
 
   const y1 = data[maxIdx - 1];
@@ -659,7 +664,7 @@ function computeSpeedFromRpm(rpm) {
 }
 
 function limitDisplay(value) {
-  if (typeof value !== "number") return "--";
+  if (typeof value !== "number" || isNaN(value)) return "--";
   if (value >= rpmMinLimit && value <= rpmMaxLimit) return value;
   return "--";
 }
@@ -667,12 +672,10 @@ function limitDisplay(value) {
 function loopFFT() {
   if (!running) return;
   requestAnimationFrame(loopFFT);
-
   if (!analyser || !dataArray) return;
 
   analyser.getByteFrequencyData(dataArray);
 
-  // 描画
   const canvas = UI.spectrum;
   const ctx = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
@@ -695,16 +698,11 @@ function loopFFT() {
     if (rpm < rpmMinLimit || rpm > rpmMaxLimit) continue;
     const x = ((rpm - rpmMinLimit) / (rpmMaxLimit - rpmMinLimit)) * canvas.width;
     const y = canvas.height - (dataArray[i] / 255) * canvas.height;
-    if (!started) {
-      ctx.moveTo(x, y);
-      started = true;
-    } else {
-      ctx.lineTo(x, y);
-    }
+    if (!started) { ctx.moveTo(x, y); started = true; }
+    else { ctx.lineTo(x, y); }
   }
   ctx.stroke();
 
-  // マイクレベル
   const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
   let sum = 0;
   for (let i = 0; i < 80; i++) sum += dataArray[i];
@@ -725,9 +723,9 @@ function loopFFT() {
     currentSpeed = speed;
 
     if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
-    if (minRpmVal === 0 || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
+    if (minRpmVal === Infinity || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
     if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
-    if (minSpeedVal === 0 || speed < minSpeedVal) minSpeedVal = speed;
+    if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
 
     const dispNow = limitDisplay(Math.round(currentRpm));
     const dispMax = limitDisplay(Math.round(maxRpmVal));
@@ -796,18 +794,10 @@ UI.lockBtn.addEventListener("click", () => {
 });
 
 UI.resetBtn.addEventListener("click", () => {
-  currentRpm = 0;
-  maxRpmVal = 0;
-  minRpmVal = 0;
-  currentSpeed = 0;
-  maxSpeedVal = 0;
-  minSpeedVal = 0;
-  UI.rpmNow.textContent = "--";
-  UI.rpmMax.textContent = "--";
-  UI.rpmMin.textContent = "--";
-  UI.speedNow.textContent = "--";
-  UI.speedTop.textContent = "--";
-  UI.speedMin.textContent = "--";
+  currentRpm = 0; maxRpmVal = 0; minRpmVal = Infinity;
+  currentSpeed = 0; maxSpeedVal = 0; minSpeedVal = Infinity;
+  UI.rpmNow.textContent = "--"; UI.rpmMax.textContent = "--"; UI.rpmMin.textContent = "--";
+  UI.speedNow.textContent = "--"; UI.speedTop.textContent = "--"; UI.speedMin.textContent = "--";
   UI.comparisonBody.innerHTML = "";
 });
 
@@ -851,12 +841,8 @@ document.getElementById("saveClose").addEventListener("click", () => UI.saveModa
 document.getElementById("saveCancelBtn").addEventListener("click", () => UI.saveModal.style.display = "none");
 
 document.getElementById("settingsResetBtn").addEventListener("click", () => {
-  UI.noiseRange.value = 20;
-  UI.rpmCalRange.value = 1.00;
-  UI.loadFactorRange.value = 0;
-  UI.noiseLabel.textContent = "20";
-  UI.rpmCalLabel.textContent = "1.00";
-  UI.loadFactorLabel.textContent = "0%";
+  UI.noiseRange.value = 20; UI.rpmCalRange.value = 1.00; UI.loadFactorRange.value = 0;
+  UI.noiseLabel.textContent = "20"; UI.rpmCalLabel.textContent = "1.00"; UI.loadFactorLabel.textContent = "0%";
 });
 
 document.getElementById("saveConfirmBtn").addEventListener("click", () => {
@@ -878,27 +864,30 @@ document.getElementById("saveConfirmBtn").addEventListener("click", () => {
 });
 
 function renderHistory() {
-  UI.historyList.innerHTML = state.history.length
-    ? ""
-    : "<div style='padding:20px; text-align:center; color:#999;'>履歴はありません</div>";
+  UI.historyList.innerHTML = state.history.length ? "" : "<tr><td colspan='9' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
   state.history.forEach((h, i) => {
-    const div = document.createElement("div");
-    div.className = "history-row";
-    div.innerHTML = `
-      <div class="history-row-top"><span>${h.name} (${h.motor})</span><span>${h.rpm} RPM</span></div>
-      <div class="history-row-bottom">
-        <span>${h.date} | ${h.voltage} | ${h.gear} | ${h.tire}</span>
-        <button class="delete-btn" onclick="deleteHistory(${i})">削除</button>
-      </div>
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${h.date}</td>
+      <td>${h.name}</td>
+      <td>${h.motor}</td>
+      <td>${h.speed}</td>
+      <td>${h.rpm}</td>
+      <td>${h.voltage}</td>
+      <td>${h.gear}</td>
+      <td>${h.tire}</td>
+      <td><button class="delete-btn" onclick="deleteHistory(${i})">削除</button></td>
     `;
-    UI.historyList.appendChild(div);
+    UI.historyList.appendChild(tr);
   });
 }
 
 window.deleteHistory = (i) => {
-  state.history.splice(i, 1);
-  localStorage.setItem("rpmHistory", JSON.stringify(state.history));
-  renderHistory();
+  if(confirm("この履歴を削除しますか？")) {
+    state.history.splice(i, 1);
+    localStorage.setItem("rpmHistory", JSON.stringify(state.history));
+    renderHistory();
+  }
 };
 
 window.onclick = (e) => {
