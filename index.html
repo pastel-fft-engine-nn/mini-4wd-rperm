@@ -848,7 +848,7 @@ function loopFFT() {
 
   const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
 
-if (peakHz > 0 && running) {   // ← "if" に修正
+if (peakHz > 0 && running) {
   if (ignoreFrames > 0) {
     ignoreFrames--;
     return;
@@ -858,24 +858,26 @@ if (peakHz > 0 && running) {   // ← "if" に修正
   currentRpm = adjustedRpm;
   currentSpeed = speed;
 
-  if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
-  if (minRpmVal === Infinity || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
-  if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
-  if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
+  // 表示範囲内のときだけ MAX / MIN を更新
+  if (adjustedRpm >= rpmMinLimit && adjustedRpm <= rpmMaxLimit) {
+    if (maxRpmVal === 0 || adjustedRpm > maxRpmVal) maxRpmVal = adjustedRpm;
+    if (minRpmVal === Infinity || adjustedRpm < minRpmVal) minRpmVal = adjustedRpm;
+    if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
+    if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
+  }
 
-  // 表示上限・下限をすべてに厳守
+  // CURRENT は範囲外なら --
   const dispNow = limitDisplay(Math.round(currentRpm));
-  const dispMax = limitDisplay(Math.round(maxRpmVal));
-  const dispMin = limitDisplay(Math.round(minRpmVal));
 
+  // MAX / TOP / MIN は「範囲内で記録された値」をそのまま表示
   UI.rpmNow.textContent = dispNow;
-  UI.rpmMax.textContent = dispMax;
-  UI.rpmMin.textContent = dispMin;
+  UI.rpmMax.textContent = maxRpmVal > 0 ? Math.round(maxRpmVal) : "--";
+  UI.rpmMin.textContent = minRpmVal !== Infinity ? Math.round(minRpmVal) : "--";
 
   UI.speedNow.textContent = dispNow === "--" ? "--" : currentSpeed.toFixed(2);
-    UI.speedTop.textContent = dispMax === "--" ? "--" : maxSpeedVal.toFixed(2);
-    UI.speedMin.textContent = dispMin === "--" ? "--" : minSpeedVal.toFixed(2);
-  }
+  UI.speedTop.textContent = maxSpeedVal > 0 ? maxSpeedVal.toFixed(2) : "--";
+  UI.speedMin.textContent = minSpeedVal !== Infinity ? minSpeedVal.toFixed(2) : "--";
+}
 }
 
 function buildComparisonTable(baseRpm) {
