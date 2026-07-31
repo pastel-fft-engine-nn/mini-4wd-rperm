@@ -1,126 +1,505 @@
-０７２２−３３
-
+０７３１
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>RPM Analyzer — Advanced FFT</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>RPM Analyzer - Pro FFT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <style>
-    /* スタイルはあなたの現状のものをそのまま使用（変更なし） */
-    body { margin:0; padding:0; background:#ffffff; font-family:"Noto Sans JP",sans-serif; color:#333; overflow-x:hidden; }
-    .main-container { padding:12px 16px 16px 16px; max-width:480px; margin:0 auto; }
-    .card { background:#f5f7fc; border-radius:16px; padding:16px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-    .card-title { font-size:1rem; font-weight:700; margin-bottom:10px; }
-    #waveCanvas { width:75%; height:160px; background:#fff; border-radius:12px; box-shadow:inset 0 0 6px rgba(0,0,0,0.08); margin:0 auto; display:block; }
-    .rpm-grid, .speed-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; margin-left:32px; }
-    .rpm-grid div, .speed-grid div { display:flex; flex-direction:column; font-size:0.9rem; }
-    .rpm-grid span:last-child, .speed-grid span:last-child { font-weight:700; margin-top:2px; text-align:right; font-size:1.2rem; }
-    .rpm-limit-box { margin:12px 0 16px 0; padding:12px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
-    .rpm-limit-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-    .limit-slider { flex:1; margin:0 10px; accent-color:#4fa3ff; }
-    .limit-value { width:60px; text-align:right; font-size:0.9rem; }
-    .status-line { margin-top:12px; font-size:0.9rem; color:#666; }
-    .realtime-buttons-2row { margin-top:14px; display:flex; flex-direction:column; gap:12px; }
-    .btn-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .primary-btn, .secondary-btn { padding:14px 0; border-radius:999px; font-size:0.9rem; font-weight:700; border:none; }
-    .primary-btn { background:#ff4fa3; color:#fff; }
-    .secondary-btn { background:#e6ecff; color:#4a6cff; }
-    input[type="range"] { width:100%; -webkit-appearance:none; height:6px; border-radius:999px; background:#e3e7f5; outline:none; margin-top:10px; }
-    input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:42px; height:27px; background:#fff; border-radius:999px; border:2px solid #4a6cff; }
-    .comparison-wrapper { overflow-x:auto; padding-bottom:12px; margin-top:10px; }
-    .comparison-table { border-collapse:separate; border-spacing:0; width:100%; min-width:760px; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
-    .comparison-table thead th { position:sticky; top:0; background:#f0f3ff; z-index:3; font-weight:700; padding:12px 8px; font-size:0.9rem; }
-    .comparison-table td:first-child, .comparison-table th:first-child { position:sticky; left:0; background:#fff; z-index:2; }
-    .comparison-table td { padding:14px 8px; font-size:0.95rem; }
-    .highlight-row { background:#ffe6f0 !important; font-weight:bold; }
-    .highlight-col { background:#e6f0ff !important; font-weight:bold; }
-    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:flex; justify-content:center; align-items:flex-end; }
-    .modal { width:100%; max-width:480px; background:#f5f7fc; border-radius:18px 18px 0 0; padding:18px; position:relative; margin:0 auto; }
-    .modal-title { font-size:1.1rem; font-weight:700; margin-bottom:12px; }
-    .hidden { display:none; }
-    .history-filter { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,auto); gap:10px; margin-bottom:8px; }
-    .history-filter label { font-size:0.8rem; margin-bottom:2px; display:block; }
-    .history-filter select { width:100%; height:48px; padding:10px; border-radius:10px; border:1px solid #c7d6ff; background:#fff; font-size:0.9rem; }
-    #historySearchBtn { width:100%; height:48px; border-radius:10px; background:#4a6cff; color:#fff; font-size:1rem; font-weight:700; border:none; margin-top:4px; }
-    .history-scroll { overflow-x:auto; }
-    .history-header-row { background:#e6ecff; padding:8px; font-size:0.9rem; font-weight:700; display:grid; grid-template-columns:96px 120px 80px 80px 80px 80px 80px 80px; border-bottom:1px solid #c7d6ff; white-space:nowrap; }
-    .history-row { display:grid; grid-template-columns:96px 120px 80px 80px 80px 80px 80px 80px; padding:8px; border-bottom:1px solid #e3e7f5; font-size:0.9rem; }
-    .text-input { width:100%; padding:10px; border-radius:10px; border:1px solid #c7d6ff; background:#fff; font-size:1rem; height:48px; }
-    #saveConfirmBtn, .close-btn { width:100%; padding:16px 0; border-radius:999px; font-weight:700; font-size:1.6rem; border:none; margin-top:12px; }
-    #saveConfirmBtn { background:#ff4fa3; color:#fff; }
-    .close-btn { background:#e6ecff; color:#4a6cff; }
-    .help-btn { position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:50%; border:none; background:#e6ecff; color:#4a6cff; font-weight:700; }
-    .help-text { font-size:0.85rem; background:#fff; border-radius:8px; padding:8px; margin-bottom:10px; border:1px solid #c7d6ff; }
+    :root {
+      --bg: #f5f7fc;
+      --card-bg: #ffffff;
+      --accent-blue: #1f7aff;
+      --accent-red: #ff4b4b;
+      --accent-gray: #cfd3dd;
+      --text-main: #1b1e27;
+      --text-sub: #7b8190;
+      --border-soft: #e1e4ee;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #ffffff 0, #eef2fb 45%, #e3e7f7 100%);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px 12px 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .app-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: var(--card-bg);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .icon-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+    }
+
+    .icon-button span {
+      font-size: 1.1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      margin-bottom: 14px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .card-caption {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+
+    .wave-container {
+      background: radial-gradient(circle at top, #ffffff 0, #e3e9ff 60%, #d6defa 100%);
+      border-radius: var(--radius-md);
+      padding: 8px 10px 10px;
+      border: 1px solid #dde3f5;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .wave-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+
+    canvas#spectrum {
+      width: 100%;
+      height: 120px;
+      border-radius: 12px;
+      background: transparent;
+    }
+
+    .realtime-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+
+    .stat-block {
+      background: #f6f7fc;
+      border-radius: 12px;
+      padding: 6px 8px;
+      border: 1px solid #e3e6f4;
+    }
+
+    .stat-label {
+      color: var(--text-sub);
+      margin-bottom: 2px;
+      font-size: 0.75rem;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: right;
+      color: #ff4fa3;
+    }
+
+    .realtime-center {
+      text-align: center;
+      margin: 6px 0 10px;
+      font-size: 0.8rem;
+      color: var(--accent-blue);
+      letter-spacing: 0.12em;
+    }
+
+    .realtime-center span {
+      font-weight: 600;
+    }
+
+    .realtime-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .primary-btn, .secondary-btn {
+      border-radius: 999px;
+      padding: 10px 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
+    }
+
+    .primary-btn.blue {
+      background: linear-gradient(135deg, #2a8bff, #1f7aff);
+      color: #ffffff;
+    }
+
+    .primary-btn.red {
+      background: linear-gradient(135deg, #ff6b6b, #ff4b4b);
+      color: #ffffff;
+    }
+
+    .secondary-btn.gray {
+      background: #eef1f8;
+      color: #4b5160;
+    }
+
+    .secondary-btn.outline {
+      background: #ffffff;
+      color: var(--accent-blue);
+      border: 1px solid #c9d5ff;
+    }
+
+    .primary-btn:active, .secondary-btn:active {
+      transform: scale(0.95);
+    }
+
+    .settings-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+
+    .setting-label {
+      color: var(--text-sub);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .setting-value {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 999px;
+      background: #e3e7f5;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--accent-blue);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+      cursor: pointer;
+    }
+
+    .table-wrapper {
+      margin-top: 6px;
+      border-radius: var(--radius-md);
+      border: 1px solid #dde2f2;
+      overflow-x: auto;
+      max-height: 300px;
+      background: #f9fbff;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 640px;
+      font-size: 0.8rem;
+    }
+
+    thead {
+      background: #e6ecff;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #dde2f2;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) {
+      position: sticky;
+      left: 0;
+      background: #f3f6ff;
+      z-index: 2;
+      text-align: left;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f5f7ff;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: #f5f7fc;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+      padding: 20px 16px 30px;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-sub);
+    }
+
+    .history-list {
+      border-radius: var(--radius-md);
+      border: 1px solid #c7d6ff;
+      background: #ffffff;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+    }
+
+    .history-row {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef2ff;
+    }
+
+    .history-row:last-child {
+      border-bottom: none;
+    }
+
+    .history-row-top {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .history-row-bottom {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-sub);
+      font-size: 0.75rem;
+      align-items: center;
+    }
+
+    .delete-btn {
+      border: none;
+      background: #ffeef2;
+      color: #ff4b4b;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .input-row input, .input-row select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .input-modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .input-modal-actions button {
+      flex: 1;
+    }
+
+    .hidden { display: none; }
   </style>
 </head>
 <body>
-  <!-- HTML本体（あなたの現状と同じ） -->
-  <div class="main-container">
+  <div class="app-shell">
+    <header>
+      <div class="app-title">RPM Analyzer</div>
+      <div class="header-right">
+        <button class="icon-button" id="historyIcon" title="履歴"><span>📄</span></button>
+        <button class="icon-button" id="settingsIcon" title="設定"><span>⚙️</span></button>
+      </div>
+    </header>
+
     <section class="card">
-      <div class="card-title">FFT Spectrum</div>
-      <canvas id="waveCanvas"></canvas>
-      <div class="rpm-grid">
-        <div><span>RPM</span><span id="rpmNow">--</span></div>
-        <div><span>MAX</span><span id="rpmMax">--</span></div>
-        <div><span>MIN</span><span id="rpmMin">--</span></div>
+      <div class="card-header">
+        <div class="card-title">リアルタイム計測</div>
+        <div class="card-caption">FFT解析エンジン搭載</div>
       </div>
-      <div class="speed-grid">
-        <div><span>SPEED</span><span id="speedNow">-- km/h</span></div>
-        <div><span>TOP</span><span id="speedTop">-- km/h</span></div>
-        <div><span>MIN</span><span id="speedMin">-- km/h</span></div>
-      </div>
-      <div class="rpm-limit-box">
-        <div class="rpm-limit-row">
-          <label>RPM表示上限</label>
-          <input id="rpmMaxLimit" type="range" min="20000" max="60000" value="40000">
-          <span id="rpmMaxLimitValue">40000</span>
+
+      <div class="wave-container">
+        <div class="wave-header">
+          <span>スペクトラム解析</span>
+          <span id="fftStatusLabel">READY</span>
         </div>
+        <canvas id="spectrum"></canvas>
       </div>
-      <div id="statusLine" class="status-line">READY — 計測待機中</div>
-      <div class="realtime-buttons-2row">
-        <div class="btn-row">
-          <button id="startBtn" class="primary-btn">計測開始</button>
-          <button id="lockBtn" class="secondary-btn">ロック</button>
-          <button id="saveBtn" class="secondary-btn">保存</button>
+
+      <div style="font-size:0.75rem; color:#ff4fa3; font-weight:600; margin-bottom:4px;">MOTOR RPM</div>
+      <div class="realtime-stats">
+        <div class="stat-block"><div class="stat-label">CURRENT</div><div class="stat-value" id="avgRpm">--</div></div>
+        <div class="stat-block"><div class="stat-label">MAX</div><div class="stat-value" id="maxRpm">--</div></div>
+        <div class="stat-block"><div class="stat-label">MIN</div><div class="stat-value" id="minRpm">--</div></div>
+      </div>
+
+      <div style="font-size:0.75rem; color:#1f7aff; font-weight:600; margin:8px 0 4px;">SPEED (km/h)</div>
+      <div class="realtime-stats">
+        <div class="stat-block"><div class="stat-label">CURRENT</div><div class="stat-value" id="avgSpeed">--</div></div>
+        <div class="stat-block"><div class="stat-label">TOP</div><div class="stat-value" id="maxSpeed">--</div></div>
+        <div class="stat-block"><div class="stat-label">MIN</div><div class="stat-value" id="minSpeed">--</div></div>
+      </div>
+
+      <div class="realtime-center" id="statusLine">READY — 計測待機中</div>
+
+      <div class="realtime-buttons">
+        <button class="primary-btn blue" id="startBtn">計測開始</button>
+        <button class="secondary-btn outline" id="lockBtn">ロック</button>
+        <button class="secondary-btn gray" id="saveBtn">保存</button>
+        <button class="secondary-btn gray" id="resetBtn">リセット</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">計測条件</div>
+        <div class="card-caption">電圧・ギヤ比・タイヤ径</div>
+      </div>
+      <div class="settings-row">
+        <div class="setting-item">
+          <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">3.0 V</span></div>
+          <input type="range" id="voltageRange" min="2.2" max="3.4" step="0.1" value="3.0" />
         </div>
-        <div class="btn-row">
-          <button id="historyBtn2" class="secondary-btn">履歴</button>
-          <button id="settingsBtn2" class="secondary-btn">設定</button>
-          <button id="resetBtn" class="secondary-btn">リセット</button>
+        <div class="setting-item">
+          <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">4.0:1</span></div>
+          <input type="range" id="gearRange" min="0" max="7" step="1" value="2" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">26.0 mm</span></div>
+          <input type="range" id="tireRange" min="20.0" max="35.0" step="0.1" value="26.0" />
         </div>
       </div>
     </section>
 
     <section class="card">
-      <div class="card-title">計測条件</div>
-      <div class="setting-item">
-        <div class="setting-label">電圧</div>
-        <input id="voltageRange" type="range" min="2.2" max="3.4" step="0.1" value="3.0">
-        <div id="voltageLabel">3.0 V</div>
+      <div class="card-header">
+        <div class="card-title">電圧別比較表</div>
+        <div class="card-caption">ロック時の条件を基準に算出</div>
       </div>
-      <div class="setting-item">
-        <div class="setting-label">ギヤ比</div>
-        <input id="gearRange" type="range" min="0" max="7" step="1" value="2">
-        <div id="gearLabel">4.0:1</div>
-      </div>
-      <div class="setting-item">
-        <div class="setting-label">タイヤ径</div>
-        <input id="tireRange" type="range" min="24.0" max="28.0" step="0.5" value="26.0">
-        <div id="tireLabel">26.0 mm</div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="card-title">電圧別比較表</div>
-      <div class="comparison-wrapper">
-        <table class="comparison-table">
+      <div class="table-wrapper">
+        <table>
           <thead>
             <tr>
-              <th>電圧</th>
-              <th>RPM</th>
-              <th>3.5:1</th><th>3.7:1</th><th>4.0:1</th><th>4.2:1</th>
-              <th>5.0:1</th><th>6.4:1</th><th>8.75:1</th><th>11.2:1</th>
+              <th>電圧</th><th>RPM</th><th>3.5:1</th><th>3.7:1</th><th>4.0:1</th><th>4.2:1</th><th>5.0:1</th><th>6.4:1</th><th>8.75:1</th><th>11.2:1</th>
             </tr>
           </thead>
           <tbody id="comparisonBody"></tbody>
@@ -129,7 +508,62 @@
     </section>
   </div>
 
-  <!-- モーダル（保存・設定など）はあなたの現状と同じまま -->
+  <!-- 設定モーダル -->
+  <div class="modal-backdrop" id="settingsModalBackdrop">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">解析設定</div><button class="modal-close" id="settingsClose">×</button></div>
+      <div class="settings-row">
+        <div class="setting-item">
+          <div class="setting-label"><span>表示上限 (RPM)</span><span class="setting-value" id="rpmMaxLimitValue">40000</span></div>
+          <input type="range" id="rpmMaxLimit" min="10000" max="80000" step="1000" value="40000" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>ノイズ閾値 (dB)</span><span class="setting-value" id="noiseLabel">20</span></div>
+          <input type="range" id="noiseRange" min="5" max="50" step="1" value="20" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div>
+          <input type="range" id="rpmCalRange" min="0.8" max="1.2" step="0.01" value="1.00" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>負荷補正 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
+          <input type="range" id="loadFactorRange" min="0" max="20" step="0.5" value="0" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 履歴モーダル -->
+  <div class="modal-backdrop" id="historyModalBackdrop">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">計測履歴</div><button class="modal-close" id="historyClose">×</button></div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- 保存モーダル -->
+  <div class="modal-backdrop" id="saveModalBackdrop">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">計測結果の保存</div><button class="modal-close" id="saveClose">×</button></div>
+      <div class="input-row">
+        <label>名前 (マシン名など)</label>
+        <input type="text" id="saveNameInput" placeholder="例: MSフレキ" maxlength="12" />
+      </div>
+      <div class="input-row">
+        <label>モーター種類</label>
+        <select id="motorTypeSelect">
+          <option value="">未選択</option>
+          <option>ノーマル</option><option>レブチューン</option><option>トルクチューン</option><option>アトミックチューン</option>
+          <option>ライトダッシュ</option><option>ハイパーダッシュ</option><option>パワーダッシュ</option><option>スプリントダッシュ</option>
+          <option>マッハダッシュ</option>
+        </select>
+      </div>
+      <div class="input-modal-actions">
+        <button class="secondary-btn gray" id="saveCancelBtn">キャンセル</button>
+        <button class="primary-btn blue" id="saveConfirmBtn">保存する</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const SAMPLE_RATE = 48000;
@@ -152,87 +586,111 @@
     };
 
     const UI = {
-      waveCanvas: document.getElementById("waveCanvas"),
-      rpmNow: document.getElementById("rpmNow"),
-      rpmMax: document.getElementById("rpmMax"),
-      rpmMin: document.getElementById("rpmMin"),
-      speedNow: document.getElementById("speedNow"),
-      speedTop: document.getElementById("speedTop"),
-      speedMin: document.getElementById("speedMin"),
-      rpmMaxLimit: document.getElementById("rpmMaxLimit"),
-      rpmMaxLimitValue: document.getElementById("rpmMaxLimitValue"),
+      spectrum: document.getElementById("spectrum"),
+      avgRpm: document.getElementById("avgRpm"),
+      maxRpm: document.getElementById("maxRpm"),
+      minRpm: document.getElementById("minRpm"),
+      avgSpeed: document.getElementById("avgSpeed"),
+      maxSpeed: document.getElementById("maxSpeed"),
+      minSpeed: document.getElementById("minSpeed"),
+      statusLine: document.getElementById("statusLine"),
+      fftStatusLabel: document.getElementById("fftStatusLabel"),
+      
       startBtn: document.getElementById("startBtn"),
       lockBtn: document.getElementById("lockBtn"),
       saveBtn: document.getElementById("saveBtn"),
       resetBtn: document.getElementById("resetBtn"),
-      historyBtn2: document.getElementById("historyBtn2"),
-      settingsBtn2: document.getElementById("settingsBtn2"),
-      statusLine: document.getElementById("statusLine"),
+      
       voltageRange: document.getElementById("voltageRange"),
       voltageLabel: document.getElementById("voltageLabel"),
       gearRange: document.getElementById("gearRange"),
       gearLabel: document.getElementById("gearLabel"),
       tireRange: document.getElementById("tireRange"),
       tireLabel: document.getElementById("tireLabel"),
-      comparisonBody: document.getElementById("comparisonBody"),
-      historyModal: document.getElementById("historyModalBackdrop"),
-      saveModal: document.getElementById("saveModalBackdrop"),
-      settingsModal: document.getElementById("settingsModalBackdrop"),
-      closeHistory: document.getElementById("closeHistory"),
-      saveNameInput: document.getElementById("saveNameInput"),
-      motorTypeSelect: document.getElementById("motorTypeSelect"),
-      saveConfirmBtn: document.getElementById("saveConfirmBtn"),
-      saveCancelBtn: document.getElementById("saveCancelBtn"),
-      helpButton: document.getElementById("helpButton"),
-      helpText: document.getElementById("helpText"),
+      
+      rpmMaxLimit: document.getElementById("rpmMaxLimit"),
+      rpmMaxLimitValue: document.getElementById("rpmMaxLimitValue"),
       noiseRange: document.getElementById("noiseRange"),
       noiseLabel: document.getElementById("noiseLabel"),
       rpmCalRange: document.getElementById("rpmCalRange"),
       rpmCalLabel: document.getElementById("rpmCalLabel"),
       loadFactorRange: document.getElementById("loadFactorRange"),
       loadFactorLabel: document.getElementById("loadFactorLabel"),
-      settingsResetBtn: document.getElementById("settingsResetBtn"),
-      closeSettings: document.getElementById("closeSettings")
+      
+      comparisonBody: document.getElementById("comparisonBody"),
+      
+      settingsIcon: document.getElementById("settingsIcon"),
+      settingsModal: document.getElementById("settingsModalBackdrop"),
+      settingsClose: document.getElementById("settingsClose"),
+      
+      historyIcon: document.getElementById("historyIcon"),
+      historyModal: document.getElementById("historyModalBackdrop"),
+      historyClose: document.getElementById("historyClose"),
+      historyList: document.getElementById("historyList"),
+      
+      saveModal: document.getElementById("saveModalBackdrop"),
+      saveClose: document.getElementById("saveClose"),
+      saveNameInput: document.getElementById("saveNameInput"),
+      motorTypeSelect: document.getElementById("motorTypeSelect"),
+      saveConfirmBtn: document.getElementById("saveConfirmBtn"),
+      saveCancelBtn: document.getElementById("saveCancelBtn")
     };
 
     async function initAudio() {
       if (audioContext) return;
-      audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }});
-      const source = audioContext.createMediaStreamSource(micStream);
-      analyser = audioContext.createAnalyser();
-      analyser.fftSize = FFT_SIZE;
-      analyser.smoothingTimeConstant = 0.0;
-      source.connect(analyser);
-      fftBuffer = new Float32Array(analyser.frequencyBinCount);
-    }
-
-    function resizeCanvas() {
-      const canvas = UI.waveCanvas;
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = canvas.clientWidth * dpr;
-      canvas.height = 160 * dpr;
+      try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
+        micStream = await navigator.mediaDevices.getUserMedia({ 
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+        });
+        const source = audioContext.createMediaStreamSource(micStream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = FFT_SIZE;
+        analyser.smoothingTimeConstant = 0.2;
+        source.connect(analyser);
+        fftBuffer = new Float32Array(analyser.frequencyBinCount);
+        UI.fftStatusLabel.textContent = "ACTIVE";
+      } catch (e) {
+        console.error(e);
+        UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
+      }
     }
 
     function drawFFT() {
       if (!analyser) return;
       analyser.getFloatFrequencyData(fftBuffer);
-      const canvas = UI.waveCanvas;
+      const canvas = UI.spectrum;
       const ctx = canvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      
+      if (canvas.width !== canvas.clientWidth * dpr) {
+        canvas.width = canvas.clientWidth * dpr;
+        canvas.height = canvas.clientHeight * dpr;
+      }
+      
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const nyquist = SAMPLE_RATE / 2;
-      const maxRpm = parseInt(UI.rpmMaxLimit.value, 10) || 60000;
+      const nyquist = audioContext.sampleRate / 2;
+      const maxRpm = parseInt(UI.rpmMaxLimit.value, 10) || 40000;
       const maxHz = maxRpm / 60;
       const maxIndex = Math.min(fftBuffer.length - 1, Math.floor(maxHz / nyquist * fftBuffer.length));
 
+      // 背景グリッド
+      ctx.strokeStyle = "rgba(31, 122, 255, 0.1)";
+      ctx.lineWidth = 1;
+      for(let i=1; i<5; i++) {
+        const gx = (canvas.width / 5) * i;
+        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvas.height); ctx.stroke();
+      }
+
       ctx.beginPath();
-      ctx.strokeStyle = "#4a6cff";
-      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#ff4fa3";
+      ctx.lineWidth = 2 * dpr;
+      ctx.lineJoin = "round";
 
       for (let i = 0; i <= maxIndex; i++) {
         const x = i / maxIndex * canvas.width;
-        const norm = Math.max(0, (fftBuffer[i] + 120) / 120);
+        const norm = Math.max(0, (fftBuffer[i] + 120) / 100);
         const y = canvas.height * (1 - norm);
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
@@ -240,215 +698,197 @@
       ctx.stroke();
     }
 
-    function applyNoiseFilter(L, C, R) {
-      const noiseThreshold = parseFloat(UI.noiseRange.value || 20);
-      return Math.abs(C - L) > noiseThreshold || Math.abs(C - R) > noiseThreshold;
-    }
-
-    function applyRpmCalibration(rpm) {
-      return rpm * parseFloat(UI.rpmCalRange.value || 1.0);
-    }
-
-    function applyLoadCorrection(rpm) {
-      const load = parseFloat(UI.loadFactorRange.value || 0);
-      return rpm * (1 - load / 100);
-    }
-
     function detectPeakEnhanced() {
-      const nyquist = SAMPLE_RATE / 2;
-      const maxRpm = parseInt(UI.rpmMaxLimit.value, 10) || 60000;
+      const nyquist = audioContext.sampleRate / 2;
+      const maxRpm = parseInt(UI.rpmMaxLimit.value, 10) || 40000;
       const maxHz = maxRpm / 60;
       const maxIndex = Math.min(fftBuffer.length - 1, Math.floor(maxHz / nyquist * fftBuffer.length));
 
       let bestIndex = -1;
       let bestValue = -Infinity;
 
-      if (lastPeakIndex !== null) {
-        const center = Math.floor(lastPeakIndex);
-        const radius = 15;
-        const sFrom = Math.max(0, center - radius);
-        const sTo = Math.min(maxIndex, center + radius);
-        for (let i = sFrom; i <= sTo; i++) {
-          const v = fftBuffer[i];
-          if (v > bestValue) {
-            bestValue = v;
-            bestIndex = i;
-          }
+      // 簡易的なノイズ除去とピークサーチ
+      for (let i = 10; i <= maxIndex; i++) { // 低周波ノイズ回避
+        const v = fftBuffer[i];
+        if (v > bestValue) {
+          bestValue = v;
+          bestIndex = i;
         }
       }
 
-      if (bestIndex === -1) {
-        for (let i = 0; i <= maxIndex; i++) {
-          const v = fftBuffer[i];
-          if (v > bestValue) {
-            bestValue = v;
-            bestIndex = i;
-          }
-        }
-      }
+      if (bestIndex < 1 || bestIndex >= fftBuffer.length - 1) return null;
 
-      if (bestIndex < 0) return null;
-
-      const L = fftBuffer[bestIndex - 1] || 0;
+      const L = fftBuffer[bestIndex - 1];
       const C = fftBuffer[bestIndex];
-      const R = fftBuffer[bestIndex + 1] || 0;
+      const R = fftBuffer[bestIndex + 1];
 
-      if (!applyNoiseFilter(L, C, R)) return null;
+      // ノイズフィルタ
+      const noiseThreshold = parseFloat(UI.noiseRange.value);
+      if (Math.abs(C - L) < noiseThreshold && Math.abs(C - R) < noiseThreshold) return null;
 
+      // 放物線補間
       const denom = (L - 2 * C + R);
       const offset = denom === 0 ? 0 : (L - R) / (2 * denom);
       const peakIndex = bestIndex + offset;
-      lastPeakIndex = peakIndex;
-
+      
       return peakIndex * nyquist / fftBuffer.length;
     }
 
-    function computeRpm(peakHz) {
-      if (!peakHz) return 0;
-      let rpm = peakHz * 60;
-      rpm = applyRpmCalibration(rpm);
-      rpm = applyLoadCorrection(rpm);
-      return rpm;
+    function update() {
+      if (!running) return;
+      
+      drawFFT();
+      
+      const peakHz = detectPeakEnhanced();
+      if (peakHz && !locked) {
+        let rpm = peakHz * 60;
+        rpm *= parseFloat(UI.rpmCalRange.value);
+        rpm *= (1 - parseFloat(UI.loadFactorRange.value) / 100);
+        
+        state.rpmNow = Math.round(rpm);
+        if (state.rpmNow > state.rpmMax) state.rpmMax = state.rpmNow;
+        if (state.rpmNow < state.rpmMin) state.rpmMin = state.rpmNow;
+
+        const gear = gearRatios[parseInt(UI.gearRange.value)];
+        const tire = parseFloat(UI.tireRange.value);
+        state.speedNow = (state.rpmNow / gear) * (tire * Math.PI * 60) / 1000000;
+        
+        if (state.speedNow > state.speedTop) state.speedTop = state.speedNow;
+        if (state.speedNow < state.speedMin) state.speedMin = state.speedNow;
+
+        UI.avgRpm.textContent = state.rpmNow;
+        UI.maxRpm.textContent = state.rpmMax;
+        UI.minRpm.textContent = state.rpmMin === Infinity ? "--" : state.rpmMin;
+        
+        UI.avgSpeed.textContent = state.speedNow.toFixed(2);
+        UI.maxSpeed.textContent = state.speedTop.toFixed(2);
+        UI.minSpeed.textContent = state.speedMin === Infinity ? "--" : state.speedMin.toFixed(2);
+        
+        UI.statusLine.textContent = "MEASURING — 解析中";
+      }
+      
+      requestAnimationFrame(update);
     }
 
-    function computeSpeed(rpm, gearRatio, tireMm) {
-      const wheelRpm = rpm / gearRatio;
-      const tireM = tireMm / 1000;
-      const speedMps = wheelRpm * tireM * Math.PI / 60;
-      return speedMps * 3.6;
-    }
-
-    function updateRealtimeUI(rpm) {
-      if (!rpm || !isFinite(rpm)) return;
-      state.rpmNow = rpm;
-      state.rpmMax = Math.max(state.rpmMax, rpm);
-      state.rpmMin = Math.min(state.rpmMin, rpm);
-      const gearRatio = gearRatios[state.gearIndex] || 4.0;
-      const speedNow = computeSpeed(rpm, gearRatio, state.tireMm);
-      const speedTop = computeSpeed(state.rpmMax, gearRatio, state.tireMm);
-      const speedMin = computeSpeed(state.rpmMin, gearRatio, state.tireMm);
-
-      state.speedNow = speedNow;
-      state.speedTop = speedTop;
-      state.speedMin = speedMin;
-
-      UI.rpmNow.textContent = Math.round(state.rpmNow);
-      UI.rpmMax.textContent = Math.round(state.rpmMax);
-      UI.rpmMin.textContent = Math.round(state.rpmMin);
-      UI.speedNow.textContent = speedNow.toFixed(2) + " km/h";
-      UI.speedTop.textContent = speedTop.toFixed(2) + " km/h";
-      UI.speedMin.textContent = speedMin.toFixed(2) + " km/h";
-    }
-
-    function buildComparisonTable() {
+    function buildComparisonTable(baseRpm) {
+      const voltages = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4];
+      const currentV = parseFloat(UI.voltageRange.value);
+      const tire = parseFloat(UI.tireRange.value);
+      
       UI.comparisonBody.innerHTML = "";
-      const voltages = [2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4];
-      const currentGear = gearRatios[state.gearIndex];
-
       voltages.forEach(v => {
-        const baseRpm = state.rpmNow || 30000;
-        const scale = v / state.voltage;
-        const rpm = baseRpm * scale;
+        const rpm = baseRpm * (v / currentV);
         const tr = document.createElement("tr");
-        if (Math.abs(v - state.voltage) < 0.05) tr.classList.add("highlight-row");
         tr.innerHTML = `<td>${v.toFixed(1)} V</td><td>${Math.round(rpm)}</td>`;
-
-        gearRatios.forEach(gr => {
-          const td = document.createElement("td");
-          const sp = computeSpeed(rpm, gr, state.tireMm).toFixed(2);
-          td.textContent = sp;
-          if (Math.abs(gr - currentGear) < 0.01) td.classList.add("highlight-col");
-          tr.appendChild(td);
+        gearRatios.forEach(g => {
+          const speed = (rpm / g) * (tire * Math.PI * 60) / 1000000;
+          tr.innerHTML += `<td>${speed.toFixed(2)}</td>`;
         });
         UI.comparisonBody.appendChild(tr);
       });
     }
 
-    function loop() {
-      if (!running || locked) {
-        requestAnimationFrame(loop);
-        return;
-      }
-      drawFFT();
-      const peakHz = detectPeakEnhanced();
-      const rpm = computeRpm(peakHz);
-      updateRealtimeUI(rpm);
-      buildComparisonTable();
-      requestAnimationFrame(loop);
-    }
-
-    // ボタン機能
+    // UI Listeners
     UI.startBtn.addEventListener("click", async () => {
-      if (!audioContext) await initAudio();
-      running = true;
-      locked = false;
-      UI.statusLine.textContent = "MEASURING — 計測中";
-      loop();
+      if (!running) {
+        await initAudio();
+        running = true;
+        UI.startBtn.textContent = "計測停止";
+        UI.startBtn.classList.replace("blue", "red");
+        update();
+      } else {
+        running = false;
+        UI.startBtn.textContent = "計測開始";
+        UI.startBtn.classList.replace("red", "blue");
+        UI.fftStatusLabel.textContent = "PAUSED";
+        UI.statusLine.textContent = "STOPPED — 停止中";
+      }
     });
 
     UI.lockBtn.addEventListener("click", () => {
       locked = !locked;
       UI.lockBtn.textContent = locked ? "ロック解除" : "ロック";
-      UI.statusLine.textContent = locked ? "LOCKED — 停止中" : "MEASURING — 計測中";
+      UI.lockBtn.classList.toggle("outline");
+      if (locked) {
+        buildComparisonTable(state.rpmNow || 15000);
+        UI.statusLine.textContent = "LOCKED — 表示固定中";
+      } else {
+        UI.statusLine.textContent = "MEASURING — 解析中";
+      }
     });
 
     UI.resetBtn.addEventListener("click", () => {
-      running = false;
-      locked = false;
-      state.rpmNow = 0; state.rpmMax = 0; state.rpmMin = Infinity;
-      state.speedNow = 0; state.speedTop = 0; state.speedMin = Infinity;
-      UI.rpmNow.textContent = "--";
-      UI.rpmMax.textContent = "--";
-      UI.rpmMin.textContent = "--";
-      UI.speedNow.textContent = "-- km/h";
-      UI.speedTop.textContent = "-- km/h";
-      UI.speedMin.textContent = "-- km/h";
-      UI.statusLine.textContent = "READY — 計測待機中";
+      state.rpmMax = 0; state.rpmMin = Infinity;
+      state.speedTop = 0; state.speedMin = Infinity;
+      UI.maxRpm.textContent = "--"; UI.minRpm.textContent = "--";
+      UI.maxSpeed.textContent = "--"; UI.minSpeed.textContent = "--";
+      UI.avgRpm.textContent = "--"; UI.avgSpeed.textContent = "--";
+      UI.comparisonBody.innerHTML = "";
     });
 
-    UI.historyBtn2.addEventListener("click", () => UI.historyModal.classList.remove("hidden"));
-    UI.closeHistory.addEventListener("click", () => UI.historyModal.classList.add("hidden"));
-    UI.saveBtn.addEventListener("click", () => UI.saveModal.classList.remove("hidden"));
-    UI.saveCancelBtn.addEventListener("click", () => UI.saveModal.classList.add("hidden"));
-    UI.settingsBtn2.addEventListener("click", () => UI.settingsModal.classList.remove("hidden"));
-    UI.closeSettings.addEventListener("click", () => UI.settingsModal.classList.add("hidden"));
-
-    // 設定スライダー
-    UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value + " dB");
-    UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = UI.rpmCalRange.value);
+    // Sliders
+    UI.voltageRange.addEventListener("input", () => UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V");
+    UI.gearRange.addEventListener("input", () => UI.gearLabel.textContent = gearRatios[UI.gearRange.value].toFixed(1) + ":1");
+    UI.tireRange.addEventListener("input", () => UI.tireLabel.textContent = parseFloat(UI.tireRange.value).toFixed(1) + " mm");
+    UI.rpmMaxLimit.addEventListener("input", () => UI.rpmMaxLimitValue.textContent = UI.rpmMaxLimit.value);
+    UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
+    UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2));
     UI.loadFactorRange.addEventListener("input", () => UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%");
 
-    UI.settingsResetBtn.addEventListener("click", () => {
-      UI.noiseRange.value = 20; UI.noiseLabel.textContent = "20 dB";
-      UI.rpmCalRange.value = 1.00; UI.rpmCalLabel.textContent = "1.00";
-      UI.loadFactorRange.value = 0; UI.loadFactorLabel.textContent = "0%";
+    // Modals
+    UI.settingsIcon.addEventListener("click", () => UI.settingsModal.style.display = "flex");
+    UI.settingsClose.addEventListener("click", () => UI.settingsModal.style.display = "none");
+    UI.historyIcon.addEventListener("click", () => {
+      renderHistory();
+      UI.historyModal.style.display = "flex";
+    });
+    UI.historyClose.addEventListener("click", () => UI.historyModal.style.display = "none");
+    UI.saveBtn.addEventListener("click", () => UI.saveModal.style.display = "flex");
+    UI.saveClose.addEventListener("click", () => UI.saveModal.style.display = "none");
+    UI.saveCancelBtn.addEventListener("click", () => UI.saveModal.style.display = "none");
+
+    UI.saveConfirmBtn.addEventListener("click", () => {
+      const name = UI.saveNameInput.value || "No Name";
+      const type = UI.motorTypeSelect.value || "未設定";
+      const entry = {
+        name, type,
+        rpm: state.rpmNow,
+        speed: state.speedNow.toFixed(2),
+        date: new Date().toLocaleString(),
+        voltage: UI.voltageLabel.textContent,
+        gear: UI.gearLabel.textContent
+      };
+      state.history.push(entry);
+      UI.saveModal.style.display = "none";
+      alert("保存しました");
     });
 
-    UI.helpButton.addEventListener("click", () => UI.helpText.classList.toggle("hidden"));
+    function renderHistory() {
+      UI.historyList.innerHTML = state.history.length ? "" : "<div style='padding:20px; text-align:center; color:#999;'>履歴はありません</div>";
+      state.history.forEach((h, i) => {
+        const div = document.createElement("div");
+        div.className = "history-row";
+        div.innerHTML = `
+          <div class="history-row-top"><span>${h.name} (${h.type})</span><span>${h.rpm} RPM</span></div>
+          <div class="history-row-bottom">
+            <span>${h.date} | ${h.voltage} | ${h.gear}</span>
+            <button class="delete-btn" onclick="deleteHistory(${i})">削除</button>
+          </div>
+        `;
+        UI.historyList.appendChild(div);
+      });
+    }
 
-    // 計測条件変更で比較表更新
-    UI.voltageRange.addEventListener("input", () => {
-      state.voltage = parseFloat(UI.voltageRange.value);
-      UI.voltageLabel.textContent = state.voltage.toFixed(1) + " V";
-      buildComparisonTable();
-    });
-    UI.gearRange.addEventListener("input", () => {
-      state.gearIndex = parseInt(UI.gearRange.value, 10);
-      UI.gearLabel.textContent = ["3.5:1","3.7:1","4.0:1","4.2:1","5.0:1","6.4:1","8.75:1","11.2:1"][state.gearIndex] || "4.0:1";
-      buildComparisonTable();
-    });
-    UI.tireRange.addEventListener("input", () => {
-      state.tireMm = parseFloat(UI.tireRange.value);
-      UI.tireLabel.textContent = state.tireMm.toFixed(1) + " mm";
-      buildComparisonTable();
-    });
+    window.deleteHistory = (i) => {
+      state.history.splice(i, 1);
+      renderHistory();
+    };
 
-    UI.rpmMaxLimit.addEventListener("input", () => UI.rpmMaxLimitValue.textContent = UI.rpmMaxLimit.value);
-
-    window.addEventListener('load', () => {
-      resizeCanvas();
-      buildComparisonTable();
-    });
+    window.onclick = (e) => {
+      if (e.target.classList.contains("modal-backdrop")) {
+        e.target.style.display = "none";
+      }
+    };
   </script>
 </body>
 </html>
