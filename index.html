@@ -1,4 +1,4 @@
-１１１
+２２２
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -735,7 +735,8 @@ async function initAudio() {
     // Safariは GainNode を挟むと無音 → 直接接続
     source.connect(analyser);
 
-    fftBuffer = new Float32Array(analyser.frequencyBinCount);
+    fftBuffer = new Uint8Array(analyser.frequencyBinCount);
+
 
     UI.fftStatusLabel.textContent = "ACTIVE";
   } catch (err) {
@@ -753,7 +754,7 @@ async function initAudio() {
 function drawFFT() {
   if (!analyser || !fftBuffer) return;
 
-  analyser.getFloatFrequencyData(fftBuffer);
+  analyser.getByteFrequencyData(fftBuffer);
 
   const canvas = UI.spectrum;
   const ctx = canvas.getContext("2d");
@@ -786,7 +787,8 @@ function drawFFT() {
 
   for (let i = 0; i <= maxIndex; i++) {
     const x = i / maxIndex * canvas.width;
-    const norm = Math.max(0, (fftBuffer[i] + 120) / 100);
+    const norm = fftBuffer[i] / 255;
+
     const y = canvas.height * (1 - norm);
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
