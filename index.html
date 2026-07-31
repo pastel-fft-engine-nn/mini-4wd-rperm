@@ -411,6 +411,67 @@ td {
 .active .toggle-icon::after {
   content: ' ▲';
 }
+  /* ダークモード時のスタイル */
+body.dark-mode {
+  --bg: #12151c;
+  --card-bg: #1a1e29;
+  --text-main: #f0f2f5;
+  --text-sub: #9ca3af;
+  --border-soft: #2a3142;
+  --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.4);
+}
+body.dark-mode .card {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+body.dark-mode .wave-container {
+  background: radial-gradient(circle at top, #222838 0, #161a25 60%, #0e1117 100%);
+  border-color: #2a3142;
+}
+body.dark-mode .stat-block,
+body.dark-mode .filter-grid,
+body.dark-mode .rpm-limit-section {
+  background: #222838;
+  border-color: #2a3142;
+}
+body.dark-mode .table-wrapper,
+body.dark-mode .history-table-wrapper {
+  background: #1a1e29;
+  border-color: #2a3142;
+}
+body.dark-mode thead th {
+  background: #262e42;
+  color: #f0f2f5;
+}
+body.dark-mode th:first-child, 
+body.dark-mode td:first-child {
+  background: #1f2535;
+  color: #f0f2f5;
+}
+body.dark-mode td {
+  border-bottom: 1px solid #2a3142;
+}
+body.dark-mode .secondary-btn.gray {
+  background: #262e42;
+  color: #d1d5db;
+}
+body.dark-mode .modal {
+  background: #1a1e29;
+  color: #f0f2f5;
+}
+body.dark-mode input[type="range"] {
+  background: #2a3142;
+}
+body.dark-mode input[type="range"]::-webkit-slider-thumb {
+  background: #1a1e29;
+}
+body.dark-mode .filter-item select,
+body.dark-mode .input-row input, 
+body.dark-mode .input-row select {
+  background: #222838;
+  color: #f0f2f5;
+  border-color: #2a3142;
+}
+
 </style>
 </head>
 <body>
@@ -529,19 +590,32 @@ td {
       <div class="modal-title">解析詳細設定</div>
       <button class="modal-close" id="settingsCloseTop">×</button>
     </div>
-    <div class="settings-row">
-      <div class="setting-item">
-        <div class="setting-label"><span>ノイズ閾値</span><span class="setting-value" id="noiseLabel">20</span></div>
-        <input type="range" id="noiseRange" min="0" max="100" step="1" value="20" />
-      </div>
-      <div class="setting-item">
-        <div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div>
-        <input type="range" id="rpmCalRange" min="0.5" max="1.5" step="0.01" value="1.00" />
-      </div>
-      <div class="setting-item">
-        <div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
-        <input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0" />
-      </div>
+    <!-- 設定モーダルの一部抜粋 -->
+<div class="settings-row">
+  <div class="setting-item">
+    <div class="setting-label"><span>ノイズ閾値</span><span class="setting-value" id="noiseLabel">20</span></div>
+    <input type="range" id="noiseRange" min="0" max="100" step="1" value="20" />
+  </div>
+  <div class="setting-item">
+    <div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div>
+    <input type="range" id="rpmCalRange" min="0.5" max="1.5" step="0.01" value="1.00" />
+  </div>
+  <div class="setting-item">
+    <div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
+    <input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0" />
+  </div>
+  
+  <!-- ダークモード切替ボタンの追加 -->
+  <div style="margin-top: 4px;">
+    <button class="secondary-btn gray" id="darkModeToggleBtn" style="width: 100%; font-size: 0.75rem;">ダークモード: OFF</button>
+  </div>
+
+  <div style="display:flex; gap:10px; margin-top:8px;">
+    <button class="primary-btn blue" id="settingsResetBtn" style="flex:1; font-size:0.75rem;">設定リセット</button>
+    <button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1; font-size:0.75rem;">閉じる</button>
+  </div>
+</div>
+
       <div style="display:flex; gap:10px; margin-top:12px;">
         <button class="primary-btn blue" id="settingsResetBtn" style="flex:1; font-size:0.75rem;">設定リセット</button>
         <button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1; font-size:0.75rem;">閉じる</button>
