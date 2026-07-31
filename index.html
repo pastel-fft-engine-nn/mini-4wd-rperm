@@ -837,8 +837,8 @@ function loopFFT() {
   if (locked) return;
 
   const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
-  if (peakHz > 0) {
-    const { adjustedRpm, speed } = computeSpeedFromRpm(peakHz * 60);
+  if (peakHz > 0 && running) {   // ← running チェックを追加
+  const { adjustedRpm, speed } = computeSpeedFromRpm(peakHz * 60);
     currentRpm = adjustedRpm;
     currentSpeed = speed;
 
