@@ -1,4 +1,4 @@
-３３３
+４４４４４
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -116,30 +116,29 @@ canvas#spectrum {
   color: var(--accent-blue);
   letter-spacing: 0.12em;
 }
-.audio-indicator {
+
+/* マイク入力レベルをタイトル横に */
+.header-right-audio {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 8px 12px;
-  background: #f0f7ff;
-  border-radius: 10px;
-  font-size: 0.8rem;
+  gap: 6px;
+  font-size: 0.75rem;
   color: var(--text-sub);
 }
 .audio-bars {
   display: flex;
-  gap: 3px;
+  gap: 2px;
   align-items: flex-end;
-  height: 20px;
+  height: 16px;
 }
 .audio-bar {
-  width: 4px;
-  height: 6px;
+  width: 3px;
+  height: 4px;
   background: var(--accent-blue);
   border-radius: 2px;
   transition: height 0.1s ease;
 }
+
 .rpm-limit-section {
   background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
   border-radius: var(--radius-md);
@@ -187,25 +186,26 @@ canvas#spectrum {
 .secondary-btn.outline { background: #ffffff; color: var(--accent-blue); border: 1px solid #c9d5ff; }
 .primary-btn:active, .secondary-btn:active { transform: scale(0.95); }
 
-/* 比較表条件 - つまみが欠けない十分な余白 */
+/* 比較表条件 - 行間を狭く・枠もコンパクトに */
 .settings-row {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 12px 0 24px;
+  gap: 10px;
+  padding: 4px 0 8px;
 }
 .setting-item {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
   font-size: 0.85rem;
-  padding: 6px 0;
+  padding: 0;
 }
 .setting-label {
   color: var(--text-sub);
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  font-size: 0.8rem;
 }
 .setting-value {
   font-size: 0.8rem;
@@ -215,22 +215,23 @@ canvas#spectrum {
 input[type="range"] {
   width: 100%;
   -webkit-appearance: none;
-  height: 8px;
+  height: 6px;
   border-radius: 999px;
   background: #e3e7f5;
   outline: none;
-  margin: 10px 0;
+  margin: 4px 0 2px;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: #ffffff;
   border: 2px solid var(--accent-blue);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
   cursor: pointer;
 }
+
 .table-wrapper {
   margin-top: 6px;
   border-radius: var(--radius-md);
@@ -282,7 +283,7 @@ td {
   max-width: 480px;
   background: #f5f7fc;
   border-radius: 24px 24px 0 0;
-  padding: 20px 12px 30px;
+  padding: 16px 12px 24px;
   animation: slideUp 0.3s ease-out;
 }
 @keyframes slideUp {
@@ -293,7 +294,7 @@ td {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 .modal-title {
   font-size: 1rem;
@@ -306,6 +307,20 @@ td {
   cursor: pointer;
   color: var(--text-sub);
 }
+
+/* 設定モーダル内の行間を狭く */
+.modal .settings-row {
+  gap: 8px;
+  padding: 0 0 4px;
+}
+.modal .setting-item {
+  gap: 2px;
+  padding: 0;
+}
+.modal input[type="range"] {
+  margin: 2px 0 0;
+}
+
 .filter-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -392,7 +407,7 @@ td {
 .collapsible-content {
   display: none;
   overflow: visible;
-  padding-bottom: 20px;
+  padding-bottom: 6px;
 }
 .collapsible-content.active {
   display: block;
@@ -414,6 +429,17 @@ td {
   <section class="card">
     <div class="card-header">
       <div class="card-title">リアルタイム計測</div>
+      <!-- マイク入力レベルをタイトル横に -->
+      <div class="header-right-audio">
+        <span>マイク</span>
+        <div class="audio-bars" id="audioIndicator">
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+        </div>
+      </div>
     </div>
 
     <div class="wave-container">
@@ -422,17 +448,6 @@ td {
         <span id="fftStatusLabel">READY</span>
       </div>
       <canvas id="spectrum"></canvas>
-    </div>
-
-    <div class="audio-indicator">
-      <span>マイク入力レベル:</span>
-      <div class="audio-bars" id="audioIndicator">
-        <div class="audio-bar"></div>
-        <div class="audio-bar"></div>
-        <div class="audio-bar"></div>
-        <div class="audio-bar"></div>
-        <div class="audio-bar"></div>
-      </div>
     </div>
 
     <div class="rpm-limit-section">
@@ -537,7 +552,7 @@ td {
         <div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
         <input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0" />
       </div>
-      <div style="display:flex; gap:10px; margin-top:16px;">
+      <div style="display:flex; gap:10px; margin-top:12px;">
         <button class="primary-btn blue" id="settingsResetBtn" style="flex:1; font-size:0.75rem;">設定リセット</button>
         <button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1; font-size:0.75rem;">閉じる</button>
       </div>
@@ -810,13 +825,13 @@ function loopFFT() {
   }
   ctx.stroke();
 
-  // マイクレベル
+  // マイクレベル（タイトル横）
   const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
   let sum = 0;
   for (let i = 0; i < 80; i++) sum += dataArray[i];
   const level = sum / 80;
   bars.forEach((bar, i) => {
-    bar.style.height = Math.min(20, Math.max(4, (level / 255) * 40 - i * 3)) + "px";
+    bar.style.height = Math.min(16, Math.max(3, (level / 255) * 28 - i * 2.5)) + "px";
   });
 
   if (locked) return;
@@ -911,7 +926,7 @@ UI.resetBtn.addEventListener("click", () => {
   UI.comparisonBody.innerHTML = "";
 });
 
-/* 履歴・設定・保存を開いても計測は継続（runningを止めない） */
+/* 履歴・設定・保存を開いても計測は継続 */
 UI.historyBtn.addEventListener("click", () => {
   populateFilters();
   renderHistory();
@@ -980,7 +995,7 @@ document.getElementById("saveConfirmBtn").addEventListener("click", () => {
   });
   localStorage.setItem("rpmHistory", JSON.stringify(state.history));
   UI.saveModal.style.display = "none";
-  alert("保存しました");
+  // alert削除済み
 });
 
 function populateFilters() {
