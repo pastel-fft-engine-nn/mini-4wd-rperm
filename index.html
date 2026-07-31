@@ -894,13 +894,30 @@ function buildComparisonTable(baseRpm) {
 }
 
 /* ========== イベント ========== */
-UI.startBtn.addEventListener("click", async () => {
-  if (!running) {
-    UI.startBtn.textContent = "計測停止";
-    UI.startBtn.classList.replace("blue", "red");
-    await startMic();
-  } else {
-    stopMic();
+UI.resetBtn.addEventListener("click", () => {
+  // 計測は止めない（running のまま）
+  currentRpm = 0;
+  maxRpmVal = 0;
+  minRpmVal = Infinity;
+  currentSpeed = 0;
+  maxSpeedVal = 0;
+  minSpeedVal = Infinity;
+
+  UI.rpmNow.textContent = "--";
+  UI.rpmMax.textContent = "--";
+  UI.rpmMin.textContent = "--";
+  UI.speedNow.textContent = "--";
+  UI.speedTop.textContent = "--";
+  UI.speedMin.textContent = "--";
+  UI.comparisonBody.innerHTML = "";
+
+  // ロック中なら解除しておく（任意）
+  if (locked) {
+    locked = false;
+    lockedSnapshot = null;
+    UI.lockBtn.textContent = "ロック";
+    UI.lockBtn.classList.add("outline");
+    UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
   }
 });
 
