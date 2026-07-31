@@ -873,8 +873,9 @@ if (peakHz > 0 && running) {   // ← "if" に修正
   UI.rpmMin.textContent = dispMin;
 
   UI.speedNow.textContent = dispNow === "--" ? "--" : currentSpeed.toFixed(2);
-  UI.speedTop.textContent = dispMax === "--" ? "--" : maxSpeedVal.toFixed(2);
-  UI.speedMin.textContent = dispMin === "--" ? "--" : minSpeedVal.toFixed(2);
+    UI.speedTop.textContent = dispMax === "--" ? "--" : maxSpeedVal.toFixed(2);
+    UI.speedMin.textContent = dispMin === "--" ? "--" : minSpeedVal.toFixed(2);
+  }
 }
 
 function buildComparisonTable(baseRpm) {
