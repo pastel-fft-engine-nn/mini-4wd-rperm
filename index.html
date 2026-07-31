@@ -1,4 +1,4 @@
-０７３１
+０７３１−１
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -173,21 +173,46 @@
       font-weight: 600;
     }
 
+    /* RPM上限スライダー - トップページ配置 */
+    .rpm-limit-section {
+      background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      border: 1px solid #d5dbf0;
+    }
+
+    .rpm-limit-label {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .rpm-limit-value {
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    /* ボタンレイアウト: 3列 × 2行 */
     .realtime-buttons {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
 
     .primary-btn, .secondary-btn {
       border-radius: 999px;
-      padding: 10px 0;
-      font-size: 0.8rem;
+      padding: 12px 0;
+      font-size: 0.75rem;
       font-weight: 600;
       border: none;
       cursor: pointer;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
     .primary-btn.blue {
@@ -419,6 +444,32 @@
     }
 
     .hidden { display: none; }
+
+    /* 音量インジケーター */
+    .audio-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: #f0f7ff;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+
+    .audio-bars {
+      display: flex;
+      gap: 2px;
+      align-items: flex-end;
+    }
+
+    .audio-bar {
+      width: 3px;
+      height: 8px;
+      background: var(--accent-blue);
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body>
@@ -426,8 +477,7 @@
     <header>
       <div class="app-title">RPM Analyzer</div>
       <div class="header-right">
-        <button class="icon-button" id="historyIcon" title="履歴"><span>📄</span></button>
-        <button class="icon-button" id="settingsIcon" title="設定"><span>⚙️</span></button>
+        <!-- ヘッダーアイコンは削除 - ボタンをメイン画面に移動 -->
       </div>
     </header>
 
@@ -435,6 +485,15 @@
       <div class="card-header">
         <div class="card-title">リアルタイム計測</div>
         <div class="card-caption">FFT解析エンジン搭載</div>
+      </div>
+
+      <!-- RPM上限設定 - トップページに配置 -->
+      <div class="rpm-limit-section">
+        <div class="rpm-limit-label">
+          <span>RPM表示上限</span>
+          <span class="rpm-limit-value" id="rpmMaxLimitValue">40000</span>
+        </div>
+        <input type="range" id="rpmMaxLimit" min="10000" max="80000" step="1000" value="40000" />
       </div>
 
       <div class="wave-container">
@@ -445,7 +504,19 @@
         <canvas id="spectrum"></canvas>
       </div>
 
-      <div style="font-size:0.75rem; color:#ff4fa3; font-weight:600; margin-bottom:4px;">MOTOR RPM</div>
+      <!-- 音量インジケーター -->
+      <div class="audio-indicator">
+        <span>音量:</span>
+        <div class="audio-bars" id="audioIndicator">
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+        </div>
+      </div>
+
+      <div style="font-size:0.75rem; color:#ff4fa3; font-weight:600; margin:8px 0 4px;">MOTOR RPM</div>
       <div class="realtime-stats">
         <div class="stat-block"><div class="stat-label">CURRENT</div><div class="stat-value" id="avgRpm">--</div></div>
         <div class="stat-block"><div class="stat-label">MAX</div><div class="stat-value" id="maxRpm">--</div></div>
@@ -461,10 +532,13 @@
 
       <div class="realtime-center" id="statusLine">READY — 計測待機中</div>
 
+      <!-- ボタン: 3列 × 2行 -->
       <div class="realtime-buttons">
         <button class="primary-btn blue" id="startBtn">計測開始</button>
         <button class="secondary-btn outline" id="lockBtn">ロック</button>
         <button class="secondary-btn gray" id="saveBtn">保存</button>
+        <button class="secondary-btn gray" id="historyBtn">履歴</button>
+        <button class="secondary-btn gray" id="settingsBtn">設定</button>
         <button class="secondary-btn gray" id="resetBtn">リセット</button>
       </div>
     </section>
@@ -514,10 +588,6 @@
       <div class="modal-header"><div class="modal-title">解析設定</div><button class="modal-close" id="settingsClose">×</button></div>
       <div class="settings-row">
         <div class="setting-item">
-          <div class="setting-label"><span>表示上限 (RPM)</span><span class="setting-value" id="rpmMaxLimitValue">40000</span></div>
-          <input type="range" id="rpmMaxLimit" min="10000" max="80000" step="1000" value="40000" />
-        </div>
-        <div class="setting-item">
           <div class="setting-label"><span>ノイズ閾値 (dB)</span><span class="setting-value" id="noiseLabel">20</span></div>
           <input type="range" id="noiseRange" min="5" max="50" step="1" value="20" />
         </div>
@@ -528,6 +598,10 @@
         <div class="setting-item">
           <div class="setting-label"><span>負荷補正 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
           <input type="range" id="loadFactorRange" min="0" max="20" step="0.5" value="0" />
+        </div>
+        <div class="setting-item">
+          <div class="setting-label"><span>マイクゲイン</span><span class="setting-value" id="micGainLabel">1.0x</span></div>
+          <input type="range" id="micGainRange" min="0.5" max="3" step="0.1" value="1.0" />
         </div>
       </div>
     </div>
@@ -553,9 +627,25 @@
         <label>モーター種類</label>
         <select id="motorTypeSelect">
           <option value="">未選択</option>
-          <option>ノーマル</option><option>レブチューン</option><option>トルクチューン</option><option>アトミックチューン</option>
-          <option>ライトダッシュ</option><option>ハイパーダッシュ</option><option>パワーダッシュ</option><option>スプリントダッシュ</option>
-          <option>マッハダッシュ</option>
+          <optgroup label="PRO シリーズ">
+            <option>ノーマルPRO</option>
+            <option>レブチューンPRO</option>
+            <option>トルクチューンPRO</option>
+            <option>アトミックチューンPRO</option>
+            <option>ライトダッシュPRO</option>
+            <option>ハイパーダッシュPRO</option>
+            <option>マッハダッシュPRO</option>
+          </optgroup>
+          <optgroup label="スタンダード">
+            <option>ノーマル</option>
+            <option>レブチューン</option>
+            <option>トルクチューン</option>
+            <option>アトミックチューン</option>
+            <option>ライトダッシュ</option>
+            <option>ハイパーダッシュ3</option>
+            <option>パワーダッシュ</option>
+            <option>スプリントダッシュ</option>
+          </optgroup>
         </select>
       </div>
       <div class="input-modal-actions">
@@ -573,6 +663,7 @@
     let analyser = null;
     let micStream = null;
     let fftBuffer;
+    let micGainNode = null;
     let running = false;
     let locked = false;
     let lastPeakIndex = null;
@@ -595,11 +686,14 @@
       minSpeed: document.getElementById("minSpeed"),
       statusLine: document.getElementById("statusLine"),
       fftStatusLabel: document.getElementById("fftStatusLabel"),
+      audioIndicator: document.getElementById("audioIndicator"),
       
       startBtn: document.getElementById("startBtn"),
       lockBtn: document.getElementById("lockBtn"),
       saveBtn: document.getElementById("saveBtn"),
       resetBtn: document.getElementById("resetBtn"),
+      historyBtn: document.getElementById("historyBtn"),
+      settingsBtn: document.getElementById("settingsBtn"),
       
       voltageRange: document.getElementById("voltageRange"),
       voltageLabel: document.getElementById("voltageLabel"),
@@ -616,14 +710,14 @@
       rpmCalLabel: document.getElementById("rpmCalLabel"),
       loadFactorRange: document.getElementById("loadFactorRange"),
       loadFactorLabel: document.getElementById("loadFactorLabel"),
+      micGainRange: document.getElementById("micGainRange"),
+      micGainLabel: document.getElementById("micGainLabel"),
       
       comparisonBody: document.getElementById("comparisonBody"),
       
-      settingsIcon: document.getElementById("settingsIcon"),
       settingsModal: document.getElementById("settingsModalBackdrop"),
       settingsClose: document.getElementById("settingsClose"),
       
-      historyIcon: document.getElementById("historyIcon"),
       historyModal: document.getElementById("historyModalBackdrop"),
       historyClose: document.getElementById("historyClose"),
       historyList: document.getElementById("historyList"),
@@ -641,19 +735,50 @@
       try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
         micStream = await navigator.mediaDevices.getUserMedia({ 
-          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+          audio: { 
+            echoCancellation: false, 
+            noiseSuppression: false, 
+            autoGainControl: false,
+            latency: 0.01
+          }
         });
         const source = audioContext.createMediaStreamSource(micStream);
+        
+        // マイクゲイン設定
+        micGainNode = audioContext.createGain();
+        micGainNode.gain.value = parseFloat(UI.micGainRange.value);
+        
         analyser = audioContext.createAnalyser();
         analyser.fftSize = FFT_SIZE;
-        analyser.smoothingTimeConstant = 0.2;
-        source.connect(analyser);
+        analyser.smoothingTimeConstant = 0.1;
+        
+        source.connect(micGainNode);
+        micGainNode.connect(analyser);
         fftBuffer = new Float32Array(analyser.frequencyBinCount);
         UI.fftStatusLabel.textContent = "ACTIVE";
       } catch (e) {
         console.error(e);
         UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
       }
+    }
+
+    function updateAudioIndicator() {
+      if (!analyser || !fftBuffer) return;
+      analyser.getFloatFrequencyData(fftBuffer);
+      
+      let sum = 0;
+      for (let i = 0; i < fftBuffer.length; i++) {
+        sum += Math.abs(fftBuffer[i]);
+      }
+      const avg = sum / fftBuffer.length;
+      const normalized = Math.min(5, Math.max(0, (avg + 100) / 30));
+      
+      const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
+      bars.forEach((bar, i) => {
+        const level = Math.max(0, normalized - i * 0.8);
+        bar.style.height = (8 + level * 12) + "px";
+        bar.style.opacity = 0.3 + level * 0.7;
+      });
     }
 
     function drawFFT() {
@@ -707,8 +832,7 @@
       let bestIndex = -1;
       let bestValue = -Infinity;
 
-      // 簡易的なノイズ除去とピークサーチ
-      for (let i = 10; i <= maxIndex; i++) { // 低周波ノイズ回避
+      for (let i = 10; i <= maxIndex; i++) {
         const v = fftBuffer[i];
         if (v > bestValue) {
           bestValue = v;
@@ -722,11 +846,9 @@
       const C = fftBuffer[bestIndex];
       const R = fftBuffer[bestIndex + 1];
 
-      // ノイズフィルタ
       const noiseThreshold = parseFloat(UI.noiseRange.value);
       if (Math.abs(C - L) < noiseThreshold && Math.abs(C - R) < noiseThreshold) return null;
 
-      // 放物線補間
       const denom = (L - 2 * C + R);
       const offset = denom === 0 ? 0 : (L - R) / (2 * denom);
       const peakIndex = bestIndex + offset;
@@ -738,6 +860,7 @@
       if (!running) return;
       
       drawFFT();
+      updateAudioIndicator();
       
       const peakHz = detectPeakEnhanced();
       if (peakHz && !locked) {
@@ -834,11 +957,15 @@
     UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
     UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2));
     UI.loadFactorRange.addEventListener("input", () => UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%");
+    UI.micGainRange.addEventListener("input", () => {
+      UI.micGainLabel.textContent = parseFloat(UI.micGainRange.value).toFixed(1) + "x";
+      if (micGainNode) micGainNode.gain.value = parseFloat(UI.micGainRange.value);
+    });
 
     // Modals
-    UI.settingsIcon.addEventListener("click", () => UI.settingsModal.style.display = "flex");
+    UI.settingsBtn.addEventListener("click", () => UI.settingsModal.style.display = "flex");
     UI.settingsClose.addEventListener("click", () => UI.settingsModal.style.display = "none");
-    UI.historyIcon.addEventListener("click", () => {
+    UI.historyBtn.addEventListener("click", () => {
       renderHistory();
       UI.historyModal.style.display = "flex";
     });
@@ -849,7 +976,7 @@
 
     UI.saveConfirmBtn.addEventListener("click", () => {
       const name = UI.saveNameInput.value || "No Name";
-      const type = UI.motorTypeSelect.value || "未設定";
+      const type = UI.motorTypeSelect.value || "未選択";
       const entry = {
         name, type,
         rpm: state.rpmNow,
