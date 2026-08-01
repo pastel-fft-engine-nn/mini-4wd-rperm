@@ -496,6 +496,20 @@ background: #222838;
 color: #f0f2f5;
 border-color: #2a3142;
 }
+/* ========== 全体縦縮小 15% ========== */
+body * {
+    transform: scaleY(0.85);
+    transform-origin: top;
+}
+/* ========== 履歴フィルタのラベル強制表示 ========== */
+.filter-item label {
+    display: block !important;
+    visibility: visible !important;
+}
+/* ========== 比較表の中央揃え ========== */
+table td, table th {
+    text-align: center !important;
+}
 
 </style>
 </head>
@@ -668,8 +682,17 @@ border-color: #2a3142;
 <table class="history-table">
 <thead>
 <tr>
-<th>日付</th><th>名前</th><th>モーター</th><th>速度</th><th>RPM</th>
-<th>電圧</th><th>ギヤ比</th><th>タイヤ径</th><th>操作</th>
+<th>#</th>
+<th>日付</th>
+<th>名前</th>
+<th>モーター</th>
+<th>速度</th>
+<th>RPM</th>
+<th>電圧</th>
+<th>ギヤ比</th>
+<th>タイヤ径</th>
+<th>操作</th>
+
 </tr>
 </thead>
 <tbody id="historyList"></tbody>
@@ -884,12 +907,18 @@ return (maxIdx + offset) * binToHz;
 }
 
 function computeSpeedFromRpm(rpm) {
-const tire = parseFloat(UI.tireRange.value);
-const gearRatio = parseFloat(gearOptions[UI.gearRange.value].split(":")[0]);
-const adjustedRpm = rpm * parseFloat(UI.rpmCalRange.value);
-const speed = (adjustedRpm / gearRatio) * (tire * Math.PI * 60) / 1000000 * (1 + parseFloat(UI.loadFactorRange.value) / 100);
-return { adjustedRpm, speed };
+    const tire = parseFloat(UI.tireRange.value);
+    const gearRatio = parseFloat(gearOptions[UI.gearRange.value].split(":")[0]);
+
+    const loadFactor = 1 + parseFloat(UI.loadFactorRange.value) / 100;
+
+    const adjustedRpm = rpm * parseFloat(UI.rpmCalRange.value) * loadFactor;
+
+    const speed = (adjustedRpm / gearRatio) * (tire * Math.PI * 60) / 1000000;
+
+    return { adjustedRpm, speed };
 }
+
 
 function limitDisplay(value) {
 if (typeof value !== "number" || isNaN(value)) return "--";
@@ -1178,6 +1207,7 @@ UI.historyList.innerHTML = filtered.length
 filtered.forEach((h, i) => {
 const tr = document.createElement("tr");
 tr.innerHTML = `
+     <td>${i + 1}</td>
      <td>${h.date}</td>
      <td>${h.name}</td>
      <td>${h.motor}</td>
@@ -1187,7 +1217,8 @@ tr.innerHTML = `
      <td>${h.gear}</td>
      <td>${h.tire}</td>
      <td><button class="delete-btn" onclick="deleteHistory(${i})">削除</button></td>
-   `;
+`;
+
 UI.historyList.appendChild(tr);
 });
 }
@@ -1208,6 +1239,21 @@ if (e.target.classList.contains("modal-backdrop")) {
 e.target.style.display = "none";
 }
 };
+  /* ========== ピンチイン・アウト禁止 ========== */
+document.addEventListener('touchmove', function(e) {
+    if (e.scale !== 1) e.preventDefault();
+}, { passive: false });
+
+/* ========== ダブルタップズーム禁止 ========== */
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
+
 </script>
 </body>
 </html>
