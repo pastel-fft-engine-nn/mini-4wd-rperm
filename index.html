@@ -34,31 +34,26 @@ overflow-x: hidden;
 .app-shell {
 max-width: 480px;
 margin: 0 auto;
-  padding: 16px 12px 20px;
   padding: 8px 12px 12px;
 }
 header {
 display: flex;
 align-items: center;
 justify-content: center;
-  margin-bottom: 8px;
   margin-bottom: 4px;
 }
 .card {
 background: var(--card-bg);
 border-radius: var(--radius-lg);
 box-shadow: var(--shadow-soft);
-  padding: 14px 14px 16px;
   padding: 10px 12px 10px;
 border: 1px solid rgba(255, 255, 255, 0.9);
-  margin-bottom: 14px;
   margin-bottom: 8px;
 }
 .card-header {
 display: flex;
 justify-content: space-between;
 align-items: center;
-  margin-bottom: 10px;
   margin-bottom: 6px;
 cursor: pointer;
 }
@@ -70,12 +65,10 @@ letter-spacing: 0.04em;
 .wave-container {
 background: radial-gradient(circle at top, #ffffff 0, #e3e9ff 60%, #d6defa 100%);
 border-radius: var(--radius-md);
-  padding: 8px 10px 10px;
   padding: 6px 8px 6px;
 border: 1px solid #dde3f5;
 position: relative;
 overflow: hidden;
-  margin-bottom: 8px;
   margin-bottom: 6px;
 }
 .wave-header {
@@ -88,7 +81,6 @@ color: var(--text-sub);
 }
 canvas#spectrum {
 width: 100%;
-  height: 140px;
   height: 110px;
 border-radius: 12px;
 background: transparent;
@@ -103,7 +95,6 @@ margin-bottom: 4px;
 .stat-block {
 background: #f6f7fc;
 border-radius: 12px;
-  padding: 6px 8px;
   padding: 4px 6px;
 border: 1px solid #e3e6f4;
 }
@@ -118,9 +109,15 @@ font-size: 1.1rem;
 text-align: right;
 color: #ff4fa3;
 }
+.stat-value-sub {
+font-weight: 600;
+font-size: 0.75rem;
+text-align: right;
+color: var(--text-sub);
+margin-top: 1px;
+}
 .realtime-center {
 text-align: center;
-  margin: 6px 0 10px;
   margin: 4px 0 6px;
 font-size: 0.8rem;
 color: var(--accent-blue);
@@ -149,9 +146,6 @@ transition: height 0.1s ease;
 .rpm-limit-section {
 background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
 border-radius: var(--radius-md);
-  padding: 10px 12px;
-  margin-top: 10px;
-  margin-bottom: 10px;
   padding: 6px 10px;
   margin-top: 6px;
   margin-bottom: 6px;
@@ -174,15 +168,75 @@ justify-content: space-between;
 font-weight: 700;
 color: var(--accent-blue);
 }
+
+/* ========== デュアルレンジスライダー ========== */
+.dual-range-container {
+position: relative;
+width: 100%;
+height: 36px;
+margin: 8px 0 4px;
+}
+.dual-range-track {
+position: absolute;
+top: 50%;
+transform: translateY(-50%);
+width: 100%;
+height: 6px;
+border-radius: 999px;
+background: #e3e7f5;
+}
+.dual-range-fill {
+position: absolute;
+top: 50%;
+transform: translateY(-50%);
+height: 6px;
+border-radius: 999px;
+background: linear-gradient(90deg, #2a8bff, #1f7aff);
+pointer-events: none;
+}
+.dual-range-container input[type="range"] {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+-webkit-appearance: none;
+appearance: none;
+background: transparent;
+pointer-events: none;
+margin: 0;
+}
+.dual-range-container input[type="range"]::-webkit-slider-thumb {
+-webkit-appearance: none;
+width: 26px;
+height: 26px;
+border-radius: 50%;
+background: #ffffff;
+border: 3px solid var(--accent-blue);
+box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+cursor: pointer;
+pointer-events: auto;
+position: relative;
+z-index: 2;
+}
+.dual-range-container input[type="range"]::-moz-range-thumb {
+width: 26px;
+height: 26px;
+border-radius: 50%;
+background: #ffffff;
+border: 3px solid var(--accent-blue);
+box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+cursor: pointer;
+pointer-events: auto;
+}
+
 .realtime-buttons {
 display: grid;
 grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
   gap: 6px;
 }
 .primary-btn, .secondary-btn {
 border-radius: 999px;
-  padding: 12px 0;
   padding: 8px 0;
 font-size: 0.8rem;
 font-weight: 700;
@@ -201,8 +255,6 @@ text-align: center;
 .settings-row {
 display: flex;
 flex-direction: column;
-  gap: 10px;
-  padding: 4px 0 8px;
   gap: 6px;
   padding: 2px 0 4px;
 }
@@ -384,9 +436,9 @@ border-bottom: 1px solid #eef2ff;
 text-align: center;
 white-space: nowrap;
 }
-.history-table th:nth-child(3), .history-table td:nth-child(3) { width: 50px; } /* Motor */
-.history-table th:nth-child(6), .history-table td:nth-child(6) { width: 40px; } /* Voltage */
-.history-table th:nth-child(8), .history-table td:nth-child(8) { width: 40px; } /* Tire */
+.history-table th:nth-child(3), .history-table td:nth-child(3) { width: 50px; }
+.history-table th:nth-child(6), .history-table td:nth-child(6) { width: 40px; }
+.history-table th:nth-child(8), .history-table td:nth-child(8) { width: 40px; }
 .delete-btn {
 border: none;
 background: #ffeef2;
@@ -400,8 +452,6 @@ font-size: 0.7rem;
 .input-row {
 display: flex;
 flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
   gap: 6px;
   margin-bottom: 10px;
 }
@@ -496,6 +546,13 @@ background: #222838;
 color: #f0f2f5;
 border-color: #2a3142;
 }
+body.dark-mode .dual-range-track {
+background: #2a3142;
+}
+body.dark-mode .dual-range-container input[type="range"]::-webkit-slider-thumb {
+background: #1a1e29;
+border-color: #4a9eff;
+}
 
 }
 /* ========== 履歴フィルタのラベル強制表示 ========== */
@@ -537,35 +594,56 @@ table td, table th {
 <canvas id="spectrum"></canvas>
 </div>
 
+<!-- ========== デュアルレンジスライダー ========== -->
 <div class="rpm-limit-section">
-<div class="rpm-limit-row">
-<div class="rpm-limit-label">
-<span>表示下限 (RPM)</span>
-<span class="rpm-limit-value" id="rpmMinLimitValue">5000</span>
+<div class="rpm-limit-label" style="margin-bottom:4px;">
+<span>集音フィルタ (RPM範囲)</span>
+<span class="rpm-limit-value"><span id="rpmMinLimitValue">5000</span> — <span id="rpmMaxLimitValue">60000</span></span>
 </div>
-<input type="range" id="rpmMinLimit" min="0" max="20000" step="500" value="5000" />
-</div>
-<div class="rpm-limit-row">
-<div class="rpm-limit-label">
-<span>表示上限 (RPM)</span>
-<span class="rpm-limit-value" id="rpmMaxLimitValue">60000</span>
-</div>
-<input type="range" id="rpmMaxLimit" min="20000" max="60000" step="1000" value="60000" />
+<div class="dual-range-container">
+<div class="dual-range-track"></div>
+<div class="dual-range-fill" id="rangeFill"></div>
+<input type="range" id="rpmMinLimit" min="0" max="60000" step="500" value="5000" />
+<input type="range" id="rpmMaxLimit" min="0" max="60000" step="500" value="60000" />
 </div>
 </div>
 
 <div style="font-size:0.75rem; color:#ff4fa3; font-weight:700; margin:12px 0 4px;">MOTOR RPM</div>
 <div class="realtime-stats">
-<div class="stat-block"><div class="stat-label">CURRENT</div><div class="stat-value" id="rpmNow">--</div></div>
-<div class="stat-block"><div class="stat-label">MAX</div><div class="stat-value" id="rpmMax">--</div></div>
-<div class="stat-block"><div class="stat-label">MIN</div><div class="stat-value" id="rpmMin">--</div></div>
+<div class="stat-block">
+<div class="stat-label">CURRENT</div>
+<div class="stat-value" id="rpmNow">--</div>
+<div class="stat-value-sub" id="rpmNowRaw"></div>
+</div>
+<div class="stat-block">
+<div class="stat-label">MAX</div>
+<div class="stat-value" id="rpmMax">--</div>
+<div class="stat-value-sub" id="rpmMaxRaw"></div>
+</div>
+<div class="stat-block">
+<div class="stat-label">MIN</div>
+<div class="stat-value" id="rpmMin">--</div>
+<div class="stat-value-sub" id="rpmMinRaw"></div>
+</div>
 </div>
 
 <div style="font-size:0.75rem; color:#1f7aff; font-weight:700; margin:8px 0 4px;">SPEED (km/h)</div>
 <div class="realtime-stats">
-<div class="stat-block"><div class="stat-label">CURRENT</div><div class="stat-value" id="speedNow">--</div></div>
-<div class="stat-block"><div class="stat-label">TOP</div><div class="stat-value" id="speedTop">--</div></div>
-<div class="stat-block"><div class="stat-label">MIN</div><div class="stat-value" id="speedMin">--</div></div>
+<div class="stat-block">
+<div class="stat-label">CURRENT</div>
+<div class="stat-value" id="speedNow">--</div>
+<div class="stat-value-sub" id="speedNowRaw"></div>
+</div>
+<div class="stat-block">
+<div class="stat-label">TOP</div>
+<div class="stat-value" id="speedTop">--</div>
+<div class="stat-value-sub" id="speedTopRaw"></div>
+</div>
+<div class="stat-block">
+<div class="stat-label">MIN</div>
+<div class="stat-value" id="speedMin">--</div>
+<div class="stat-value-sub" id="speedMinRaw"></div>
+</div>
 </div>
 
 <div class="realtime-center" id="statusLine">READY — 計測待機中</div>
@@ -626,7 +704,6 @@ table td, table th {
 <div class="modal-title">解析詳細設定</div>
 <button class="modal-close" id="settingsCloseTop">×</button>
 </div>
-<!-- 設定モーダルの一部抜粋 -->
 <div class="settings-row">
 <div class="setting-item">
 <div class="setting-label"><span>ノイズ閾値</span><span class="setting-value" id="noiseLabel">20</span></div>
@@ -641,7 +718,15 @@ table td, table th {
 <input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0" />
 </div>
 
-<!-- ダークモード切替ボタンの追加 -->
+<!-- 負荷数値表示切替 -->
+<div class="setting-item" style="margin-top:6px;">
+<label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; cursor:pointer;">
+<input type="checkbox" id="showLoadValues" checked style="width:18px; height:18px;" />
+<span>負荷適用値を並べて表示</span>
+</label>
+</div>
+
+<!-- ダークモード切替ボタン -->
 <div style="margin-top: 8px;">
 <button class="secondary-btn gray" id="darkModeToggleBtn" style="width: 100%; font-size: 0.8rem; border: 1px solid #c9d5ff;">ダークモード: OFF</button>
 </div>
@@ -689,7 +774,6 @@ table td, table th {
 <th>ギヤ比</th>
 <th>タイヤ径</th>
 <th>操作</th>
-
 </tr>
 </thead>
 <tbody id="historyList"></tbody>
@@ -756,11 +840,17 @@ let locked = false;
 let ignoreFrames = 0;
 
 let currentRpm = 0;
+let currentRpmRaw = 0;
 let maxRpmVal = 0;
 let minRpmVal = Infinity;
+let maxRpmRaw = 0;
+let minRpmRaw = Infinity;
 let currentSpeed = 0;
+let currentSpeedRaw = 0;
 let maxSpeedVal = 0;
 let minSpeedVal = Infinity;
+let maxSpeedRaw = 0;
+let minSpeedRaw = Infinity;
 let lockedSnapshot = null;
 
 let rpmMinLimit = 5000;
@@ -775,9 +865,15 @@ spectrum: document.getElementById("spectrum"),
 rpmNow: document.getElementById("rpmNow"),
 rpmMax: document.getElementById("rpmMax"),
 rpmMin: document.getElementById("rpmMin"),
+rpmNowRaw: document.getElementById("rpmNowRaw"),
+rpmMaxRaw: document.getElementById("rpmMaxRaw"),
+rpmMinRaw: document.getElementById("rpmMinRaw"),
 speedNow: document.getElementById("speedNow"),
 speedTop: document.getElementById("speedTop"),
 speedMin: document.getElementById("speedMin"),
+speedNowRaw: document.getElementById("speedNowRaw"),
+speedTopRaw: document.getElementById("speedTopRaw"),
+speedMinRaw: document.getElementById("speedMinRaw"),
 statusLine: document.getElementById("statusLine"),
 fftStatusLabel: document.getElementById("fftStatusLabel"),
 audioIndicator: document.getElementById("audioIndicator"),
@@ -803,6 +899,7 @@ rpmCalRange: document.getElementById("rpmCalRange"),
 rpmCalLabel: document.getElementById("rpmCalLabel"),
 loadFactorRange: document.getElementById("loadFactorRange"),
 loadFactorLabel: document.getElementById("loadFactorLabel"),
+showLoadValues: document.getElementById("showLoadValues"),
 comparisonBody: document.getElementById("comparisonBody"),
 settingsModal: document.getElementById("settingsModalBackdrop"),
 historyModal: document.getElementById("historyModalBackdrop"),
@@ -813,7 +910,8 @@ historyList: document.getElementById("historyList"),
 conditionsContent: document.getElementById("conditionsContent"),
 conditionsCard: document.getElementById("conditionsCard"),
 historySearchBtn: document.getElementById("historySearchBtn"),
-darkModeToggleBtn: document.getElementById("darkModeToggleBtn")
+darkModeToggleBtn: document.getElementById("darkModeToggleBtn"),
+rangeFill: document.getElementById("rangeFill")
 };
 
 const filters = {
@@ -827,12 +925,50 @@ gear: document.getElementById("filterGear"),
 tire: document.getElementById("filterTire")
 };
 
+/* ========== デュアルレンジスライダー制御 ========== */
+function updateRangeFill() {
+const min = parseInt(UI.rpmMinLimit.value);
+const max = parseInt(UI.rpmMaxLimit.value);
+const rangeMax = parseInt(UI.rpmMinLimit.max);
+const leftPercent = (min / rangeMax) * 100;
+const rightPercent = (max / rangeMax) * 100;
+UI.rangeFill.style.left = leftPercent + "%";
+UI.rangeFill.style.width = (rightPercent - leftPercent) + "%";
+}
+
+UI.rpmMinLimit.addEventListener("input", () => {
+let minVal = parseInt(UI.rpmMinLimit.value);
+let maxVal = parseInt(UI.rpmMaxLimit.value);
+if (minVal >= maxVal) {
+minVal = maxVal - 500;
+UI.rpmMinLimit.value = minVal;
+}
+rpmMinLimit = minVal;
+UI.rpmMinLimitValue.textContent = rpmMinLimit;
+updateRangeFill();
+});
+
+UI.rpmMaxLimit.addEventListener("input", () => {
+let minVal = parseInt(UI.rpmMinLimit.value);
+let maxVal = parseInt(UI.rpmMaxLimit.value);
+if (maxVal <= minVal) {
+maxVal = minVal + 500;
+UI.rpmMaxLimit.value = maxVal;
+}
+rpmMaxLimit = maxVal;
+UI.rpmMaxLimitValue.textContent = rpmMaxLimit;
+updateRangeFill();
+});
+
+// 初期描画
+updateRangeFill();
+
 function toggleConditions() {
 UI.conditionsContent.classList.toggle("active");
 UI.conditionsCard.classList.toggle("active");
 }
 
-/* ========== 0713集音構造 ========== */
+/* ========== 集音構造 ========== */
 async function startMic() {
 if (running) return;
 running = true;
@@ -883,11 +1019,11 @@ function getPrecisePeakHz(data, fftSize, sampleRate) {
 const binToHz = sampleRate / fftSize;
 let maxVal = -Infinity, maxIdx = -1;
 
-// 低周波ノイズカット（3000RPM未満は無視）
-const minRpm = 3000;
-const minBin = Math.floor((minRpm / 60) / binToHz);
+// ★ 集音フィルタ: rpmMinLimit〜rpmMaxLimit の範囲のみピーク検出
+const minBin = Math.floor((rpmMinLimit / 60) / binToHz);
+const maxBin = Math.ceil((rpmMaxLimit / 60) / binToHz);
 
-for (let i = Math.max(1, minBin); i < data.length - 1; i++) {
+for (let i = Math.max(1, minBin); i < Math.min(data.length - 1, maxBin); i++) {
 const v = data[i];
 if (v > maxVal) {
 maxVal = v;
@@ -907,18 +1043,20 @@ function computeSpeedFromRpm(rpm) {
     const tire = parseFloat(UI.tireRange.value);
     const gearRatio = parseFloat(gearOptions[UI.gearRange.value].split(":")[0]);
 
-    // ★負荷はプラスで遅くなるように修正
+    // 負荷係数
     const loadPercent = parseFloat(UI.loadFactorRange.value);
-    const loadFactor = 1 - (loadPercent / 100);  // ← ここが重要
+    const loadFactor = 1 - (loadPercent / 100);
 
-    const adjustedRpm = rpm * parseFloat(UI.rpmCalRange.value) * loadFactor;
+    // 生の値（負荷なし、校正のみ）
+    const rawRpm = rpm * parseFloat(UI.rpmCalRange.value);
+    const rawSpeed = (rawRpm / gearRatio) * (tire * Math.PI * 60) / 1000000;
 
-    const speed = (adjustedRpm / gearRatio) * (tire * Math.PI * 60) / 1000000;
+    // 負荷適用後
+    const adjustedRpm = rawRpm * loadFactor;
+    const speed = rawSpeed * loadFactor;
 
-    return { adjustedRpm, speed };
+    return { adjustedRpm, speed, rawRpm, rawSpeed };
 }
-
-
 
 function limitDisplay(value) {
 if (typeof value !== "number" || isNaN(value)) return "--";
@@ -978,12 +1116,17 @@ ignoreFrames--;
 return;
 }
 
-const { adjustedRpm, speed } = computeSpeedFromRpm(peakHz * 60);
+const { adjustedRpm, speed, rawRpm, rawSpeed } = computeSpeedFromRpm(peakHz * 60);
 currentRpm = adjustedRpm;
 currentSpeed = speed;
+currentRpmRaw = rawRpm;
+currentSpeedRaw = rawSpeed;
 
-// CURRENT の表示値を先に決める
+// CURRENT の表示値を先に決める（負荷適用後で判定）
 const dispNow = limitDisplay(Math.round(currentRpm));
+const showLoad = UI.showLoadValues.checked;
+const loadPercent = parseFloat(UI.loadFactorRange.value);
+const hasLoad = loadPercent !== 0;
 
 // CURRENT に数字が出たときだけ MAX / MIN を更新
 if (dispNow !== "--") {
@@ -992,9 +1135,15 @@ if (maxRpmVal === 0 || rpmNum > maxRpmVal) maxRpmVal = rpmNum;
 if (minRpmVal === Infinity || rpmNum < minRpmVal) minRpmVal = rpmNum;
 if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
 if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
+
+// 生の値のMAX/MIN
+if (maxRpmRaw === 0 || rawRpm > maxRpmRaw) maxRpmRaw = rawRpm;
+if (minRpmRaw === Infinity || rawRpm < minRpmRaw) minRpmRaw = rawRpm;
+if (maxSpeedRaw === 0 || rawSpeed > maxSpeedRaw) maxSpeedRaw = rawSpeed;
+if (minSpeedRaw === Infinity || rawSpeed < minSpeedRaw) minSpeedRaw = rawSpeed;
 }
 
-// 表示
+// 表示（負荷適用後 = メイン表示）
 UI.rpmNow.textContent = dispNow;
 UI.rpmMax.textContent = maxRpmVal > 0 ? Math.round(maxRpmVal) : "--";
 UI.rpmMin.textContent = minRpmVal !== Infinity ? Math.round(minRpmVal) : "--";
@@ -1002,6 +1151,23 @@ UI.rpmMin.textContent = minRpmVal !== Infinity ? Math.round(minRpmVal) : "--";
 UI.speedNow.textContent = dispNow === "--" ? "--" : speed.toFixed(2);
 UI.speedTop.textContent = maxSpeedVal > 0 ? maxSpeedVal.toFixed(2) : "--";
 UI.speedMin.textContent = minSpeedVal !== Infinity ? minSpeedVal.toFixed(2) : "--";
+
+// 生の値（サブ表示）— 負荷が0以外かつチェックONの場合のみ表示
+if (showLoad && hasLoad) {
+UI.rpmNowRaw.textContent = dispNow === "--" ? "" : "生: " + Math.round(rawRpm);
+UI.rpmMaxRaw.textContent = maxRpmRaw > 0 ? "生: " + Math.round(maxRpmRaw) : "";
+UI.rpmMinRaw.textContent = minRpmRaw !== Infinity ? "生: " + Math.round(minRpmRaw) : "";
+UI.speedNowRaw.textContent = dispNow === "--" ? "" : "生: " + rawSpeed.toFixed(2);
+UI.speedTopRaw.textContent = maxSpeedRaw > 0 ? "生: " + maxSpeedRaw.toFixed(2) : "";
+UI.speedMinRaw.textContent = minSpeedRaw !== Infinity ? "生: " + minSpeedRaw.toFixed(2) : "";
+} else {
+UI.rpmNowRaw.textContent = "";
+UI.rpmMaxRaw.textContent = "";
+UI.rpmMinRaw.textContent = "";
+UI.speedNowRaw.textContent = "";
+UI.speedTopRaw.textContent = "";
+UI.speedMinRaw.textContent = "";
+}
 }
 }
 
@@ -1057,18 +1223,30 @@ UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計
 /* リセット：表示だけ消す（計測は継続） */
 UI.resetBtn.addEventListener("click", () => {
 currentRpm = 0;
+currentRpmRaw = 0;
 maxRpmVal = 0;
 minRpmVal = Infinity;
+maxRpmRaw = 0;
+minRpmRaw = Infinity;
 currentSpeed = 0;
+currentSpeedRaw = 0;
 maxSpeedVal = 0;
 minSpeedVal = Infinity;
+maxSpeedRaw = 0;
+minSpeedRaw = Infinity;
 
 UI.rpmNow.textContent = "--";
 UI.rpmMax.textContent = "--";
 UI.rpmMin.textContent = "--";
+UI.rpmNowRaw.textContent = "";
+UI.rpmMaxRaw.textContent = "";
+UI.rpmMinRaw.textContent = "";
 UI.speedNow.textContent = "--";
 UI.speedTop.textContent = "--";
 UI.speedMin.textContent = "--";
+UI.speedNowRaw.textContent = "";
+UI.speedTopRaw.textContent = "";
+UI.speedMinRaw.textContent = "";
 UI.comparisonBody.innerHTML = "";
 
 if (locked) {
@@ -1104,15 +1282,6 @@ if (locked) buildComparisonTable(currentRpm);
 UI.tireRange.addEventListener("input", () => {
 UI.tireLabel.textContent = parseFloat(UI.tireRange.value).toFixed(1) + " mm";
 if (locked) buildComparisonTable(currentRpm);
-});
-
-UI.rpmMinLimit.addEventListener("input", () => {
-rpmMinLimit = parseInt(UI.rpmMinLimit.value);
-UI.rpmMinLimitValue.textContent = rpmMinLimit;
-});
-UI.rpmMaxLimit.addEventListener("input", () => {
-rpmMaxLimit = parseInt(UI.rpmMaxLimit.value);
-UI.rpmMaxLimitValue.textContent = rpmMaxLimit;
 });
 
 UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
