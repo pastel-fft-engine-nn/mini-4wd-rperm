@@ -1,4 +1,4 @@
-０
+０００
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -606,23 +606,17 @@ body.dark-mode .input-row select {
   </div>
   
   <!-- ダークモード切替ボタンの追加 -->
-  <div style="margin-top: 4px;">
-    <button class="secondary-btn gray" id="darkModeToggleBtn" style="width: 100%; font-size: 0.75rem;">ダークモード: OFF</button>
+  <div style="margin-top: 8px;">
+    <button class="secondary-btn gray" id="darkModeToggleBtn" style="width: 100%; font-size: 0.8rem; border: 1px solid #c9d5ff;">ダークモード: OFF</button>
   </div>
 
-  <div style="display:flex; gap:10px; margin-top:8px;">
+  <div style="display:flex; gap:10px; margin-top:12px;">
     <button class="primary-btn blue" id="settingsResetBtn" style="flex:1; font-size:0.75rem;">設定リセット</button>
     <button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1; font-size:0.75rem;">閉じる</button>
   </div>
 </div>
-
-      <div style="display:flex; gap:10px; margin-top:12px;">
-        <button class="primary-btn blue" id="settingsResetBtn" style="flex:1; font-size:0.75rem;">設定リセット</button>
-        <button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1; font-size:0.75rem;">閉じる</button>
-      </div>
     </div>
   </div>
-</div>
 
 <!-- 履歴モーダル -->
 <div class="modal-backdrop" id="historyModalBackdrop">
@@ -771,7 +765,8 @@ const UI = {
   historyList: document.getElementById("historyList"),
   conditionsContent: document.getElementById("conditionsContent"),
   conditionsCard: document.getElementById("conditionsCard"),
-  historySearchBtn: document.getElementById("historySearchBtn")
+  historySearchBtn: document.getElementById("historySearchBtn"),
+  darkModeToggleBtn: document.getElementById("darkModeToggleBtn")
 };
 
 const filters = {
@@ -1074,6 +1069,25 @@ document.getElementById("historyCloseTop").addEventListener("click", () => UI.hi
 document.getElementById("historyCloseBtn").addEventListener("click", () => UI.historyModal.style.display = "none");
 document.getElementById("saveClose").addEventListener("click", () => UI.saveModal.style.display = "none");
 document.getElementById("saveCancelBtn").addEventListener("click", () => UI.saveModal.style.display = "none");
+
+/* ダークモード初期化 */
+const isDark = localStorage.getItem("darkMode") === "true";
+if (isDark) {
+  document.body.classList.add("dark-mode");
+  UI.darkModeToggleBtn.textContent = "ダークモード: ON";
+  UI.darkModeToggleBtn.classList.replace("gray", "blue");
+}
+
+UI.darkModeToggleBtn.addEventListener("click", () => {
+  const active = document.body.classList.toggle("dark-mode");
+  localStorage.setItem("darkMode", active);
+  UI.darkModeToggleBtn.textContent = active ? "ダークモード: ON" : "ダークモード: OFF";
+  if (active) {
+    UI.darkModeToggleBtn.classList.replace("gray", "blue");
+  } else {
+    UI.darkModeToggleBtn.classList.replace("blue", "gray");
+  }
+});
 
 document.getElementById("settingsResetBtn").addEventListener("click", () => {
   UI.noiseRange.value = 20;
