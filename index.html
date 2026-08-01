@@ -907,7 +907,9 @@ function computeSpeedFromRpm(rpm) {
     const tire = parseFloat(UI.tireRange.value);
     const gearRatio = parseFloat(gearOptions[UI.gearRange.value].split(":")[0]);
 
-    const loadFactor = 1 + parseFloat(UI.loadFactorRange.value) / 100;
+    // ★負荷はプラスで遅くなるように修正
+    const loadPercent = parseFloat(UI.loadFactorRange.value);
+    const loadFactor = 1 - (loadPercent / 100);  // ← ここが重要
 
     const adjustedRpm = rpm * parseFloat(UI.rpmCalRange.value) * loadFactor;
 
@@ -915,6 +917,7 @@ function computeSpeedFromRpm(rpm) {
 
     return { adjustedRpm, speed };
 }
+
 
 
 function limitDisplay(value) {
