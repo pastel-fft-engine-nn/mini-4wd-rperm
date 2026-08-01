@@ -630,7 +630,29 @@ body.dark-mode .input-row select {
       <div class="modal-title">計測履歴</div>
       <button class="modal-close" id="historyCloseTop">×</button>
     </div>
-    <div class="filter-grid">
+ <div style="display:flex;gap:8px;margin-bottom:10px;">
+
+<button 
+class="secondary-btn gray"
+onclick="
+window.favoriteTop=!window.favoriteTop;
+renderHistory();
+">
+お気に入りを先頭表示
+</button>
+
+
+<button 
+class="secondary-btn gray"
+onclick="
+window.onlyFavorite=!window.onlyFavorite;
+renderHistory();
+">
+お気に入りだけ表示
+</button>
+
+</div>
+　     <div class="filter-grid">
       <div class="filter-item"><label>日付</label><select id="filterDate"><option value="">すべて</option></select></div>
       <div class="filter-item"><label>名前</label><select id="filterName"><option value="">すべて</option></select></div>
       <div class="filter-item"><label>モーター</label><select id="filterMotor"><option value="">すべて</option></select></div>
@@ -647,10 +669,19 @@ body.dark-mode .input-row select {
     <div class="history-table-wrapper">
       <table class="history-table">
         <thead>
-          <tr>
-            <th>日付</th><th>名前</th><th>モーター</th><th>速度</th><th>RPM</th>
-            <th>電圧</th><th>ギヤ比</th><th>タイヤ径</th><th>操作</th>
-          </tr>
+         <tr>
+<th>No.</th>
+<th>★</th>
+<th>日付</th>
+<th>名前</th>
+<th>モーター</th>
+<th>速度</th>
+<th>RPM</th>
+<th>電圧</th>
+<th>ギヤ比</th>
+<th>タイヤ径</th>
+<th>操作</th>
+</tr>
         </thead>
         <tbody id="historyList"></tbody>
       </table>
@@ -729,6 +760,16 @@ let rpmMaxLimit = 60000;
 const state = {
   history: JSON.parse(localStorage.getItem("rpmHistory") || "[]")
 };
+
+state.history.forEach((h, index)=>{
+  if(h.id === undefined){
+    h.id = Date.now() + index;
+  }
+  if(h.favorite === undefined){
+    h.favorite = false;
+  }
+});
+localStorage.setItem("rpmHistory", JSON.stringify(state.history));
 
 const UI = {
   spectrum: document.getElementById("spectrum"),
@@ -1109,14 +1150,16 @@ document.getElementById("saveConfirmBtn").addEventListener("click", () => {
   const name = UI.saveNameInput.value.trim() || "No Name";
   const motor = UI.motorTypeSelect.value || "未選択";
   state.history.unshift({
-    date: new Date().toLocaleDateString(),
-    name, motor,
-    rpm: Math.round(currentRpm),
-    speed: currentSpeed.toFixed(2),
-    voltage: UI.voltageLabel.textContent.replace(" V", ""),
-    gear: UI.gearLabel.textContent,
-    tire: UI.tireLabel.textContent.replace(" mm", "")
-  });
+  id: Date.now(),
+  favorite: false,
+  date: new Date().toLocaleDateString(),
+  name, motor,
+  rpm: Math.round(currentRpm),
+  speed: currentSpeed.toFixed(2),
+  voltage: UI.voltageLabel.textContent.replace(" V", ""),
+  gear: UI.gearLabel.textContent,
+  tire: UI.tireLabel.textContent.replace(" mm", "")
+});
   localStorage.setItem("rpmHistory", JSON.stringify(state.history));
   UI.saveModal.style.display = "none";
 });
@@ -1137,6 +1180,7 @@ function populateFilters() {
 }
 
 function renderHistory() {
+
   const fValues = {
     date: filters.date.value,
     name: filters.name.value,
@@ -1147,31 +1191,207 @@ function renderHistory() {
     gear: filters.gear.value,
     tire: filters.tire.value
   };
-  const filtered = state.history.filter(h => {
-    return Object.keys(fValues).every(k => !fValues[k] || String(h[k]) === fValues[k]);
+
+
+  let filtered = state.history.filter(h => {
+
+    return Object.keys(fValues).every(k =>
+      !fValues[k] || String(h[k]) === fValues[k]
+    );
+
   });
+
+
+  // お気に入りのみ表示
+  if(window.onlyFavorite){
+    filtered = filtered.filter(h=>h.favorite);
+  }
+
+
+  // お気に入り先頭表示
+  if(window.favoriteTop){
+
+    filtered.sort((a,b)=>{
+
+      if(a.favorite !== b.favorite){
+        return b.favorite - a.favorite;
+      }
+
+      return b.id - a.id;
+
+    });
+
+  }
+
 
   UI.historyList.innerHTML = filtered.length
-    ? ""
-    : "<tr><td colspan='9' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
+  ?
+  ""
+  :
+  "<tr><td colspan='11' style='padding:20px;text-align:center;color:#999;'>履歴はありません</td></tr>";
 
-  filtered.forEach((h, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${h.date}</td>
-      <td>${h.name}</td>
-      <td>${h.motor}</td>
-      <td>${h.speed}</td>
-      <td>${h.rpm}</td>
-      <td>${h.voltage}</td>
-      <td>${h.gear}</td>
-      <td>${h.tire}</td>
-      <td><button class="delete-btn" onclick="deleteHistory(${i})">削除</button></td>
-    `;
+
+
+  filtered.forEach((h)=>{
+
+    const realIndex = state.history.findIndex(x=>x.id===h.id);
+
+    const tr=document.createElement("tr");
+
+
+    tr.innerHTML=`
+
+<td>${state.history.indexOf(h)+1}</td>
+
+<td>
+<button 
+onclick="toggleFavorite(${realIndex})"
+style="
+border:none;
+background:none;
+font-size:1.2rem;
+cursor:pointer;">
+${h.favorite ? "★":"☆"}
+</button>
+</td>
+
+<td>${h.date}</td>
+<td>${h.name}</td>
+<td>${h.motor}</td>
+<td>${h.speed}</td>
+<td>${h.rpm}</td>
+<td>${h.voltage}</td>
+<td>${h.gear}</td>
+<td>${h.tire}</td>
+
+<td>
+<button class="delete-btn"
+onclick="deleteHistory(${realIndex})">
+削除
+</button>
+</td>
+
+`;
+
     UI.historyList.appendChild(tr);
-  });
-}
 
+  });
+
+}function renderHistory() {
+
+  const fValues = {
+    date: filters.date.value,
+    name: filters.name.value,
+    motor: filters.motor.value,
+    speed: filters.speed.value,
+    rpm: filters.rpm.value,
+    voltage: filters.voltage.value,
+    gear: filters.gear.value,
+    tire: filters.tire.value
+  };
+
+
+  let filtered = state.history.filter(h => {
+
+    return Object.keys(fValues).every(k =>
+      !fValues[k] || String(h[k]) === fValues[k]
+    );
+
+  });
+
+
+  // お気に入りのみ表示
+  if(window.onlyFavorite){
+    filtered = filtered.filter(h=>h.favorite);
+  }
+
+
+  // お気に入り先頭表示
+  if(window.favoriteTop){
+
+    filtered.sort((a,b)=>{
+
+      if(a.favorite !== b.favorite){
+        return b.favorite - a.favorite;
+      }
+
+      return b.id - a.id;
+
+    });
+
+  }
+
+
+  UI.historyList.innerHTML = filtered.length
+  ?
+  ""
+  :
+  "<tr><td colspan='11' style='padding:20px;text-align:center;color:#999;'>履歴はありません</td></tr>";
+
+
+
+  filtered.forEach((h)=>{
+
+    const realIndex = state.history.findIndex(x=>x.id===h.id);
+
+    const tr=document.createElement("tr");
+
+
+    tr.innerHTML=`
+
+<td>${state.history.indexOf(h)+1}</td>
+
+<td>
+<button 
+onclick="toggleFavorite(${realIndex})"
+style="
+border:none;
+background:none;
+font-size:1.2rem;
+cursor:pointer;">
+${h.favorite ? "★":"☆"}
+</button>
+</td>
+
+<td>${h.date}</td>
+<td>${h.name}</td>
+<td>${h.motor}</td>
+<td>${h.speed}</td>
+<td>${h.rpm}</td>
+<td>${h.voltage}</td>
+<td>${h.gear}</td>
+<td>${h.tire}</td>
+
+<td>
+<button class="delete-btn"
+onclick="deleteHistory(${realIndex})">
+削除
+</button>
+</td>
+
+`;
+
+    UI.historyList.appendChild(tr);
+
+  });
+
+}
+window.toggleFavorite=(i)=>{
+
+  state.history[i].favorite =
+  !state.history[i].favorite;
+
+
+  localStorage.setItem(
+    "rpmHistory",
+    JSON.stringify(state.history)
+  );
+
+
+  renderHistory();
+
+};
+  
 UI.historySearchBtn.addEventListener("click", renderHistory);
 
 window.deleteHistory = (i) => {
