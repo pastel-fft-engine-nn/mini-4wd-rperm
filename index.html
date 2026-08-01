@@ -1,4 +1,3 @@
-０００
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -20,7 +19,7 @@
 }
 * {
   box-sizing: border-box;
-  font-family: "Meiryo", "メイリオ", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Meiryo", "メイリオ", sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 body {
@@ -361,11 +360,14 @@ td {
   font-size: 0.7rem;
 }
 .history-table th, .history-table td {
-  padding: 6px 4px;
+  padding: 6px 2px;
   border-bottom: 1px solid #eef2ff;
   text-align: center;
   white-space: nowrap;
 }
+.history-table th:nth-child(3), .history-table td:nth-child(3) { width: 50px; } /* Motor */
+.history-table th:nth-child(6), .history-table td:nth-child(6) { width: 40px; } /* Voltage */
+.history-table th:nth-child(8), .history-table td:nth-child(8) { width: 40px; } /* Tire */
 .delete-btn {
   border: none;
   background: #ffeef2;
@@ -450,6 +452,8 @@ body.dark-mode td:first-child {
 body.dark-mode td {
   border-bottom: 1px solid #2a3142;
 }
+body.dark-mode .highlight-row { background: rgba(31, 122, 255, 0.25) !important; }
+body.dark-mode .highlight-col { background: rgba(255, 79, 163, 0.2) !important; }
 body.dark-mode .secondary-btn.gray {
   background: #262e42;
   color: #d1d5db;
@@ -514,7 +518,7 @@ body.dark-mode .input-row select {
           <span>表示上限 (RPM)</span>
           <span class="rpm-limit-value" id="rpmMaxLimitValue">60000</span>
         </div>
-        <input type="range" id="rpmMaxLimit" min="10000" max="100000" step="1000" value="60000" />
+        <input type="range" id="rpmMaxLimit" min="20000" max="60000" step="1000" value="60000" />
       </div>
     </div>
 
@@ -668,24 +672,26 @@ body.dark-mode .input-row select {
       <label>モーター種類</label>
       <select id="motorTypeSelect">
         <option value="">選択なし</option>
-        <optgroup label="両軸 ">
-          <option>ノーマルPRO</option>
-          <option>レブチューンPRO</option>
-          <option>トルクチューンPRO</option>
-          <option>アトミックチューンPRO</option>
-          <option>ライトダッシュPRO</option>
-          <option>ハイパーダッシュPRO</option>
-          <option>マッハダッシュPRO</option>
+        <optgroup label="両軸">
+          <option value="NMP">NMP (ノーマルPRO)</option>
+          <option value="RTP">RTP (レブPRO)</option>
+          <option value="TTP">TTP (トルクPRO)</option>
+          <option value="ATP">ATP (アトミックPRO)</option>
+          <option value="LDP">LDP (ライトPRO)</option>
+          <option value="HDP">HDP (ハイパーPRO)</option>
+          <option value="MDP">MDP (マッハPRO)</option>
         </optgroup>
         <optgroup label="片軸">
-          <option>ノーマル</option>
-          <option>レブチューン</option>
-          <option>トルクチューン</option>
-          <option>アトミックチューン</option>
-          <option>ライトダッシュ</option>
-          <option>ハイパーダッシュ</option>
-          <option>パワーダッシュ</option>
-          <option>スプリントダッシュ</option>
+          <option value="NM">NM (ノーマル)</option>
+          <option value="RT">RT (レブ)</option>
+          <option value="TT">TT (トルク)</option>
+          <option value="AT">AT (アトミック)</option>
+          <option value="LD">LD (ライト)</option>
+          <option value="HD">HD (ハイパー)</option>
+          <option value="PD">PD (パワー)</option>
+          <option value="SD">SD (スプリント)</option>
+          <option value="UD">UD (ウルトラ)</option>
+          <option value="PLD">PLD (プラズマ)</option>
         </optgroup>
       </select>
     </div>
@@ -950,7 +956,7 @@ function loopFFT() {
 }
 
 function buildComparisonTable(baseRpm) {
-  const voltages = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4];
+  const voltages = [2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5];
   const currentV = parseFloat(UI.voltageRange.value);
   const tire = parseFloat(UI.tireRange.value);
   const load = 1 + parseFloat(UI.loadFactorRange.value) / 100;
@@ -1106,9 +1112,9 @@ document.getElementById("saveConfirmBtn").addEventListener("click", () => {
     name, motor,
     rpm: Math.round(currentRpm),
     speed: currentSpeed.toFixed(2),
-    voltage: UI.voltageLabel.textContent,
+    voltage: UI.voltageLabel.textContent.replace(" V", ""),
     gear: UI.gearLabel.textContent,
-    tire: UI.tireLabel.textContent
+    tire: UI.tireLabel.textContent.replace(" mm", "")
   });
   localStorage.setItem("rpmHistory", JSON.stringify(state.history));
   UI.saveModal.style.display = "none";
