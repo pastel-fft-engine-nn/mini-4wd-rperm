@@ -1,3 +1,4 @@
+おおめにみてやってください（●｀ε´●）
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -21,6 +22,7 @@
   box-sizing: border-box;
   font-family: "Meiryo", "メイリオ", sans-serif;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 body {
   margin: 0;
@@ -32,27 +34,27 @@ body {
 .app-shell {
   max-width: 480px;
   margin: 0 auto;
-  padding: 16px 12px 20px;
+  padding: 8px 12px 12px;
 }
 header {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 .card {
   background: var(--card-bg);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
-  padding: 14px 14px 16px;
+  padding: 10px 12px 10px;
   border: 1px solid rgba(255, 255, 255, 0.9);
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   cursor: pointer;
 }
 .card-title {
@@ -63,11 +65,11 @@ header {
 .wave-container {
   background: radial-gradient(circle at top, #ffffff 0, #e3e9ff 60%, #d6defa 100%);
   border-radius: var(--radius-md);
-  padding: 8px 10px 10px;
+  padding: 6px 8px 6px;
   border: 1px solid #dde3f5;
   position: relative;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .wave-header {
   display: flex;
@@ -79,7 +81,7 @@ header {
 }
 canvas#spectrum {
   width: 100%;
-  height: 140px;
+  height: 110px;
   border-radius: 12px;
   background: transparent;
 }
@@ -93,7 +95,7 @@ canvas#spectrum {
 .stat-block {
   background: #f6f7fc;
   border-radius: 12px;
-  padding: 6px 8px;
+  padding: 4px 6px;
   border: 1px solid #e3e6f4;
 }
 .stat-label {
@@ -109,7 +111,7 @@ canvas#spectrum {
 }
 .realtime-center {
   text-align: center;
-  margin: 6px 0 10px;
+  margin: 4px 0 6px;
   font-size: 0.8rem;
   color: var(--accent-blue);
   letter-spacing: 0.12em;
@@ -137,9 +139,9 @@ canvas#spectrum {
 .rpm-limit-section {
   background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  padding: 6px 10px;
+  margin-top: 6px;
+  margin-bottom: 6px;
   border: 1px solid #d5dbf0;
 }
 .rpm-limit-row {
@@ -162,11 +164,11 @@ canvas#spectrum {
 .realtime-buttons {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 .primary-btn, .secondary-btn {
   border-radius: 999px;
-  padding: 12px 0;
+  padding: 8px 0;
   font-size: 0.8rem;
   font-weight: 700;
   border: none;
@@ -184,8 +186,8 @@ canvas#spectrum {
 .settings-row {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 4px 0 8px;
+  gap: 6px;
+  padding: 2px 0 4px;
 }
 .setting-item {
   display: flex;
@@ -381,8 +383,8 @@ td {
 .input-row {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 .input-row label {
   font-size: 0.85rem;
