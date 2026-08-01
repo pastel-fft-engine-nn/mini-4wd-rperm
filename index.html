@@ -1277,50 +1277,7 @@ onclick="deleteHistory(${realIndex})">
 
   });
 
-}function renderHistory() {
-
-  const fValues = {
-    date: filters.date.value,
-    name: filters.name.value,
-    motor: filters.motor.value,
-    speed: filters.speed.value,
-    rpm: filters.rpm.value,
-    voltage: filters.voltage.value,
-    gear: filters.gear.value,
-    tire: filters.tire.value
-  };
-
-
-  let filtered = state.history.filter(h => {
-
-    return Object.keys(fValues).every(k =>
-      !fValues[k] || String(h[k]) === fValues[k]
-    );
-
-  });
-
-
-  // お気に入りのみ表示
-  if(window.onlyFavorite){
-    filtered = filtered.filter(h=>h.favorite);
-  }
-
-
-  // お気に入り先頭表示
-  if(window.favoriteTop){
-
-    filtered.sort((a,b)=>{
-
-      if(a.favorite !== b.favorite){
-        return b.favorite - a.favorite;
-      }
-
-      return b.id - a.id;
-
-    });
-
-  }
-
+}
 
   UI.historyList.innerHTML = filtered.length
   ?
