@@ -11,6 +11,7 @@
 --card-bg: #ffffff;
 --accent-blue: #1f7aff;
 --accent-red: #ff4b4b;
+--accent-orange: #f0a050;
 --text-main: #1b1e27;
 --text-sub: #7b8190;
 --border-soft: #e1e4ee;
@@ -150,12 +151,6 @@ border-radius: var(--radius-md);
   margin-top: 6px;
   margin-bottom: 6px;
 border: 1px solid #d5dbf0;
-}
-.rpm-limit-row {
-display: flex;
-flex-direction: column;
-gap: 4px;
-margin-bottom: 8px;
 }
 .rpm-limit-label {
 font-size: 0.75rem;
@@ -427,7 +422,7 @@ background: #ffffff;
 .history-table {
 border-collapse: collapse;
 width: 100%;
-min-width: 650px;
+min-width: 700px;
 font-size: 0.7rem;
 }
 .history-table th, .history-table td {
@@ -484,6 +479,49 @@ color: var(--text-sub);
 .active .toggle-icon::after {
 content: ' ▲';
 }
+
+/* お気に入り名前スタイル */
+.fav-name {
+cursor: pointer;
+transition: all 0.2s ease;
+user-select: none;
+}
+.fav-name.is-fav {
+color: var(--accent-orange);
+font-weight: 800;
+}
+
+/* お気に入りフィルタボタン */
+.fav-filter-btn {
+border: none;
+border-radius: 999px;
+padding: 5px 14px;
+font-size: 0.72rem;
+font-weight: 700;
+cursor: pointer;
+transition: all 0.2s ease;
+}
+.fav-filter-btn.off {
+background: #eef1f8;
+color: #7b8190;
+}
+.fav-filter-btn.on {
+background: linear-gradient(135deg, #f0a050, #e88a30);
+color: #ffffff;
+}
+
+/* 負荷バッジ */
+.load-badge {
+display: inline-block;
+background: #fff3e0;
+color: #e67e22;
+font-size: 0.6rem;
+font-weight: 700;
+padding: 1px 5px;
+border-radius: 4px;
+margin-left: 3px;
+}
+
 /* ダークモード時のスタイル */
 body.dark-mode {
 --bg: #12151c;
@@ -553,8 +591,15 @@ body.dark-mode .dual-range-container input[type="range"]::-webkit-slider-thumb {
 background: #1a1e29;
 border-color: #4a9eff;
 }
-
+body.dark-mode .fav-filter-btn.off {
+background: #262e42;
+color: #9ca3af;
 }
+body.dark-mode .load-badge {
+background: #3d2e1a;
+color: #f0a050;
+}
+
 /* ========== 履歴フィルタのラベル強制表示 ========== */
 .filter-item label {
     display: block !important;
@@ -665,16 +710,16 @@ table td, table th {
 <div class="collapsible-content" id="conditionsContent">
 <div class="settings-row">
 <div class="setting-item">
-<div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">3.0 V</span></div>
-<input type="range" id="voltageRange" min="2.2" max="3.4" step="0.1" value="3.0" />
+<div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">2.8 V</span></div>
+<input type="range" id="voltageRange" min="2.2" max="3.4" step="0.1" value="2.8" />
 </div>
 <div class="setting-item">
-<div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">4.0:1</span></div>
-<input type="range" id="gearRange" min="0" max="7" step="1" value="2" />
+<div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">3.7:1</span></div>
+<input type="range" id="gearRange" min="0" max="7" step="1" value="1" />
 </div>
 <div class="setting-item">
-<div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">26.0 mm</span></div>
-<input type="range" id="tireRange" min="20.0" max="35.0" step="0.1" value="26.0" />
+<div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">22.5 mm</span></div>
+<input type="range" id="tireRange" min="20.0" max="35.0" step="0.1" value="22.5" />
 </div>
 </div>
 </div>
@@ -686,7 +731,7 @@ table td, table th {
 <table>
 <thead>
 <tr>
-<th>電圧</th><th>RPM</th>
+<th>電圧</th><th>RPM</th><th>RPM(生)</th>
 <th>3.5:1</th><th>3.7:1</th><th>4.0:1</th><th>4.2:1</th>
 <th>5.0:1</th><th>6.4:1</th><th>8.75:1</th><th>11.2:1</th>
 </tr>
@@ -756,6 +801,7 @@ table td, table th {
 <div class="filter-item"><label>ギヤ比</label><select id="filterGear"><option value="">すべて</option></select></div>
 <div class="filter-item"><label>タイヤ径</label><select id="filterTire"><option value="">すべて</option></select></div>
 <div class="search-btn-row">
+<button class="fav-filter-btn off" id="favFilterBtn">お気に入りのみ</button>
 <button class="primary-btn blue" id="historySearchBtn" style="padding: 6px 15px; font-size: 0.75rem;">検索</button>
 <button class="secondary-btn gray" id="historyCloseBtn" style="padding: 6px 15px; font-size: 0.75rem;">閉じる</button>
 </div>
@@ -856,9 +902,14 @@ let lockedSnapshot = null;
 let rpmMinLimit = 5000;
 let rpmMaxLimit = 60000;
 
+let favFilterOn = false;
+
 const state = {
 history: JSON.parse(localStorage.getItem("rpmHistory") || "[]")
 };
+
+// お気に入りリスト（indexベース → IDベースに移行）
+let favorites = JSON.parse(localStorage.getItem("rpmFavorites") || "[]");
 
 const UI = {
 spectrum: document.getElementById("spectrum"),
@@ -911,7 +962,8 @@ conditionsContent: document.getElementById("conditionsContent"),
 conditionsCard: document.getElementById("conditionsCard"),
 historySearchBtn: document.getElementById("historySearchBtn"),
 darkModeToggleBtn: document.getElementById("darkModeToggleBtn"),
-rangeFill: document.getElementById("rangeFill")
+rangeFill: document.getElementById("rangeFill"),
+favFilterBtn: document.getElementById("favFilterBtn")
 };
 
 const filters = {
@@ -967,6 +1019,14 @@ function toggleConditions() {
 UI.conditionsContent.classList.toggle("active");
 UI.conditionsCard.classList.toggle("active");
 }
+
+/* ========== お気に入りフィルタ ========== */
+UI.favFilterBtn.addEventListener("click", () => {
+favFilterOn = !favFilterOn;
+UI.favFilterBtn.classList.toggle("on", favFilterOn);
+UI.favFilterBtn.classList.toggle("off", !favFilterOn);
+renderHistory();
+});
 
 /* ========== 集音構造 ========== */
 async function startMic() {
@@ -1171,23 +1231,42 @@ UI.speedMinRaw.textContent = "";
 }
 }
 
+/* ========== 比較表（負荷適用値と生数値を並列表示） ========== */
 function buildComparisonTable(baseRpm) {
 const voltages = [2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5];
 const currentV = parseFloat(UI.voltageRange.value);
 const tire = parseFloat(UI.tireRange.value);
-const load = 1 + parseFloat(UI.loadFactorRange.value) / 100;
+const loadPercent = parseFloat(UI.loadFactorRange.value);
+const loadFactor = 1 - (loadPercent / 100);
+const hasLoad = loadPercent !== 0;
 
 UI.comparisonBody.innerHTML = "";
 voltages.forEach(v => {
-const rpm = baseRpm * (v / currentV);
+const rpmRaw = baseRpm * (v / currentV);
+const rpmLoaded = rpmRaw * loadFactor;
 const tr = document.createElement("tr");
 if (Math.abs(v - currentV) < 0.05) tr.classList.add("highlight-row");
-tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpm)}</td>`;
+
+// 負荷ありの場合: RPM列に負荷適用値、RPM(生)列に生値
+// 負荷なしの場合: RPM列に生値、RPM(生)列は「-」
+if (hasLoad) {
+tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpmLoaded)}</td><td style="color:var(--text-sub);font-size:0.68rem;">${Math.round(rpmRaw)}</td>`;
+} else {
+tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpmRaw)}</td><td style="color:var(--text-sub);">-</td>`;
+}
 
 gearOptions.forEach((g, idx) => {
-const speed = (rpm / parseFloat(g.split(":")[0])) * (tire * Math.PI * 60) / 1000000 * load;
+const gearRatio = parseFloat(g.split(":")[0]);
+const speedLoaded = (rpmLoaded / gearRatio) * (tire * Math.PI * 60) / 1000000;
+const speedRaw = (rpmRaw / gearRatio) * (tire * Math.PI * 60) / 1000000;
 const td = document.createElement("td");
-td.textContent = speed.toFixed(2);
+
+if (hasLoad) {
+td.innerHTML = `${speedLoaded.toFixed(2)}<br><span style="color:var(--text-sub);font-size:0.6rem;">生:${speedRaw.toFixed(2)}</span>`;
+} else {
+td.textContent = speedRaw.toFixed(2);
+}
+
 if (idx == UI.gearRange.value) td.classList.add("highlight-col");
 tr.appendChild(td);
 });
@@ -1212,7 +1291,7 @@ UI.lockBtn.textContent = locked ? "ロック解除" : "ロック";
 UI.lockBtn.classList.toggle("outline");
 if (locked) {
 lockedSnapshot = { rpm: currentRpm, speed: currentSpeed };
-buildComparisonTable(currentRpm || 15000);
+buildComparisonTable(currentRpmRaw || 15000);
 UI.statusLine.textContent = "LOCKED — ロック中";
 } else {
 lockedSnapshot = null;
@@ -1273,15 +1352,15 @@ UI.saveModal.style.display = "flex";
 
 UI.voltageRange.addEventListener("input", () => {
 UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V";
-if (locked) buildComparisonTable(currentRpm);
+if (locked) buildComparisonTable(currentRpmRaw);
 });
 UI.gearRange.addEventListener("input", () => {
 UI.gearLabel.textContent = gearOptions[UI.gearRange.value];
-if (locked) buildComparisonTable(currentRpm);
+if (locked) buildComparisonTable(currentRpmRaw);
 });
 UI.tireRange.addEventListener("input", () => {
 UI.tireLabel.textContent = parseFloat(UI.tireRange.value).toFixed(1) + " mm";
-if (locked) buildComparisonTable(currentRpm);
+if (locked) buildComparisonTable(currentRpmRaw);
 });
 
 UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
@@ -1323,27 +1402,60 @@ UI.rpmCalLabel.textContent = "1.00";
 UI.loadFactorLabel.textContent = "0%";
 });
 
+/* ========== 保存（負荷情報付き） ========== */
 document.getElementById("saveConfirmBtn").addEventListener("click", () => {
 const name = UI.saveNameInput.value.trim() || "No Name";
 const motor = UI.motorTypeSelect.value || "未選択";
-state.history.unshift({
+const loadPercent = parseFloat(UI.loadFactorRange.value);
+const hasLoad = loadPercent !== 0;
+
+const entry = {
+id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
 date: new Date().toLocaleDateString(),
 name, motor,
 rpm: Math.round(currentRpm),
+rpmRaw: Math.round(currentRpmRaw),
 speed: currentSpeed.toFixed(2),
+speedRaw: currentSpeedRaw.toFixed(2),
 voltage: UI.voltageLabel.textContent.replace(" V", ""),
 gear: UI.gearLabel.textContent,
-tire: UI.tireLabel.textContent.replace(" mm", "")
-});
+tire: UI.tireLabel.textContent.replace(" mm", ""),
+load: hasLoad ? loadPercent + "%" : null
+};
+
+state.history.unshift(entry);
 localStorage.setItem("rpmHistory", JSON.stringify(state.history));
 UI.saveModal.style.display = "none";
 });
 
+/* ========== お気に入りトグル ========== */
+function toggleFavorite(id) {
+const idx = favorites.indexOf(id);
+if (idx === -1) {
+favorites.push(id);
+} else {
+favorites.splice(idx, 1);
+}
+localStorage.setItem("rpmFavorites", JSON.stringify(favorites));
+renderHistory();
+}
+
+function isFavorite(id) {
+return favorites.includes(id);
+}
+
+/* ========== フィルタ・履歴 ========== */
 function populateFilters() {
 const keys = ['date', 'name', 'motor', 'speed', 'rpm', 'voltage', 'gear', 'tire'];
+
+// お気に入りフィルタONの場合、プルダウンの選択肢もお気に入りのみ
+const sourceData = favFilterOn
+? state.history.filter(h => h.id && isFavorite(h.id))
+: state.history;
+
 keys.forEach(key => {
 const select = filters[key];
-const values = [...new Set(state.history.map(h => h[key]))].sort();
+const values = [...new Set(sourceData.map(h => h[key]))].filter(v => v !== undefined).sort();
 select.innerHTML = '<option value="">すべて</option>';
 values.forEach(v => {
 const opt = document.createElement("option");
@@ -1365,41 +1477,76 @@ voltage: filters.voltage.value,
 gear: filters.gear.value,
 tire: filters.tire.value
 };
-const filtered = state.history.filter(h => {
+
+let filtered = state.history.filter(h => {
 return Object.keys(fValues).every(k => !fValues[k] || String(h[k]) === fValues[k]);
 });
 
+// お気に入りフィルタ
+if (favFilterOn) {
+filtered = filtered.filter(h => h.id && isFavorite(h.id));
+}
+
 UI.historyList.innerHTML = filtered.length
 ? ""
-: "<tr><td colspan='9' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
+: "<tr><td colspan='10' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
 
 filtered.forEach((h, i) => {
 const tr = document.createElement("tr");
+const isFav = h.id && isFavorite(h.id);
+const favClass = isFav ? "fav-name is-fav" : "fav-name";
+
+// 負荷バッジ
+const loadBadge = h.load ? `<span class="load-badge">${h.load}</span>` : "";
+
+// RPM表示（負荷ありの場合は生値も）
+let rpmDisplay = h.rpm;
+if (h.load && h.rpmRaw) {
+rpmDisplay = `${h.rpm} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.rpmRaw})</span>`;
+}
+
+// 速度表示
+let speedDisplay = h.speed;
+if (h.load && h.speedRaw) {
+speedDisplay = `${h.speed} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.speedRaw})</span>`;
+}
+
 tr.innerHTML = `
      <td>${i + 1}</td>
      <td>${h.date}</td>
-     <td>${h.name}</td>
+     <td><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${loadBadge}</td>
      <td>${h.motor}</td>
-     <td>${h.speed}</td>
-     <td>${h.rpm}</td>
+     <td>${speedDisplay}</td>
+     <td>${rpmDisplay}</td>
      <td>${h.voltage}</td>
      <td>${h.gear}</td>
      <td>${h.tire}</td>
-     <td><button class="delete-btn" onclick="deleteHistory(${i})">削除</button></td>
+     <td><button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></td>
 `;
 
 UI.historyList.appendChild(tr);
 });
 }
 
-UI.historySearchBtn.addEventListener("click", renderHistory);
+UI.historySearchBtn.addEventListener("click", () => {
+populateFilters();
+renderHistory();
+});
+
+window.toggleFavorite = toggleFavorite;
 
 window.deleteHistory = (i) => {
 if (confirm("この履歴を削除しますか？")) {
-state.history.splice(i, 1);
+const removed = state.history.splice(i, 1)[0];
+// お気に入りからも削除
+if (removed && removed.id) {
+const favIdx = favorites.indexOf(removed.id);
+if (favIdx !== -1) favorites.splice(favIdx, 1);
+localStorage.setItem("rpmFavorites", JSON.stringify(favorites));
+}
 localStorage.setItem("rpmHistory", JSON.stringify(state.history));
-renderHistory();
 populateFilters();
+renderHistory();
 }
 };
 
@@ -1408,7 +1555,8 @@ if (e.target.classList.contains("modal-backdrop")) {
 e.target.style.display = "none";
 }
 };
-  /* ========== ピンチイン・アウト禁止 ========== */
+
+/* ========== ピンチイン・アウト禁止 ========== */
 document.addEventListener('touchmove', function(e) {
     if (e.scale !== 1) e.preventDefault();
 }, { passive: false });
