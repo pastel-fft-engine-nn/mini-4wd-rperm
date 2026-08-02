@@ -1025,6 +1025,7 @@ UI.favFilterBtn.addEventListener("click", () => {
 favFilterOn = !favFilterOn;
 UI.favFilterBtn.classList.toggle("on", favFilterOn);
 UI.favFilterBtn.classList.toggle("off", !favFilterOn);
+populateFilters();
 renderHistory();
 });
 
@@ -1455,6 +1456,7 @@ const sourceData = favFilterOn
 
 keys.forEach(key => {
 const select = filters[key];
+const currentVal = select.value; // 現在の選択値を保持
 const values = [...new Set(sourceData.map(h => h[key]))].filter(v => v !== undefined).sort();
 select.innerHTML = '<option value="">すべて</option>';
 values.forEach(v => {
@@ -1463,6 +1465,10 @@ opt.value = v;
 opt.textContent = v;
 select.appendChild(opt);
 });
+// 選択値を復元（選択肢に存在する場合のみ）
+if (currentVal && values.map(String).includes(String(currentVal))) {
+select.value = currentVal;
+}
 });
 }
 
@@ -1529,7 +1535,6 @@ UI.historyList.appendChild(tr);
 }
 
 UI.historySearchBtn.addEventListener("click", () => {
-populateFilters();
 renderHistory();
 });
 
