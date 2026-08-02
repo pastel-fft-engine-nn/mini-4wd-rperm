@@ -296,7 +296,7 @@ margin-top: 6px;
 border-radius: var(--radius-md);
 border: 1px solid #dde2f2;
 overflow-x: auto;
-max-height: 300px;
+max-height: 405px;
 background: #f9fbff;
 }
 table {
@@ -340,6 +340,8 @@ backdrop-filter: blur(4px);
 .modal {
 width: 100%;
 max-width: 480px;
+max-height: 92vh;
+overflow-y: auto;
 background: #f5f7fc;
 border-radius: 24px 24px 0 0;
 padding: 16px 12px 24px;
@@ -431,9 +433,9 @@ border-bottom: 1px solid #eef2ff;
 text-align: center;
 white-space: nowrap;
 }
-.history-table th:nth-child(3), .history-table td:nth-child(3) { width: 50px; }
-.history-table th:nth-child(6), .history-table td:nth-child(6) { width: 40px; }
-.history-table th:nth-child(8), .history-table td:nth-child(8) { width: 40px; }
+.history-table th:nth-child(3), .history-table td:nth-child(3) { width: 50px; } /* モーター */
+.history-table th:nth-child(6), .history-table td:nth-child(6) { width: 40px; } /* 電圧 */
+.history-table th:nth-child(8), .history-table td:nth-child(8) { width: 40px; } /* タイヤ径 */
 .delete-btn {
 border: none;
 background: #ffeef2;
@@ -802,6 +804,7 @@ table td, table th {
 <div class="filter-item"><label>タイヤ径</label><select id="filterTire"><option value="">すべて</option></select></div>
 <div class="search-btn-row">
 <button class="fav-filter-btn off" id="favFilterBtn">お気に入りのみ</button>
+<button class="secondary-btn gray" id="historyResetBtn" style="padding: 6px 15px; font-size: 0.75rem;">リセット</button>
 <button class="primary-btn blue" id="historySearchBtn" style="padding: 6px 15px; font-size: 0.75rem;">検索</button>
 <button class="secondary-btn gray" id="historyCloseBtn" style="padding: 6px 15px; font-size: 0.75rem;">閉じる</button>
 </div>
@@ -811,7 +814,6 @@ table td, table th {
 <thead>
 <tr>
 <th>#</th>
-<th>日付</th>
 <th>名前</th>
 <th>モーター</th>
 <th>速度</th>
@@ -819,6 +821,7 @@ table td, table th {
 <th>電圧</th>
 <th>ギヤ比</th>
 <th>タイヤ径</th>
+<th>日付</th>
 <th>操作</th>
 </tr>
 </thead>
@@ -1343,6 +1346,9 @@ UI.historyBtn.addEventListener("click", () => {
 populateFilters();
 renderHistory();
 UI.historyModal.style.display = "flex";
+// モーダルを先頭にスクロール
+const modal = UI.historyModal.querySelector('.modal');
+if (modal) modal.scrollTop = 0;
 });
 UI.settingsBtn.addEventListener("click", () => {
 UI.settingsModal.style.display = "flex";
@@ -1519,7 +1525,6 @@ speedDisplay = `${h.speed} <span style="color:var(--text-sub);font-size:0.6rem;"
 
 tr.innerHTML = `
      <td>${i + 1}</td>
-     <td>${h.date}</td>
      <td><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${loadBadge}</td>
      <td>${h.motor}</td>
      <td>${speedDisplay}</td>
@@ -1527,6 +1532,7 @@ tr.innerHTML = `
      <td>${h.voltage}</td>
      <td>${h.gear}</td>
      <td>${h.tire}</td>
+     <td>${h.date}</td>
      <td><button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></td>
 `;
 
@@ -1535,6 +1541,18 @@ UI.historyList.appendChild(tr);
 }
 
 UI.historySearchBtn.addEventListener("click", () => {
+renderHistory();
+});
+
+// フィルタリセットボタン
+document.getElementById("historyResetBtn").addEventListener("click", () => {
+Object.values(filters).forEach(sel => sel.value = "");
+if (favFilterOn) {
+favFilterOn = false;
+UI.favFilterBtn.classList.toggle("on", false);
+UI.favFilterBtn.classList.toggle("off", true);
+}
+populateFilters();
 renderHistory();
 });
 
