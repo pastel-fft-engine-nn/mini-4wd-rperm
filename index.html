@@ -642,7 +642,9 @@ table td, table th {
   color: #fff !important;
   border: none !important;
 }
+#memorySendBtn { display: none; }
 #memorySendStatus {
+
   font-size: 0.72rem;
   color: var(--text-sub);
   text-align: center;
@@ -657,7 +659,7 @@ table td, table th {
 
 <div class="memory-bridge-bar" id="memoryBridgeBar">
   <span>📱 memory から開かれました</span>
-  <button type="button" id="memorySendBtnTop">memory に送る</button>
+  <button type="button" id="memorySendBtnTop">最高RPMを送って戻る</button>
 </div>
 
 <header></header>
@@ -743,7 +745,7 @@ table td, table th {
 <button class="primary-btn blue" id="startBtn">計測開始</button>
 <button class="secondary-btn outline" id="lockBtn">ロック</button>
 <button class="secondary-btn gray" id="saveBtn">保存</button>
-<button class="secondary-btn memory-send-btn" id="memorySendBtn">memoryへ</button>
+<button class="secondary-btn memory-send-btn" id="memorySendBtn">memoryへ戻る</button>
 
 <button class="secondary-btn gray" id="historyBtn">履歴</button>
 <button class="secondary-btn gray" id="settingsBtn">設定</button>
@@ -1719,10 +1721,21 @@ document.addEventListener('touchend', function(e) {
 const MEMORY_RPM_KEYS = ["memory_rpm_result", "mini4wd_last_rpm", "rpm_analyzer_result", "m4_rpm_result"];
 
 function getMemoryRpmPayload() {
-  const rpm = Math.round(currentRpm || 0);
-  const rpmRaw = Math.round(currentRpmRaw || 0);
-  const speed = currentSpeed ? Number(Number(currentSpeed).toFixed(2)) : 0;
-  let voltage = null, gear = null, tire = null;
+  // MOTOR RPM の MAX を memory に渡す（CURRENT ではない）
+  var maxR = 0;
+  try {
+    var t = (UI.rpmMax && UI.rpmMax.textContent) ? UI.rpmMax.textContent.trim() : '';
+    if (t && t !== '--') maxR = Math.round(Number(t));
+  } catch (e) {}
+  if (!maxR || isNaN(maxR)) {
+    maxR = Math.round(maxRpmVal > 0 ? maxRpmVal : 0);
+  }
+  if (!maxR) {
+    maxR = Math.round(currentRpm || 0);
+  }
+  var rpmRaw = Math.round(maxRpmRaw > 0 ? maxRpmRaw : (currentRpmRaw || 0));
+  var speed = maxSpeedVal > 0 ? Number(maxSpeedVal.toFixed(2)) : (currentSpeed ? Number(Number(currentSpeed).toFixed(2)) : 0);
+  var voltage = null, gear = null, tire = null;
   try {
     voltage = parseFloat(UI.voltageRange.value);
     gear = gearOptions[UI.gearRange.value];
@@ -1732,8 +1745,10 @@ function getMemoryRpmPayload() {
     type: "memory-rpm",
     source: "rpm-analyzer",
     app: "rpm-analyzer",
-    rpm: rpm,
-    RPM: rpm,
+    rpm: maxR,
+    RPM: maxR,
+    maxRpm: maxR,
+    currentRpm: Math.round(currentRpm || 0),
     rpmRaw: rpmRaw,
     speed: speed,
     voltage: voltage,
@@ -1766,7 +1781,7 @@ function publishToMemory(showAlert) {
   } catch (e) {}
   const status = document.getElementById("memorySendStatus");
   if (status) {
-    status.textContent = "✓ memory へ送信: " + payload.rpm + " rpm";
+    status.textContent = "✓ memory へ MAX " + payload.rpm + " rpm を送信";
     status.style.color = "#34c759";
   }
 
@@ -1776,16 +1791,35 @@ function publishToMemory(showAlert) {
   const fromMemory = params.get("from") === "memory" || params.get("callback") === "1";
 
   function goBackToMemory() {
+    // return URL に最高RPMを載せて memory 側で確実に受け取れるようにする
+    var back = returnUrl || '';
+    if (back) {
+      try {
+        var u = new URL(back, location.href);
+        u.searchParams.set('import_rpm', String(payload.rpm));
+        u.searchParams.set('import_max_rpm', String(payload.maxRpm || payload.rpm));
+        u.searchParams.set('import_ts', String(payload.ts || Date.now()));
+        back = u.toString();
+      } catch (e) {
+        var sep = back.indexOf('?') >= 0 ? '&' : '?';
+        back = back + sep + 'import_rpm=' + encodeURIComponent(payload.rpm) +
+          '&import_max_rpm=' + encodeURIComponent(payload.maxRpm || payload.rpm) +
+          '&import_ts=' + encodeURIComponent(payload.ts || Date.now());
+      }
+    }
     try {
       if (window.opener && !window.opener.closed) {
         try { window.opener.focus(); } catch (e) {}
-        // 可能なら閉じる（ポップアップのとき）
         try { window.close(); } catch (e2) {}
+        // opener が閉じられない場合は return へ
+        setTimeout(function() {
+          if (back && !window.closed) location.href = back;
+        }, 200);
         return;
       }
     } catch (e) {}
-    if (returnUrl) {
-      location.href = returnUrl;
+    if (back) {
+      location.href = back;
       return;
     }
     if (fromMemory && history.length > 1) {
@@ -1807,28 +1841,35 @@ function publishToMemory(showAlert) {
 (function initMemoryBridge() {
   const params = new URLSearchParams(location.search);
   const fromMemory = params.get("from") === "memory" || params.get("callback") === "1";
+
+  // 単独起動（モーターチェック）では復帰ボタンを出さない
+  // RPM連携（from=memory）のときだけ表示
   const bar = document.getElementById("memoryBridgeBar");
-  if (bar && fromMemory) bar.style.display = "flex";
+  const sendBtn = document.getElementById("memorySendBtn");
+  if (fromMemory) {
+    if (bar) bar.style.display = "flex";
+    if (sendBtn) {
+      sendBtn.style.display = "block";
+      sendBtn.textContent = "memoryへ戻る";
+    }
+  } else {
+    if (bar) bar.style.display = "none";
+    if (sendBtn) sendBtn.style.display = "none";
+  }
+
   function bind(id) {
     const el = document.getElementById(id);
     if (el) el.addEventListener("click", function() { publishToMemory(true); });
   }
   bind("memorySendBtn");
   bind("memorySendBtnTop");
-  // ロック時に from=memory なら自動送信
+
+  // ロック時: from=memory なら最高RPMを送る（画面は閉じない）
   if (UI && UI.lockBtn) {
     UI.lockBtn.addEventListener("click", function() {
-      // ロックがONになったタイミングで送信（toggle後の locked を少し遅延参照）
       setTimeout(function() {
         if (locked && fromMemory) publishToMemory(false);
       }, 0);
-    });
-  }
-  // 保存成功時も連携データを更新
-  const saveConfirm = document.getElementById("saveConfirmBtn");
-  if (saveConfirm) {
-    saveConfirm.addEventListener("click", function() {
-      setTimeout(function() { publishToMemory(false); }, 0);
     });
   }
 })();
