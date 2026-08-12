@@ -1081,14 +1081,53 @@ renderHistory();
 /* ========== 集音構造 ========== */
 async function startMic() {
 if (running) return;
+
+// スマホは https または localhost のみマイク可
+if (!window.isSecureContext) {
+  UI.statusLine.textContent = "ERROR: HTTPSで開いてください";
+  UI.fftStatusLabel.textContent = "ERROR";
+  alert("この開き方ではマイクが使えません。\n\n・https でホストしたページ\n・または localhost\nで開いてください。\n（ファイルを直接開く file:// ではスマホの集音ができません）");
+  return;
+}
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  alert("このブラウザはマイク取得に対応していません。");
+  return;
+}
+
 running = true;
 
 try {
 if (!audioContext) {
 audioContext = new (window.AudioContext || window.webkitAudioContext)();
 }
+if (audioContext.state === "suspended") {
+await audioContext.resume();
+}
+// 既存ストリームが切れていたら取り直す
+if (micStream) {
+  const alive = micStream.getTracks().some(function(t) { return t.readyState === "live"; });
+  if (!alive) {
+    try { micStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {}
+    micStream = null;
+    analyser = null;
+  }
+}
 if (!micStream) {
-micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  // ミニ四駆のモーター音向け：ノイズ抑制・エコーキャンセルOFF
+  const constraints = {
+    audio: {
+      echoCancellation: false,
+      noiseSuppression: false,
+      autoGainControl: false,
+      channelCount: 1
+    }
+  };
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia(constraints);
+  } catch (err1) {
+    // 制約が厳しすぎる端末向けフォールバック
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  }
 }
 if (!analyser) {
 analyser = audioContext.createAnalyser();
@@ -1104,13 +1143,21 @@ await audioContext.resume();
 ignoreFrames = 8;
 UI.fftStatusLabel.textContent = "ACTIVE";
 UI.statusLine.textContent = "MEASURING — 解析中";
+UI.startBtn.textContent = "計測停止";
+UI.startBtn.classList.replace("blue", "red");
 loopFFT();
 } catch (e) {
 console.error(e);
 running = false;
 UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
 UI.fftStatusLabel.textContent = "ERROR";
-alert("マイクの使用が許可されていません。ブラウザの設定を確認してください。");
+UI.startBtn.textContent = "計測開始";
+UI.startBtn.classList.replace("red", "blue");
+var msg = "マイクの使用が許可されていません。";
+if (e && e.name === "NotAllowedError") msg = "マイクが拒否されました。ブラウザのサイト設定からマイクを許可してください。";
+else if (e && e.name === "NotFoundError") msg = "マイクが見つかりません。";
+else if (e && e.name === "NotReadableError") msg = "マイクが他のアプリで使用中の可能性があります。";
+alert(msg);
 }
 }
 
@@ -1699,7 +1746,7 @@ function publishToMemory(showAlert) {
   if (showAlert) {
     const params = new URLSearchParams(location.search);
     if (params.get("from") === "memory") {
-      alert("memory に " + payload.rpm + " rpm を送信しました。\\nmemory のタブに戻ると反映されます。");
+      alert("memory に " + payload.rpm + " rpm を送信しました。\nmemory のタブに戻ると反映されます。");
     } else {
       alert("memory 連携用に " + payload.rpm + " rpm を保存・送信しました。");
     }
