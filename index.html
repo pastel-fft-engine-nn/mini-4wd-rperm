@@ -86,6 +86,15 @@ width: 100%;
 border-radius: 12px;
 background: transparent;
 }
+/* memory連携で開いたときだけ縦幅を約85%に */
+body.from-memory .app-shell {
+  transform: scaleY(0.85);
+  transform-origin: top center;
+  margin-bottom: -12vh;
+}
+body.from-memory canvas#spectrum {
+  height: 94px;
+}
 .realtime-stats {
 display: grid;
 grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -747,9 +756,9 @@ table td, table th {
 <button class="secondary-btn gray" id="saveBtn">保存</button>
 <button class="secondary-btn memory-send-btn" id="memorySendBtn">memoryへ戻る</button>
 
-<button class="secondary-btn gray" id="historyBtn">履歴</button>
-<button class="secondary-btn gray" id="settingsBtn">設定</button>
 <button class="secondary-btn gray" id="resetBtn">リセット</button>
+<button class="secondary-btn gray" id="settingsBtn">設定</button>
+<button class="secondary-btn gray" id="historyBtn">履歴</button>
 </div>
 </section>
 
@@ -1847,12 +1856,14 @@ function publishToMemory(showAlert) {
   const bar = document.getElementById("memoryBridgeBar");
   const sendBtn = document.getElementById("memorySendBtn");
   if (fromMemory) {
+    document.body.classList.add("from-memory");
     if (bar) bar.style.display = "flex";
     if (sendBtn) {
       sendBtn.style.display = "block";
       sendBtn.textContent = "memoryへ戻る";
     }
   } else {
+    document.body.classList.remove("from-memory");
     if (bar) bar.style.display = "none";
     if (sendBtn) sendBtn.style.display = "none";
   }
