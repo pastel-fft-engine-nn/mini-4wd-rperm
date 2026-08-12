@@ -1082,12 +1082,100 @@ renderHistory();
 async function startMic() {
 if (running) return;
 
-// スマホは https または localhost のみマイク可
 if (!window.isSecureContext) {
   UI.statusLine.textContent = "ERROR: HTTPSで開いてください";
   UI.fftStatusLabel.textContent = "ERROR";
-  alert("この開き方ではマイクが使えません。\n\n・https でホストしたページ\n・または localhost\nで開いてください。\n（ファイルを直接開く file:// ではスマホの集音ができません）");
-  return;
+  alert("この開き方ではマイクが使えません。\n\n・https で開いてください\n・file:// では Safari の集音はできません");
+  return false;
+}
+
+const gum = (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  ? function(c) { return navigator.mediaDevices.getUserMedia(c); }
+  : (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)
+    ? function(c) {
+        return new Promise(function(resolve, reject) {
+          (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia).call(navigator, c, resolve, reject);
+        });
+      }
+    : null;
+
+if (!gum) {
+  alert("このブラウザはマイク取得に対応していません。");
+  return false;
+}
+
+running = true;
+try {
+  // Safari: ユーザー操作の直後に AudioContext を生成・resume
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) throw new Error("AudioContext未対応");
+  if (!audioContext) audioContext = new AC();
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+
+  if (micStream) {
+    const alive = micStream.getTracks().some(function(t) { return t.readyState === "live"; });
+    if (!alive) {
+      try { micStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {}
+      micStream = null;
+      analyser = null;
+    }
+  }
+
+  if (!micStream) {
+    // Safari は単純な { audio: true } が最も安定
+    try {
+      micStream = await gum({ audio: true });
+    } catch (err1) {
+      try {
+        micStream = await gum({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false
+          }
+        });
+      } catch (err2) {
+        throw err1;
+      }
+    }
+  }
+
+  if (!analyser) {
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = FFT_SIZE;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const source = audioContext.createMediaStreamSource(micStream);
+    source.connect(analyser);
+  }
+
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+
+  ignoreFrames = 8;
+  UI.fftStatusLabel.textContent = "ACTIVE";
+  UI.statusLine.textContent = "MEASURING — 解析中";
+  UI.startBtn.textContent = "計測停止";
+  UI.startBtn.classList.replace("blue", "red");
+  loopFFT();
+  return true;
+} catch (e) {
+  console.error(e);
+  running = false;
+  UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
+  UI.fftStatusLabel.textContent = "ERROR";
+  UI.startBtn.textContent = "計測開始";
+  UI.startBtn.classList.replace("red", "blue");
+  var msg = "マイクの使用が許可されていません。";
+  if (e && e.name === "NotAllowedError") msg = "マイクが拒否されました。Safariのサイト設定からマイクを許可してください。";
+  else if (e && e.name === "NotFoundError") msg = "マイクが見つかりません。";
+  else if (e && e.name === "NotReadableError") msg = "マイクが他のアプリで使用中の可能性があります。";
+  else if (e && e.message) msg = String(e.message);
+  alert(msg);
+  return false;
+}
 }
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
   alert("このブラウザはマイク取得に対応していません。");
@@ -1374,11 +1462,11 @@ UI.comparisonBody.appendChild(tr);
 /* ========== イベント ========== */
 UI.startBtn.addEventListener("click", async () => {
 if (!running) {
-UI.startBtn.textContent = "計測停止";
-UI.startBtn.classList.replace("blue", "red");
-await startMic();
+  // Safari: 状態切替は startMic 成功後に行う
+  UI.statusLine.textContent = "マイク起動中…";
+  await startMic();
 } else {
-stopMic();
+  stopMic();
 }
 });
 
@@ -1672,9 +1760,18 @@ e.target.style.display = "none";
 }
 };
 
+
+// Safari: タブ復帰時に AudioContext を再開
+document.addEventListener("visibilitychange", function() {
+  if (document.visibilityState === "visible" && running && audioContext && audioContext.state === "suspended") {
+    audioContext.resume().catch(function(){});
+  }
+});
+
 /* ========== ピンチイン・アウト禁止 ========== */
 document.addEventListener('touchmove', function(e) {
-    if (e.scale !== 1) e.preventDefault();
+    // Safari 等では e.scale が undefined。未定義のときは触らない（全部 prevent すると操作不能になる）
+    if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
 }, { passive: false });
 
 /* ========== ダブルタップズーム禁止 ========== */
