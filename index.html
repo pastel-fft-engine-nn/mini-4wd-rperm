@@ -612,10 +612,54 @@ table td, table th {
     text-align: center !important;
 }
 
+
+/* memory 連携 */
+.memory-bridge-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #5856d6, #007aff);
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.memory-bridge-bar button {
+  margin-left: auto;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  background: #fff;
+  color: #007aff;
+  cursor: pointer;
+}
+.memory-send-btn {
+  background: linear-gradient(135deg, #5856d6, #7c6cff) !important;
+  color: #fff !important;
+  border: none !important;
+}
+#memorySendStatus {
+  font-size: 0.72rem;
+  color: var(--text-sub);
+  text-align: center;
+  margin-top: 6px;
+  min-height: 1.2em;
+}
+
 </style>
 </head>
 <body>
 <div class="app-shell">
+
+<div class="memory-bridge-bar" id="memoryBridgeBar">
+  <span>📱 memory から開かれました</span>
+  <button type="button" id="memorySendBtnTop">memory に送る</button>
+</div>
+
 <header></header>
 
 <section class="card">
@@ -699,6 +743,8 @@ table td, table th {
 <button class="primary-btn blue" id="startBtn">計測開始</button>
 <button class="secondary-btn outline" id="lockBtn">ロック</button>
 <button class="secondary-btn gray" id="saveBtn">保存</button>
+<button class="secondary-btn memory-send-btn" id="memorySendBtn">memoryへ</button>
+
 <button class="secondary-btn gray" id="historyBtn">履歴</button>
 <button class="secondary-btn gray" id="settingsBtn">設定</button>
 <button class="secondary-btn gray" id="resetBtn">リセット</button>
@@ -1593,6 +1639,102 @@ document.addEventListener('touchend', function(e) {
     }
     lastTouchEnd = now;
 }, false);
+
+
+
+/* ========== memory アプリ ワンタッチ連携 ========== */
+const MEMORY_RPM_KEYS = ["memory_rpm_result", "mini4wd_last_rpm", "rpm_analyzer_result", "m4_rpm_result"];
+
+function getMemoryRpmPayload() {
+  const rpm = Math.round(currentRpm || 0);
+  const rpmRaw = Math.round(currentRpmRaw || 0);
+  const speed = currentSpeed ? Number(Number(currentSpeed).toFixed(2)) : 0;
+  let voltage = null, gear = null, tire = null;
+  try {
+    voltage = parseFloat(UI.voltageRange.value);
+    gear = gearOptions[UI.gearRange.value];
+    tire = parseFloat(UI.tireRange.value);
+  } catch (e) {}
+  return {
+    type: "memory-rpm",
+    source: "rpm-analyzer",
+    app: "rpm-analyzer",
+    rpm: rpm,
+    RPM: rpm,
+    rpmRaw: rpmRaw,
+    speed: speed,
+    voltage: voltage,
+    gear: gear,
+    tire: tire,
+    hz: rpmRaw > 0 ? rpmRaw / 60 : null,
+    ts: Date.now()
+  };
+}
+
+function publishToMemory(showAlert) {
+  const payload = getMemoryRpmPayload();
+  if (!payload.rpm || payload.rpm <= 0) {
+    if (showAlert) alert("有効なRPMがありません。計測してから送信してください。");
+    return false;
+  }
+  const json = JSON.stringify(payload);
+  try {
+    MEMORY_RPM_KEYS.forEach(function(k) { localStorage.setItem(k, json); });
+  } catch (e) {}
+  try {
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage(payload, "*");
+    }
+  } catch (e) {}
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(payload, "*");
+    }
+  } catch (e) {}
+  const status = document.getElementById("memorySendStatus");
+  if (status) {
+    status.textContent = "✓ memory へ送信: " + payload.rpm + " rpm";
+    status.style.color = "#34c759";
+  }
+  if (showAlert) {
+    const params = new URLSearchParams(location.search);
+    if (params.get("from") === "memory") {
+      alert("memory に " + payload.rpm + " rpm を送信しました。\\nmemory のタブに戻ると反映されます。");
+    } else {
+      alert("memory 連携用に " + payload.rpm + " rpm を保存・送信しました。");
+    }
+  }
+  return true;
+}
+
+(function initMemoryBridge() {
+  const params = new URLSearchParams(location.search);
+  const fromMemory = params.get("from") === "memory" || params.get("callback") === "1";
+  const bar = document.getElementById("memoryBridgeBar");
+  if (bar && fromMemory) bar.style.display = "flex";
+  function bind(id) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("click", function() { publishToMemory(true); });
+  }
+  bind("memorySendBtn");
+  bind("memorySendBtnTop");
+  // ロック時に from=memory なら自動送信
+  if (UI && UI.lockBtn) {
+    UI.lockBtn.addEventListener("click", function() {
+      // ロックがONになったタイミングで送信（toggle後の locked を少し遅延参照）
+      setTimeout(function() {
+        if (locked && fromMemory) publishToMemory(false);
+      }, 0);
+    });
+  }
+  // 保存成功時も連携データを更新
+  const saveConfirm = document.getElementById("saveConfirmBtn");
+  if (saveConfirm) {
+    saveConfirm.addEventListener("click", function() {
+      setTimeout(function() { publishToMemory(false); }, 0);
+    });
+  }
+})();
 
 </script>
 </body>
