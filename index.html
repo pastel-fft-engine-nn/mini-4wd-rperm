@@ -1743,13 +1743,37 @@ function publishToMemory(showAlert) {
     status.textContent = "✓ memory へ送信: " + payload.rpm + " rpm";
     status.style.color = "#34c759";
   }
-  if (showAlert) {
-    const params = new URLSearchParams(location.search);
-    if (params.get("from") === "memory") {
-      alert("memory に " + payload.rpm + " rpm を送信しました。\nmemory のタブに戻ると反映されます。");
-    } else {
-      alert("memory 連携用に " + payload.rpm + " rpm を保存・送信しました。");
+
+  // memory ページへ遷移（return パラメータ or opener）
+  const params = new URLSearchParams(location.search);
+  const returnUrl = params.get("return");
+  const fromMemory = params.get("from") === "memory" || params.get("callback") === "1";
+
+  function goBackToMemory() {
+    try {
+      if (window.opener && !window.opener.closed) {
+        try { window.opener.focus(); } catch (e) {}
+        // 可能なら閉じる（ポップアップのとき）
+        try { window.close(); } catch (e2) {}
+        return;
+      }
+    } catch (e) {}
+    if (returnUrl) {
+      location.href = returnUrl;
+      return;
     }
+    if (fromMemory && history.length > 1) {
+      history.back();
+      return;
+    }
+  }
+
+  if (showAlert) {
+    // 送信後すぐに戻る（確認アラートは短く）
+    goBackToMemory();
+  } else {
+    // 自動送信時も from=memory なら戻る
+    if (fromMemory) goBackToMemory();
   }
   return true;
 }
