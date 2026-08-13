@@ -86,14 +86,20 @@ width: 100%;
 border-radius: 12px;
 background: transparent;
 }
-/* memory連携で開いたときだけ縦幅を約85%に */
+/* memory連携（新規登録の「RPM Analyzerを開く」）時だけ縦を15%伸ばす
+   基準だった scaleY(0.85) × 1.15 ≒ 0.9775。スペクトラムも同様に拡大 */
 body.from-memory .app-shell {
-  transform: scaleY(0.85);
+  transform: scaleY(0.9775);
   transform-origin: top center;
-  margin-bottom: -12vh;
+  margin-bottom: 0;
+  padding-bottom: 12px;
 }
 body.from-memory canvas#spectrum {
-  height: 94px;
+  height: 126px; /* 110px の約15%増 */
+}
+body.from-memory .wave-container {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .realtime-stats {
 display: grid;
