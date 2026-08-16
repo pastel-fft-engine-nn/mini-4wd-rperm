@@ -769,6 +769,37 @@ body.dark-mode .cmp-summary {
 
 #measureTemplateSelect { outline: none; }
 body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #f2f2f7 !important; }
+
+/* 初画面に操作ボタンが収まるようコンパクト化 */
+.app-shell { padding: 4px 8px 8px !important; }
+.card { padding: 6px 8px !important; margin-bottom: 6px !important; }
+.card-header { margin-bottom: 4px !important; }
+.wave-container { margin-bottom: 4px !important; padding: 4px 6px !important; }
+.wave-header { margin-bottom: 2px !important; font-size: 0.75rem; }
+canvas#spectrum { height: 72px !important; }
+body.from-memory canvas#spectrum { height: 80px !important; }
+body.from-memory .app-shell { transform: none !important; }
+.rpm-limit-section { margin: 4px 0 !important; padding: 4px 8px !important; }
+.dual-range-container { height: 30px; margin: 4px 0 2px !important; }
+.realtime-stats { gap: 4px !important; margin-bottom: 2px !important; }
+.stat-block { padding: 2px 4px !important; }
+.stat-value { font-size: 0.95rem !important; }
+.stat-label { font-size: 0.68rem !important; }
+.realtime-center { margin: 2px 0 4px !important; font-size: 0.75rem !important; }
+.realtime-buttons { gap: 4px !important; }
+.realtime-buttons .primary-btn,
+.realtime-buttons .secondary-btn { padding: 8px 6px !important; font-size: 0.78rem !important; }
+.header-right-audio { gap: 4px; font-size: 0.7rem; }
+.audio-bars { height: 14px; }
+#measureTemplateCard { margin-bottom: 4px !important; }
+#measureTemplateCard .card-header { display: none !important; }
+#measureTemplateSelect { padding: 8px 10px !important; font-size: 0.8rem !important; }
+#measureTemplateCard .primary-btn,
+#measureTemplateCard .secondary-btn { padding: 6px 4px !important; font-size: 0.72rem !important; }
+.wave-header-right {
+  display: flex; align-items: center; gap: 8px;
+}
+
 </style>
 </head>
 <body class="dark-mode load-zero">
@@ -779,11 +810,11 @@ body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #
   <button type="button" id="memorySendBtnTop">最高RPMを送って戻る</button>
 </div>
 
-<header></header>
-
 <section class="card">
-<div class="card-header">
-<div class="card-title">おおめにみてやってください（｀ε´）</div>
+<div class="wave-container">
+<div class="wave-header">
+<span>スペクトラム解析</span>
+<div class="wave-header-right">
 <div class="header-right-audio">
 <span>マイク</span>
 <div class="audio-bars" id="audioIndicator">
@@ -794,12 +825,8 @@ body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #
 <div class="audio-bar"></div>
 </div>
 </div>
-</div>
-
-<div class="wave-container">
-<div class="wave-header">
-<span>スペクトラム解析</span>
 <span id="fftStatusLabel">READY</span>
+</div>
 </div>
 <canvas id="spectrum"></canvas>
 </div>
@@ -820,10 +847,7 @@ body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #
 
 
 <section class="card" id="measureTemplateCard">
-  <div class="card-header" style="margin-bottom:8px;">
-    <div class="card-title">計測テンプレート</div>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:8px;">
+  <div style="display:flex;flex-direction:column;gap:6px;">
     <select id="measureTemplateSelect" style="width:100%;padding:10px 12px;border-radius:6px;border:none;background:#f2f2f7;color:var(--text-main);font-size:0.85rem;">
       <option value="">テンプレートを選ぶ</option>
     </select>
@@ -836,7 +860,7 @@ body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #
   </div>
 </section>
 
-<div style="font-size:0.75rem; color:#e891b0; font-weight:700; margin:12px 0 4px;">MOTOR RPM</div>
+<div style="font-size:0.75rem; color:#e891b0; font-weight:700; margin:6px 0 2px;">MOTOR RPM</div>
 <div class="realtime-stats">
 <div class="stat-block">
 <div class="stat-label">CURRENT</div>
@@ -855,7 +879,7 @@ body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #
 </div>
 </div>
 
-<div style="font-size:0.75rem; color:#6BAFD6; font-weight:700; margin:8px 0 4px;">SPEED (km/h)</div>
+<div style="font-size:0.75rem; color:#6BAFD6; font-weight:700; margin:4px 0 2px;">SPEED (km/h)</div>
 <div class="realtime-stats">
 <div class="stat-block">
 <div class="stat-label">CURRENT</div>
@@ -877,16 +901,13 @@ body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #
 <div class="realtime-center" id="statusLine">READY — 計測待機中</div>
 
 <div class="realtime-buttons">
-
-
 <button class="primary-btn blue" id="startBtn">計測開始</button>
 <button class="secondary-btn outline" id="lockBtn">ロック</button>
 <button class="secondary-btn gray" id="saveBtn">保存</button>
-<button class="secondary-btn memory-send-btn" id="memorySendBtn">memoryへ戻る</button>
-
-<button class="secondary-btn gray" id="resetBtn">リセット</button>
-<button class="secondary-btn gray" id="settingsBtn">設定</button>
 <button class="secondary-btn gray" id="historyBtn">履歴</button>
+<button class="secondary-btn gray" id="settingsBtn">設定</button>
+<button class="secondary-btn gray" id="resetBtn">リセット</button>
+<button class="secondary-btn memory-send-btn" id="memorySendBtn">memoryへ戻る</button>
 </div>
 </section>
 
