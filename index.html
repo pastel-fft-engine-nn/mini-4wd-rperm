@@ -358,7 +358,7 @@ max-width: 480px;
 max-height: 92vh;
 overflow-y: auto;
 background: #f5f7fc;
-border-radius: 24px 24px 0 0;
+border-radius: 10px 10px 0 0;
 padding: 16px 12px 24px;
 animation: slideUp 0.3s ease-out;
 }
@@ -1909,57 +1909,6 @@ tr.innerHTML = `
 UI.historyList.appendChild(tr);
 });
 updateHistoryDiffPanel();
-}
-;
-
-let filtered = state.history.filter(h => {
-return Object.keys(fValues).every(k => !fValues[k] || String(h[k]) === fValues[k]);
-});
-
-// お気に入りフィルタ
-if (favFilterOn) {
-filtered = filtered.filter(h => h.id && isFavorite(h.id));
-}
-
-UI.historyList.innerHTML = filtered.length
-? ""
-: "<tr><td colspan='10' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
-
-filtered.forEach((h, i) => {
-const tr = document.createElement("tr");
-const isFav = h.id && isFavorite(h.id);
-const favClass = isFav ? "fav-name is-fav" : "fav-name";
-
-// 負荷バッジ
-const loadBadge = h.load ? `<span class="load-badge">${h.load}</span>` : "";
-
-// RPM表示（負荷ありの場合は生値も）
-let rpmDisplay = h.rpm;
-if (h.load && h.rpmRaw) {
-rpmDisplay = `${h.rpm} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.rpmRaw})</span>`;
-}
-
-// 速度表示
-let speedDisplay = h.speed;
-if (h.load && h.speedRaw) {
-speedDisplay = `${h.speed} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.speedRaw})</span>`;
-}
-
-tr.innerHTML = `
-     <td>${i + 1}</td>
-     <td><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${loadBadge}</td>
-     <td>${h.motor}</td>
-     <td>${speedDisplay}</td>
-     <td>${rpmDisplay}</td>
-     <td>${h.voltage}</td>
-     <td>${h.gear}</td>
-     <td>${h.tire}</td>
-     <td>${h.date}</td>
-     <td><button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></td>
-`;
-
-UI.historyList.appendChild(tr);
-});
 }
 
 UI.historySearchBtn.addEventListener("click", () => {
