@@ -15,9 +15,9 @@
 --text-main: #1b1e27;
 --text-sub: #7b8190;
 --border-soft: #e1e4ee;
---radius-lg: 18px;
---radius-md: 14px;
---shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.06);
+--radius-lg: 14px;
+--radius-md: 11px;
+--shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 * {
 box-sizing: border-box;
@@ -28,7 +28,7 @@ font-family: "Meiryo", "メイリオ", sans-serif;
 body {
 margin: 0;
 padding: 0;
-background: radial-gradient(circle at top, #ffffff 0, #eef2fb 45%, #e3e7f7 100%);
+background: linear-gradient(180deg, #f7f8fc 0%, #eef1f8 100%);
 color: var(--text-main);
 overflow-x: hidden;
 }
@@ -48,7 +48,7 @@ background: var(--card-bg);
 border-radius: var(--radius-lg);
 box-shadow: var(--shadow-soft);
   padding: 10px 12px 10px;
-border: 1px solid rgba(255, 255, 255, 0.9);
+border: 1px solid var(--border-soft);
   margin-bottom: 8px;
 }
 .card-header {
@@ -667,9 +667,58 @@ table td, table th {
   min-height: 1.2em;
 }
 
+
+/* 比較表条件ヒント */
+.conditions-tip {
+  display: none;
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #3a5a80;
+  background: #eef5ff;
+  border: 1px solid #c9dcff;
+  border-radius: 10px;
+}
+body.dark-mode .conditions-tip {
+  color: #b6d0f5;
+  background: #1a2436;
+  border-color: #2a3a55;
+}
+.collapsible-content.active .conditions-tip { display: block; }
+
+/* 負荷0のとき生値列・生値サブ表示を隠す */
+body.load-zero .raw-col { display: none; }
+body.load-zero .stat-value-sub { display: none; }
+body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
+
+/* トグル三角 */
+.toggle-icon::before {
+  content: "▶";
+  display: inline-block;
+  font-size: 0.7em;
+  margin-left: 4px;
+  transition: transform 0.15s ease;
+  color: var(--text-sub);
+}
+.collapsible-content.active + .noop {}
+#conditionsCard.active .toggle-icon::before,
+#conditionsCard.is-open .toggle-icon::before {
+  transform: rotate(90deg);
+}
+
+/* 少しシャープめの数字 */
+.stat-value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.card-title {
+  letter-spacing: 0.02em;
+}
+
 </style>
 </head>
-<body>
+<body class="dark-mode load-zero">
 <div class="app-shell">
 
 <div class="memory-bridge-bar" id="memoryBridgeBar">
@@ -773,6 +822,7 @@ table td, table th {
 <div class="card-title">比較表条件 <span class="toggle-icon"></span></div>
 </div>
 <div class="collapsible-content" id="conditionsContent">
+<div class="conditions-tip" id="conditionsTip">計測した段階の電圧に、電圧スライダーを合わせてください（比較表の基準になります）。</div>
 <div class="settings-row">
 <div class="setting-item">
 <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">2.8 V</span></div>
@@ -796,7 +846,7 @@ table td, table th {
 <table>
 <thead>
 <tr>
-<th>電圧</th><th>RPM</th><th>RPM(生)</th>
+<th>電圧</th><th>RPM</th><th class="raw-col">RPM(生)</th>
 <th>3.5:1</th><th>3.7:1</th><th>4.0:1</th><th>4.2:1</th>
 <th>5.0:1</th><th>6.4:1</th><th>8.75:1</th><th>11.2:1</th>
 </tr>
@@ -1381,9 +1431,9 @@ if (Math.abs(v - currentV) < 0.05) tr.classList.add("highlight-row");
 // 負荷ありの場合: RPM列に負荷適用値、RPM(生)列に生値
 // 負荷なしの場合: RPM列に生値、RPM(生)列は「-」
 if (hasLoad) {
-tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpmLoaded)}</td><td style="color:var(--text-sub);font-size:0.68rem;">${Math.round(rpmRaw)}</td>`;
+tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpmLoaded)}</td><td class="raw-col" style="color:var(--text-sub);font-size:0.68rem;">${Math.round(rpmRaw)}</td>`;
 } else {
-tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpmRaw)}</td><td style="color:var(--text-sub);">-</td>`;
+tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpmRaw)}</td><td class="raw-col" style="color:var(--text-sub);">-</td>`;
 }
 
 gearOptions.forEach((g, idx) => {
@@ -1499,7 +1549,23 @@ if (locked) buildComparisonTable(currentRpmRaw);
 
 UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
 UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2));
-UI.loadFactorRange.addEventListener("input", () => UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%");
+UI.loadFactorRange.addEventListener("input", () => {
+UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%";
+updateRawVisibility();
+});
+function updateRawVisibility() {
+  const lp = parseFloat(UI.loadFactorRange.value) || 0;
+  document.body.classList.toggle("load-zero", lp === 0);
+  // 比較表の生列セルも class 付与
+  try {
+    document.querySelectorAll("#comparisonBody tr").forEach(function(tr) {
+      const cells = tr.querySelectorAll("td");
+      // 3列目が RPM(生) 想定
+      if (cells[2]) cells[2].classList.add("raw-col");
+    });
+  } catch (e) {}
+}
+updateRawVisibility();
 
 document.getElementById("settingsCloseTop").addEventListener("click", () => UI.settingsModal.style.display = "none");
 document.getElementById("settingsCloseBtn").addEventListener("click", () => UI.settingsModal.style.display = "none");
@@ -1509,16 +1575,21 @@ document.getElementById("saveClose").addEventListener("click", () => UI.saveModa
 document.getElementById("saveCancelBtn").addEventListener("click", () => UI.saveModal.style.display = "none");
 
 /* ダークモード初期化 */
-const isDark = localStorage.getItem("darkMode") === "true";
+// ダークモード: デフォルトON（明示的に "false" のときだけライト）
+const savedDark = localStorage.getItem("darkMode");
+const isDark = savedDark === null ? true : savedDark === "true";
 if (isDark) {
 document.body.classList.add("dark-mode");
 UI.darkModeToggleBtn.textContent = "ダークモード: ON";
 UI.darkModeToggleBtn.classList.replace("gray", "blue");
+localStorage.setItem("darkMode", "true");
+} else {
+document.body.classList.remove("dark-mode");
+UI.darkModeToggleBtn.textContent = "ダークモード: OFF";
 }
-
 UI.darkModeToggleBtn.addEventListener("click", () => {
 const active = document.body.classList.toggle("dark-mode");
-localStorage.setItem("darkMode", active);
+localStorage.setItem("darkMode", active ? "true" : "false");
 UI.darkModeToggleBtn.textContent = active ? "ダークモード: ON" : "ダークモード: OFF";
 if (active) {
 UI.darkModeToggleBtn.classList.replace("gray", "blue");
@@ -1534,6 +1605,7 @@ UI.loadFactorRange.value = 0;
 UI.noiseLabel.textContent = "20";
 UI.rpmCalLabel.textContent = "1.00";
 UI.loadFactorLabel.textContent = "0%";
+if (typeof updateRawVisibility === "function") updateRawVisibility();
 });
 
 /* ========== 保存（負荷情報付き） ========== */
