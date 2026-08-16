@@ -35,9 +35,11 @@ color: var(--text-main);
 overflow-x: hidden;
 }
 .app-shell {
-max-width: 480px;
+max-width: 100%;
+width: 100%;
 margin: 0 auto;
-  padding: 8px 12px 12px;
+  padding: 8px 10px 12px;
+  box-sizing: border-box;
 }
 header {
 display: flex;
@@ -220,24 +222,24 @@ margin: 0;
 }
 .dual-range-container input[type="range"]::-webkit-slider-thumb {
 -webkit-appearance: none;
-width: 26px;
-height: 26px;
+width: 28px;
+height: 28px;
 border-radius: 50%;
-background: #ffffff;
+background: #1c1c1e;
 border: 3px solid var(--accent-blue);
-box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 cursor: pointer;
 pointer-events: auto;
 position: relative;
 z-index: 2;
 }
 .dual-range-container input[type="range"]::-moz-range-thumb {
-width: 26px;
-height: 26px;
+width: 28px;
+height: 28px;
 border-radius: 50%;
-background: #ffffff;
+background: #1c1c1e;
 border: 3px solid var(--accent-blue);
-box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 cursor: pointer;
 pointer-events: auto;
 }
@@ -301,7 +303,7 @@ input[type="range"]::-webkit-slider-thumb {
 width: 24px;
 height: 24px;
 border-radius: 50%;
-background: #ffffff;
+background: #1c1c1e;
 border: 2px solid var(--accent-blue);
 box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 cursor: pointer;
@@ -354,7 +356,7 @@ backdrop-filter: blur(4px);
 }
 .modal {
 width: 100%;
-max-width: 480px;
+max-width: 100%;
 max-height: 92vh;
 overflow-y: auto;
 background: #f5f7fc;
@@ -593,7 +595,7 @@ body.dark-mode input[type="range"] {
 background: #3a3a3c;
 }
 body.dark-mode input[type="range"]::-webkit-slider-thumb {
-background: #1c1c1e;
+background: #0d0d0f;
 }
 body.dark-mode .filter-item select,
 body.dark-mode .input-row input, 
@@ -765,6 +767,8 @@ body.dark-mode .cmp-summary {
 
 
 
+#measureTemplateSelect { outline: none; }
+body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #f2f2f7 !important; }
 </style>
 </head>
 <body class="dark-mode load-zero">
@@ -804,15 +808,33 @@ body.dark-mode .cmp-summary {
 <div class="rpm-limit-section">
 <div class="rpm-limit-label" style="margin-bottom:4px;">
 <span>集音フィルタ (RPM範囲)</span>
-<span class="rpm-limit-value"><span id="rpmMinLimitValue">5000</span> — <span id="rpmMaxLimitValue">60000</span></span>
+<span class="rpm-limit-value"><span id="rpmMinLimitValue">5000</span> — <span id="rpmMaxLimitValue">40000</span></span>
 </div>
 <div class="dual-range-container">
 <div class="dual-range-track"></div>
 <div class="dual-range-fill" id="rangeFill"></div>
 <input type="range" id="rpmMinLimit" min="0" max="60000" step="500" value="5000" />
-<input type="range" id="rpmMaxLimit" min="0" max="60000" step="500" value="60000" />
+<input type="range" id="rpmMaxLimit" min="0" max="60000" step="500" value="40000" />
 </div>
 </div>
+
+
+<section class="card" id="measureTemplateCard">
+  <div class="card-header" style="margin-bottom:8px;">
+    <div class="card-title">計測テンプレート</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <select id="measureTemplateSelect" style="width:100%;padding:10px 12px;border-radius:6px;border:none;background:#f2f2f7;color:var(--text-main);font-size:0.85rem;">
+      <option value="">テンプレートを選ぶ</option>
+    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+      <button type="button" class="secondary-btn gray" id="measureTemplateApplyBtn" style="padding:8px 6px;font-size:0.75rem;">適用</button>
+      <button type="button" class="primary-btn blue" id="measureTemplateSaveBtn" style="padding:8px 6px;font-size:0.75rem;">保存</button>
+      <button type="button" class="secondary-btn gray" id="measureTemplateDeleteBtn" style="padding:8px 6px;font-size:0.75rem;">削除</button>
+    </div>
+    <div id="measureTemplateStatus" style="font-size:0.7rem;color:var(--text-sub);min-height:1em;"></div>
+  </div>
+</section>
 
 <div style="font-size:0.75rem; color:#e891b0; font-weight:700; margin:12px 0 4px;">MOTOR RPM</div>
 <div class="realtime-stats">
@@ -1087,7 +1109,7 @@ let minSpeedRaw = Infinity;
 let lockedSnapshot = null;
 
 let rpmMinLimit = 5000;
-let rpmMaxLimit = 60000;
+let rpmMaxLimit = 40000;
 
 let favFilterOn = false;
 
@@ -1165,6 +1187,7 @@ tire: document.getElementById("filterTire")
 };
 
 /* ========== デュアルレンジスライダー制御 ========== */
+
 function updateRangeFill() {
 const min = parseInt(UI.rpmMinLimit.value);
 const max = parseInt(UI.rpmMaxLimit.value);
@@ -2103,14 +2126,130 @@ function publishToMemory(showAlert) {
   }
 
   if (showAlert) {
-    // 送信後すぐに戻る（確認アラートは短く）
+    // 「memoryへ戻る」押下時のみ遷移
     goBackToMemory();
-  } else {
-    // 自動送信時も from=memory なら戻る
-    if (fromMemory) goBackToMemory();
   }
+  // ロック時などは localStorage / postMessage のみ（画面に留まる）
   return true;
 }
+
+
+/* ========== 計測テンプレート（上限下限・電圧・ギヤ・タイヤ） ========== */
+var MEASURE_TPL_KEY = "rpmMeasureTemplates_v1";
+function loadMeasureTemplates() {
+  try {
+    var raw = localStorage.getItem(MEASURE_TPL_KEY);
+    var list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) { return []; }
+}
+function saveMeasureTemplates(list) {
+  try { localStorage.setItem(MEASURE_TPL_KEY, JSON.stringify(list || [])); } catch (e) {}
+}
+function refreshMeasureTemplateSelect() {
+  var sel = document.getElementById("measureTemplateSelect");
+  if (!sel) return;
+  var cur = sel.value;
+  var list = loadMeasureTemplates();
+  sel.innerHTML = '<option value="">テンプレートを選ぶ</option>';
+  list.forEach(function(t) {
+    var opt = document.createElement("option");
+    opt.value = t.id;
+    opt.textContent = t.name || "(無題)";
+    sel.appendChild(opt);
+  });
+  if (cur && list.some(function(x) { return x.id === cur; })) sel.value = cur;
+}
+function collectMeasureTemplateValues() {
+  return {
+    rpmMin: parseInt(UI.rpmMinLimit.value, 10) || 0,
+    rpmMax: parseInt(UI.rpmMaxLimit.value, 10) || 40000,
+    voltage: parseFloat(UI.voltageRange.value),
+    gearIndex: parseInt(UI.gearRange.value, 10) || 0,
+    gear: (typeof gearOptions !== "undefined" ? gearOptions[UI.gearRange.value] : ""),
+    tire: parseFloat(UI.tireRange.value)
+  };
+}
+function applyMeasureTemplateValues(v) {
+  if (!v) return;
+  if (v.rpmMin != null) {
+    UI.rpmMinLimit.value = v.rpmMin;
+    rpmMinLimit = v.rpmMin;
+    if (UI.rpmMinLimitValue) UI.rpmMinLimitValue.textContent = String(v.rpmMin);
+  }
+  if (v.rpmMax != null) {
+    UI.rpmMaxLimit.value = v.rpmMax;
+    rpmMaxLimit = v.rpmMax;
+    if (UI.rpmMaxLimitValue) UI.rpmMaxLimitValue.textContent = String(v.rpmMax);
+  }
+  if (typeof updateRangeFill === "function") updateRangeFill();
+  if (v.voltage != null && UI.voltageRange) {
+    UI.voltageRange.value = v.voltage;
+    if (UI.voltageLabel) UI.voltageLabel.textContent = parseFloat(v.voltage).toFixed(1) + " V";
+  }
+  if (v.gearIndex != null && UI.gearRange) {
+    UI.gearRange.value = v.gearIndex;
+    if (UI.gearLabel && typeof gearOptions !== "undefined") UI.gearLabel.textContent = gearOptions[v.gearIndex] || UI.gearLabel.textContent;
+  }
+  if (v.tire != null && UI.tireRange) {
+    UI.tireRange.value = v.tire;
+    if (UI.tireLabel) UI.tireLabel.textContent = parseFloat(v.tire).toFixed(1) + " mm";
+  }
+  var st = document.getElementById("measureTemplateStatus");
+  if (st) st.textContent = "テンプレートを適用しました";
+}
+function bindMeasureTemplates() {
+  refreshMeasureTemplateSelect();
+  var applyBtn = document.getElementById("measureTemplateApplyBtn");
+  var saveBtn = document.getElementById("measureTemplateSaveBtn");
+  var delBtn = document.getElementById("measureTemplateDeleteBtn");
+  if (applyBtn) applyBtn.addEventListener("click", function() {
+    var sel = document.getElementById("measureTemplateSelect");
+    var id = sel && sel.value;
+    if (!id) { alert("テンプレートを選んでください"); return; }
+    var list = loadMeasureTemplates();
+    var found = list.find(function(x) { return x.id === id; });
+    if (!found) { alert("テンプレートが見つかりません"); return; }
+    applyMeasureTemplateValues(found);
+  });
+  if (saveBtn) saveBtn.addEventListener("click", function() {
+    var name = prompt("テンプレート名", "いつもの計測");
+    if (name == null) return;
+    name = String(name).trim();
+    if (!name) { alert("名前を入力してください"); return; }
+    var list = loadMeasureTemplates();
+    var vals = collectMeasureTemplateValues();
+    var item = {
+      id: "mt_" + Date.now().toString(36),
+      name: name,
+      rpmMin: vals.rpmMin,
+      rpmMax: vals.rpmMax,
+      voltage: vals.voltage,
+      gearIndex: vals.gearIndex,
+      gear: vals.gear,
+      tire: vals.tire
+    };
+    list.unshift(item);
+    saveMeasureTemplates(list);
+    refreshMeasureTemplateSelect();
+    var sel = document.getElementById("measureTemplateSelect");
+    if (sel) sel.value = item.id;
+    var st = document.getElementById("measureTemplateStatus");
+    if (st) st.textContent = "「" + name + "」を保存しました（上限" + item.rpmMax + " / " + item.voltage + "V / " + (item.gear || "") + " / " + item.tire + "mm）";
+  });
+  if (delBtn) delBtn.addEventListener("click", function() {
+    var sel = document.getElementById("measureTemplateSelect");
+    var id = sel && sel.value;
+    if (!id) { alert("削除するテンプレートを選んでください"); return; }
+    if (!confirm("このテンプレートを削除しますか？")) return;
+    var list = loadMeasureTemplates().filter(function(x) { return x.id !== id; });
+    saveMeasureTemplates(list);
+    refreshMeasureTemplateSelect();
+    var st = document.getElementById("measureTemplateStatus");
+    if (st) st.textContent = "削除しました";
+  });
+}
+bindMeasureTemplates();
 
 (function initMemoryBridge() {
   const params = new URLSearchParams(location.search);
@@ -2140,7 +2279,7 @@ function publishToMemory(showAlert) {
   bind("memorySendBtn");
   bind("memorySendBtnTop");
 
-  // ロック時: from=memory なら最高RPMを送る（画面は閉じない）
+  // ロック時: from=memory なら最高RPMを仮送信（画面は閉じない・戻らない）
   if (UI && UI.lockBtn) {
     UI.lockBtn.addEventListener("click", function() {
       setTimeout(function() {
