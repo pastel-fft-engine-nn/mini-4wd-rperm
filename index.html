@@ -7,28 +7,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
 <style>
 :root {
---bg: #f5f7fc;
+--bg: #f2f2f7;
 --card-bg: #ffffff;
---accent-blue: #1f7aff;
---accent-red: #ff4b4b;
---accent-orange: #f0a050;
---text-main: #1b1e27;
---text-sub: #7b8190;
---border-soft: #e1e4ee;
---radius-lg: 14px;
---radius-md: 11px;
---shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.08);
+--accent-blue: #6BAFD6;
+--accent-blue-deep: #5a9ec4;
+--accent-pink: #e891b0;
+--accent-red: #ff3b30;
+--accent-orange: #ff9f0a;
+--text-main: #1c1c1e;
+--text-sub: #8e8e93;
+--border-soft: #e5e5ea;
+--radius-lg: 8px;
+--radius-md: 6px;
+--shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 * {
 box-sizing: border-box;
-font-family: "Meiryo", "メイリオ", sans-serif;
+font-family: "游ゴシック", "Yu Gothic", "Hiragino Sans", "Meiryo", "メイリオ", sans-serif;
 -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 body {
 margin: 0;
 padding: 0;
-background: linear-gradient(180deg, #f7f8fc 0%, #eef1f8 100%);
+background: linear-gradient(180deg, #f2f2f7 0%, #e8e8ed 100%);
 color: var(--text-main);
 overflow-x: hidden;
 }
@@ -45,7 +47,7 @@ justify-content: center;
 }
 .card {
 background: var(--card-bg);
-border-radius: var(--radius-lg);
+border-radius: 8px;
 box-shadow: var(--shadow-soft);
   padding: 10px 12px 10px;
 border: 1px solid var(--border-soft);
@@ -65,7 +67,7 @@ letter-spacing: 0.04em;
 }
 .wave-container {
 background: radial-gradient(circle at top, #ffffff 0, #e3e9ff 60%, #d6defa 100%);
-border-radius: var(--radius-md);
+border-radius: 6px;
   padding: 6px 8px 6px;
 border: 1px solid #dde3f5;
 position: relative;
@@ -83,7 +85,7 @@ color: var(--text-sub);
 canvas#spectrum {
 width: 100%;
   height: 110px;
-border-radius: 12px;
+border-radius: 6px;
 background: transparent;
 }
 /* memory連携（新規登録の「RPM Analyzerを開く」）時だけ縦を15%伸ばす
@@ -110,7 +112,7 @@ margin-bottom: 4px;
 }
 .stat-block {
 background: #f6f7fc;
-border-radius: 12px;
+border-radius: 6px;
   padding: 4px 6px;
 border: 1px solid #e3e6f4;
 }
@@ -123,7 +125,7 @@ font-size: 0.75rem;
 font-weight: 700;
 font-size: 1.1rem;
 text-align: right;
-color: #ff4fa3;
+color: #e891b0;
 }
 .stat-value-sub {
 font-weight: 600;
@@ -161,7 +163,7 @@ transition: height 0.1s ease;
 }
 .rpm-limit-section {
 background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
-border-radius: var(--radius-md);
+border-radius: 6px;
   padding: 6px 10px;
   margin-top: 6px;
   margin-bottom: 6px;
@@ -192,7 +194,7 @@ top: 50%;
 transform: translateY(-50%);
 width: 100%;
 height: 6px;
-border-radius: 999px;
+border-radius: 8px;
 background: #e3e7f5;
 }
 .dual-range-fill {
@@ -200,8 +202,8 @@ position: absolute;
 top: 50%;
 transform: translateY(-50%);
 height: 6px;
-border-radius: 999px;
-background: linear-gradient(90deg, #2a8bff, #1f7aff);
+border-radius: 8px;
+background: linear-gradient(90deg, #7EC0E0, #6BAFD6);
 pointer-events: none;
 }
 .dual-range-container input[type="range"] {
@@ -246,17 +248,15 @@ grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 .primary-btn, .secondary-btn {
-border-radius: 999px;
-  padding: 8px 0;
-font-size: 0.8rem;
-font-weight: 700;
-border: none;
-cursor: pointer;
-box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-transition: all 0.2s ease;
-text-align: center;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  cursor: pointer;
 }
-.primary-btn.blue { background: linear-gradient(135deg, #2a8bff, #1f7aff); color: #ffffff; }
+.primary-btn.blue { background: linear-gradient(135deg, #7EC0E0, #6BAFD6); color: #ffffff; }
 .primary-btn.red { background: linear-gradient(135deg, #ff6b6b, #ff4b4b); color: #ffffff; }
 .secondary-btn.gray { background: #eef1f8; color: #4b5160; }
 .secondary-btn.outline { background: #ffffff; color: var(--accent-blue); border: 1px solid #c9d5ff; }
@@ -291,7 +291,7 @@ input[type="range"] {
 width: 100%;
 -webkit-appearance: none;
 height: 6px;
-border-radius: 999px;
+border-radius: 8px;
 background: #e3e7f5;
 outline: none;
 margin: 4px 0 2px;
@@ -308,7 +308,7 @@ cursor: pointer;
 }
 .table-wrapper {
 margin-top: 6px;
-border-radius: var(--radius-md);
+border-radius: 6px;
 border: 1px solid #dde2f2;
 overflow-x: auto;
 max-height: 405px;
@@ -401,7 +401,7 @@ gap: 8px;
 margin-bottom: 12px;
 background: #fff;
 padding: 10px;
-border-radius: 12px;
+border-radius: 6px;
 border: 1px solid #e1e4ee;
 }
 .filter-item {
@@ -430,7 +430,7 @@ margin-top: 4px;
 }
 .history-table-wrapper {
 margin-top: 6px;
-border-radius: var(--radius-md);
+border-radius: 6px;
 border: 1px solid #c7d6ff;
 overflow-x: auto;
 max-height: 350px;
@@ -475,7 +475,7 @@ color: var(--text-sub);
 .input-row input, .input-row select {
 width: 100%;
 padding: 12px 16px;
-border-radius: 12px;
+border-radius: 6px;
 border: 1px solid var(--border-soft);
 font-size: 1rem;
 outline: none;
@@ -511,7 +511,7 @@ font-weight: 800;
 /* お気に入りフィルタボタン */
 .fav-filter-btn {
 border: none;
-border-radius: 999px;
+border-radius: 8px;
 padding: 5px 14px;
 font-size: 0.72rem;
 font-weight: 700;
@@ -539,82 +539,83 @@ border-radius: 4px;
 margin-left: 3px;
 }
 
-/* ダークモード時のスタイル */
+/* ダークモード（memory 準拠） */
 body.dark-mode {
---bg: #12151c;
---card-bg: #1a1e29;
---text-main: #f0f2f5;
---text-sub: #9ca3af;
---border-soft: #2a3142;
---shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.4);
+--bg: #0d0d0f;
+--card-bg: #1c1c1e;
+--text-main: #f2f2f7;
+--text-sub: #aeaeb2;
+--border-soft: #2c2c2e;
+--shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 body.dark-mode .card {
-border: 1px solid rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.08);
+background: #1c1c1e;
 }
 body.dark-mode .wave-container {
-background: radial-gradient(circle at top, #222838 0, #161a25 60%, #0e1117 100%);
-border-color: #2a3142;
+background: radial-gradient(circle at top, #2a2430 0, #1c1c1e 55%, #0d0d0f 100%);
+border-color: #2c2c2e;
 }
 body.dark-mode .stat-block,
 body.dark-mode .filter-grid,
 body.dark-mode .rpm-limit-section {
-background: #222838;
-border-color: #2a3142;
+background: #2c2c2e;
+border-color: #3a3a3c;
 }
 body.dark-mode .table-wrapper,
 body.dark-mode .history-table-wrapper {
-background: #1a1e29;
-border-color: #2a3142;
+background: #1c1c1e;
+border-color: #2c2c2e;
 }
 body.dark-mode thead th {
-background: #262e42;
-color: #f0f2f5;
+background: #2c2c2e;
+color: #f2f2f7;
 }
 body.dark-mode th:first-child, 
 body.dark-mode td:first-child {
-background: #1f2535;
-color: #f0f2f5;
+background: #242426;
+color: #f2f2f7;
 }
 body.dark-mode td {
-border-bottom: 1px solid #2a3142;
+border-bottom: 1px solid #2c2c2e;
 }
-body.dark-mode .highlight-row { background: rgba(31, 122, 255, 0.25) !important; }
-body.dark-mode .highlight-col { background: rgba(255, 79, 163, 0.2) !important; }
+body.dark-mode .highlight-row { background: rgba(107, 175, 214, 0.22) !important; }
+body.dark-mode .highlight-col { background: rgba(232, 145, 176, 0.2) !important; }
 body.dark-mode .secondary-btn.gray {
-background: #262e42;
-color: #d1d5db;
+background: #2c2c2e;
+color: #f2f2f7;
 }
 body.dark-mode .modal {
-background: #1a1e29;
-color: #f0f2f5;
+background: #1c1c1e;
+color: #f2f2f7;
 }
 body.dark-mode input[type="range"] {
-background: #2a3142;
+background: #3a3a3c;
 }
 body.dark-mode input[type="range"]::-webkit-slider-thumb {
-background: #1a1e29;
+background: #1c1c1e;
 }
 body.dark-mode .filter-item select,
 body.dark-mode .input-row input, 
 body.dark-mode .input-row select {
-background: #222838;
-color: #f0f2f5;
-border-color: #2a3142;
+background: #2c2c2e;
+color: #f2f2f7;
+border-color: #3a3a3c;
 }
 body.dark-mode .dual-range-track {
-background: #2a3142;
+background: #3a3a3c;
 }
 body.dark-mode .dual-range-container input[type="range"]::-webkit-slider-thumb {
-background: #1a1e29;
-border-color: #4a9eff;
+background: #1c1c1e;
+border-color: #6BAFD6;
 }
 body.dark-mode .fav-filter-btn.off {
-background: #262e42;
-color: #9ca3af;
+background: #2c2c2e;
+color: #aeaeb2;
 }
 body.dark-mode .load-badge {
-background: #3d2e1a;
-color: #f0a050;
+background: #3a2a32;
+color: #e891b0;
 }
 
 /* ========== 履歴フィルタのラベル強制表示 ========== */
@@ -635,7 +636,7 @@ table td, table th {
   gap: 8px;
   background: linear-gradient(135deg, #5856d6, #007aff);
   color: #fff;
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 10px 12px;
   margin-bottom: 8px;
   font-size: 0.8rem;
@@ -644,7 +645,7 @@ table td, table th {
 .memory-bridge-bar button {
   margin-left: auto;
   border: none;
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 8px 14px;
   font-weight: 700;
   font-size: 0.78rem;
@@ -678,7 +679,7 @@ table td, table th {
   color: #3a5a80;
   background: #eef5ff;
   border: 1px solid #c9dcff;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 body.dark-mode .conditions-tip {
   color: #b6d0f5;
@@ -715,6 +716,54 @@ body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
 .card-title {
   letter-spacing: 0.02em;
 }
+
+
+/* 履歴・比較の強化 */
+.history-toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin: 0 0 10px; font-size: 0.75rem;
+}
+.history-toolbar select {
+  border: 1px solid var(--border-soft); border-radius: 8px;
+  padding: 6px 8px; background: var(--card-bg); color: var(--text-main);
+  font-size: 0.75rem;
+}
+.history-summary {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  margin-bottom: 10px;
+}
+.history-summary .hs-item {
+  background: #f2f2f7; border: 1px solid var(--border-soft);
+  border-radius: 6px; padding: 6px 8px; text-align: center;
+}
+body.dark-mode .history-summary .hs-item {
+  background: #2c2c2e; border-color: #3a3a3c;
+}
+.history-summary .hs-label { font-size: 0.65rem; color: var(--text-sub); }
+.history-summary .hs-value { font-size: 0.85rem; font-weight: 700; color: var(--accent-blue); margin-top: 2px; }
+.history-diff-panel {
+  display: none; margin-bottom: 10px; padding: 10px 12px;
+  border-radius: 6px; border: 1px solid #c9e4f5;
+  background: #eef7fc; font-size: 0.75rem; line-height: 1.5;
+}
+body.dark-mode .history-diff-panel {
+  background: #1a2832; border-color: #2a3a48; color: #f2f2f7;
+}
+.history-diff-panel.show { display: block; }
+.history-diff-panel strong { color: var(--accent-pink); }
+.history-table tr.is-best td { background: rgba(107,175,214,0.12); }
+.history-table tr.is-selected td { outline: 2px solid var(--accent-blue); outline-offset: -2px; }
+.cmp-summary {
+  margin: 0 0 8px; padding: 8px 10px; border-radius: 6px;
+  background: #eef7fc; border: 1px solid #c9e4f5;
+  font-size: 0.72rem; line-height: 1.45; color: #3a5a70;
+}
+body.dark-mode .cmp-summary {
+  background: #1a2832; border-color: #2a3a48; color: #c8d9e8;
+}
+.cmp-summary .emph { font-weight: 700; color: var(--accent-pink); }
+
+
 
 </style>
 </head>
@@ -765,7 +814,7 @@ body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
 </div>
 </div>
 
-<div style="font-size:0.75rem; color:#ff4fa3; font-weight:700; margin:12px 0 4px;">MOTOR RPM</div>
+<div style="font-size:0.75rem; color:#e891b0; font-weight:700; margin:12px 0 4px;">MOTOR RPM</div>
 <div class="realtime-stats">
 <div class="stat-block">
 <div class="stat-label">CURRENT</div>
@@ -784,7 +833,7 @@ body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
 </div>
 </div>
 
-<div style="font-size:0.75rem; color:#1f7aff; font-weight:700; margin:8px 0 4px;">SPEED (km/h)</div>
+<div style="font-size:0.75rem; color:#6BAFD6; font-weight:700; margin:8px 0 4px;">SPEED (km/h)</div>
 <div class="realtime-stats">
 <div class="stat-block">
 <div class="stat-label">CURRENT</div>
@@ -806,6 +855,8 @@ body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
 <div class="realtime-center" id="statusLine">READY — 計測待機中</div>
 
 <div class="realtime-buttons">
+
+
 <button class="primary-btn blue" id="startBtn">計測開始</button>
 <button class="secondary-btn outline" id="lockBtn">ロック</button>
 <button class="secondary-btn gray" id="saveBtn">保存</button>
@@ -842,6 +893,7 @@ body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
 
 <section class="card">
 <div class="card-header"><div class="card-title">電圧別比較表</div></div>
+<div class="cmp-summary" id="cmpSummary">ロック後に、選択中の電圧・ギヤでの速度目安が表示されます。</div>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -922,10 +974,29 @@ body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
 <button class="secondary-btn gray" id="historyCloseBtn" style="padding: 6px 15px; font-size: 0.75rem;">閉じる</button>
 </div>
 </div>
+<div class="history-summary" id="historySummary">
+<div class="hs-item"><div class="hs-label">件数</div><div class="hs-value" id="hsCount">0</div></div>
+<div class="hs-item"><div class="hs-label">最高RPM</div><div class="hs-value" id="hsBestRpm">—</div></div>
+<div class="hs-item"><div class="hs-label">最高速度</div><div class="hs-value" id="hsBestSpeed">—</div></div>
+<div class="hs-item"><div class="hs-label">前回比RPM</div><div class="hs-value" id="hsDelta">—</div></div>
+</div>
+<div class="history-toolbar">
+<label>並び替え
+<select id="historySortSelect">
+<option value="new">新しい順</option>
+<option value="rpm">RPM高い順</option>
+<option value="speed">速度高い順</option>
+<option value="old">古い順</option>
+</select>
+</label>
+<span style="color:var(--text-sub);font-size:0.7rem;">行を2つ選ぶと差分表示</span>
+</div>
+<div class="history-diff-panel" id="historyDiffPanel"></div>
 <div class="history-table-wrapper">
 <table class="history-table">
 <thead>
 <tr>
+<th></th>
 <th>#</th>
 <th>名前</th>
 <th>モーター</th>
@@ -1324,7 +1395,7 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 const binToHz = audioContext.sampleRate / FFT_SIZE;
 ctx.beginPath();
-ctx.strokeStyle = "#ff4fa3";
+ctx.strokeStyle = "#e891b0";
 ctx.lineWidth = 2 * dpr;
 let started = false;
 
@@ -1453,6 +1524,28 @@ tr.appendChild(td);
 });
 UI.comparisonBody.appendChild(tr);
 });
+
+if (typeof updateRawVisibility === "function") updateRawVisibility();
+try {
+  const sum = document.getElementById("cmpSummary");
+  if (sum) {
+    const gearLabel = gearOptions[UI.gearRange.value] || "";
+    const gearRatio = parseFloat(String(gearLabel).split(":")[0]) || 1;
+    const rpmAt = hasLoad ? (baseRpm * loadFactor) : baseRpm;
+    const speedAt = (rpmAt / gearRatio) * (tire * Math.PI * 60) / 1000000;
+    let bestG = gearLabel, bestS = speedAt;
+    gearOptions.forEach((g) => {
+      const gr = parseFloat(String(g).split(":")[0]) || 1;
+      const s = (rpmAt / gr) * (tire * Math.PI * 60) / 1000000;
+      if (s > bestS) { bestS = s; bestG = g; }
+    });
+    sum.innerHTML = `基準 <span class="emph">${currentV.toFixed(1)} V</span> / 選択ギヤ <span class="emph">${gearLabel}</span> で `
+      + `約 <span class="emph">${speedAt.toFixed(2)} km/h</span>`
+      + `　｜　同電圧で最速目安 <span class="emph">${bestG}</span> → <span class="emph">${bestS.toFixed(2)} km/h</span>`
+      + (hasLoad ? `　（負荷 ${loadPercent}% 反映）` : "");
+  }
+} catch (eSum) {}
+
 }
 
 /* ========== イベント ========== */
@@ -1618,9 +1711,11 @@ const hasLoad = loadPercent !== 0;
 const entry = {
 id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
 date: new Date().toLocaleDateString(),
+datetime: new Date().toLocaleString(),
+ts: Date.now(),
 name, motor,
-rpm: Math.round(currentRpm),
-rpmRaw: Math.round(currentRpmRaw),
+rpm: Math.round((typeof maxRpmVal === "number" && maxRpmVal > 0) ? maxRpmVal : currentRpm),
+rpmRaw: Math.round((typeof maxRpmRaw === "number" && maxRpmRaw > 0) ? maxRpmRaw : currentRpmRaw),
 speed: currentSpeed.toFixed(2),
 speedRaw: currentSpeedRaw.toFixed(2),
 voltage: UI.voltageLabel.textContent.replace(" V", ""),
@@ -1649,6 +1744,48 @@ renderHistory();
 function isFavorite(id) {
 return favorites.includes(id);
 }
+
+window._histSelected = window._histSelected || {};
+function toggleHistSelect(id) {
+  if (!id) return;
+  if (!window._histSelected) window._histSelected = {};
+  if (window._histSelected[id]) delete window._histSelected[id];
+  else {
+    const keys = Object.keys(window._histSelected);
+    if (keys.length >= 2) {
+      // 古い選択を1つ外す
+      delete window._histSelected[keys[0]];
+    }
+    window._histSelected[id] = true;
+  }
+  renderHistory();
+}
+function updateHistoryDiffPanel() {
+  const panel = document.getElementById("historyDiffPanel");
+  if (!panel) return;
+  const ids = Object.keys(window._histSelected || {});
+  if (ids.length < 2) {
+    panel.classList.remove("show");
+    panel.innerHTML = "";
+    return;
+  }
+  const a = state.history.find(h => h.id === ids[0]);
+  const b = state.history.find(h => h.id === ids[1]);
+  if (!a || !b) {
+    panel.classList.remove("show");
+    return;
+  }
+  const dRpm = (Number(a.rpm) || 0) - (Number(b.rpm) || 0);
+  const dSp = (parseFloat(a.speed) || 0) - (parseFloat(b.speed) || 0);
+  const dV = (parseFloat(String(a.voltage).replace(/[^\d.]/g, "")) || 0) - (parseFloat(String(b.voltage).replace(/[^\d.]/g, "")) || 0);
+  panel.innerHTML = `<div><strong>差分比較</strong>：${a.name || "A"} vs ${b.name || "B"}</div>
+    <div>RPM：${a.rpm} − ${b.rpm} = <strong>${dRpm > 0 ? "+" : ""}${Math.round(dRpm)}</strong></div>
+    <div>速度：${a.speed} − ${b.speed} = <strong>${dSp > 0 ? "+" : ""}${dSp.toFixed(2)}</strong> km/h</div>
+    <div>電圧差：<strong>${dV > 0 ? "+" : ""}${dV.toFixed(1)}</strong> V　／　ギヤ ${a.gear || "—"} vs ${b.gear || "—"}</div>`;
+  panel.classList.add("show");
+}
+window.toggleHistSelect = toggleHistSelect;
+
 
 /* ========== フィルタ・履歴 ========== */
 function populateFilters() {
@@ -1688,6 +1825,92 @@ voltage: filters.voltage.value,
 gear: filters.gear.value,
 tire: filters.tire.value
 };
+
+let filtered = state.history.filter(h => {
+return Object.keys(fValues).every(k => !fValues[k] || String(h[k]) === fValues[k]);
+});
+
+if (favFilterOn) {
+filtered = filtered.filter(h => h.id && isFavorite(h.id));
+}
+
+// 並び替え
+const sortMode = (document.getElementById("historySortSelect") || {}).value || "new";
+filtered = filtered.slice().sort((a, b) => {
+const ar = Number(a.rpm) || 0, br = Number(b.rpm) || 0;
+const as = parseFloat(a.speed) || 0, bs = parseFloat(b.speed) || 0;
+const at = a.ts || 0, bt = b.ts || 0;
+if (sortMode === "rpm") return br - ar;
+if (sortMode === "speed") return bs - as;
+if (sortMode === "old") return at - bt;
+return bt - at; // new
+});
+
+// サマリー
+const hsCount = document.getElementById("hsCount");
+const hsBestRpm = document.getElementById("hsBestRpm");
+const hsBestSpeed = document.getElementById("hsBestSpeed");
+const hsDelta = document.getElementById("hsDelta");
+if (hsCount) hsCount.textContent = String(filtered.length);
+let bestRpm = 0, bestSpeed = 0;
+filtered.forEach(h => {
+bestRpm = Math.max(bestRpm, Number(h.rpm) || 0);
+bestSpeed = Math.max(bestSpeed, parseFloat(h.speed) || 0);
+});
+if (hsBestRpm) hsBestRpm.textContent = bestRpm ? String(Math.round(bestRpm)) : "—";
+if (hsBestSpeed) hsBestSpeed.textContent = bestSpeed ? bestSpeed.toFixed(2) : "—";
+if (hsDelta) {
+  if (filtered.length >= 2) {
+    const newest = filtered[0];
+    const prev = filtered[1];
+    // 新しい順前提の差分。他ソート時は先頭2件の差
+    const d = (Number(newest.rpm) || 0) - (Number(prev.rpm) || 0);
+    hsDelta.textContent = (d > 0 ? "+" : "") + Math.round(d);
+    hsDelta.style.color = d > 0 ? "#34c759" : (d < 0 ? "#ff3b30" : "var(--accent-blue)");
+  } else {
+    hsDelta.textContent = "—";
+    hsDelta.style.color = "";
+  }
+}
+
+UI.historyList.innerHTML = filtered.length
+? ""
+: "<tr><td colspan='11' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
+
+filtered.forEach((h, i) => {
+const tr = document.createElement("tr");
+const isFav = h.id && isFavorite(h.id);
+const favClass = isFav ? "fav-name is-fav" : "fav-name";
+const loadBadge = h.load ? `<span class="load-badge">${h.load}</span>` : "";
+let rpmDisplay = h.rpm;
+if (h.load && h.rpmRaw) {
+rpmDisplay = `${h.rpm} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.rpmRaw})</span>`;
+}
+let speedDisplay = h.speed;
+if (h.load && h.speedRaw) {
+speedDisplay = `${h.speed} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.speedRaw})</span>`;
+}
+const isBest = bestRpm && Number(h.rpm) === bestRpm;
+if (isBest) tr.classList.add("is-best");
+const checked = window._histSelected && window._histSelected[h.id] ? "checked" : "";
+tr.innerHTML = `
+     <td><input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')" /></td>
+     <td>${i + 1}</td>
+     <td><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${loadBadge}${isBest ? " ★" : ""}</td>
+     <td>${h.motor}</td>
+     <td>${speedDisplay}</td>
+     <td>${rpmDisplay}</td>
+     <td>${h.voltage}</td>
+     <td>${h.gear}</td>
+     <td>${h.tire}</td>
+     <td>${h.datetime || h.date}</td>
+     <td><button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></td>
+`;
+UI.historyList.appendChild(tr);
+});
+updateHistoryDiffPanel();
+}
+;
 
 let filtered = state.history.filter(h => {
 return Object.keys(fValues).every(k => !fValues[k] || String(h[k]) === fValues[k]);
@@ -1742,6 +1965,8 @@ UI.historyList.appendChild(tr);
 UI.historySearchBtn.addEventListener("click", () => {
 renderHistory();
 });
+const historySortSelect = document.getElementById("historySortSelect");
+if (historySortSelect) historySortSelect.addEventListener("change", () => renderHistory());
 
 // フィルタリセットボタン
 document.getElementById("historyResetBtn").addEventListener("click", () => {
@@ -1868,7 +2093,10 @@ function publishToMemory(showAlert) {
   } catch (e) {}
   const status = document.getElementById("memorySendStatus");
   if (status) {
-    status.textContent = "✓ memory へ MAX " + payload.rpm + " rpm を送信";
+    status.textContent = "✓ memory へ MAX " + payload.rpm + " rpm"
+      + (payload.voltage != null ? " / " + payload.voltage + "V" : "")
+      + (payload.speed != null ? " / " + payload.speed + "km/h" : "")
+      + " を送信";
     status.style.color = "#34c759";
   }
 
@@ -1886,12 +2114,22 @@ function publishToMemory(showAlert) {
         u.searchParams.set('import_rpm', String(payload.rpm));
         u.searchParams.set('import_max_rpm', String(payload.maxRpm || payload.rpm));
         u.searchParams.set('import_ts', String(payload.ts || Date.now()));
+        if (payload.speed != null && payload.speed !== '') u.searchParams.set('import_speed', String(payload.speed));
+        if (payload.voltage != null && payload.voltage !== '') u.searchParams.set('import_voltage', String(payload.voltage));
+        if (payload.tire != null && payload.tire !== '') u.searchParams.set('import_tire', String(payload.tire));
+        if (payload.gear != null && payload.gear !== '') u.searchParams.set('import_gear', String(payload.gear));
+        if (payload.rpmRaw != null && payload.rpmRaw !== '') u.searchParams.set('import_rpm_raw', String(payload.rpmRaw));
         back = u.toString();
       } catch (e) {
         var sep = back.indexOf('?') >= 0 ? '&' : '?';
         back = back + sep + 'import_rpm=' + encodeURIComponent(payload.rpm) +
           '&import_max_rpm=' + encodeURIComponent(payload.maxRpm || payload.rpm) +
           '&import_ts=' + encodeURIComponent(payload.ts || Date.now());
+        if (payload.speed != null) back += '&import_speed=' + encodeURIComponent(payload.speed);
+        if (payload.voltage != null) back += '&import_voltage=' + encodeURIComponent(payload.voltage);
+        if (payload.tire != null) back += '&import_tire=' + encodeURIComponent(payload.tire);
+        if (payload.gear != null) back += '&import_gear=' + encodeURIComponent(payload.gear);
+        if (payload.rpmRaw != null) back += '&import_rpm_raw=' + encodeURIComponent(payload.rpmRaw);
       }
     }
     try {
@@ -1962,6 +2200,8 @@ function publishToMemory(showAlert) {
     });
   }
 })();
+
+
 
 </script>
 </body>
