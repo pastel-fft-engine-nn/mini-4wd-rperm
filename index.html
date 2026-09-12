@@ -86,7 +86,7 @@ color: var(--text-sub);
 }
 canvas#spectrum {
 width: 100%;
-  height: 110px;
+  height: 132px;
 border-radius: 6px;
 background: transparent;
 }
@@ -99,7 +99,7 @@ body.from-memory .app-shell {
   padding-bottom: 12px;
 }
 body.from-memory canvas#spectrum {
-  height: 126px; /* 110px の約15%増 */
+  height: 151px; /* 132px の約15%増 */
 }
 body.from-memory .wave-container {
   padding-top: 8px;
@@ -767,35 +767,28 @@ body.dark-mode .cmp-summary {
 
 
 
-#measureTemplateSelect { outline: none; }
-body.dark-mode #measureTemplateSelect { background: #2c2c2e !important; color: #f2f2f7 !important; }
-
 /* 初画面に操作ボタンが収まるようコンパクト化 */
 .app-shell { padding: 4px 8px 8px !important; }
 .card { padding: 6px 8px !important; margin-bottom: 6px !important; }
 .card-header { margin-bottom: 4px !important; }
 .wave-container { margin-bottom: 4px !important; padding: 4px 6px !important; }
 .wave-header { margin-bottom: 2px !important; font-size: 0.75rem; }
-canvas#spectrum { height: 72px !important; }
-body.from-memory canvas#spectrum { height: 80px !important; }
+canvas#spectrum { height: 86px !important; }
+body.from-memory canvas#spectrum { height: 96px !important; }
 body.from-memory .app-shell { transform: none !important; }
 .rpm-limit-section { margin: 4px 0 !important; padding: 4px 8px !important; }
 .dual-range-container { height: 30px; margin: 4px 0 2px !important; }
 .realtime-stats { gap: 4px !important; margin-bottom: 2px !important; }
-.stat-block { padding: 2px 4px !important; }
-.stat-value { font-size: 0.95rem !important; }
-.stat-label { font-size: 0.68rem !important; }
+.stat-block { padding: 6px 6px !important; }
+.stat-value { font-size: 1.33rem !important; }
+.stat-label { font-size: 0.95rem !important; }
+.stat-value-sub { font-size: 0.85rem !important; }
 .realtime-center { margin: 2px 0 4px !important; font-size: 0.75rem !important; }
 .realtime-buttons { gap: 4px !important; }
 .realtime-buttons .primary-btn,
 .realtime-buttons .secondary-btn { padding: 8px 6px !important; font-size: 0.78rem !important; }
 .header-right-audio { gap: 4px; font-size: 0.7rem; }
 .audio-bars { height: 14px; }
-#measureTemplateCard { margin-bottom: 4px !important; }
-#measureTemplateCard .card-header { display: none !important; }
-#measureTemplateSelect { padding: 8px 10px !important; font-size: 0.8rem !important; }
-#measureTemplateCard .primary-btn,
-#measureTemplateCard .secondary-btn { padding: 6px 4px !important; font-size: 0.72rem !important; }
 .wave-header-right {
   display: flex; align-items: center; gap: 8px;
 }
@@ -846,21 +839,7 @@ body.from-memory .app-shell { transform: none !important; }
 </div>
 
 
-<section class="card" id="measureTemplateCard">
-  <div style="display:flex;flex-direction:column;gap:6px;">
-    <select id="measureTemplateSelect" style="width:100%;padding:10px 12px;border-radius:6px;border:none;background:#f2f2f7;color:var(--text-main);font-size:0.85rem;">
-      <option value="">テンプレートを選ぶ</option>
-    </select>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-      <button type="button" class="secondary-btn gray" id="measureTemplateApplyBtn" style="padding:8px 6px;font-size:0.75rem;">適用</button>
-      <button type="button" class="primary-btn blue" id="measureTemplateSaveBtn" style="padding:8px 6px;font-size:0.75rem;">保存</button>
-      <button type="button" class="secondary-btn gray" id="measureTemplateDeleteBtn" style="padding:8px 6px;font-size:0.75rem;">削除</button>
-    </div>
-    <div id="measureTemplateStatus" style="font-size:0.7rem;color:var(--text-sub);min-height:1em;"></div>
-  </div>
-</section>
-
-<div style="font-size:0.75rem; color:#e891b0; font-weight:700; margin:6px 0 2px;">MOTOR RPM</div>
+<div style="font-size:1.05rem; color:#e891b0; font-weight:700; margin:6px 0 2px;">MOTOR RPM</div>
 <div class="realtime-stats">
 <div class="stat-block">
 <div class="stat-label">CURRENT</div>
@@ -879,7 +858,7 @@ body.from-memory .app-shell { transform: none !important; }
 </div>
 </div>
 
-<div style="font-size:0.75rem; color:#6BAFD6; font-weight:700; margin:4px 0 2px;">SPEED (km/h)</div>
+<div style="font-size:1.05rem; color:#6BAFD6; font-weight:700; margin:4px 0 2px;">SPEED (km/h)</div>
 <div class="realtime-stats">
 <div class="stat-block">
 <div class="stat-label">CURRENT</div>
@@ -2154,123 +2133,6 @@ function publishToMemory(showAlert) {
   return true;
 }
 
-
-/* ========== 計測テンプレート（上限下限・電圧・ギヤ・タイヤ） ========== */
-var MEASURE_TPL_KEY = "rpmMeasureTemplates_v1";
-function loadMeasureTemplates() {
-  try {
-    var raw = localStorage.getItem(MEASURE_TPL_KEY);
-    var list = raw ? JSON.parse(raw) : [];
-    return Array.isArray(list) ? list : [];
-  } catch (e) { return []; }
-}
-function saveMeasureTemplates(list) {
-  try { localStorage.setItem(MEASURE_TPL_KEY, JSON.stringify(list || [])); } catch (e) {}
-}
-function refreshMeasureTemplateSelect() {
-  var sel = document.getElementById("measureTemplateSelect");
-  if (!sel) return;
-  var cur = sel.value;
-  var list = loadMeasureTemplates();
-  sel.innerHTML = '<option value="">テンプレートを選ぶ</option>';
-  list.forEach(function(t) {
-    var opt = document.createElement("option");
-    opt.value = t.id;
-    opt.textContent = t.name || "(無題)";
-    sel.appendChild(opt);
-  });
-  if (cur && list.some(function(x) { return x.id === cur; })) sel.value = cur;
-}
-function collectMeasureTemplateValues() {
-  return {
-    rpmMin: parseInt(UI.rpmMinLimit.value, 10) || 0,
-    rpmMax: parseInt(UI.rpmMaxLimit.value, 10) || 40000,
-    voltage: parseFloat(UI.voltageRange.value),
-    gearIndex: parseInt(UI.gearRange.value, 10) || 0,
-    gear: (typeof gearOptions !== "undefined" ? gearOptions[UI.gearRange.value] : ""),
-    tire: parseFloat(UI.tireRange.value)
-  };
-}
-function applyMeasureTemplateValues(v) {
-  if (!v) return;
-  if (v.rpmMin != null) {
-    UI.rpmMinLimit.value = v.rpmMin;
-    rpmMinLimit = v.rpmMin;
-    if (UI.rpmMinLimitValue) UI.rpmMinLimitValue.textContent = String(v.rpmMin);
-  }
-  if (v.rpmMax != null) {
-    UI.rpmMaxLimit.value = v.rpmMax;
-    rpmMaxLimit = v.rpmMax;
-    if (UI.rpmMaxLimitValue) UI.rpmMaxLimitValue.textContent = String(v.rpmMax);
-  }
-  if (typeof updateRangeFill === "function") updateRangeFill();
-  if (v.voltage != null && UI.voltageRange) {
-    UI.voltageRange.value = v.voltage;
-    if (UI.voltageLabel) UI.voltageLabel.textContent = parseFloat(v.voltage).toFixed(1) + " V";
-  }
-  if (v.gearIndex != null && UI.gearRange) {
-    UI.gearRange.value = v.gearIndex;
-    if (UI.gearLabel && typeof gearOptions !== "undefined") UI.gearLabel.textContent = gearOptions[v.gearIndex] || UI.gearLabel.textContent;
-  }
-  if (v.tire != null && UI.tireRange) {
-    UI.tireRange.value = v.tire;
-    if (UI.tireLabel) UI.tireLabel.textContent = parseFloat(v.tire).toFixed(1) + " mm";
-  }
-  var st = document.getElementById("measureTemplateStatus");
-  if (st) st.textContent = "テンプレートを適用しました";
-}
-function bindMeasureTemplates() {
-  refreshMeasureTemplateSelect();
-  var applyBtn = document.getElementById("measureTemplateApplyBtn");
-  var saveBtn = document.getElementById("measureTemplateSaveBtn");
-  var delBtn = document.getElementById("measureTemplateDeleteBtn");
-  if (applyBtn) applyBtn.addEventListener("click", function() {
-    var sel = document.getElementById("measureTemplateSelect");
-    var id = sel && sel.value;
-    if (!id) { alert("テンプレートを選んでください"); return; }
-    var list = loadMeasureTemplates();
-    var found = list.find(function(x) { return x.id === id; });
-    if (!found) { alert("テンプレートが見つかりません"); return; }
-    applyMeasureTemplateValues(found);
-  });
-  if (saveBtn) saveBtn.addEventListener("click", function() {
-    var name = prompt("テンプレート名", "いつもの計測");
-    if (name == null) return;
-    name = String(name).trim();
-    if (!name) { alert("名前を入力してください"); return; }
-    var list = loadMeasureTemplates();
-    var vals = collectMeasureTemplateValues();
-    var item = {
-      id: "mt_" + Date.now().toString(36),
-      name: name,
-      rpmMin: vals.rpmMin,
-      rpmMax: vals.rpmMax,
-      voltage: vals.voltage,
-      gearIndex: vals.gearIndex,
-      gear: vals.gear,
-      tire: vals.tire
-    };
-    list.unshift(item);
-    saveMeasureTemplates(list);
-    refreshMeasureTemplateSelect();
-    var sel = document.getElementById("measureTemplateSelect");
-    if (sel) sel.value = item.id;
-    var st = document.getElementById("measureTemplateStatus");
-    if (st) st.textContent = "「" + name + "」を保存しました（上限" + item.rpmMax + " / " + item.voltage + "V / " + (item.gear || "") + " / " + item.tire + "mm）";
-  });
-  if (delBtn) delBtn.addEventListener("click", function() {
-    var sel = document.getElementById("measureTemplateSelect");
-    var id = sel && sel.value;
-    if (!id) { alert("削除するテンプレートを選んでください"); return; }
-    if (!confirm("このテンプレートを削除しますか？")) return;
-    var list = loadMeasureTemplates().filter(function(x) { return x.id !== id; });
-    saveMeasureTemplates(list);
-    refreshMeasureTemplateSelect();
-    var st = document.getElementById("measureTemplateStatus");
-    if (st) st.textContent = "削除しました";
-  });
-}
-bindMeasureTemplates();
 
 (function initMemoryBridge() {
   const params = new URLSearchParams(location.search);
