@@ -107,10 +107,17 @@ body.from-memory .wave-container {
 }
 .realtime-stats {
 display: grid;
-grid-template-columns: repeat(3, minmax(0, 1fr));
+grid-template-columns: 1.445fr 1.105fr;
 gap: 6px;
 font-size: 0.8rem;
 margin-bottom: 4px;
+align-items: stretch;
+}
+.stat-stack {
+display: flex;
+flex-direction: column;
+gap: 4px;
+min-width: 0;
 }
 .stat-block {
 background: #f6f7fc;
@@ -778,15 +785,23 @@ body.from-memory canvas#spectrum { height: 96px !important; }
 body.from-memory .app-shell { transform: none !important; }
 .rpm-limit-section { margin: 4px 0 !important; padding: 4px 8px !important; }
 .dual-range-container { height: 30px; margin: 4px 0 2px !important; }
-.realtime-stats { gap: 4px !important; margin-bottom: 2px !important; }
+.realtime-stats { gap: 4px !important; margin-bottom: 2px !important; grid-template-columns: 1.445fr 1.105fr !important; align-items: stretch; }
+.stat-stack { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .stat-block { padding: 6px 6px !important; }
+.stat-block.stat-current { padding: 8px 8px !important; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+.stat-block.stat-side { padding: 3px 6px 2px !important; line-height: 1.15; flex: 1; }
 .stat-value { font-size: 1.33rem !important; }
+.stat-current .stat-value { font-size: 1.55rem !important; }
+.stat-side .stat-value { font-size: 1.20rem !important; line-height: 1.1; }
+.stat-current .stat-label { font-size: 1.02rem !important; }
+.stat-side .stat-label { font-size: 0.72rem !important; margin-bottom: 0 !important; }
 .stat-label { font-size: 0.95rem !important; }
 .stat-value-sub { font-size: 0.85rem !important; }
+.stat-side .stat-value-sub { font-size: 0.68rem !important; margin-top: 0 !important; }
 .realtime-center { margin: 2px 0 4px !important; font-size: 0.75rem !important; }
 .realtime-buttons { gap: 4px !important; }
 .realtime-buttons .primary-btn,
-.realtime-buttons .secondary-btn { padding: 8px 6px !important; font-size: 0.78rem !important; }
+.realtime-buttons .secondary-btn { padding: 10px 6px !important; font-size: 0.78rem !important; min-height: 42px; }
 .header-right-audio { gap: 4px; font-size: 0.7rem; }
 .audio-bars { height: 14px; }
 .wave-header-right {
@@ -841,39 +856,43 @@ body.from-memory .app-shell { transform: none !important; }
 
 <div style="font-size:1.05rem; color:#e891b0; font-weight:700; margin:6px 0 2px;">MOTOR RPM</div>
 <div class="realtime-stats">
-<div class="stat-block">
+<div class="stat-block stat-current">
 <div class="stat-label">CURRENT</div>
 <div class="stat-value" id="rpmNow">--</div>
 <div class="stat-value-sub" id="rpmNowRaw"></div>
 </div>
-<div class="stat-block">
+<div class="stat-stack">
+<div class="stat-block stat-side">
 <div class="stat-label">MAX</div>
 <div class="stat-value" id="rpmMax">--</div>
 <div class="stat-value-sub" id="rpmMaxRaw"></div>
 </div>
-<div class="stat-block">
+<div class="stat-block stat-side">
 <div class="stat-label">MIN</div>
 <div class="stat-value" id="rpmMin">--</div>
 <div class="stat-value-sub" id="rpmMinRaw"></div>
 </div>
 </div>
+</div>
 
 <div style="font-size:1.05rem; color:#6BAFD6; font-weight:700; margin:4px 0 2px;">SPEED (km/h)</div>
 <div class="realtime-stats">
-<div class="stat-block">
+<div class="stat-block stat-current">
 <div class="stat-label">CURRENT</div>
 <div class="stat-value" id="speedNow">--</div>
 <div class="stat-value-sub" id="speedNowRaw"></div>
 </div>
-<div class="stat-block">
+<div class="stat-stack">
+<div class="stat-block stat-side">
 <div class="stat-label">TOP</div>
 <div class="stat-value" id="speedTop">--</div>
 <div class="stat-value-sub" id="speedTopRaw"></div>
 </div>
-<div class="stat-block">
+<div class="stat-block stat-side">
 <div class="stat-label">MIN</div>
 <div class="stat-value" id="speedMin">--</div>
 <div class="stat-value-sub" id="speedMinRaw"></div>
+</div>
 </div>
 </div>
 
