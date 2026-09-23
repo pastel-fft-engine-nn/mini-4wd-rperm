@@ -699,6 +699,65 @@ body.dark-mode .conditions-tip {
 }
 .collapsible-content.active .conditions-tip { display: block; }
 
+.cond-select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  background: #f6f7fc;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  outline: none;
+}
+body.dark-mode .cond-select,
+body.dark-mode .tire-step-input {
+  background: #2c2c2e;
+  color: #f2f2f7;
+}
+.tire-step-row {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  gap: 6px;
+  align-items: center;
+}
+.tire-step-btn {
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: #eef1f8;
+  color: #4b5160;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+body.dark-mode .tire-step-btn { background: #2c2c2e; color: #f2f2f7; }
+.tire-step-btn:active { transform: scale(0.95); }
+.tire-step-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  border-radius: 8px 8px 0 0;
+  background: #f6f7fc;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  text-align: center;
+  outline: none;
+}
+.rev-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+.rev-row.disabled { opacity: 0.45; pointer-events: none; }
+.rev-row.disabled input, .rev-row.disabled select { background: #d8d8de; color: #6e6e73; }
+.rev-step { display: flex; gap: 4px; }
+.rev-step button {
+  min-width: 40px; height: 42px; border: none; border-radius: 8px;
+  background: #eef1f8; font-size: 1.1rem; font-weight: 700; color: #4b5160;
+}
+body.dark-mode .rev-step button { background: #2c2c2e; color: #f2f2f7; }
+.rev-out { margin-top: 8px; padding: 12px; border-radius: 8px; background: #1c1c1e; color: #fff; text-align: center; }
+.rev-out .k { font-size: 0.72rem; color: #aeaeb2; }
+.rev-out .v { font-size: 1.45rem; font-weight: 800; color: #e891b0; }
+.rev-out .u { font-size: .85rem; color: #6BAFD6; margin-left: 4px; }
+
 /* 負荷0のとき生値列・生値サブ表示を隠す */
 body.load-zero .raw-col { display: none; }
 body.load-zero .stat-value-sub { display: none; }
@@ -916,19 +975,46 @@ body.from-memory .app-shell { transform: none !important; }
 <div class="card-title">比較表条件 <span class="toggle-icon"></span></div>
 </div>
 <div class="collapsible-content" id="conditionsContent">
-<div class="conditions-tip" id="conditionsTip">計測した段階の電圧に、電圧スライダーを合わせてください（比較表の基準になります）。</div>
+<div class="conditions-tip" id="conditionsTip">計測した段階の電圧に合わせてください（比較表の基準になります）。</div>
 <div class="settings-row">
 <div class="setting-item">
 <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">2.8 V</span></div>
-<input type="range" id="voltageRange" min="2.2" max="3.4" step="0.1" value="2.8" />
+<select class="cond-select" id="voltageRange">
+<option value="2.2">2.2</option>
+<option value="2.3">2.3</option>
+<option value="2.4">2.4</option>
+<option value="2.5">2.5</option>
+<option value="2.6">2.6</option>
+<option value="2.7">2.7</option>
+<option value="2.8" selected>2.8</option>
+<option value="2.9">2.9</option>
+<option value="3.0">3.0</option>
+<option value="3.1">3.1</option>
+<option value="3.2">3.2</option>
+<option value="3.3">3.3</option>
+<option value="3.4">3.4</option>
+</select>
 </div>
 <div class="setting-item">
 <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">3.7:1</span></div>
-<input type="range" id="gearRange" min="0" max="7" step="1" value="1" />
+<select class="cond-select" id="gearRange">
+<option value="0">3.5:1</option>
+<option value="1" selected>3.7:1</option>
+<option value="2">4.0:1</option>
+<option value="3">4.2:1</option>
+<option value="4">5:1</option>
+<option value="5">6.4:1</option>
+<option value="6">8.75:1</option>
+<option value="7">11.2:1</option>
+</select>
 </div>
 <div class="setting-item">
 <div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">22.5 mm</span></div>
-<input type="range" id="tireRange" min="20.0" max="35.0" step="0.1" value="22.5" />
+<div class="tire-step-row">
+<button type="button" class="tire-step-btn" id="tireMinus">−</button>
+<input type="number" class="tire-step-input" id="tireRange" min="20.0" max="35.0" step="0.1" value="22.5" inputmode="decimal" />
+<button type="button" class="tire-step-btn" id="tirePlus">＋</button>
+</div>
 </div>
 </div>
 </div>
@@ -985,12 +1071,91 @@ body.from-memory .app-shell { transform: none !important; }
 <div style="margin-top: 8px;">
 <button class="secondary-btn gray" id="darkModeToggleBtn" style="width: 100%; font-size: 0.8rem; border: 1px solid #c9d5ff;">ダークモード: OFF</button>
 </div>
+<div style="margin-top: 8px;">
+<button class="secondary-btn gray" id="reverseCalcOpenBtn" style="width: 100%; font-size: 0.8rem; border: 1px solid #c9d5ff;">逆算電卓</button>
+</div>
 
 <div style="display:flex; gap:10px; margin-top:12px;">
 <button class="primary-btn blue" id="settingsResetBtn" style="flex:1; font-size:0.75rem;">設定リセット</button>
 <button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1; font-size:0.75rem;">閉じる</button>
 </div>
 </div>
+</div>
+</div>
+
+<!-- 逆算電卓モーダル -->
+<div class="modal-backdrop" id="reverseCalcModalBackdrop">
+<div class="modal">
+<div class="modal-header">
+<div class="modal-title">逆算電卓</div>
+<button class="modal-close" id="reverseCalcCloseTop">×</button>
+</div>
+<div class="setting-item" style="margin-bottom:10px;">
+<div class="setting-label"><span>求めたいもの</span></div>
+<select class="cond-select" id="revSolve">
+<option value="speed">速度 km/h</option>
+<option value="tire">必要なタイヤ径 mm</option>
+<option value="rpm">必要なモーター回転数 rpm</option>
+<option value="gear">必要なギヤ比</option>
+</select>
+<p style="font-size:0.72rem;color:var(--text-sub);margin:6px 0 0;">選んだ項目はグレーアウトします。残りの3つを入力してください。</p>
+</div>
+<div class="rev-row" data-field="rpm">
+<div>
+<label style="font-size:0.75rem;color:var(--text-sub);font-weight:650;">モーター回転数 (rpm)</label>
+<input id="revRpm" type="number" inputmode="decimal" value="28000" step="100" class="tire-step-input" style="text-align:left;">
+</div>
+<div class="rev-step">
+<button type="button" data-rev="rpm" data-d="-100">−</button>
+<button type="button" data-rev="rpm" data-d="100">＋</button>
+</div>
+</div>
+<div class="rev-row" data-field="gear">
+<div>
+<label style="font-size:0.75rem;color:var(--text-sub);font-weight:650;">ギヤ比</label>
+<select id="revGear" class="cond-select">
+<option value="3.5">3.5:1</option>
+<option value="3.7" selected>3.7:1</option>
+<option value="4.0">4.0:1</option>
+<option value="4.2">4.2:1</option>
+<option value="5">5:1</option>
+<option value="6.4">6.4:1</option>
+<option value="8.75">8.75:1</option>
+<option value="11.2">11.2:1</option>
+</select>
+</div>
+<div class="rev-step">
+<button type="button" id="revGearMinus">−</button>
+<button type="button" id="revGearPlus">＋</button>
+</div>
+</div>
+<div class="rev-row" data-field="speed">
+<div>
+<label style="font-size:0.75rem;color:var(--text-sub);font-weight:650;">速度 (km/h)</label>
+<input id="revSpeed" type="number" inputmode="decimal" value="32.00" step="0.1" class="tire-step-input" style="text-align:left;">
+</div>
+<div class="rev-step">
+<button type="button" data-rev="speed" data-d="-0.1">−</button>
+<button type="button" data-rev="speed" data-d="0.1">＋</button>
+</div>
+</div>
+<div class="rev-row" data-field="tire">
+<div>
+<label style="font-size:0.75rem;color:var(--text-sub);font-weight:650;">タイヤ径 (mm)</label>
+<input id="revTire" type="number" inputmode="decimal" value="22.5" step="0.1" class="tire-step-input" style="text-align:left;">
+</div>
+<div class="rev-step">
+<button type="button" data-rev="tire" data-d="-0.1">−</button>
+<button type="button" data-rev="tire" data-d="0.1">＋</button>
+</div>
+</div>
+<div class="rev-out">
+<div class="k" id="revOutKey">速度</div>
+<div><span class="v" id="revOutVal">--</span><span class="u" id="revOutUnit"></span></div>
+</div>
+<p id="revNote" style="font-size:0.72rem;color:var(--text-sub);margin-top:8px;line-height:1.5;"></p>
+<p style="font-size:0.68rem;color:var(--text-sub);margin-top:8px;line-height:1.55;">速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000<br>ロスなしの机上値です。</p>
+<button class="secondary-btn gray" id="reverseCalcCloseBtn" style="width:100%;margin-top:12px;font-size:0.8rem;">閉じる</button>
 </div>
 </div>
 
@@ -1679,9 +1844,32 @@ UI.gearRange.addEventListener("input", () => {
 UI.gearLabel.textContent = gearOptions[UI.gearRange.value];
 if (locked) buildComparisonTable(currentRpmRaw);
 });
-UI.tireRange.addEventListener("input", () => {
-UI.tireLabel.textContent = parseFloat(UI.tireRange.value).toFixed(1) + " mm";
-if (locked) buildComparisonTable(currentRpmRaw);
+function clampTire(commit) {
+  let v = parseFloat(UI.tireRange.value);
+  if (isNaN(v)) v = 22.5;
+  v = Math.min(35.0, Math.max(20.0, v));
+  if (commit) UI.tireRange.value = v.toFixed(1);
+  UI.tireLabel.textContent = v.toFixed(1) + " mm";
+  if (locked) buildComparisonTable(currentRpmRaw);
+}
+UI.tireRange.addEventListener("input", () => clampTire(false));
+UI.tireRange.addEventListener("change", () => clampTire(true));
+UI.tireRange.addEventListener("blur", () => clampTire(true));
+document.getElementById("tireMinus").addEventListener("click", () => {
+  UI.tireRange.value = (parseFloat(UI.tireRange.value) - 0.1).toFixed(1);
+  clampTire(true);
+});
+document.getElementById("tirePlus").addEventListener("click", () => {
+  UI.tireRange.value = (parseFloat(UI.tireRange.value) + 0.1).toFixed(1);
+  clampTire(true);
+});
+UI.voltageRange.addEventListener("change", () => {
+  UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V";
+  if (locked) buildComparisonTable(currentRpmRaw);
+});
+UI.gearRange.addEventListener("change", () => {
+  UI.gearLabel.textContent = gearOptions[UI.gearRange.value];
+  if (locked) buildComparisonTable(currentRpmRaw);
 });
 
 UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
@@ -1706,6 +1894,86 @@ updateRawVisibility();
 
 document.getElementById("settingsCloseTop").addEventListener("click", () => UI.settingsModal.style.display = "none");
 document.getElementById("settingsCloseBtn").addEventListener("click", () => UI.settingsModal.style.display = "none");
+
+/* ========== 逆算電卓 ========== */
+(function initReverseCalc() {
+  const K = Math.PI * 60 / 1e6;
+  const gears = [3.5, 3.7, 4.0, 4.2, 5, 6.4, 8.75, 11.2];
+  const modal = document.getElementById("reverseCalcModalBackdrop");
+  const $ = function(id) { return document.getElementById(id); };
+  function n(id) { return parseFloat($(id).value); }
+  function applyLock() {
+    const solve = $("revSolve").value;
+    document.querySelectorAll(".rev-row[data-field]").forEach(function(row) {
+      const lockedRow = row.dataset.field === solve;
+      row.classList.toggle("disabled", lockedRow);
+      row.querySelectorAll("input, select, button").forEach(function(el) { el.disabled = lockedRow; });
+    });
+  }
+  function calcRev() {
+    applyLock();
+    const rpm = n("revRpm"), gear = n("revGear"), speed = n("revSpeed"), tire = n("revTire");
+    const solve = $("revSolve").value;
+    let val = NaN, key = "", unit = "", note = "";
+    if (solve === "speed") {
+      val = (rpm / gear) * tire * K;
+      key = "速度"; unit = "km/h";
+      note = rpm.toLocaleString() + " rpm / " + gear + ":1 / " + tire.toFixed(1) + " mm";
+    } else if (solve === "tire") {
+      val = speed * gear / (rpm * K);
+      key = "必要なタイヤ径"; unit = "mm";
+      note = rpm.toLocaleString() + " rpm・" + gear + ":1 で " + speed.toFixed(2) + " km/h";
+    } else if (solve === "rpm") {
+      val = speed * gear / (tire * K);
+      key = "必要なモーター回転数"; unit = "rpm";
+      note = gear + ":1・" + tire.toFixed(1) + " mm で " + speed.toFixed(2) + " km/h";
+    } else {
+      val = rpm * tire * K / speed;
+      key = "必要なギヤ比"; unit = ":1";
+      note = rpm.toLocaleString() + " rpm・" + tire.toFixed(1) + " mm で " + speed.toFixed(2) + " km/h";
+    }
+    $("revOutKey").textContent = key;
+    $("revOutVal").textContent = isFinite(val) ? (solve === "rpm" ? Math.round(val).toLocaleString() : val.toFixed(2)) : "--";
+    $("revOutUnit").textContent = unit;
+    $("revNote").textContent = note;
+    if (isFinite(val) && solve !== "gear") {
+      $(solve === "speed" ? "revSpeed" : solve === "tire" ? "revTire" : "revRpm").value =
+        solve === "rpm" ? String(Math.round(val)) : val.toFixed(2);
+    }
+  }
+  document.getElementById("reverseCalcOpenBtn").addEventListener("click", function() {
+    modal.style.display = "flex";
+    calcRev();
+  });
+  function closeRev() { modal.style.display = "none"; }
+  $("reverseCalcCloseTop").addEventListener("click", closeRev);
+  $("reverseCalcCloseBtn").addEventListener("click", closeRev);
+  ["revRpm","revGear","revSpeed","revTire","revSolve"].forEach(function(id) {
+    $(id).addEventListener("input", calcRev);
+    $(id).addEventListener("change", calcRev);
+  });
+  document.querySelectorAll(".rev-step button[data-rev]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      const t = btn.getAttribute("data-rev");
+      const d = parseFloat(btn.getAttribute("data-d"));
+      const map = { rpm: "revRpm", speed: "revSpeed", tire: "revTire" };
+      const el = $(map[t]);
+      const next = (parseFloat(el.value) || 0) + d;
+      el.value = t === "rpm" ? String(Math.round(next)) : next.toFixed(1);
+      calcRev();
+    });
+  });
+  $("revGearMinus").addEventListener("click", function() {
+    const i = Math.max(0, gears.indexOf(n("revGear")) - 1);
+    $("revGear").value = String(gears[i]);
+    calcRev();
+  });
+  $("revGearPlus").addEventListener("click", function() {
+    const i = Math.min(gears.length - 1, gears.indexOf(n("revGear")) + 1);
+    $("revGear").value = String(gears[i]);
+    calcRev();
+  });
+})();
 document.getElementById("historyCloseTop").addEventListener("click", () => UI.historyModal.style.display = "none");
 document.getElementById("historyCloseBtn").addEventListener("click", () => UI.historyModal.style.display = "none");
 document.getElementById("saveClose").addEventListener("click", () => UI.saveModal.style.display = "none");
