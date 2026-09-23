@@ -108,12 +108,12 @@ body.from-memory .wave-container {
   padding-bottom: 8px;
 }
 .realtime-stats {
-display: grid;
-: 1.445fr 1.105fr;
-gap: 6px;
-font-size: 0.8rem;
-margin-bottom: 4px;
-align-items: stretch;
+  display: grid;
+  grid-template-columns: 1.445fr 1.105fr;
+  gap: 6px;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  align-items: stretch;
 }
 .stat-stack {
 display: flex;
@@ -254,8 +254,8 @@ pointer-events: auto;
 }
 
 .realtime-buttons {
-display: grid;
-: repeat(3, 1fr);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 .primary-btn, .secondary-btn {
@@ -406,14 +406,14 @@ padding: 0;
 margin: 2px 0 0;
 }
 .filter-grid {
-display: grid;
-: repeat(2, 1fr);
-gap: 8px;
-margin-bottom: 12px;
-background: #fff;
-padding: 10px;
-border-radius: 6px;
-border: none;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
 }
 .filter-item {
 display: flex;
@@ -717,7 +717,7 @@ body.dark-mode .tire-step-input {
 }
 .tire-step-row {
   display: grid;
-  : 42px 1fr 42px;
+  grid-template-columns: 65px 1fr 65px;
   gap: 6px;
   align-items: center;
 }
@@ -744,7 +744,7 @@ body.dark-mode .tire-step-btn { background: #2c2c2e; color: #f2f2f7; }
   text-align: center;
   outline: none;
 }
-.rev-row { display: grid; : 1fr auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+.rev-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; margin-bottom: 10px; }
 .rev-row.disabled { opacity: 0.45; pointer-events: none; }
 .rev-row.disabled input, .rev-row.disabled select { background: #d8d8de; color: #6e6e73; }
 .rev-step { display: flex; gap: 4px; }
