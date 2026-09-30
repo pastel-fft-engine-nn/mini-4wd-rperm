@@ -1,0 +1,3623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>RPM Memory</title>
+<link rel="icon" type="image/png" href="rpm-memory-icon-32.png">
+<link rel="apple-touch-icon" href="rpm-memory-icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#101114" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #101114;
+  --bg2: #17181c;
+  --ink: #f4f4f2;
+  --mute: #8a8b90;
+  --line: #2a2b31;
+  --hot: #ff3b30;
+  --ice: #ff973d;
+  --soft: #2c2d33;
+  --font: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", system-ui, sans-serif;
+  --num: "JetBrains Mono", ui-monospace, monospace;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+html, body { margin: 0; padding: 0; min-height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+body:not(.dark-mode) {
+  --bg: #ecece8; --bg2: #ffffff; --ink: #111; --mute: #6a6b70;
+  --line: #dddde2; --ice: #e07020; --soft: #f3f3f0;
+}
+
+.app-shell {
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: 8px 12px calc(14px + var(--safe-b));
+}
+
+.card {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+}
+
+.wave-container {
+  background: #0a0a0c;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 8px 10px 6px;
+  margin-bottom: 10px;
+}
+body:not(.dark-mode) .wave-container { background: #111; }
+.wave-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+}
+.wave-header-right { display: flex; align-items: center; gap: 10px; }
+#fftStatusLabel {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  font-weight: 800;
+  color: var(--ice);
+}
+canvas#spectrum {
+  width: 100%;
+  height: 86px;
+  display: block;
+  background: transparent;
+}
+
+body.from-memory .app-shell { transform: none; padding-bottom: 12px; }
+body.from-memory canvas#spectrum { height: 96px; }
+body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
+
+.realtime-stats {
+  display: grid;
+  grid-template-columns: 1.58865fr 0.96135fr;
+  gap: 0;
+  margin-bottom: 0;
+  align-items: stretch;
+  border: 1px solid var(--line);
+}
+.stat-stack {
+  display: grid;
+  grid-template-rows: 64px 64px;
+  min-width: 0;
+  border-left: 1px solid var(--line);
+  align-self: center;
+}
+.stat-block {
+  background: transparent;
+  border-radius: 0;
+  padding: 8px 10px;
+}
+.stat-stack .stat-block + .stat-block { border-top: 1px solid var(--line); }
+.stat-label {
+  color: var(--mute);
+  margin-bottom: 2px;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+}
+.stat-value {
+  font-family: var(--num);
+  font-weight: 800;
+  font-size: 22px;
+  text-align: right;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.stat-value-sub {
+  font-weight: 600;
+  font-size: 10px;
+  text-align: right;
+  color: var(--mute);
+  margin-top: 2px;
+}
+.section-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  margin: 10px 0 6px;
+  color: var(--ice);
+}
+
+.realtime-center {
+  text-align: left;
+  margin: 8px 0 10px;
+  font-size: 11px;
+  color: var(--mute);
+  letter-spacing: 0.16em;
+}
+
+.header-right-audio {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9px; letter-spacing: 0.14em; color: var(--mute);
+}
+.audio-bars { display: flex; gap: 2px; align-items: flex-end; height: 12px; }
+.audio-bar { width: 2px; height: 3px; background: var(--ice); }
+
+.rpm-limit-section {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 8px 10px 6px;
+  margin: 8px 0;
+}
+.rpm-limit-label {
+  font-size: 10px;
+  color: var(--mute);
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  letter-spacing: 0.08em;
+}
+.rpm-limit-value {
+  font-weight: 800;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--num);
+}
+
+.dual-range-container { position: relative; width: 100%; height: 28px; margin: 4px 0 0; }
+.dual-range-track {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 100%; height: 2px; background: var(--line);
+}
+.dual-range-fill {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  height: 2px; background: var(--ice); pointer-events: none;
+}
+.dual-range-container input[type="range"] {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  -webkit-appearance: none; appearance: none;
+  background: transparent; pointer-events: none; margin: 0;
+}
+.dual-range-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--ink); border: 0; cursor: pointer; pointer-events: auto; z-index: 2;
+}
+.dual-range-container input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%; background: var(--ink); border: 0; pointer-events: auto;
+}
+
+.realtime-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.realtime-btn-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.realtime-btn-row.row-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.modal-title-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.modal-title-note { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; color: var(--mute); line-height: 1.4; }
+.primary-btn, .secondary-btn {
+  border: 0; border-radius: 0;
+  padding: 12px 6px; min-height: 46px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.08em;
+  cursor: pointer; font-family: var(--font);
+}
+.primary-btn.blue { background: var(--ice); color: #111; }
+.primary-btn.red { background: var(--hot); color: #fff; }
+.secondary-btn.gray { background: var(--soft); color: var(--ink); }
+.secondary-btn.outline { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+.primary-btn:active, .secondary-btn:active { transform: scale(0.98); }
+
+.settings-row { display: flex; flex-direction: column; gap: 10px; padding: 2px 0 4px; }
+.setting-item { display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+.setting-label {
+  color: var(--mute); display: flex; justify-content: space-between; align-items: baseline; font-size: 12px;
+}
+.setting-value { font-size: 12px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; font-family: var(--num); }
+input[type="range"] {
+  width: 100%; -webkit-appearance: none; height: 2px; background: var(--line); outline: none; margin: 4px 0 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--ink); cursor: pointer;
+}
+
+.table-wrapper, .history-table-wrapper {
+  margin-top: 8px; border: 1px solid var(--line); overflow-x: auto;
+  max-height: 405px; background: var(--bg2);
+}
+.history-table-wrapper { max-height: 350px; }
+table {
+  border-collapse: collapse; width: 100%; min-width: 700px;
+  font-size: 11px; font-variant-numeric: tabular-nums; font-family: var(--num);
+}
+thead th {
+  background: var(--bg2); position: sticky; top: 0; z-index: 3;
+  padding: 8px 4px; font-weight: 800; letter-spacing: 0.06em; color: var(--mute); font-family: var(--font);
+}
+th:first-child, td:first-child { position: sticky; left: 0; background: var(--bg2); z-index: 2; }
+td { padding: 8px 4px; border-bottom: 1px solid var(--line); }
+table td, table th { text-align: center !important; }
+.highlight-row { background: rgba(255, 151, 61, 0.10) !important; }
+.highlight-col { background: rgba(255, 151, 61, 0.06) !important; }
+
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.72);
+  display: none; align-items: flex-end; justify-content: center; z-index: 100;
+}
+.modal {
+  width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+  background: var(--bg); color: var(--ink);
+  border-top: 1px solid var(--line);
+  padding: 16px 16px calc(22px + var(--safe-b));
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.modal-title { font-size: 16px; font-weight: 800; letter-spacing: 0.08em; }
+.modal-close { border: 0; background: transparent; font-size: 28px; line-height: 1; cursor: pointer; color: var(--ink); }
+
+.filter-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  margin-bottom: 12px; padding: 0;
+}
+.filter-item { display: flex; flex-direction: column; gap: 4px; }
+.filter-item label {
+  display: block !important; visibility: visible !important;
+  font-size: 10px; letter-spacing: 0.12em; color: var(--mute); font-weight: 700;
+}
+.filter-item select, .cond-select, .tire-step-input, .input-row input, .input-row select, .history-toolbar select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 0;
+  background: var(--bg2); color: var(--ink); font-size: 15px; outline: none; font-family: var(--font);
+}
+.search-btn-row { grid-column: span 2; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.history-table { border-collapse: collapse; width: 100%; min-width: 700px; font-size: 11px; }
+.history-table th, .history-table td {
+  padding: 7px 3px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap;
+}
+.delete-btn { border: 0; background: var(--hot); color: #fff; padding: 5px 8px; font-weight: 800; font-size: 11px; }
+.input-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.input-row label { font-size: 11px; letter-spacing: 0.12em; font-weight: 700; color: var(--mute); }
+
+.collapsible-content { display: none; overflow: visible; padding-bottom: 4px; }
+.collapsible-content.active { display: block; }
+.toggle-icon::after { content: ""; display: none; }
+.toggle-icon::before {
+  content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 8px;
+  border-right: 1.5px solid var(--mute); border-bottom: 1.5px solid var(--mute);
+  transform: rotate(-45deg); vertical-align: middle;
+}
+#conditionsCard.active .toggle-icon::before,
+#conditionsCard.is-open .toggle-icon::before { transform: rotate(45deg); }
+
+.fav-name { cursor: pointer; user-select: none; }
+.fav-name.is-fav { color: var(--ice); font-weight: 800; }
+.fav-filter-btn {
+  border: 1px solid var(--line); background: var(--bg2); color: var(--ink);
+  padding: 8px 12px; font-size: 11px; font-weight: 800;
+}
+.fav-filter-btn.on { background: var(--ice); color: #111; border-color: var(--ice); }
+.load-badge { font-size: 9px; margin-left: 4px; color: var(--mute); }
+
+.memory-bridge-bar {
+  display: none; align-items: center; gap: 8px;
+  background: var(--ice); color: #111; border: 0;
+  padding: 10px 12px; margin-bottom: 10px; font-size: 12px; font-weight: 800;
+}
+.memory-bridge-bar button {
+  margin-left: auto; border: 0; background: #111; color: var(--ice);
+  padding: 8px 12px; font-weight: 800; font-size: 12px;
+}
+.memory-send-btn { background: var(--ink) !important; color: var(--bg) !important; border: 0 !important; }
+#memorySendBtn { display: none; }
+#memorySendStatus { font-size: 11px; color: var(--mute); text-align: center; margin-top: 6px; min-height: 1.2em; }
+
+.conditions-tip {
+  display: none; margin: 0 0 10px; padding: 0;
+  font-size: 12px; line-height: 1.5; color: var(--mute);
+}
+.collapsible-content.active .conditions-tip { display: block; }
+
+.tire-step-row { display: grid; grid-template-columns: 72px 1fr 72px; gap: 6px; align-items: center; }
+.tire-step-btn, .rev-step button {
+  height: 44px; min-width: 66px; width: 100%;
+  border: 1px solid var(--line); border-radius: 0;
+  background: var(--bg2); color: var(--ink); font-size: 18px; font-weight: 800;
+  touch-action: manipulation;
+}
+.tire-step-btn:active { transform: scale(0.96); }
+.tire-step-input { text-align: center; font-variant-numeric: tabular-nums; font-family: var(--num); }
+
+#reverseCalcModalBackdrop .modal-title {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+}
+#reverseCalcModalBackdrop .setting-label,
+#reverseCalcModalBackdrop label {
+  font-size: 10px !important;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  color: var(--mute);
+}
+#reverseCalcModalBackdrop .cond-select,
+#reverseCalcModalBackdrop .tire-step-input {
+  font-family: var(--num);
+  font-weight: 600;
+  border-radius: 0;
+}
+.machine-grid { display: grid; gap: 14px; }
+.machine-item .hint { font-size: 11px; color: var(--mute); margin: 6px 0 0; line-height: 1.45; }
+.seg-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.seg-btn {
+  height: 44px; border: 1px solid var(--line); border-radius: 0;
+  background: var(--bg2); color: var(--ink); font-size: 13px; font-weight: 800; letter-spacing: 0.08em;
+}
+.seg-btn.active { background: var(--ice); color: #111; border-color: var(--ice); }
+.machine-summary {
+  font-size: 12px; color: var(--mute); line-height: 1.55;
+  border: 1px solid var(--line); padding: 10px 12px;
+}
+.rev-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: end; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.rev-row.disabled { opacity: 0.4; pointer-events: none; }
+.rev-step { display: flex; gap: 0; }
+.rev-step button { width: 66px; min-width: 66px; }
+.rev-out {
+  margin-top: 4px; padding: 14px 10px;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+.rev-out .k { font-size: 10px; letter-spacing: 0.22em; color: var(--ice); font-weight: 800; }
+.rev-out .v { font-family: var(--num); font-size: 48px; font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1; }
+.rev-out .u { font-size: 11px; letter-spacing: 0.16em; color: var(--mute); margin-left: 4px; }
+
+body.load-zero .raw-col { display: none; }
+body.load-zero .stat-value-sub { display: none; }
+body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
+
+.history-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 10px; font-size: 12px; }
+.history-summary {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  margin-bottom: 10px; border: 1px solid var(--line);
+}
+.history-summary .hs-item { padding: 8px 4px; text-align: center; }
+.history-summary .hs-item + .hs-item { border-left: 1px solid var(--line); }
+.history-summary .hs-label { font-size: 9px; color: var(--mute); letter-spacing: 0.08em; }
+.history-summary .hs-value { font-family: var(--num); font-size: 14px; font-weight: 800; margin-top: 2px; }
+.history-diff-panel {
+  display: none; margin-bottom: 10px; padding: 8px 0;
+  font-size: 12px; line-height: 1.55;
+}
+.history-diff-panel.show { display: block; }
+.history-diff-panel strong { color: var(--ice); }
+.history-table tr.is-best td { background: rgba(255, 151, 61, 0.08); }
+.history-table tr.is-selected td { outline: 1px solid var(--ice); outline-offset: -1px; }
+.cmp-summary {
+  margin: 0 0 8px; padding: 0;
+  font-size: 12px; line-height: 1.5; color: var(--mute);
+}
+.cmp-summary .emph { font-weight: 800; color: var(--ink); }
+
+.stat-current .stat-value { font-size: 52.2px; }
+.stat-side .stat-value { font-size: 20px; line-height: 1; }
+.stat-block.stat-current { display: flex; flex-direction: column; justify-content: center; padding: 10px 8px; min-height: 128px; }
+.stat-block.stat-side {
+  width: 100%;
+  height: 64px;
+  min-height: 64px;
+  max-height: 64px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+body.from-memory .app-shell { transform: none !important; }
+body.from-memory canvas#spectrum { height: 96px !important; }
+
+/* ========== THEME: CLASSIC (元の見た目) ========== */
+body.theme-classic {
+  --num: "JetBrains Mono", ui-monospace, monospace;
+  --bg: #f2f2f7;
+  --card-bg: #ffffff;
+  --accent-blue: #6BAFD6;
+  --accent-blue-deep: #5a9ec4;
+  --accent-pink: #e891b0;
+  --accent-red: #ff3b30;
+  --accent-orange: #ff9f0a;
+  --text-main: #1c1c1e;
+  --text-sub: #8e8e93;
+  --border-soft: #e5e5ea;
+  --radius-lg: 8px;
+  --radius-md: 6px;
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --ink: #1c1c1e;
+  --mute: #8e8e93;
+  --line: #e5e5ea;
+  --hot: #ff3b30;
+  --ice: #6BAFD6;
+  --soft: #eef1f8;
+  --bg2: #ffffff;
+  --font: "游ゴシック", "Yu Gothic", "Hiragino Sans", "Meiryo", "メイリオ", sans-serif;
+  --num: "游ゴシック", "Yu Gothic", "Hiragino Sans", "Meiryo", sans-serif;
+}
+body.theme-classic.dark-mode {
+  --bg: #0d0d0f;
+  --card-bg: #1c1c1e;
+  --text-main: #f2f2f7;
+  --text-sub: #aeaeb2;
+  --border-soft: #2c2c2e;
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --ink: #f2f2f7;
+  --mute: #aeaeb2;
+  --line: #2c2c2e;
+  --soft: #2c2c2e;
+  --bg2: #1c1c1e;
+}
+body.theme-classic {
+  font-family: var(--font);
+  background: linear-gradient(180deg, #f2f2f7 0%, #e8e8ed 100%);
+  color: var(--text-main);
+}
+body.theme-classic.dark-mode {
+  background: #0d0d0f;
+}
+body.theme-classic .app-shell {
+  width: min(560px, 100%);
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 4px 8px 8px;
+}
+body.theme-classic .card {
+  background: var(--card-bg);
+  border: none;
+  border-radius: 8px;
+  box-shadow: var(--shadow-soft);
+  padding: 6px 8px;
+  margin-bottom: 6px;
+}
+body.theme-classic.dark-mode .card { background: #1c1c1e; }
+body.theme-classic .card-header { margin-bottom: 4px; }
+body.theme-classic .card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-main);
+}
+body.theme-classic .wave-container {
+  background: radial-gradient(circle at top, #ffffff 0, #e3e9ff 60%, #d6defa 100%);
+  border: none;
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin-bottom: 4px;
+}
+body.theme-classic.dark-mode .wave-container {
+  background: radial-gradient(circle at top, #2a2430 0, #1c1c1e 55%, #0d0d0f 100%);
+}
+body.theme-classic .wave-header {
+  font-size: 0.75rem;
+  letter-spacing: normal;
+  color: var(--text-sub);
+  margin-bottom: 2px;
+}
+body.theme-classic #fftStatusLabel {
+  font-size: 0.75rem;
+  letter-spacing: normal;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+body.theme-classic canvas#spectrum { height: 86px; }
+body.theme-classic.from-memory canvas#spectrum { height: 96px; }
+body.theme-classic .rpm-limit-section {
+  background: linear-gradient(135deg, #e6ecff 0%, #f0f4ff 100%);
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin: 4px 0;
+}
+body.theme-classic.dark-mode .rpm-limit-section { background: #2c2c2e; }
+body.theme-classic .rpm-limit-label {
+  font-size: 0.75rem;
+  letter-spacing: normal;
+  color: var(--text-sub);
+}
+body.theme-classic .rpm-limit-value { color: var(--accent-blue); font-family: inherit; }
+body.theme-classic .dual-range-container { height: 30px; margin: 4px 0 2px; }
+body.theme-classic .dual-range-container input[type="range"] {
+  background: transparent !important;
+  height: 100%;
+  margin: 0;
+}
+body.theme-classic .dual-range-container input[type="range"]::-webkit-slider-runnable-track,
+body.theme-classic .dual-range-container input[type="range"]::-moz-range-track {
+  background: transparent !important;
+  border: none;
+  height: 6px;
+}
+body.theme-classic .dual-range-track { height: 6px; border-radius: 8px; background: #e3e7f5; }
+body.theme-classic.dark-mode .dual-range-track { background: #3a3a3c; }
+body.theme-classic .dual-range-fill { height: 6px; border-radius: 8px; background: linear-gradient(90deg, #7EC0E0, #6BAFD6); }
+body.theme-classic .dual-range-container input[type="range"]::-webkit-slider-thumb {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #1c1c1e; border: 3px solid var(--accent-blue);
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+body.theme-classic.dark-mode .dual-range-container input[type="range"]::-webkit-slider-thumb {
+  background: #1c1c1e; border-color: #6BAFD6;
+}
+body.theme-classic .section-kicker {
+  font-size: 1.05rem;
+  letter-spacing: normal;
+  margin: 6px 0 2px;
+  font-weight: 700;
+}
+body.theme-classic .section-kicker:first-of-type,
+body.theme-classic .wave-container + .rpm-limit-section + .section-kicker { color: #e891b0; }
+body.theme-classic .section-kicker.speed-kicker,
+body.theme-classic #speedNow.closest { }
+body.theme-classic .kicker-rpm { color: #e891b0 !important; }
+body.theme-classic .kicker-speed { color: #6BAFD6 !important; }
+body.theme-classic .realtime-stats {
+  display: grid;
+  grid-template-columns: 1.445fr 1.105fr;
+  gap: 4px;
+  margin-bottom: 2px;
+  border: none;
+  align-items: stretch;
+}
+body.theme-classic .stat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-left: none;
+  grid-template-rows: none;
+}
+body.theme-classic .stat-block {
+  background: #f6f7fc;
+  border-radius: 6px;
+  padding: 6px 6px;
+}
+body.theme-classic.dark-mode .stat-block { background: #2c2c2e; }
+body.theme-classic .stat-stack .stat-block + .stat-block { border-top: none; }
+body.theme-classic .stat-block.stat-current {
+  padding: 4px 8px 8px;
+  min-height: 0;
+  height: 100%;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+body.theme-classic .stat-block.stat-current .stat-label { margin-bottom: 2px; }
+body.theme-classic .stat-block.stat-current .stat-value { text-align: right; }
+body.theme-classic .stat-block.stat-side {
+  height: auto; min-height: 0; max-height: none;
+  padding: 3px 6px 2px;
+  width: auto;
+}
+body.theme-classic .stat-label {
+  color: var(--text-sub);
+  font-size: 0.95rem;
+  letter-spacing: normal;
+  font-weight: 600;
+}
+body.theme-classic .stat-current .stat-label { font-size: 1.02rem; }
+body.theme-classic .stat-side .stat-label { font-size: 0.72rem; margin-bottom: 0; }
+body.theme-classic .stat-value {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 1.33rem;
+  color: #e891b0;
+  letter-spacing: -0.02em;
+}
+body.theme-classic .stat-current .stat-value { font-size: 52.2px !important; }
+body.theme-classic .stat-side .stat-value { font-size: 1.20rem !important; line-height: 1.1; }
+body.theme-classic .stat-value-sub { font-size: 0.85rem; color: var(--text-sub); }
+body.theme-classic .stat-side .stat-value-sub { font-size: 0.68rem; margin-top: 0; }
+body.theme-classic .realtime-center {
+  text-align: center;
+  margin: 2px 0 4px;
+  font-size: 0.75rem;
+  color: var(--accent-blue);
+  letter-spacing: 0.12em;
+}
+body.theme-classic .realtime-buttons { display: flex; flex-direction: column; gap: 4px; }
+body.theme-classic .realtime-btn-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+body.theme-classic .realtime-btn-row.row-2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+body.theme-classic .primary-btn, body.theme-classic .secondary-btn {
+  border: none; border-radius: 6px;
+  padding: 10px 6px; min-height: 42px;
+  font-size: 0.78rem; font-weight: 650; letter-spacing: 0.02em;
+}
+body.theme-classic .primary-btn.blue { background: linear-gradient(135deg, #7EC0E0, #6BAFD6); color: #fff; }
+body.theme-classic .primary-btn.red { background: linear-gradient(135deg, #ff6b6b, #ff4b4b); color: #fff; }
+body.theme-classic .secondary-btn.gray { background: #eef1f8; color: #4b5160; }
+body.theme-classic.dark-mode .secondary-btn.gray { background: #2c2c2e; color: #f2f2f7; }
+body.theme-classic .secondary-btn.outline { background: #fff; color: var(--accent-blue); border: none; }
+body.theme-classic .memory-send-btn { background: linear-gradient(135deg, #5856d6, #7c6cff) !important; color: #fff !important; }
+body.theme-classic .memory-bridge-bar {
+  background: linear-gradient(135deg, #5856d6, #007aff);
+  color: #fff; border-radius: 6px; font-weight: 600; font-size: 0.8rem;
+}
+body.theme-classic .memory-bridge-bar button { background: #fff; color: #007aff; border-radius: 8px; }
+body.theme-classic input[type="range"] { height: 6px; border-radius: 8px; background: #e3e7f5; }
+body.theme-classic input[type="range"]::-webkit-slider-thumb {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #1c1c1e; border: 2px solid var(--accent-blue);
+}
+body.theme-classic .cond-select, body.theme-classic .tire-step-input,
+body.theme-classic .filter-item select, body.theme-classic .input-row input,
+body.theme-classic .input-row select, body.theme-classic .history-toolbar select {
+  border: none; border-bottom: 1px solid var(--border-soft);
+  border-radius: 8px; background: #f6f7fc; font-size: 0.9rem; padding: 8px 10px;
+}
+body.theme-classic.dark-mode .cond-select,
+body.theme-classic.dark-mode .tire-step-input,
+body.theme-classic.dark-mode .filter-item select,
+body.theme-classic.dark-mode .input-row input,
+body.theme-classic.dark-mode .input-row select {
+  background: #2c2c2e; color: #f2f2f7;
+}
+body.theme-classic .modal {
+  width: 100%;
+  max-width: 560px;
+  background: #f5f7fc;
+  border-radius: 10px 10px 0 0;
+  border-top: none;
+  padding: 16px 16px calc(22px + var(--safe-b, 0px));
+}
+body.theme-classic.dark-mode .modal { background: #1c1c1e; color: #f2f2f7; }
+body.theme-classic .modal-title { font-size: 1rem; letter-spacing: normal; }
+body.theme-classic .table-wrapper, body.theme-classic .history-table-wrapper {
+  border: none; border-radius: 6px; background: #f9fbff;
+}
+body.theme-classic.dark-mode .table-wrapper,
+body.theme-classic.dark-mode .history-table-wrapper { background: #1c1c1e; }
+body.theme-classic thead th { background: #e6ecff; color: inherit; letter-spacing: normal; font-family: inherit; }
+body.theme-classic.dark-mode thead th { background: #2c2c2e; color: #f2f2f7; }
+body.theme-classic th:first-child, body.theme-classic td:first-child { background: #f3f6ff; }
+body.theme-classic.dark-mode th:first-child, body.theme-classic.dark-mode td:first-child { background: #242426; }
+body.theme-classic .highlight-row { background: rgba(31, 122, 255, 0.1) !important; }
+body.theme-classic .highlight-col { background: rgba(255, 79, 163, 0.05) !important; }
+body.theme-classic .cmp-summary {
+  margin: 0 0 8px; padding: 8px 10px; border-radius: 6px;
+  background: #eef7fc; font-size: 0.72rem; color: #3a5a70;
+}
+body.theme-classic.dark-mode .cmp-summary { background: #1a2832; color: #c8d9e8; }
+body.theme-classic .cmp-summary .emph { color: var(--accent-pink); font-weight: 700; }
+body.theme-classic .history-summary { gap: 6px; border: none; }
+body.theme-classic .history-summary .hs-item {
+  background: #f2f2f7; border-radius: 6px; padding: 6px 8px; border-left: none;
+}
+body.theme-classic.dark-mode .history-summary .hs-item { background: #2c2c2e; }
+body.theme-classic .history-summary .hs-item + .hs-item { border-left: none; }
+body.theme-classic .fav-filter-btn {
+  border: none; border-radius: 8px; padding: 5px 14px;
+  background: #eef1f8; color: #7b8190;
+}
+body.theme-classic .fav-filter-btn.on { background: linear-gradient(135deg, #f0a050, #e88a30); color: #fff; }
+body.theme-classic .delete-btn { background: #ffeef2; color: #ff4b4b; border-radius: 6px; }
+body.theme-classic .tire-step-btn, body.theme-classic .rev-step button, body.theme-classic .seg-btn {
+  border: none; border-radius: 8px; background: #eef1f8; height: 44px; min-width: 66px; width: 100%;
+}
+body.theme-classic.dark-mode .tire-step-btn,
+body.theme-classic.dark-mode .rev-step button,
+body.theme-classic.dark-mode .seg-btn { background: #2c2c2e; color: #f2f2f7; }
+body.theme-classic .seg-btn.active { background: linear-gradient(135deg, #7EC0E0, #6BAFD6); color: #fff; border: none; }
+body.theme-classic .rev-out { background: #1c1c1e; color: #fff; border: none; border-radius: 8px; text-align: center; }
+body.theme-classic .rev-out .v { font-size: 1.45rem; color: #e891b0; font-family: inherit; }
+body.theme-classic .rev-out .k { color: #aeaeb2; letter-spacing: normal; }
+body.theme-classic .machine-summary { border: none; background: #eef5ff; border-radius: 8px; }
+body.theme-classic.dark-mode .machine-summary { background: #1a2436; }
+body.theme-classic .toggle-icon::before {
+  content: "▶";
+  width: auto; height: auto; border: none;
+  transform: none; font-size: 0.7em; margin-left: 4px; color: var(--text-sub);
+}
+body.theme-classic #conditionsCard.active .toggle-icon::before,
+body.theme-classic #conditionsCard.is-open .toggle-icon::before { transform: rotate(90deg); }
+body.theme-classic .audio-bar { width: 3px; background: var(--accent-blue); }
+body.theme-classic .header-right-audio { font-size: 0.7rem; letter-spacing: normal; }
+
+
+/* ========== THEME: FLARE ========== */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap");
+body.theme-flare {
+  --bg: #0A0A0A;
+  --bg2: #111111;
+  --ink: #F3EFE8;
+  --mute: #7A746C;
+  --line: #1C1C1C;
+  --hot: #FF6A12;
+  --ice: #FF6A12;
+  --soft: #141414;
+  --font: "IBM Plex Sans JP", "Hiragino Sans", sans-serif;
+  --num: "JetBrains Mono", ui-monospace, monospace;
+  --card-bg: #0A0A0A;
+  --text-main: #F3EFE8;
+  --text-sub: #7A746C;
+  --accent-blue: #FF6A12;
+  --accent-pink: #FF6A12;
+  --accent-orange: #FF6A12;
+  --border-soft: #1C1C1C;
+}
+body.theme-flare {
+  font-family: var(--font);
+  background: #0A0A0A;
+  color: #F3EFE8;
+}
+body.theme-flare .app-shell { width: min(560px, 100%); max-width: 560px; padding: 8px 12px 16px; }
+body.theme-flare .card {
+  background: transparent; border: 0; border-radius: 0; box-shadow: none;
+  padding: 12px 8px; margin-bottom: 8px;
+}
+body.theme-flare .card-title {
+  font-size: 11px; letter-spacing: 0.28em; font-weight: 500; color: #7A746C;
+}
+body.theme-flare .wave-container {
+  background: #0A0A0A; border: 1px solid #1C1C1C; border-radius: 0; padding: 8px;
+}
+body.theme-flare .wave-header, body.theme-flare #fftStatusLabel {
+  font-size: 10px; letter-spacing: 0.2em; color: #7A746C;
+}
+body.theme-flare #fftStatusLabel { color: #FF6A12; font-weight: 600; }
+body.theme-flare .rpm-limit-section {
+  background: transparent; border: 1px solid #1C1C1C; border-radius: 0;
+}
+body.theme-flare .rpm-limit-value, body.theme-flare .stat-value { color: #F3EFE8; font-family: var(--num); }
+body.theme-flare .stat-block { background: transparent; border-radius: 0; border: 1px solid #1C1C1C; }
+body.theme-flare .stat-value { color: #FF6A12; }
+body.theme-flare .section-kicker, body.theme-flare .kicker-rpm, body.theme-flare .kicker-speed {
+  color: #FF6A12 !important; letter-spacing: 0.28em; font-size: 10px; font-weight: 500;
+}
+body.theme-flare .realtime-center { color: #7A746C; letter-spacing: 0.2em; text-align: left; }
+body.theme-flare .primary-btn, body.theme-flare .secondary-btn {
+  border-radius: 999px; letter-spacing: 0.16em; font-weight: 500;
+}
+body.theme-flare .primary-btn.blue { background: #FF6A12; color: #140800; }
+body.theme-flare .primary-btn.red { background: #FF6A12; color: #140800; }
+body.theme-flare .secondary-btn.gray { background: transparent; color: #7A746C; border: 1px solid #222; }
+body.theme-flare .secondary-btn.outline { background: transparent; color: #FF6A12; border: 1px solid #FF6A12; }
+body.theme-flare .memory-send-btn { background: #F3EFE8 !important; color: #0A0A0A !important; border-radius: 999px; }
+body.theme-flare .memory-bridge-bar { background: #FF6A12; color: #140800; border-radius: 999px; }
+body.theme-flare .dual-range-fill { background: #FF6A12; height: 2px; }
+body.theme-flare .dual-range-track { height: 2px; background: #2A2A2A; }
+body.theme-flare input[type="range"] { height: 2px; background: #2A2A2A; }
+body.theme-flare input[type="range"]::-webkit-slider-thumb { background: #FF6A12; border: 0; width: 16px; height: 16px; }
+body.theme-flare .modal { background: #0A0A0A; color: #F3EFE8; border-radius: 0; border-top: 1px solid #1C1C1C; }
+body.theme-flare .cond-select, body.theme-flare .tire-step-input,
+body.theme-flare .filter-item select, body.theme-flare .input-row input,
+body.theme-flare .input-row select {
+  background: #111; border: 1px solid #222; border-radius: 8px; color: #F3EFE8;
+  font-family: var(--num);
+}
+body.theme-flare .table-wrapper, body.theme-flare .history-table-wrapper { background: #0A0A0A; border: 1px solid #222; }
+body.theme-flare thead th { background: #0A0A0A; color: #7A746C; letter-spacing: 0.12em; }
+body.theme-flare .highlight-row { background: rgba(255,106,18,.18) !important; color: #FF6A12; }
+body.theme-flare .cmp-summary { background: transparent; color: #7A746C; padding: 0; }
+body.theme-flare .cmp-summary .emph { color: #FF6A12; }
+body.theme-flare .fav-filter-btn.on, body.theme-flare .seg-btn.active { background: #FF6A12; color: #140800; border-color: #FF6A12; }
+body.theme-flare .delete-btn { background: #FF6A12; color: #140800; border-radius: 999px; }
+body.theme-flare .rev-out { border: 1px solid #222; background: transparent; }
+body.theme-flare .rev-out .v { font-family: var(--num); color: #FF6A12; font-size: 40px; }
+body.theme-flare .audio-bar { background: #FF6A12; }
+body.theme-flare .tire-step-btn, body.theme-flare .rev-step button, body.theme-flare .seg-btn {
+  background: #111; border: 1px solid #222; color: #F3EFE8; border-radius: 8px;
+}
+
+
+/* ========== FLARE SHELL (実レイアウト) ========== */
+#flareApp { display: none; }
+body.theme-flare {
+  overflow: hidden;
+  background: #0A0A0A !important;
+  color: #F3EFE8;
+}
+body.theme-flare .app-shell { display: none !important; }
+body.theme-flare #flareApp {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100dvh;
+  max-width: 560px;
+  width: min(560px, 100%);
+  margin: 0 auto;
+  background: #0A0A0A;
+  color: #F3EFE8;
+  font-family: "IBM Plex Sans JP", "Hiragino Sans", sans-serif;
+}
+#flareApp .f-bar {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 14px 20px 8px;
+}
+#flareApp .f-word { font-size: 11px; letter-spacing: .42em; font-weight: 500; }
+#flareApp .f-word i { color: #FF6A12; font-style: normal; }
+#flareApp .f-live { font-size: 10px; letter-spacing: .2em; color: #7A746C; font-family: "JetBrains Mono", monospace; }
+#flareApp .f-live.on { color: #FF6A12; }
+#flareApp .f-pages { position: relative; overflow: hidden; min-height: 0; }
+#flareApp .f-page { position: absolute; inset: 0; overflow: auto; display: none; }
+#flareApp .f-page.on { display: block; }
+#flareApp .cockpit {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 56px;
+  padding: 0 12px 0 20px;
+}
+#flareApp .stage { display: flex; flex-direction: column; justify-content: center; min-height: 100%; padding-bottom: 12px; }
+#flareApp .lbl { font-size: 10px; letter-spacing: .28em; color: #7A746C; display: flex; align-items: center; gap: 10px; }
+#flareApp .lbl b { color: #FF6A12; font-weight: 500; letter-spacing: .18em; }
+#flareApp .num {
+  font-family: "JetBrains Mono", monospace; font-weight: 700;
+  font-size: clamp(52px, 16vw, 84px);
+  letter-spacing: -.06em; line-height: .92;
+  margin: 10px 0 4px;
+}
+#flareApp .num small { font-size: 14px; color: #7A746C; margin-left: 6px; font-weight: 400; font-family: "IBM Plex Sans JP", sans-serif; }
+#flareApp .subspd { font-family: "JetBrains Mono", monospace; font-size: 20px; color: #7A746C; }
+#flareApp .subspd em { color: #F3EFE8; font-style: normal; }
+#flareApp .ticks { display: flex; gap: 22px; margin-top: 18px; }
+#flareApp .ticks div { font-size: 10px; letter-spacing: .16em; color: #7A746C; }
+#flareApp .ticks b { display: block; font-family: "JetBrains Mono", monospace; font-size: 15px; color: #F3EFE8; margin-top: 4px; font-weight: 500; }
+#flareApp .holdwrap { margin-top: 36px; }
+#flareApp .hold {
+  width: 100%; height: 56px;
+  border: 1px solid #2A2A2A; border-radius: 999px;
+  letter-spacing: .28em; font-size: 12px; color: #7A746C; background: none;
+  position: relative; z-index: 3;
+  touch-action: manipulation;
+}
+#flareApp .hold span { pointer-events: none; display: inline-block; }
+#flareApp .hold.hot { background: #FF6A12; color: #140800; border-color: transparent; }
+#flareApp .hold.locked { border-color: #FF6A12; color: #FF6A12; }
+#flareApp .ghostrow { display: flex; gap: 8px; margin-top: 10px; }
+#flareApp .ghostrow button {
+  flex: 1; height: 40px; border-radius: 999px; border: 1px solid #222;
+  font-size: 11px; letter-spacing: .16em; color: #7A746C; background: none;
+}
+#flareApp .rail { display: flex; flex-direction: column; width: 56px; padding: 8px 0 12px; }
+#flareApp .rail-track { position: relative; flex: 1; min-height: 180px; }
+#flareApp .rail canvas { position: absolute; inset: 10px 8px 10px 0; width: 100%; height: 100%; }
+#flareApp .cap {
+  position: absolute; left: 0; right: 0; height: 22px;
+  display: flex; align-items: center; justify-content: flex-end;
+  touch-action: none; z-index: 2;
+}
+#flareApp .cap i { width: 18px; height: 3px; background: #FF6A12; border-radius: 2px; }
+#flareApp .cap span {
+  position: absolute; right: 0; top: 8px;
+  font-size: 8px; color: #FF6A12; font-family: "JetBrains Mono", monospace;
+}
+#flareApp .sheet { padding: 8px 18px 24px; }
+#flareApp .h { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+#flareApp .p { font-size: 12px; color: #7A746C; line-height: 1.6; margin-bottom: 16px; }
+#flareApp nav.f-nav {
+  display: grid; grid-template-columns: repeat(5,1fr);
+  border-top: 2px solid #FF6A12;
+  background: #141414;
+  padding: 4px 6px calc(10px + env(safe-area-inset-bottom));
+  gap: 4px;
+}
+#flareApp nav.f-nav button {
+  font-size: 11px; letter-spacing: .12em; font-weight: 600;
+  color: #C8C2BA;
+  padding: 12px 2px 10px;
+  background: #1C1C1C;
+  border: 1px solid #2E2E2E;
+  border-radius: 8px;
+}
+#flareApp nav.f-nav button.on {
+  color: #140800;
+  background: #FF6A12;
+  border-color: #FF6A12;
+  font-weight: 800;
+}
+#flareApp .theme-mini {
+  font-size: 10px; letter-spacing: .16em; color: #7A746C;
+  border: 1px solid #222; border-radius: 999px; padding: 6px 10px; background: none;
+}
+body.theme-flare .modal { max-width: 480px; }
+
+
+.realtime-btn-row { grid-template-columns: repeat(3, 1fr) !important; }
+.realtime-btn-row .primary-btn,
+.realtime-btn-row .secondary-btn {
+  min-height: 46px;
+  width: 100%;
+}
+.btn-spacer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+
+.cmp-machine-bar {
+  margin: 0 0 8px;
+  padding: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  border-radius: 0;
+  background: transparent !important;
+  color: inherit;
+  opacity: 0.85;
+}
+body.theme-sharp .cmp-machine-bar,
+body.theme-classic .cmp-machine-bar,
+body.theme-flare .cmp-machine-bar,
+body.dark-mode .cmp-machine-bar {
+  background: transparent !important;
+  color: var(--mute, var(--text-sub, #8e8e93));
+}
+.cmp-machine-bar.is-set { font-weight: 700; }
+.cmp-split-toggle {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.75rem; color: var(--mute, #8e8e93);
+  margin: 0 0 8px; cursor: pointer;
+}
+.cmp-cell-split { display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
+.cmp-cell-split .u { font-size: 0.68rem; color: var(--mute, #8e8e93); }
+.cmp-cell-split .s { font-weight: 700; }
+.cmp-cell-split .tag { font-size: 0.58rem; letter-spacing: 0.04em; opacity: 0.8; margin-right: 3px; }
+
+
+.stat-value, .stat-value-sub, .rpm-limit-value, table td, .rev-out .v,
+#rpmNow, #rpmMax, #rpmMin, #speedNow, #speedTop, #speedMin {
+  font-family: "JetBrains Mono", ui-monospace, monospace !important;
+}
+.tire-step-btn, .rev-step button {
+  display: flex; align-items: center; justify-content: center;
+}
+
+
+.machine-item.machine-tbd {
+  opacity: 1;
+  pointer-events: none;
+  filter: grayscale(1);
+  background: rgba(90,90,90,.42);
+  border-radius: 8px;
+  padding: 8px;
+}
+body.theme-classic .machine-item.machine-tbd { background: rgba(60,60,70,.38); }
+body.dark-mode .machine-item.machine-tbd { background: rgba(20,20,20,.62); }
+.machine-item.machine-tbd select,
+.machine-item.machine-tbd .setting-label,
+.machine-item.machine-tbd .hint {
+  color: #6a6a6a !important;
+  opacity: 0.9;
+}
+body.dark-mode .machine-item.machine-tbd select,
+body.dark-mode .machine-item.machine-tbd .setting-label,
+body.dark-mode .machine-item.machine-tbd .hint {
+  color: #8a8a8a !important;
+}
+.machine-item.machine-tbd select { cursor: not-allowed; }
+.tbd-note { color: #555 !important; font-weight: 800; letter-spacing: 0.04em; margin-top: 6px; }
+body.dark-mode .tbd-note { color: #9a9a9a !important; }
+
+
+.theme-pick-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.theme-pick-row .theme-pick { width: 100%; min-height: 44px; }
+.theme-pick-row .theme-pick.is-on {
+  outline: 2px solid var(--ice, #7EC0E0);
+  font-weight: 800;
+}
+body.theme-classic .theme-pick-row .theme-pick.is-on { outline-color: var(--accent-blue, #1f7aff); }
+body.theme-flare .theme-pick-row .theme-pick.is-on { outline-color: #FF6A12; }
+.lang-pick.is-on { outline: 2px solid var(--ice, #7EC0E0); font-weight: 800; }
+body.theme-classic .lang-pick.is-on { outline-color: var(--accent-blue, #1f7aff); }
+body.theme-flare .lang-pick.is-on { outline-color: #FF6A12; }
+
+.brand-bar {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 4px 2px 8px;
+}
+.brand-name { font-size: 13px; font-weight: 800; letter-spacing: 0.16em; }
+.brand-sub { font-size: 10px; letter-spacing: 0.08em; color: var(--mute); }
+.help-acc { border: 1px solid var(--line); margin: 0 0 8px; }
+.help-acc > button {
+  width: 100%; text-align: left; background: transparent; color: var(--ink);
+  border: 0; padding: 12px 10px; font-size: 13px; font-weight: 800; font-family: var(--font);
+}
+.help-acc .help-body {
+  display: none; padding: 0 10px 12px; font-size: 13px; line-height: 1.65; color: var(--mute);
+}
+.help-acc.open .help-body { display: block; }
+.help-acc .help-body p { margin: 0 0 8px; }
+.help-acc .help-body h4 { margin: 12px 0 4px; font-size: 12px; color: var(--ink); letter-spacing: 0.06em; }
+.help-acc .help-body ul { margin: 0 0 8px; padding-left: 1.2em; }
+.help-note {
+  font-size: 12px; line-height: 1.55; color: var(--mute); margin: 0 0 10px;
+}
+#onboardBackdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.78);
+  display: none; align-items: flex-end; justify-content: center; z-index: 200;
+}
+#onboardBackdrop.show { display: flex; }
+.onboard-card {
+  width: 100%; max-width: 560px;
+  background: var(--bg); color: var(--ink);
+  border-top: 1px solid var(--line);
+  padding: 20px 18px calc(22px + var(--safe-b));
+}
+.onboard-k { font-size: 10px; letter-spacing: 0.2em; color: var(--ice); font-weight: 800; margin-bottom: 6px; }
+.onboard-h { font-size: 20px; font-weight: 800; margin: 0 0 10px; letter-spacing: 0.04em; }
+.onboard-p { font-size: 14px; line-height: 1.65; color: var(--mute); margin: 0 0 8px; }
+.onboard-en { font-size: 12px; line-height: 1.55; color: var(--mute); margin: 10px 0 0; }
+.onboard-nav { display: flex; gap: 8px; margin-top: 16px; }
+.onboard-dots { display: flex; gap: 6px; margin: 12px 0 0; }
+.onboard-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); display: block; }
+.onboard-dots i.on { background: var(--ice); }
+body.theme-classic .onboard-card { border-radius: 12px 12px 0 0; border-top: none; }
+body.theme-classic .help-acc { border: none; border-radius: 8px; background: var(--card-bg, #fff); }
+.privacy-box { font-size: 12px; line-height: 1.55; color: var(--mute); margin-top: 12px; }
+
+</style>
+</head>
+<body class="dark-mode load-zero theme-classic">
+<div class="app-shell">
+
+<section class="card">
+<div class="brand-bar">
+  <div class="brand-name">RPM MEMORY</div>
+  <div class="brand-sub" data-i18n="brandSub">モーター音で回転数を測定</div>
+</div>
+<div class="wave-container">
+<div class="wave-header">
+<span>スペクトラム</span>
+<div class="wave-header-right">
+<div class="header-right-audio">
+<span>マイク</span>
+<div class="audio-bars" id="audioIndicator">
+<div class="audio-bar"></div>
+<div class="audio-bar"></div>
+<div class="audio-bar"></div>
+<div class="audio-bar"></div>
+<div class="audio-bar"></div>
+</div>
+</div>
+<span id="fftStatusLabel">READY</span>
+</div>
+</div>
+<canvas id="spectrum"></canvas>
+</div>
+
+<div class="rpm-limit-section">
+<div class="rpm-limit-label" style="margin-bottom:4px;">
+<span>集音フィルタ (RPM範囲)</span>
+<span class="rpm-limit-value"><span id="rpmMinLimitValue">5000</span> — <span id="rpmMaxLimitValue">40000</span></span>
+</div>
+<div class="dual-range-container">
+<div class="dual-range-track"></div>
+<div class="dual-range-fill" id="rangeFill"></div>
+<input type="range" id="rpmMinLimit" min="0" max="60000" step="500" value="5000" />
+<input type="range" id="rpmMaxLimit" min="0" max="60000" step="500" value="40000" />
+</div>
+</div>
+
+<div class="section-kicker kicker-rpm">MOTOR RPM</div>
+<div class="realtime-stats">
+<div class="stat-block stat-current">
+<div class="stat-label">CURRENT</div>
+<div class="stat-value" id="rpmNow">--</div>
+<div class="stat-value-sub" id="rpmNowRaw"></div>
+</div>
+<div class="stat-stack">
+<div class="stat-block stat-side">
+<div class="stat-label">MAX</div>
+<div class="stat-value" id="rpmMax">--</div>
+<div class="stat-value-sub" id="rpmMaxRaw"></div>
+</div>
+<div class="stat-block stat-side">
+<div class="stat-label">MIN</div>
+<div class="stat-value" id="rpmMin">--</div>
+<div class="stat-value-sub" id="rpmMinRaw"></div>
+</div>
+</div>
+</div>
+
+<div class="section-kicker kicker-speed">SPEED (km/h)</div>
+<div class="realtime-stats">
+<div class="stat-block stat-current">
+<div class="stat-label">CURRENT</div>
+<div class="stat-value" id="speedNow">--</div>
+<div class="stat-value-sub" id="speedNowRaw"></div>
+</div>
+<div class="stat-stack">
+<div class="stat-block stat-side">
+<div class="stat-label">TOP</div>
+<div class="stat-value" id="speedTop">--</div>
+<div class="stat-value-sub" id="speedTopRaw"></div>
+</div>
+<div class="stat-block stat-side">
+<div class="stat-label">MIN</div>
+<div class="stat-value" id="speedMin">--</div>
+<div class="stat-value-sub" id="speedMinRaw"></div>
+</div>
+</div>
+</div>
+
+<div class="realtime-center" id="statusLine">READY — 計測待機中</div>
+
+<div class="realtime-buttons">
+<div class="realtime-btn-row">
+<button class="primary-btn blue" id="startBtn" data-i18n="start">計測開始</button>
+<button class="secondary-btn outline" id="lockBtn" data-i18n="lock">ロック</button>
+<button class="secondary-btn gray" id="saveBtn" data-i18n="save">保存</button>
+</div>
+<div class="realtime-btn-row">
+<button class="secondary-btn gray" id="historyBtn" data-i18n="history">履歴</button>
+<button class="secondary-btn gray" id="resetBtn" data-i18n="reset">リセット</button>
+<button class="secondary-btn gray" id="settingsBtn" data-i18n="settings">設定</button>
+</div>
+<div class="realtime-btn-row row-2">
+<button class="secondary-btn gray" id="machineBtn" data-i18n="machine">マシン設定</button>
+<button class="secondary-btn gray" id="reverseCalcMainBtn" data-i18n="revShort">逆算</button>
+<button class="secondary-btn gray" id="helpBtn" type="button" data-i18n="help">使い方</button>
+</div>
+</div>
+</section>
+
+<section class="card" id="conditionsCard">
+<div class="card-header" onclick="toggleConditions()">
+<div class="card-title">比較表条件 <span class="toggle-icon"></span></div>
+</div>
+<div class="collapsible-content" id="conditionsContent">
+<div class="settings-row">
+<div class="setting-item">
+<div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="voltageLabel">2.8 V</span></div>
+<select class="cond-select" id="voltageRange">
+<option value="2.2">2.2</option><option value="2.3">2.3</option><option value="2.4">2.4</option>
+<option value="2.5">2.5</option><option value="2.6">2.6</option><option value="2.7">2.7</option>
+<option value="2.8" selected>2.8</option><option value="2.9">2.9</option><option value="3.0">3.0</option>
+<option value="3.1">3.1</option><option value="3.2">3.2</option><option value="3.3">3.3</option>
+<option value="3.4">3.4</option>
+</select>
+</div>
+<div class="setting-item">
+<div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">3.7:1</span></div>
+<select class="cond-select" id="gearRange">
+<option value="0">3.5:1</option><option value="1" selected>3.7:1</option>
+<option value="2">4.0:1</option><option value="3">4.2:1</option>
+<option value="4">5:1</option><option value="5">6.4:1</option>
+<option value="6">8.75:1</option><option value="7">11.2:1</option>
+</select>
+</div>
+<div class="setting-item">
+<div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">22.5 mm</span></div>
+<div class="tire-step-row">
+<button type="button" class="tire-step-btn" id="tireMinus">−</button>
+<input type="number" class="tire-step-input" id="tireRange" min="20.0" max="35.0" step="0.1" value="22.5" inputmode="decimal" />
+<button type="button" class="tire-step-btn" id="tirePlus">＋</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="card">
+<div class="card-header"><div class="card-title">電圧別比較表</div></div>
+<div class="cmp-summary" id="cmpSummary">ロック後に、選択中の電圧・ギヤでの速度目安が表示されます。</div>
+<div class="cmp-machine-bar" id="cmpMachineBar">マシン設定: 未設定</div>
+<label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle" checked /> 未設定と設定を上下比較する</label>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>電圧</th><th>RPM</th><th class="raw-col">RPM(生)</th>
+<th>3.5:1</th><th>3.7:1</th><th>4.0:1</th><th>4.2:1</th>
+<th>5.0:1</th><th>6.4:1</th><th>8.75:1</th><th>11.2:1</th>
+</tr>
+</thead>
+<tbody id="comparisonBody"></tbody>
+</table>
+</div>
+</section>
+</div>
+
+<div id="flareApp">
+  <div class="f-bar">
+    <div class="f-word">FLA<i>RE</i></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button type="button" class="theme-mini" id="flareThemeBtn">外観</button>
+      <div class="f-live" id="flareLiveTag">READY</div>
+    </div>
+  </div>
+  <div class="f-pages">
+    <section class="f-page on" id="fp-live">
+      <div class="cockpit">
+        <div class="stage">
+          <div class="lbl">MOTOR <b id="flareLockTag">READY</b></div>
+          <div class="num" id="flareRpmNow">—<small>rpm</small></div>
+          <div class="subspd"><em id="flareSpdNow">—</em> km/h</div>
+          <div class="ticks">
+            <div>RPM HI <b id="flareRpmHi">—</b></div>
+            <div>RPM LO <b id="flareRpmLo">—</b></div>
+          </div>
+          <div class="ticks">
+            <div>SPD HI <b id="flareSpdHi">—</b></div>
+            <div>SPD LO <b id="flareSpdLo">—</b></div>
+          </div>
+          <div class="holdwrap">
+            <button type="button" class="hold" id="flareHold"><span id="flareHoldLabel">ROLLING</span></button>
+            <div class="ghostrow">
+              <button type="button" id="flareFix">FIX</button>
+              <button type="button" id="flareSave">SAVE</button>
+              <button type="button" id="flareZero">ZERO</button>
+            </div>
+            <div class="ghostrow">
+              <button type="button" id="flareMachine">MACHINE</button>
+              <button type="button" id="flareLab">LAB</button>
+            </div>
+          </div>
+        </div>
+        <div class="rail">
+          <div class="rail-track" id="flareRailTrack">
+            <canvas id="flareSpectrum"></canvas>
+            <div class="cap" id="flareCapHi"><i></i><span id="flareHiTxt">40k</span></div>
+            <div class="cap" id="flareCapLo"><i></i><span id="flareLoTxt">5k</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="f-page" id="fp-table">
+      <div class="sheet">
+        <div class="h">電圧マップ</div>
+        <p class="p">ロックした瞬間の数字が、この画面に出ます。外観は変わりません。</p>
+        <div class="cmp-summary" id="flareCmpSummary">計測してロックすると表示されます。</div>
+        <div class="table-wrapper" style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>電圧</th><th>RPM</th>
+                <th>3.5</th><th>3.7</th><th>4.0</th><th>4.2</th>
+                <th>5.0</th><th>6.4</th><th>8.75</th><th>11.2</th>
+              </tr>
+            </thead>
+            <tbody id="flareCmpBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    <section class="f-page" id="fp-lab">
+      <div class="sheet">
+        <div class="h">ラボ</div>
+        <p class="p">逆算電卓とマシン設定は、これまでと同じ中身です。</p>
+        <button type="button" id="flareOpenRev" class="hold" style="margin-top:8px;">逆算を開く</button>
+        <button type="button" id="flareOpenMachine" class="hold" style="margin-top:8px;">マシン設定</button>
+      </div>
+    </section>
+    <section class="f-page" id="fp-ear">
+      <div class="sheet">
+        <div class="h">聴き方</div>
+        <p class="p">右レールの上下端が集音窓です。詳細スライダーは設定と同じです。</p>
+        <button type="button" id="flareOpenSet" class="hold" style="margin-top:8px;">測定設定を開く</button>
+        <button type="button" id="flareOpenHelp" class="hold" style="margin-top:8px;">使い方</button>
+      </div>
+    </section>
+    <section class="f-page" id="fp-log">
+      <div class="sheet">
+        <div class="h">記録</div>
+        <p class="p">保存した履歴は、これまでの履歴画面と同じです。</p>
+        <button type="button" id="flareOpenHist" class="hold" style="margin-top:8px;">履歴を開く</button>
+      </div>
+    </section>
+  </div>
+  <nav class="f-nav">
+    <button class="on" data-fp="fp-live">計器</button>
+    <button data-fp="fp-table">マップ</button>
+    <button data-fp="fp-lab">ラボ</button>
+    <button data-fp="fp-ear">聴き方</button>
+    <button data-fp="fp-log">記録</button>
+  </nav>
+</div>
+
+<div class="modal-backdrop" id="settingsModalBackdrop">
+<div class="modal">
+<div class="modal-header"><div class="modal-title" data-i18n="settingsTitle">測定設定</div><button class="modal-close" id="settingsCloseTop">×</button></div>
+<p class="help-note" data-i18n="settingsLead">回転は音からの推定、速度は机上の理論値です。公式計測器の代替ではありません。</p>
+<div class="settings-row">
+<div class="setting-item"><div class="setting-label"><span>ノイズ閾値（TH）</span><span class="setting-value" id="noiseLabel">20</span></div><input type="range" id="noiseRange" min="0" max="100" step="1" value="20" /></div>
+<div class="setting-item"><div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div><input type="range" id="rpmCalRange" min="0.5" max="1.5" step="0.01" value="1.00" /></div>
+<div class="setting-item"><div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div><input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0" /></div>
+<div class="setting-item" style="margin-top:6px;">
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+<input type="checkbox" id="showLoadValues" checked style="width:18px;height:18px;" /><span>負荷適用値を並べて表示</span>
+</label>
+</div>
+<div class="theme-pick-row" id="themePickRow">
+<button type="button" class="secondary-btn gray theme-pick" data-theme="sharp" data-i18n="themeSharp">シャープ</button>
+<button type="button" class="secondary-btn gray theme-pick" data-theme="classic" data-i18n="themeClassic">丸み</button>
+<button type="button" class="secondary-btn gray theme-pick" data-theme="flare">FLARE</button>
+</div>
+<div class="theme-pick-row" id="langPickRow" style="margin-top:8px;">
+<button type="button" class="secondary-btn gray lang-pick is-on" data-lang="ja">日本語</button>
+<button type="button" class="secondary-btn gray lang-pick" data-lang="en">English</button>
+</div>
+<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true"></button>
+<div style="margin-top:8px;"><button class="secondary-btn gray" id="darkModeToggleBtn" style="width:100%;" data-i18n="darkOff">ダークモード: OFF</button></div>
+<div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsMachineBtn" style="width:100%;" data-i18n="machine">マシン設定</button></div>
+<div style="margin-top:8px;"><button class="secondary-btn gray" id="reverseCalcOpenBtn" style="width:100%;" data-i18n="revTitle">逆算電卓</button></div>
+<div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsHelpBtn" style="width:100%;" data-i18n="help">使い方</button></div>
+<div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsOnboardBtn" style="width:100%;" data-i18n="onboardAgain">初回案内をもう一度</button></div>
+<div style="margin-top:8px;"><button class="secondary-btn gray" id="demoModeBtn" style="width:100%;">審査用デモ: OFF</button></div>
+<div class="privacy-box">
+  音声は端末内だけで処理し、サーバーへ送りません。履歴もこの端末に保存されます。<br>
+  問い合わせ: <a href="mailto:enginerace.setup.notes@gmail.com" style="color:inherit;">enginerace.setup.notes@gmail.com</a><br>
+  個人で対応しているため、返信までお時間をいただくことがあります。
+</div>
+<div style="display:flex;gap:8px;margin-top:12px;">
+<button class="primary-btn blue" id="settingsResetBtn" style="flex:1;" data-i18n="setReset">設定リセット</button>
+<button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1;" data-i18n="close">閉じる</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal-backdrop" id="helpModalBackdrop">
+<div class="modal">
+<div class="modal-header"><div class="modal-title" data-i18n="help">使い方</div><button class="modal-close" id="helpCloseTop">×</button></div>
+<p class="help-note">RPM Memory はモーター音の高さから回転数を推定する測定アプリです。値は推定と机上計算です。公式回転計の代替ではありません。</p>
+
+<div class="help-acc open">
+<button type="button">このアプリは何をするか</button>
+<div class="help-body">
+<p>モーターは回転すると、回転に比例した周波数の音を出します。マイクでその音を取り込み、強い山の周波数を RPM に換算します。</p>
+<p>RPM ＝ 周波数(Hz) × 60。例: 400Hz なら 24,000 rpm。</p>
+<p>実機の音にはギア音・ブラシ音・走行音・声が混ざります。アプリは集音窓の中で一番強い山を見るので、別の音が山になると数字が飛びます。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">測り方</button>
+<div class="help-body">
+<ul>
+<li>電圧・ギヤ・タイヤを今の車両に近づける</li>
+<li>集音範囲を想定回転に合わせる</li>
+<li>計測開始（ここでマイク許可）</li>
+<li>マイクをモーターへ近づける</li>
+<li>数字が数秒安定したらロック</li>
+<li>必要なら保存</li>
+</ul>
+<p>CURRENT は今の推定。MAX / MIN はこの計測中の最高と最低。SPEED は机上換算で、実走速度ではありません。</p>
+<p>ロックは数字を固定する操作で、保存ではありません。リセットは今の計測値だけ消し、履歴は残します。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">スペクトルの TH</button>
+<div class="help-body">
+<p>グラフの横点線と「TH 20」が Threshold（閾値）です。設定のノイズ閾値と同じ値です。</p>
+<ul>
+<li>線より上の山だけを回転の候補にする</li>
+<li>線より下の小さな揺れは使わない</li>
+<li>山の頂点が TH を超えなければ表示は --</li>
+</ul>
+<p>TH は「この高さ未満は騒音とみなす」線です。集音フィルタ（回転の上下限）とは別です。</p>
+<ul>
+<li>集音フィルタ … どの回転帯を見るか（左右）</li>
+<li>TH … どれだけ強い山だけを採用するか（上下）</li>
+</ul>
+<p>両方を同時に使います。窓を狭めても TH が低ければ、その窓の中の小さなノイズを拾います。TH を上げても窓が広ければ、別の強い音に飛びます。</p>
+<p>見るタイミング: 数字が飛ぶ、消える、山がいくつもあるとき。線と山の位置を先に見てください。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">ノイズ閾値</button>
+<div class="help-body">
+<p>周波数ごとの強さに対する採用ラインです。初期値 20、範囲 0〜100。</p>
+<p><strong>上げるとき:</strong> 声・空調・他車・机の振動を切りたい。代償としてモーター自身も拾いにくくなる。少し離しただけ、電圧が落ちて音が細くなっただけで -- になりやすい。「測れているのに急に消える」は TH が高すぎることが多い。</p>
+<p><strong>下げるとき:</strong> 弱いモーター音でも数字を出したい。代償として無関係な音でも山になり、回転が跳ぶ・倍になる・測っていないのに動く。</p>
+<p><strong>合わせ方:</strong></p>
+<ul>
+<li>モーターを止めて計測を始める</li>
+<li>小さなギザギザだけなら、その少し上に TH を置く</li>
+<li>回して、山が TH をはっきり超えるか見る</li>
+<li>超えないときは、閾値を下げるより先にマイクを近づける。それでも弱いときだけ下げる</li>
+</ul>
+<p>サーキットで上げたくなったら、集音範囲も同時に狭めてください。閾値だけ上げると自分のモーターまで消えます。自宅の静かな机なら 20 のままで足りることが多いです。暴れるときだけ動かし、リセットで 20 に戻ります。</p>
+<p>線が上にあるほど厳しい、下にあるほど甘い。山が線から少し出る程度が扱いやすいです。山が線に埋まっているなら上げすぎ、線の近くに小さな山がいくつもあるなら下げすぎか窓が広いです。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">RPM校正係数</button>
+<div class="help-body">
+<p>音から出した回転に掛ける倍率です。初期値 1.00、範囲 0.50〜1.50。<br>表示のもと ＝ 周波数から出した回転 × 校正係数。</p>
+<p><strong>使うとき:</strong> この端末・この測り方で、いつも同じ方向にずれると分かったときだけ。普段は 1.00 のまま。モーターの性能そのものではありません。</p>
+<ul>
+<li>光学式などで 30,000 と分かっているのに 28,500 と出る → 30000 ÷ 28500 ≒ 1.05</li>
+<li>いつも高く出る → 0.95 など</li>
+</ul>
+<p>1回のずれでは合わせないでください。距離や電圧を変えても同じ比率か見てから動かします。友人の記録や以前の履歴と混ぜるなら、係数を揃えるかすべて 1.00 に戻します。</p>
+<p>負荷と同時に動かすと原因が分からなくなります。校正を触るときは負荷を 0% にしてください。リセットで 1.00。普段は触らない設定です。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">走行負荷</button>
+<div class="help-body">
+<p>無負荷で測った回転を、車載の落ち込みに近づける見積もりです。初期値 0%、範囲 −100〜+100。<br>負荷後の回転 ＝ 校正後の回転 × (1 − 走行負荷%/100)。速度も同じ比率です。</p>
+<p>校正 1.00 のとき、30,000 rpm は 0% で 30,000、+10% で 27,000、+20% で 24,000、−10% で 33,000 と出ます。プラスにすると画面の回転と机上速度は小さくなります。「走行中はこれくらい落ちるだろう」という仮定です。</p>
+<p>シャーシの実ロス、タイヤの潰れ、ギヤの噛み、コーナー、接地、電圧降下は自動では入りません。20% にしたから実走が 20% 遅くなる、という意味ではありません。</p>
+<p><strong>使うとき:</strong> 机上の単体測定は 0%。車に載せて落ちる分を記録に残したいときだけ、10〜20% などを試し、生の値も見てください。分からなければ 0% のまま生の値で比較するのが誤解が少ないです。</p>
+<p>「負荷適用値を並べて表示」をオンにすると、主表示が負荷後、小さく生の値が出ます。履歴にも負荷%が残るので、あとで比べるときは % を揃えるか生 RPM で揃えてください。</p>
+<p>マイナス%は表示を上げます。校正の代わりに使わないでください。校正は端末のずれ、負荷は走行の見積もりです。主表示・MAX / MIN・ロック・比較表は負荷後基準です。議論するときは「負荷何%の値か」を先に確認してください。リセットで 0% です。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">3つの設定の違い</button>
+<div class="help-body">
+<ul>
+<li>ノイズ閾値 / TH … どの強さの山を回転と認めるか。普段は 20。暴れる・消えるときだけ</li>
+<li>RPM校正係数 … 測定値全体の倍率。普段は 1.00。基準があるときだけ</li>
+<li>走行負荷 … 車載で落ちると仮定して表示を落とす。普段は 0%。記録のメモ用</li>
+</ul>
+<p>先に測る条件を揃える（距離、電圧、無負荷か車載か）方が、スライダーをいじるより効きます。数値はどれも推定と机上計算です。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">速度が机上値である理由</button>
+<div class="help-body">
+<p>速度(km/h) ＝ (モーターrpm ÷ ギヤ比) × タイヤ径(mm) × (π × 60 / 1,000,000)</p>
+<p>モーター回転をギヤで軸回転に直し、タイヤ円周で進む距離にしています。スリップ、接地、ロス、電圧降下、発熱は入っていません。実走より速く出ることがほとんどです。</p>
+<p>電圧は式に直接入りません。測った電源のメモと比較表の列分けに使います。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">比較表・履歴・逆算</button>
+<div class="help-body">
+<p>比較表はロックした回転を起点にした仮定です。ギヤを変えると実回転も変わるので、「このギヤなら必ずこの速度」ではありません。</p>
+<p>履歴はこの端末に残ります。クラウド同期はありません。比べるときは電圧・ギヤ・負荷%を揃えるか、生RPMで見てください。</p>
+<p>逆算は速度計算の逆です。目標速度から必要な回転や径を見る見当用で、これもロスなしの理論値です。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">うまく測れないとき</button>
+<div class="help-body">
+<ul>
+<li>数字が出ない → マイク許可、計測開始、モーターが回っているか</li>
+<li>暴れる → 窓が広い、TH が低い、周囲がうるさい</li>
+<li>低すぎ / 高すぎ → 倍音、窓の位置、校正が残っている</li>
+<li>速度だけおかしい → ギヤとタイヤが実車と違う</li>
+<li>比較表が空 → まだロックしていない</li>
+</ul>
+</div>
+</div>
+
+<p class="privacy-box">マイク許可: モーター音の周波数から回転数（RPM）を測定するためにマイクを使います。音声は端末内だけで処理し、サーバーへ送信しません。<br>
+The microphone is used to measure motor RPM from sound frequency. Audio is processed on this device only and is not sent to any server.<br>
+問い合わせ: enginerace.setup.notes@gmail.com<br>
+個人で対応しているため、返信までお時間をいただくことがあります。</p>
+<button class="secondary-btn gray" id="helpCloseBtn" style="width:100%;margin-top:8px;">閉じる</button>
+</div>
+</div>
+
+<div id="onboardBackdrop">
+  <div class="onboard-card">
+    <div class="onboard-k" id="onboardKicker">1 / 3</div>
+    <h2 class="onboard-h" id="onboardTitle"></h2>
+    <div id="onboardBody"></div>
+    <div class="onboard-dots" id="onboardDots"><i class="on"></i><i></i><i></i></div>
+    <div class="onboard-nav">
+      <button class="secondary-btn gray" id="onboardSkip" style="flex:1;">とばす</button>
+      <button class="primary-btn blue" id="onboardNext" style="flex:1;">つぎへ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="machineModalBackdrop">
+<div class="modal">
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">マシン設定</div><div class="modal-title-note">計測中にロックを押した際に出現する比較表に反映されます。</div></div><button class="modal-close" id="machineCloseTop">×</button></div>
+<div class="machine-grid">
+<div class="machine-item">
+<div class="setting-label"><span>駆動</span><span class="setting-value" id="shaftLabel">指定なし</span></div>
+<div class="seg-row">
+<button type="button" class="seg-btn active" data-shaft="none">指定なし</button>
+<button type="button" class="seg-btn" data-shaft="dual">両軸</button>
+<button type="button" class="seg-btn" data-shaft="single">片軸</button>
+</div>
+</div>
+<div class="machine-item machine-tbd">
+<div class="setting-label"><span>シャーシ</span><span class="setting-value" id="chassisLabel">共通（指定なし）</span></div>
+<select class="cond-select" id="chassisSelect" disabled></select>
+<p class="hint tbd-note">Implementation TBD</p>
+<p class="hint" id="chassisHint">速度は机上換算です。シャーシ固有のロス％は入れていません。</p>
+</div>
+<div class="machine-item machine-tbd">
+<div class="setting-label"><span>モーター</span><span class="setting-value" id="machineMotorLabel">未選択</span></div>
+<select class="cond-select" id="machineMotorSelect" disabled></select>
+<p class="hint tbd-note">Implementation TBD</p>
+</div>
+<div class="machine-item">
+<div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="machineVoltLabel">2.8 V</span></div>
+<div class="tire-step-row">
+<button type="button" class="tire-step-btn" id="voltMinus">−</button>
+<select class="cond-select" id="machineVoltSelect"></select>
+<button type="button" class="tire-step-btn" id="voltPlus">＋</button>
+</div>
+</div>
+<div class="machine-item">
+<div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="machineGearLabel">3.7:1</span></div>
+<div class="tire-step-row">
+<button type="button" class="tire-step-btn" id="gearMinus">−</button>
+<select class="cond-select" id="machineGearSelect"></select>
+<button type="button" class="tire-step-btn" id="gearPlus">＋</button>
+</div>
+</div>
+<div class="machine-item">
+<div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="machineTireLabel">22.5 mm</span></div>
+<div class="tire-step-row">
+<button type="button" class="tire-step-btn" id="machineTireMinus">−</button>
+<input type="number" class="tire-step-input" id="machineTireInput" min="20.0" max="35.0" step="0.1" value="22.5" inputmode="decimal" />
+<button type="button" class="tire-step-btn" id="machineTirePlus">＋</button>
+</div>
+</div>
+<div class="machine-item">
+<div class="setting-label"><span>保存モード</span></div>
+<select class="cond-select" id="saveModeSelect">
+<option value="ask">毎回名前を聞いて保存</option>
+<option value="quick">前回の名前で上書き確認</option>
+</select>
+</div>
+<div class="machine-summary" id="machineSummary">—</div>
+<div class="machine-summary" id="machineReflectNote" style="margin-top:8px;">軸回転 = モーターrpm ÷ ギヤ比（クラウンは比1:1）</div>
+</div>
+<div style="display:flex;gap:8px;margin-top:14px;">
+<button class="secondary-btn gray" id="machineToRevBtn" style="flex:1;">逆算電卓</button>
+<button class="primary-btn blue" id="machineCloseBtn" style="flex:1;">反映して閉じる</button>
+</div>
+</div>
+</div>
+
+<div class="modal-backdrop" id="reverseCalcModalBackdrop">
+<div class="modal">
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">逆算電卓</div><div class="modal-title-note">ロスなしの机上値です</div></div><button class="modal-close" id="reverseCalcCloseTop">×</button></div>
+<div class="setting-item" style="margin-bottom:10px;">
+<div class="setting-label"><span>求めたいもの</span></div>
+<select class="cond-select" id="revSolve">
+<option value="speed">速度 km/h</option>
+<option value="tire">必要なタイヤ径 mm</option>
+<option value="rpm">必要なモーター回転数 rpm</option>
+<option value="gear">必要なギヤ比</option>
+</select>
+<p style="font-size:12px;color:var(--mute);margin:6px 0 0;">選んだ項目はグレーアウトします。残りの3つを入力してください。</p>
+</div>
+<div class="rev-row" data-field="rpm"><div><label style="font-size:11px;color:var(--mute);">モーター回転数 (rpm)</label><input id="revRpm" type="number" inputmode="decimal" value="28000" step="100" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="rpm" data-d="-100">−</button><button type="button" data-rev="rpm" data-d="100">＋</button></div></div>
+<div class="rev-row" data-field="gear"><div><label style="font-size:11px;color:var(--mute);">ギヤ比</label><select id="revGear" class="cond-select"><option value="3.5">3.5:1</option><option value="3.7" selected>3.7:1</option><option value="4.0">4.0:1</option><option value="4.2">4.2:1</option><option value="5">5:1</option><option value="6.4">6.4:1</option><option value="8.75">8.75:1</option><option value="11.2">11.2:1</option></select></div><div class="rev-step"><button type="button" id="revGearMinus">−</button><button type="button" id="revGearPlus">＋</button></div></div>
+<div class="rev-row" data-field="speed"><div><label style="font-size:11px;color:var(--mute);">速度 (km/h)</label><input id="revSpeed" type="number" inputmode="decimal" value="32.00" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="speed" data-d="-0.1">−</button><button type="button" data-rev="speed" data-d="0.1">＋</button></div></div>
+<div class="rev-row" data-field="tire"><div><label style="font-size:11px;color:var(--mute);">タイヤ径 (mm)</label><input id="revTire" type="number" inputmode="decimal" value="22.5" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="tire" data-d="-0.1">−</button><button type="button" data-rev="tire" data-d="0.1">＋</button></div></div>
+<div class="rev-out"><div class="k" id="revOutKey">速度</div><div><span class="v" id="revOutVal">--</span><span class="u" id="revOutUnit"></span></div></div>
+<p id="revNote" style="font-size:12px;color:var(--mute);margin-top:8px;"></p>
+<p style="font-size:11px;color:var(--mute);margin-top:8px;line-height:1.55;">速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000</p>
+<button class="secondary-btn gray" id="reverseCalcCloseBtn" style="width:100%;margin-top:12px;">閉じる</button>
+</div>
+</div>
+
+<div class="modal-backdrop" id="historyModalBackdrop">
+<div class="modal" style="max-width:95vw;width:95vw;">
+<div class="modal-header"><div class="modal-title">計測履歴</div><button class="modal-close" id="historyCloseTop">×</button></div>
+<div class="filter-grid">
+<div class="filter-item"><label>日付</label><select id="filterDate"><option value="">すべて</option></select></div>
+<div class="filter-item"><label>名前</label><select id="filterName"><option value="">すべて</option></select></div>
+<div class="filter-item"><label>モーター</label><select id="filterMotor"><option value="">すべて</option></select></div>
+<div class="filter-item"><label>速度</label><select id="filterSpeed"><option value="">すべて</option></select></div>
+<div class="filter-item"><label>RPM</label><select id="filterRpm"><option value="">すべて</option></select></div>
+<div class="filter-item"><label>電圧</label><select id="filterVoltage"><option value="">すべて</option></select></div>
+<div class="filter-item"><label>ギヤ比</label><select id="filterGear"><option value="">すべて</option></select></div>
+<div class="filter-item"><label>タイヤ径</label><select id="filterTire"><option value="">すべて</option></select></div>
+<div class="search-btn-row">
+<button class="fav-filter-btn off" id="favFilterBtn">お気に入りのみ</button>
+<button class="secondary-btn gray" id="historyResetBtn" style="padding:6px 12px;">リセット</button>
+<button class="primary-btn blue" id="historySearchBtn" style="padding:6px 12px;">検索</button>
+<button class="secondary-btn gray" id="historyCloseBtn" style="padding:6px 12px;">閉じる</button>
+</div>
+</div>
+<div class="history-summary" id="historySummary">
+<div class="hs-item"><div class="hs-label">件数</div><div class="hs-value" id="hsCount">0</div></div>
+<div class="hs-item"><div class="hs-label">最高RPM</div><div class="hs-value" id="hsBestRpm">—</div></div>
+<div class="hs-item"><div class="hs-label">最高速度</div><div class="hs-value" id="hsBestSpeed">—</div></div>
+<div class="hs-item"><div class="hs-label">前回比RPM</div><div class="hs-value" id="hsDelta">—</div></div>
+</div>
+<div class="history-toolbar">
+<label>並び替え
+<select id="historySortSelect">
+<option value="new">新しい順</option><option value="rpm">RPM高い順</option>
+<option value="speed">速度高い順</option><option value="old">古い順</option>
+</select>
+</label>
+<span style="color:var(--mute);font-size:11px;">行を2つ選ぶと差分表示</span>
+</div>
+<div class="history-diff-panel" id="historyDiffPanel"></div>
+<div class="history-table-wrapper">
+<table class="history-table">
+<thead><tr><th></th><th>#</th><th>名前</th><th>モーター</th><th>速度</th><th>RPM</th><th>電圧</th><th>ギヤ比</th><th>タイヤ径</th><th>日付</th><th>操作</th></tr></thead>
+<tbody id="historyList"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="modal-backdrop" id="saveModalBackdrop">
+<div class="modal">
+<div class="modal-header"><div class="modal-title">保存</div><button class="modal-close" id="saveClose">×</button></div>
+<div class="input-row"><label>名前</label><input type="text" id="saveNameInput" maxlength="8" /></div>
+<div class="input-row">
+<label>モーター種類</label>
+<select id="motorTypeSelect">
+<option value="">選択なし</option>
+<optgroup label="両軸">
+<option value="NMP">NMP (ノーマルPRO)</option><option value="RTP">RTP (レブPRO)</option>
+<option value="TTP">TTP (トルクPRO)</option><option value="ATP">ATP (アトミックPRO)</option>
+<option value="LDP">LDP (ライトPRO)</option><option value="HDP">HDP (ハイパーPRO)</option>
+<option value="MDP">MDP (マッハPRO)</option>
+</optgroup>
+<optgroup label="片軸">
+<option value="NM">NM (ノーマル)</option><option value="RT">RT (レブ)</option>
+<option value="TT">TT (トルク)</option><option value="AT">AT (アトミック)</option>
+<option value="LD">LD (ライト)</option><option value="HD">HD (ハイパー)</option>
+<option value="PD">PD (パワー)</option><option value="SD">SD (スプリント)</option>
+<option value="UD">UD (ウルトラ)</option><option value="PLD">PLD (プラズマ)</option>
+</optgroup>
+</select>
+</div>
+<div style="display:flex;gap:8px;margin-top:10px;">
+<button class="secondary-btn gray" id="saveCancelBtn" style="flex:1;">キャンセル</button>
+<button class="primary-btn blue" id="saveConfirmBtn" style="flex:1;">保存する</button>
+</div>
+</div>
+</div>
+<script>
+const FFT_SIZE = 8192;
+const gearOptions = ["3.5:1", "3.7:1", "4.0:1", "4.2:1", "5:1", "6.4:1", "8.75:1", "11.2:1"];
+
+let audioContext = null;
+let analyser = null;
+let demoMode = false;
+let micStream = null;
+let dataArray = null;
+let running = false;
+let locked = false;
+let ignoreFrames = 0;
+
+let currentRpm = 0;
+let currentRpmRaw = 0;
+let maxRpmVal = 0;
+let minRpmVal = Infinity;
+let maxRpmRaw = 0;
+let minRpmRaw = Infinity;
+let currentSpeed = 0;
+let currentSpeedRaw = 0;
+let maxSpeedVal = 0;
+let minSpeedVal = Infinity;
+let maxSpeedRaw = 0;
+let minSpeedRaw = Infinity;
+let lockedSnapshot = null;
+
+let rpmMinLimit = 5000;
+let rpmMaxLimit = 40000;
+
+let favFilterOn = false;
+
+const state = {
+history: JSON.parse(localStorage.getItem("rpmHistory") || "[]")
+};
+
+// お気に入りリスト（indexベース → IDベースに移行）
+let favorites = JSON.parse(localStorage.getItem("rpmFavorites") || "[]");
+
+const UI = {
+spectrum: document.getElementById("spectrum"),
+rpmNow: document.getElementById("rpmNow"),
+rpmMax: document.getElementById("rpmMax"),
+rpmMin: document.getElementById("rpmMin"),
+rpmNowRaw: document.getElementById("rpmNowRaw"),
+rpmMaxRaw: document.getElementById("rpmMaxRaw"),
+rpmMinRaw: document.getElementById("rpmMinRaw"),
+speedNow: document.getElementById("speedNow"),
+speedTop: document.getElementById("speedTop"),
+speedMin: document.getElementById("speedMin"),
+speedNowRaw: document.getElementById("speedNowRaw"),
+speedTopRaw: document.getElementById("speedTopRaw"),
+speedMinRaw: document.getElementById("speedMinRaw"),
+statusLine: document.getElementById("statusLine"),
+fftStatusLabel: document.getElementById("fftStatusLabel"),
+audioIndicator: document.getElementById("audioIndicator"),
+startBtn: document.getElementById("startBtn"),
+lockBtn: document.getElementById("lockBtn"),
+saveBtn: document.getElementById("saveBtn"),
+resetBtn: document.getElementById("resetBtn"),
+historyBtn: document.getElementById("historyBtn"),
+settingsBtn: document.getElementById("settingsBtn"),
+voltageRange: document.getElementById("voltageRange"),
+voltageLabel: document.getElementById("voltageLabel"),
+gearRange: document.getElementById("gearRange"),
+gearLabel: document.getElementById("gearLabel"),
+tireRange: document.getElementById("tireRange"),
+tireLabel: document.getElementById("tireLabel"),
+rpmMinLimit: document.getElementById("rpmMinLimit"),
+rpmMinLimitValue: document.getElementById("rpmMinLimitValue"),
+rpmMaxLimit: document.getElementById("rpmMaxLimit"),
+rpmMaxLimitValue: document.getElementById("rpmMaxLimitValue"),
+noiseRange: document.getElementById("noiseRange"),
+noiseLabel: document.getElementById("noiseLabel"),
+rpmCalRange: document.getElementById("rpmCalRange"),
+rpmCalLabel: document.getElementById("rpmCalLabel"),
+loadFactorRange: document.getElementById("loadFactorRange"),
+loadFactorLabel: document.getElementById("loadFactorLabel"),
+showLoadValues: document.getElementById("showLoadValues"),
+comparisonBody: document.getElementById("comparisonBody"),
+settingsModal: document.getElementById("settingsModalBackdrop"),
+historyModal: document.getElementById("historyModalBackdrop"),
+saveModal: document.getElementById("saveModalBackdrop"),
+saveNameInput: document.getElementById("saveNameInput"),
+motorTypeSelect: document.getElementById("motorTypeSelect"),
+historyList: document.getElementById("historyList"),
+conditionsContent: document.getElementById("conditionsContent"),
+conditionsCard: document.getElementById("conditionsCard"),
+historySearchBtn: document.getElementById("historySearchBtn"),
+darkModeToggleBtn: document.getElementById("darkModeToggleBtn"),
+rangeFill: document.getElementById("rangeFill"),
+favFilterBtn: document.getElementById("favFilterBtn")
+};
+
+const filters = {
+date: document.getElementById("filterDate"),
+name: document.getElementById("filterName"),
+motor: document.getElementById("filterMotor"),
+speed: document.getElementById("filterSpeed"),
+rpm: document.getElementById("filterRpm"),
+voltage: document.getElementById("filterVoltage"),
+gear: document.getElementById("filterGear"),
+tire: document.getElementById("filterTire")
+};
+
+/* ========== デュアルレンジスライダー制御 ========== */
+
+function updateRangeFill() {
+const min = parseInt(UI.rpmMinLimit.value);
+const max = parseInt(UI.rpmMaxLimit.value);
+const rangeMax = parseInt(UI.rpmMinLimit.max);
+const leftPercent = (min / rangeMax) * 100;
+const rightPercent = (max / rangeMax) * 100;
+UI.rangeFill.style.left = leftPercent + "%";
+UI.rangeFill.style.width = (rightPercent - leftPercent) + "%";
+}
+
+UI.rpmMinLimit.addEventListener("input", () => {
+let minVal = parseInt(UI.rpmMinLimit.value);
+let maxVal = parseInt(UI.rpmMaxLimit.value);
+if (minVal >= maxVal) {
+minVal = maxVal - 500;
+UI.rpmMinLimit.value = minVal;
+}
+rpmMinLimit = minVal;
+UI.rpmMinLimitValue.textContent = rpmMinLimit;
+updateRangeFill();
+});
+
+UI.rpmMaxLimit.addEventListener("input", () => {
+let minVal = parseInt(UI.rpmMinLimit.value);
+let maxVal = parseInt(UI.rpmMaxLimit.value);
+if (maxVal <= minVal) {
+maxVal = minVal + 500;
+UI.rpmMaxLimit.value = maxVal;
+}
+rpmMaxLimit = maxVal;
+UI.rpmMaxLimitValue.textContent = rpmMaxLimit;
+updateRangeFill();
+});
+
+// 初期描画
+updateRangeFill();
+
+function toggleConditions() {
+UI.conditionsContent.classList.toggle("active");
+UI.conditionsCard.classList.toggle("active");
+}
+
+/* ========== お気に入りフィルタ ========== */
+UI.favFilterBtn.addEventListener("click", () => {
+favFilterOn = !favFilterOn;
+UI.favFilterBtn.classList.toggle("on", favFilterOn);
+UI.favFilterBtn.classList.toggle("off", !favFilterOn);
+populateFilters();
+renderHistory();
+});
+
+/* ========== 集音構造 ========== */
+function fillDemoSpectrum() {
+  const sr = (audioContext && audioContext.sampleRate) || 44100;
+  const bins = dataArray ? dataArray.length : 1024;
+  if (!dataArray) dataArray = new Uint8Array(bins);
+  const binToHz = sr / FFT_SIZE;
+  const targetHz = 500;
+  const t = performance.now() / 1000;
+  for (let i = 0; i < dataArray.length; i++) {
+    const hz = i * binToHz;
+    const dist = Math.abs(hz - targetHz);
+    let v = 8 + Math.random() * 6;
+    if (dist < 40) v = 160 - dist * 2.8 + Math.sin(t * 6) * 8;
+    if (Math.abs(hz - targetHz * 2) < 25) v = Math.max(v, 48);
+    dataArray[i] = Math.max(0, Math.min(255, v));
+  }
+}
+
+async function startMic() {
+if (running) return;
+
+if (!demoMode && !window.isSecureContext) {
+  UI.statusLine.textContent = "ERROR: HTTPSで開いてください";
+  UI.fftStatusLabel.textContent = "ERROR";
+  alert("この開き方ではマイクが使えません。\n\n・https で開いてください\n・file:// では Safari の集音はできません");
+  return false;
+}
+
+const gum = (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  ? function(c) { return navigator.mediaDevices.getUserMedia(c); }
+  : (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)
+    ? function(c) {
+        return new Promise(function(resolve, reject) {
+          (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia).call(navigator, c, resolve, reject);
+        });
+      }
+    : null;
+
+if (!demoMode && !gum) {
+  alert("このブラウザはマイク取得に対応していません。");
+  return false;
+}
+
+running = true;
+try {
+  if (demoMode) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC && !audioContext) audioContext = new AC();
+    if (audioContext && audioContext.state === "suspended") {
+      try { await audioContext.resume(); } catch (e) {}
+    }
+    const bins = (typeof FFT_SIZE === "number" ? FFT_SIZE / 2 : 2048);
+    dataArray = new Uint8Array(bins);
+    analyser = { getByteFrequencyData: function() { fillDemoSpectrum(); } };
+    ignoreFrames = 2;
+    UI.fftStatusLabel.textContent = "DEMO";
+    UI.statusLine.textContent = "DEMO — マイクなしの見本波形";
+    UI.startBtn.textContent = "計測停止";
+    UI.startBtn.classList.replace("blue", "red");
+    loopFFT();
+    return true;
+  }
+  // Safari: ユーザー操作の直後に AudioContext を生成・resume
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) throw new Error("AudioContext未対応");
+  if (!audioContext) audioContext = new AC();
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+
+  if (micStream) {
+    const alive = micStream.getTracks().some(function(t) { return t.readyState === "live"; });
+    if (!alive) {
+      try { micStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {}
+      micStream = null;
+      analyser = null;
+    }
+  }
+
+  if (!micStream) {
+    // Safari は単純な { audio: true } が最も安定
+    try {
+      micStream = await gum({ audio: true });
+    } catch (err1) {
+      try {
+        micStream = await gum({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false
+          }
+        });
+      } catch (err2) {
+        throw err1;
+      }
+    }
+  }
+
+  if (!analyser) {
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = FFT_SIZE;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const source = audioContext.createMediaStreamSource(micStream);
+    source.connect(analyser);
+  }
+
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+
+  ignoreFrames = 8;
+  UI.fftStatusLabel.textContent = "ACTIVE";
+  UI.statusLine.textContent = "MEASURING — 解析中";
+  UI.startBtn.textContent = "計測停止";
+  UI.startBtn.classList.replace("blue", "red");
+  loopFFT();
+  return true;
+} catch (e) {
+  console.error(e);
+  running = false;
+  UI.statusLine.textContent = "ERROR: マイクにアクセスできません";
+  UI.fftStatusLabel.textContent = "ERROR";
+  UI.startBtn.textContent = "計測開始";
+  UI.startBtn.classList.replace("red", "blue");
+  var msg = "マイクの使用が許可されていません。";
+  if (e && e.name === "NotAllowedError") msg = "マイクが拒否されました。Safariのサイト設定からマイクを許可してください。";
+  else if (e && e.name === "NotFoundError") msg = "マイクが見つかりません。";
+  else if (e && e.name === "NotReadableError") msg = "マイクが他のアプリで使用中の可能性があります。";
+  else if (e && e.message) msg = String(e.message);
+  alert(msg);
+  return false;
+}
+}
+
+function stopMic() {
+running = false;
+if (audioContext && audioContext.state === "running") {
+audioContext.suspend();
+}
+UI.fftStatusLabel.textContent = "PAUSED";
+UI.statusLine.textContent = "STOPPED — 停止中";
+UI.startBtn.textContent = "計測開始";
+UI.startBtn.classList.replace("red", "blue");
+}
+
+function getPrecisePeakHz(data, fftSize, sampleRate) {
+const binToHz = sampleRate / fftSize;
+let maxVal = -Infinity, maxIdx = -1;
+
+// ★ 集音フィルタ: rpmMinLimit〜rpmMaxLimit の範囲のみピーク検出
+const minBin = Math.floor((rpmMinLimit / 60) / binToHz);
+const maxBin = Math.ceil((rpmMaxLimit / 60) / binToHz);
+
+for (let i = Math.max(1, minBin); i < Math.min(data.length - 1, maxBin); i++) {
+const v = data[i];
+if (v > maxVal) {
+maxVal = v;
+maxIdx = i;
+}
+}
+if (maxIdx <= 0 || maxIdx >= data.length - 1) return 0;
+if (maxVal < parseInt(UI.noiseRange.value)) return 0;
+
+const y1 = data[maxIdx - 1], y2 = data[maxIdx], y3 = data[maxIdx + 1];
+const denom = (y1 - 2 * y2 + y3);
+const offset = denom === 0 ? 0 : (y1 - y3) / (2 * denom);
+return (maxIdx + offset) * binToHz;
+}
+
+function chassisLossFactor() {
+    return 1;
+}
+
+function computeSpeedFromRpm(rpm) {
+    const tire = parseFloat(UI.tireRange.value);
+    const gearRatio = parseFloat(gearOptions[UI.gearRange.value].split(":")[0]);
+
+    const loadPercent = parseFloat(UI.loadFactorRange.value);
+    const loadFactor = 1 - (loadPercent / 100);
+    const chassisFactor = chassisLossFactor();
+
+    const rawRpm = rpm * parseFloat(UI.rpmCalRange.value);
+    const rawSpeed = (rawRpm / gearRatio) * (tire * Math.PI * 60) / 1000000;
+
+    const adjustedRpm = rawRpm * loadFactor * chassisFactor;
+    const speed = rawSpeed * loadFactor * chassisFactor;
+
+    return { adjustedRpm, speed, rawRpm, rawSpeed };
+}
+
+function limitDisplay(value) {
+if (typeof value !== "number" || isNaN(value)) return "--";
+if (value >= rpmMinLimit && value <= rpmMaxLimit) return value;
+return "--";
+}
+
+function loopFFT() {
+if (!running) return;
+requestAnimationFrame(loopFFT);
+
+if (!analyser || !dataArray) return;
+analyser.getByteFrequencyData(dataArray);
+
+// スペクトラム描画
+const canvas = UI.spectrum;
+const ctx = canvas.getContext("2d");
+const dpr = window.devicePixelRatio || 1;
+if (canvas.width !== canvas.clientWidth * dpr) {
+canvas.width = canvas.clientWidth * dpr;
+canvas.height = canvas.clientHeight * dpr;
+}
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+const binToHz = audioContext.sampleRate / FFT_SIZE;
+ctx.beginPath();
+ctx.strokeStyle = "#ff973d";
+ctx.lineWidth = 2 * dpr;
+let started = false;
+
+for (let i = 0; i < dataArray.length; i++) {
+const rpm = i * binToHz * 60;
+if (rpm < rpmMinLimit || rpm > rpmMaxLimit) continue;
+const x = ((rpm - rpmMinLimit) / (rpmMaxLimit - rpmMinLimit)) * canvas.width;
+const y = canvas.height - (dataArray[i] / 255) * canvas.height;
+if (!started) { ctx.moveTo(x, y); started = true; }
+else ctx.lineTo(x, y);
+}
+ctx.stroke();
+
+const noiseTh = parseFloat(UI.noiseRange && UI.noiseRange.value ? UI.noiseRange.value : 20);
+const thY = canvas.height - (Math.max(0, Math.min(255, noiseTh)) / 255) * canvas.height;
+ctx.beginPath();
+ctx.strokeStyle = "rgba(244,244,242,0.35)";
+ctx.lineWidth = 1 * dpr;
+ctx.setLineDash([4 * dpr, 4 * dpr]);
+ctx.moveTo(0, thY);
+ctx.lineTo(canvas.width, thY);
+ctx.stroke();
+ctx.setLineDash([]);
+ctx.fillStyle = "rgba(138,139,144,0.95)";
+ctx.font = (10 * dpr) + "px sans-serif";
+ctx.textAlign = "left";
+ctx.fillText("TH " + Math.round(noiseTh), 6 * dpr, Math.max(12 * dpr, thY - 4 * dpr));
+
+// マイクレベル
+const bars = UI.audioIndicator.querySelectorAll(".audio-bar");
+let sum = 0;
+for (let i = 0; i < 80; i++) sum += dataArray[i];
+const level = sum / 80;
+bars.forEach((bar, i) => {
+bar.style.height = Math.min(16, Math.max(3, (level / 255) * 28 - i * 2.5)) + "px";
+});
+
+if (locked) return;
+
+const peakHz = getPrecisePeakHz(dataArray, FFT_SIZE, audioContext.sampleRate);
+
+if (peakHz > 0 && running) {
+if (ignoreFrames > 0) {
+ignoreFrames--;
+return;
+}
+
+const { adjustedRpm, speed, rawRpm, rawSpeed } = computeSpeedFromRpm(peakHz * 60);
+currentRpm = adjustedRpm;
+currentSpeed = speed;
+currentRpmRaw = rawRpm;
+currentSpeedRaw = rawSpeed;
+
+// CURRENT の表示値を先に決める（負荷適用後で判定）
+const dispNow = limitDisplay(Math.round(currentRpm));
+const showLoad = UI.showLoadValues.checked;
+const loadPercent = parseFloat(UI.loadFactorRange.value);
+const hasLoad = loadPercent !== 0;
+
+// CURRENT に数字が出たときだけ MAX / MIN を更新
+if (dispNow !== "--") {
+const rpmNum = Number(dispNow);
+if (maxRpmVal === 0 || rpmNum > maxRpmVal) maxRpmVal = rpmNum;
+if (minRpmVal === Infinity || rpmNum < minRpmVal) minRpmVal = rpmNum;
+if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
+if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
+
+// 生の値のMAX/MIN
+if (maxRpmRaw === 0 || rawRpm > maxRpmRaw) maxRpmRaw = rawRpm;
+if (minRpmRaw === Infinity || rawRpm < minRpmRaw) minRpmRaw = rawRpm;
+if (maxSpeedRaw === 0 || rawSpeed > maxSpeedRaw) maxSpeedRaw = rawSpeed;
+if (minSpeedRaw === Infinity || rawSpeed < minSpeedRaw) minSpeedRaw = rawSpeed;
+}
+
+// 表示（負荷適用後 = メイン表示）
+UI.rpmNow.textContent = dispNow;
+UI.rpmMax.textContent = maxRpmVal > 0 ? Math.round(maxRpmVal) : "--";
+UI.rpmMin.textContent = minRpmVal !== Infinity ? Math.round(minRpmVal) : "--";
+
+UI.speedNow.textContent = dispNow === "--" ? "--" : speed.toFixed(2);
+UI.speedTop.textContent = maxSpeedVal > 0 ? maxSpeedVal.toFixed(2) : "--";
+UI.speedMin.textContent = minSpeedVal !== Infinity ? minSpeedVal.toFixed(2) : "--";
+
+// 生の値（サブ表示）— 負荷が0以外かつチェックONの場合のみ表示
+if (showLoad && hasLoad) {
+UI.rpmNowRaw.textContent = dispNow === "--" ? "" : "生: " + Math.round(rawRpm);
+UI.rpmMaxRaw.textContent = maxRpmRaw > 0 ? "生: " + Math.round(maxRpmRaw) : "";
+UI.rpmMinRaw.textContent = minRpmRaw !== Infinity ? "生: " + Math.round(minRpmRaw) : "";
+UI.speedNowRaw.textContent = dispNow === "--" ? "" : "生: " + rawSpeed.toFixed(2);
+UI.speedTopRaw.textContent = maxSpeedRaw > 0 ? "生: " + maxSpeedRaw.toFixed(2) : "";
+UI.speedMinRaw.textContent = minSpeedRaw !== Infinity ? "生: " + minSpeedRaw.toFixed(2) : "";
+} else {
+UI.rpmNowRaw.textContent = "";
+UI.rpmMaxRaw.textContent = "";
+UI.rpmMinRaw.textContent = "";
+UI.speedNowRaw.textContent = "";
+UI.speedTopRaw.textContent = "";
+UI.speedMinRaw.textContent = "";
+}
+}
+}
+
+/* ========== 比較表（負荷適用値と生数値を並列表示） ========== */
+function isMachineSet() {
+  const ms = window.machineState || {};
+  const shaft = ms.shaft && ms.shaft !== "none";
+  const chassis = ms.chassis && ms.chassis !== "common";
+  const motor = !!(ms.motor);
+  const tire = parseFloat((UI.tireRange && UI.tireRange.value) || "22.5");
+  const gearIdx = String((UI.gearRange && UI.gearRange.value) || "1");
+  return !!(shaft || chassis || motor || Math.abs(tire - 22.5) > 0.05 || gearIdx !== "1");
+}
+
+function machineStatusText() {
+  const ms = window.machineState || {};
+  if (!isMachineSet()) return "マシン設定: 未設定（既定 3.7:1 / 22.5mm）";
+  const shaftText = ms.shaft === "single" ? "片軸" : (ms.shaft === "dual" ? "両軸" : "駆動未指定");
+  const chassisName = (typeof CHASSIS_NAME !== "undefined" && CHASSIS_NAME[ms.chassis]) ? CHASSIS_NAME[ms.chassis] : (ms.chassis || "共通");
+  const motor = ms.motor || "モーター未選択";
+  const gear = (UI.gearLabel && UI.gearLabel.textContent) || "3.7:1";
+  const tire = (UI.tireLabel && UI.tireLabel.textContent) || "22.5 mm";
+  const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "";
+  return "マシン設定中: " + shaftText + " / " + chassisName + " / " + motor + " / " + volt + " / " + gear + " / " + tire;
+}
+
+function refreshMachineStatusUI() {
+  const bar = document.getElementById("cmpMachineBar");
+  const txt = machineStatusText();
+  if (bar) {
+    bar.textContent = txt;
+    bar.classList.toggle("is-set", isMachineSet());
+  }
+  if (UI.statusLine && !locked) {
+    const base = running ? "MEASURING — 解析中" : "READY — 計測待機中";
+    UI.statusLine.textContent = isMachineSet() ? (base + " ｜ " + txt) : base;
+  }
+}
+
+function buildComparisonTable(baseRpm) {
+const voltages = [2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5];
+const currentV = parseFloat(UI.voltageRange && UI.voltageRange.value) || 2.8;
+const tireSet = parseFloat(UI.tireRange && UI.tireRange.value);
+const tireUnset = 22.5;
+const loadPercent = parseFloat(UI.loadFactorRange && UI.loadFactorRange.value) || 0;
+const chassisFactor = (typeof chassisLossFactor === "function") ? chassisLossFactor() : 1;
+const loadFactor = (1 - (loadPercent / 100)) * chassisFactor;
+const splitEl = document.getElementById("cmpSplitToggle");
+const split = !!(splitEl && splitEl.checked);
+const rpm0 = Number(baseRpm);
+const safeBase = (isFinite(rpm0) && rpm0 > 0) ? rpm0 : 0;
+
+refreshMachineStatusUI();
+UI.comparisonBody.innerHTML = "";
+if (!safeBase) {
+  const empty = document.createElement("tr");
+  empty.innerHTML = "<td colspan='11' style='text-align:center;padding:16px;color:var(--mute,#999);'>ロックすると数値が入ります</td>";
+  UI.comparisonBody.appendChild(empty);
+  const sum0 = document.getElementById("cmpSummary");
+  if (sum0) sum0.textContent = "計測してロックすると、電圧別の机上速度が出ます。";
+  return;
+}
+
+voltages.forEach(v => {
+const rpmUnset = safeBase * (v / currentV);
+const rpmSet = rpmUnset * loadFactor;
+const tr = document.createElement("tr");
+if (Math.abs(v - currentV) < 0.05) tr.classList.add("highlight-row");
+
+if (split) {
+  tr.innerHTML = `<td>${v.toFixed(1)}</td>
+    <td class="cmp-split-td"><div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${Math.round(rpmUnset)}</span><span class="s"><span class="tag">設</span>${Math.round(rpmSet)}</span></div></td>
+    <td class="raw-col" style="color:var(--text-sub);font-size:0.68rem;">${Math.round(rpmUnset)}</td>`;
+} else {
+  tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpmSet)}</td><td class="raw-col" style="color:var(--text-sub);font-size:0.68rem;">${Math.round(rpmUnset)}</td>`;
+}
+
+gearOptions.forEach((g, idx) => {
+  const gearRatio = parseFloat(g.split(":")[0]);
+  const speedUnset = (rpmUnset / gearRatio) * (tireUnset * Math.PI * 60) / 1000000;
+  const speedSet = (rpmSet / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
+  const td = document.createElement("td");
+  if (split) {
+    td.innerHTML = `<div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${speedUnset.toFixed(2)}</span><span class="s"><span class="tag">設</span>${speedSet.toFixed(2)}</span></div>`;
+  } else {
+    td.textContent = speedSet.toFixed(2);
+  }
+  if (idx == UI.gearRange.value) td.classList.add("highlight-col");
+  tr.appendChild(td);
+});
+UI.comparisonBody.appendChild(tr);
+});
+
+if (typeof updateRawVisibility === "function") updateRawVisibility();
+try {
+  const fb = document.getElementById("flareCmpBody");
+  const src = UI.comparisonBody;
+  if (fb && src) fb.innerHTML = src.innerHTML;
+  const fs = document.getElementById("flareCmpSummary");
+  const ss = document.getElementById("cmpSummary");
+  if (fs && ss) fs.innerHTML = ss.innerHTML;
+} catch (eFlareCmp) {}
+
+try {
+  const sum = document.getElementById("cmpSummary");
+  if (sum) {
+    const gearLabel = gearOptions[UI.gearRange.value] || "";
+    const gearRatio = parseFloat(String(gearLabel).split(":")[0]) || 1;
+    const rpmAt = safeBase * loadFactor;
+    const speedAt = (rpmAt / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
+    const speedUnsetAt = (safeBase / gearRatio) * (tireUnset * Math.PI * 60) / 1000000;
+    sum.innerHTML = `基準 <span class="emph">${currentV.toFixed(1)} V</span> / 選択ギヤ <span class="emph">${gearLabel}</span> で `
+      + `設定 <span class="emph">${speedAt.toFixed(2)} km/h</span>`
+      + (split ? `　／　未設定 <span class="emph">${speedUnsetAt.toFixed(2)} km/h</span>` : "")
+      + (isMachineSet() ? "　｜　マシン設定を反映" : "　｜　マシン未設定");
+  }
+} catch (eSum) {}
+
+}
+
+/* ========== イベント ========== */
+UI.startBtn.addEventListener("click", async () => {
+if (!running) {
+  // Safari: 状態切替は startMic 成功後に行う
+  UI.statusLine.textContent = "マイク起動中…";
+  await startMic();
+} else {
+  stopMic();
+}
+});
+
+UI.lockBtn.addEventListener("click", () => {
+locked = !locked;
+UI.lockBtn.textContent = locked ? "ロック解除" : "ロック";
+UI.lockBtn.classList.toggle("outline");
+if (locked) {
+const lockRaw = (currentRpmRaw > 0) ? currentRpmRaw : 0;
+lockedSnapshot = { rpm: currentRpm, speed: currentSpeed, rpmRaw: lockRaw };
+buildComparisonTable(lockRaw);
+UI.statusLine.textContent = "LOCKED — ロック中" + (isMachineSet() ? " ｜ " + machineStatusText() : "");
+} else {
+lockedSnapshot = null;
+UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
+}
+});
+
+/* リセット：表示だけ消す（計測は継続） */
+UI.resetBtn.addEventListener("click", () => {
+currentRpm = 0;
+currentRpmRaw = 0;
+maxRpmVal = 0;
+minRpmVal = Infinity;
+maxRpmRaw = 0;
+minRpmRaw = Infinity;
+currentSpeed = 0;
+currentSpeedRaw = 0;
+maxSpeedVal = 0;
+minSpeedVal = Infinity;
+maxSpeedRaw = 0;
+minSpeedRaw = Infinity;
+
+UI.rpmNow.textContent = "--";
+UI.rpmMax.textContent = "--";
+UI.rpmMin.textContent = "--";
+UI.rpmNowRaw.textContent = "";
+UI.rpmMaxRaw.textContent = "";
+UI.rpmMinRaw.textContent = "";
+UI.speedNow.textContent = "--";
+UI.speedTop.textContent = "--";
+UI.speedMin.textContent = "--";
+UI.speedNowRaw.textContent = "";
+UI.speedTopRaw.textContent = "";
+UI.speedMinRaw.textContent = "";
+UI.comparisonBody.innerHTML = "";
+
+if (locked) {
+locked = false;
+lockedSnapshot = null;
+UI.lockBtn.textContent = "ロック";
+UI.lockBtn.classList.add("outline");
+UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
+}
+});
+
+/* 履歴・設定・保存を開いても計測は継続 */
+UI.historyBtn.addEventListener("click", () => {
+populateFilters();
+renderHistory();
+UI.historyModal.style.display = "flex";
+// モーダルを先頭にスクロール
+const modal = UI.historyModal.querySelector('.modal');
+if (modal) modal.scrollTop = 0;
+});
+UI.settingsBtn.addEventListener("click", () => {
+UI.settingsModal.style.display = "flex";
+});
+if (document.getElementById("machineBtn")) {
+  document.getElementById("machineBtn").addEventListener("click", function() {
+    if (window.openMachineModal) openMachineModal();
+  });
+}
+UI.saveBtn.addEventListener("click", () => {
+  if (window.machineState && machineState.saveMode === "quick" && state.history.length) {
+    UI.saveNameInput.value = state.history[0].name || "";
+    if (machineState.motor) UI.motorTypeSelect.value = machineState.motor;
+  } else if (window.machineState && machineState.motor) {
+    UI.motorTypeSelect.value = machineState.motor;
+  }
+  UI.saveModal.style.display = "flex";
+});
+
+
+const cmpSplitToggle = document.getElementById("cmpSplitToggle");
+if (cmpSplitToggle) {
+  const savedSplit = localStorage.getItem("rpmCmpSplit");
+  if (savedSplit === "0") cmpSplitToggle.checked = false;
+  cmpSplitToggle.addEventListener("change", function() {
+    localStorage.setItem("rpmCmpSplit", cmpSplitToggle.checked ? "1" : "0");
+    if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
+  });
+}
+if (typeof refreshMachineStatusUI === "function") refreshMachineStatusUI();
+
+UI.voltageRange.addEventListener("input", () => {
+UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V";
+if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
+});
+UI.gearRange.addEventListener("input", () => {
+UI.gearLabel.textContent = gearOptions[UI.gearRange.value];
+if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
+});
+function clampTire(commit) {
+  let v = parseFloat(UI.tireRange.value);
+  if (isNaN(v)) v = 22.5;
+  v = Math.min(35.0, Math.max(20.0, v));
+  if (commit) UI.tireRange.value = v.toFixed(1);
+  UI.tireLabel.textContent = v.toFixed(1) + " mm";
+  if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
+}
+UI.tireRange.addEventListener("input", () => clampTire(false));
+UI.tireRange.addEventListener("change", () => clampTire(true));
+UI.tireRange.addEventListener("blur", () => clampTire(true));
+document.getElementById("tireMinus").addEventListener("click", () => {
+  UI.tireRange.value = (parseFloat(UI.tireRange.value) - 0.1).toFixed(1);
+  clampTire(true);
+});
+document.getElementById("tirePlus").addEventListener("click", () => {
+  UI.tireRange.value = (parseFloat(UI.tireRange.value) + 0.1).toFixed(1);
+  clampTire(true);
+});
+UI.voltageRange.addEventListener("change", () => {
+  UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V";
+  if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
+});
+UI.gearRange.addEventListener("change", () => {
+  UI.gearLabel.textContent = gearOptions[UI.gearRange.value];
+  if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
+});
+
+UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = UI.noiseRange.value);
+UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2));
+UI.loadFactorRange.addEventListener("input", () => {
+UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%";
+updateRawVisibility();
+});
+function updateRawVisibility() {
+  const lp = parseFloat(UI.loadFactorRange.value) || 0;
+  document.body.classList.toggle("load-zero", lp === 0);
+  // 比較表の生列セルも class 付与
+  try {
+    document.querySelectorAll("#comparisonBody tr").forEach(function(tr) {
+      const cells = tr.querySelectorAll("td");
+      // 3列目が RPM(生) 想定
+      if (cells[2]) cells[2].classList.add("raw-col");
+    });
+  } catch (e) {}
+}
+updateRawVisibility();
+
+document.getElementById("settingsCloseTop").addEventListener("click", () => UI.settingsModal.style.display = "none");
+document.getElementById("settingsCloseBtn").addEventListener("click", () => UI.settingsModal.style.display = "none");
+
+/* ========== マシン設定 ========== */
+const DUAL_MOTORS = [
+  ["NMP","NMP (ノーマルPRO)"],["RTP","RTP (レブPRO)"],["TTP","TTP (トルクPRO)"],
+  ["ATP","ATP (アトミックPRO)"],["LDP","LDP (ライトPRO)"],["HDP","HDP (ハイパーPRO)"],["MDP","MDP (マッハPRO)"]
+];
+const SINGLE_MOTORS = [
+  ["NM","NM (ノーマル)"],["RT","RT (レブ)"],["TT","TT (トルク)"],["AT","AT (アトミック)"],
+  ["LD","LD (ライト)"],["HD","HD (ハイパー)"],["PD","PD (パワー)"],["SD","SD (スプリント)"],
+  ["UD","UD (ウルトラ)"],["PLD","PLD (プラズマ)"]
+];
+const DUAL_GEARS = ["3.5:1","3.7:1","4.0:1"];
+const SINGLE_GEARS = ["3.5:1","3.7:1","4.0:1","4.2:1","5:1"];
+const SINGLE_OLD_GEARS = ["6.4:1","8.75:1","11.2:1"];
+const ALL_GEARS = DUAL_GEARS.concat(["4.2:1","5:1"]).concat(SINGLE_OLD_GEARS);
+const CHASSIS_CATALOG = {
+  common: { name:"共通（指定なし）", shaft:"none", pos:"any", drive:"any", stock:null, gears:ALL_GEARS, note:"駆動・シャーシを絞らない。ギヤは全公表比" },
+  me: { name:"ME", shaft:"dual", pos:"mid", drive:"direct", stock:"3.5:1", gears:DUAL_GEARS.slice(), note:"ミッドシップ・両軸・ダイレクト。公式ギヤ 3.5 / 3.7 / 4。標準 3.5:1" },
+  ma: { name:"MA", shaft:"dual", pos:"mid", drive:"direct", stock:"3.5:1", gears:DUAL_GEARS.slice(), note:"ミッドシップ・両軸・ダイレクト。公式ギヤ 3.5 / 3.7 / 4。標準 3.5:1" },
+  ms: { name:"MS", shaft:"dual", pos:"mid", drive:"direct", stock:"4.0:1", gears:DUAL_GEARS.slice(), note:"ミッドシップ・両軸・ダイレクト。公式ギヤ 3.5 / 3.7 / 4。標準 4:1" },
+  fma: { name:"FM-A（フロント）", shaft:"single", pos:"front", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"フロントモーター・片軸。クラウン＋プロペラは比1:1。公式ギヤ 3.5〜5。標準 3.5:1" },
+  fm: { name:"FM / Super-FM（フロント）", shaft:"single", pos:"front", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"フロントモーター・片軸。公式ギヤ 3.5〜5" },
+  ar: { name:"AR（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"4.2:1", gears:SINGLE_GEARS.slice(), note:"リアモーター・片軸。クラウン＋プロペラは比1:1。公式ギヤ 3.5〜5" },
+  vz: { name:"VZ（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"リアモーター・片軸。公式ギヤ 3.5〜5。標準 3.5:1" },
+  vs: { name:"VS（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リアモーター・片軸。公式ギヤ 3.5〜5" },
+  s2: { name:"Super-II（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リアモーター・片軸。公式ギヤ 3.5〜5" },
+  tz: { name:"TZ / Super-X / XX（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.concat(SINGLE_OLD_GEARS), note:"リアモーター・片軸。現行比に旧比 6.4 / 8.75 / 11.2 を含む" }
+};
+const CHASSIS_GEARS = Object.fromEntries(Object.entries(CHASSIS_CATALOG).map(function(e){ return [e[0], e[1].gears]; }));
+const CHASSIS_NAME = Object.fromEntries(Object.entries(CHASSIS_CATALOG).map(function(e){ return [e[0], e[1].name]; }));
+const VOLT_LIST = [2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4,3.5];
+window.machineState = JSON.parse(localStorage.getItem("rpmMachine") || "null") || {
+  shaft: "none", chassis: "common", motor: "", saveMode: "ask"
+};
+if (!machineState.shaft) machineState.shaft = "none";
+if (machineState.chassis === "common" && machineState.shaft === "dual") {
+  /* 旧保存値はそのまま使う */
+}
+
+function fillSelect(el, items, selected) {
+  if (!el) return;
+  el.innerHTML = items.map(function(it) {
+    const v = Array.isArray(it) ? it[0] : it;
+    const t = Array.isArray(it) ? it[1] : it;
+    return '<option value="'+v+'"'+(String(v)===String(selected)?' selected':'')+'>'+t+'</option>';
+  }).join("");
+}
+
+function syncMachineToMain() {
+  const voltSel = document.getElementById("machineVoltSelect");
+  const gearSel = document.getElementById("machineGearSelect");
+  const tireInp = document.getElementById("machineTireInput");
+  const motorSel = document.getElementById("machineMotorSelect");
+  if (voltSel && UI.voltageRange) {
+    UI.voltageRange.value = voltSel.value;
+    UI.voltageLabel.textContent = parseFloat(voltSel.value).toFixed(1) + " V";
+  }
+  if (gearSel && UI.gearRange) {
+    const idx = gearOptions.indexOf(gearSel.value);
+    if (idx >= 0) {
+      UI.gearRange.value = String(idx);
+      UI.gearLabel.textContent = gearOptions[idx];
+    }
+  }
+  if (tireInp && UI.tireRange) {
+    UI.tireRange.value = tireInp.value;
+    UI.tireLabel.textContent = parseFloat(tireInp.value).toFixed(1) + " mm";
+  }
+  if (motorSel && UI.motorTypeSelect) UI.motorTypeSelect.value = motorSel.value;
+  if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
+}
+
+function chassisInfo(key) {
+  return CHASSIS_CATALOG[key] || CHASSIS_CATALOG.common;
+}
+
+function gearsForCurrentMachine() {
+  const info = chassisInfo(machineState.chassis);
+  if (machineState.chassis && machineState.chassis !== "common" && info.gears && info.gears.length) return info.gears.slice();
+  if (machineState.shaft === "dual") return DUAL_GEARS.slice();
+  if (machineState.shaft === "single") return SINGLE_GEARS.slice();
+  return ALL_GEARS.slice();
+}
+
+function refreshMachineSummary() {
+  const info = chassisInfo(machineState.chassis);
+  const gear = (document.getElementById("machineGearSelect") || {}).value || UI.gearLabel.textContent;
+  const tire = (document.getElementById("machineTireInput") || {}).value || "22.5";
+  const volt = (document.getElementById("machineVoltSelect") || {}).value || "2.8";
+  const motor = (document.getElementById("machineMotorSelect") || {}).value || "未選択";
+  const shaftText = machineState.shaft === "single" ? "片軸" : (machineState.shaft === "dual" ? "両軸" : "指定なし");
+  const el = document.getElementById("machineSummary");
+  if (el) {
+    el.textContent = shaftText + " / " + info.name + " / " + info.note + " / " +
+      (motor || "モーター未選択") + " / " + volt + "V / " + gear + " / " + parseFloat(tire).toFixed(1) + "mm";
+  }
+  const hint = document.getElementById("chassisHint");
+  if (hint) hint.textContent = info.note + "。速度は机上換算で、シャーシ固有ロス％は自動加算していません。";
+  const sl = document.getElementById("shaftLabel");
+  const cl = document.getElementById("chassisLabel");
+  const ml = document.getElementById("machineMotorLabel");
+  const vl = document.getElementById("machineVoltLabel");
+  const gl = document.getElementById("machineGearLabel");
+  const tl = document.getElementById("machineTireLabel");
+  if (sl) sl.textContent = shaftText;
+  if (cl) cl.textContent = CHASSIS_NAME[machineState.chassis] || "共通（指定なし）";
+  if (ml) ml.textContent = motor || "未選択";
+  if (vl) vl.textContent = parseFloat(volt).toFixed(1) + " V";
+  if (gl) gl.textContent = gear;
+  if (tl) tl.textContent = parseFloat(tire).toFixed(1) + " mm";
+  const reflect = document.getElementById("machineReflectNote");
+  if (reflect) {
+    const gnum = parseFloat(String(gear).split(":")[0]) || 0;
+    reflect.textContent = (gnum ? ("軸回転 = モーターrpm ÷ " + gnum + "（クラウンは比1:1）") : "軸回転 = モーターrpm ÷ ギヤ比") +
+      " ／ ロック後の比較表・画面速度・保存メモに反映";
+  }
+}
+
+function rebuildMachineLists() {
+  const motors = machineState.shaft === "single" ? SINGLE_MOTORS
+    : machineState.shaft === "dual" ? DUAL_MOTORS
+    : [["","選択なし"]].concat(DUAL_MOTORS).concat(SINGLE_MOTORS);
+  const chassisOpts = Object.keys(CHASSIS_CATALOG)
+    .filter(function(k){
+      if (k === "common") return true;
+      if (machineState.shaft === "none") return true;
+      return CHASSIS_CATALOG[k].shaft === machineState.shaft;
+    })
+    .map(function(k){ return [k, CHASSIS_CATALOG[k].name]; });
+  if (!chassisOpts.some(function(it){ return it[0] === machineState.chassis; })) {
+    machineState.chassis = "common";
+  }
+  fillSelect(document.getElementById("chassisSelect"), chassisOpts, machineState.chassis);
+  const gears = gearsForCurrentMachine();
+  fillSelect(document.getElementById("machineMotorSelect"), motors[0] && motors[0][0] === "" ? motors : [["","選択なし"]].concat(motors), machineState.motor);
+  fillSelect(document.getElementById("machineGearSelect"), gears, UI.gearLabel ? UI.gearLabel.textContent : "3.7:1");
+  if (!gears.includes((document.getElementById("machineGearSelect") || {}).value)) {
+    const gs = document.getElementById("machineGearSelect");
+    if (gs) gs.value = gears[0];
+  }
+  fillSelect(document.getElementById("machineVoltSelect"), VOLT_LIST.map(function(v){ return [String(v), String(v)]; }), UI.voltageRange ? UI.voltageRange.value : "2.8");
+  const ti = document.getElementById("machineTireInput");
+  if (ti && UI.tireRange) ti.value = UI.tireRange.value;
+  document.querySelectorAll(".seg-btn[data-shaft]").forEach(function(b) {
+    b.classList.toggle("active", b.getAttribute("data-shaft") === machineState.shaft);
+  });
+  const cs = document.getElementById("chassisSelect");
+  if (cs) cs.value = machineState.chassis;
+  const sm = document.getElementById("saveModeSelect");
+  if (sm) sm.value = machineState.saveMode || "ask";
+  refreshMachineSummary();
+}
+
+window.openMachineModal = function() {
+  rebuildMachineLists();
+  document.getElementById("machineModalBackdrop").style.display = "flex";
+};
+
+function persistMachine() {
+  setTimeout(function(){ if (typeof refreshMachineStatusUI==="function") refreshMachineStatusUI(); if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0); }, 0);
+  const motorSel = document.getElementById("machineMotorSelect");
+  const saveMode = document.getElementById("saveModeSelect");
+  if (motorSel) machineState.motor = motorSel.value;
+  if (saveMode) machineState.saveMode = saveMode.value;
+  localStorage.setItem("rpmMachine", JSON.stringify(machineState));
+  syncMachineToMain();
+  refreshMachineSummary();
+}
+
+(function initMachineModal() {
+  const backdrop = document.getElementById("machineModalBackdrop");
+  if (!backdrop) return;
+  document.querySelectorAll(".seg-btn[data-shaft]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      machineState.shaft = btn.getAttribute("data-shaft");
+      machineState.motor = "";
+      rebuildMachineLists();
+      persistMachine();
+    });
+  });
+  const cs = document.getElementById("chassisSelect");
+  if (cs) cs.addEventListener("change", function() {
+    machineState.chassis = cs.value;
+    const info = chassisInfo(machineState.chassis);
+    if (info.shaft === "dual" || info.shaft === "single") machineState.shaft = info.shaft;
+    rebuildMachineLists();
+    persistMachine();
+    if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
+  });
+  ["machineVoltSelect","machineGearSelect","machineMotorSelect","machineTireInput","saveModeSelect"].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("input", persistMachine);
+    el.addEventListener("change", persistMachine);
+  });
+  function stepSelect(id, list, dir) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const vals = list.map(function(x){ return Array.isArray(x) ? String(x[0]) : String(x); });
+    const i = Math.max(0, Math.min(vals.length - 1, vals.indexOf(String(el.value)) + dir));
+    el.value = vals[i];
+    persistMachine();
+  }
+  document.getElementById("voltMinus").addEventListener("click", function(){ stepSelect("machineVoltSelect", VOLT_LIST, -1); });
+  document.getElementById("voltPlus").addEventListener("click", function(){ stepSelect("machineVoltSelect", VOLT_LIST, 1); });
+  document.getElementById("gearMinus").addEventListener("click", function(){
+    stepSelect("machineGearSelect", gearsForCurrentMachine(), -1);
+  });
+  document.getElementById("gearPlus").addEventListener("click", function(){
+    stepSelect("machineGearSelect", gearsForCurrentMachine(), 1);
+  });
+  document.getElementById("machineTireMinus").addEventListener("click", function(){
+    const el = document.getElementById("machineTireInput");
+    el.value = Math.max(20, (parseFloat(el.value)||22.5) - 0.1).toFixed(1);
+    persistMachine();
+  });
+  document.getElementById("machineTirePlus").addEventListener("click", function(){
+    const el = document.getElementById("machineTireInput");
+    el.value = Math.min(35, (parseFloat(el.value)||22.5) + 0.1).toFixed(1);
+    persistMachine();
+  });
+  function closeMachine() {
+    persistMachine();
+    backdrop.style.display = "none";
+  }
+  document.getElementById("machineCloseTop").addEventListener("click", closeMachine);
+  document.getElementById("machineCloseBtn").addEventListener("click", closeMachine);
+  document.getElementById("machineToRevBtn").addEventListener("click", function() {
+    persistMachine();
+    backdrop.style.display = "none";
+    const openBtn = document.getElementById("reverseCalcOpenBtn");
+    if (openBtn) openBtn.click();
+    else document.getElementById("reverseCalcModalBackdrop").style.display = "flex";
+  });
+  rebuildMachineLists();
+})();
+
+/* ========== 逆算電卓 ========== */
+(function initReverseCalc() {
+  const K = Math.PI * 60 / 1e6;
+  const gears = [3.5, 3.7, 4.0, 4.2, 5, 6.4, 8.75, 11.2];
+  const modal = document.getElementById("reverseCalcModalBackdrop");
+  const $ = function(id) { return document.getElementById(id); };
+  function n(id) { return parseFloat($(id).value); }
+  function applyLock() {
+    const solve = $("revSolve").value;
+    document.querySelectorAll(".rev-row[data-field]").forEach(function(row) {
+      const lockedRow = row.dataset.field === solve;
+      row.classList.toggle("disabled", lockedRow);
+      row.querySelectorAll("input, select, button").forEach(function(el) { el.disabled = lockedRow; });
+    });
+  }
+  function calcRev() {
+    applyLock();
+    const rpm = n("revRpm"), gear = n("revGear"), speed = n("revSpeed"), tire = n("revTire");
+    const solve = $("revSolve").value;
+    let val = NaN, key = "", unit = "", note = "";
+    if (solve === "speed") {
+      val = (rpm / gear) * tire * K;
+      key = "速度"; unit = "km/h";
+      note = rpm.toLocaleString() + " rpm / " + gear + ":1 / " + tire.toFixed(1) + " mm";
+    } else if (solve === "tire") {
+      val = speed * gear / (rpm * K);
+      key = "必要なタイヤ径"; unit = "mm";
+      note = rpm.toLocaleString() + " rpm・" + gear + ":1 で " + speed.toFixed(2) + " km/h";
+    } else if (solve === "rpm") {
+      val = speed * gear / (tire * K);
+      key = "必要なモーター回転数"; unit = "rpm";
+      note = gear + ":1・" + tire.toFixed(1) + " mm で " + speed.toFixed(2) + " km/h";
+    } else {
+      val = rpm * tire * K / speed;
+      key = "必要なギヤ比"; unit = ":1";
+      note = rpm.toLocaleString() + " rpm・" + tire.toFixed(1) + " mm で " + speed.toFixed(2) + " km/h";
+    }
+    $("revOutKey").textContent = key;
+    $("revOutVal").textContent = isFinite(val) ? (solve === "rpm" ? Math.round(val).toLocaleString() : val.toFixed(2)) : "--";
+    $("revOutUnit").textContent = unit;
+    $("revNote").textContent = note;
+    if (isFinite(val) && solve !== "gear") {
+      $(solve === "speed" ? "revSpeed" : solve === "tire" ? "revTire" : "revRpm").value =
+        solve === "rpm" ? String(Math.round(val)) : val.toFixed(2);
+    }
+  }
+  function openRev() {
+    const rpmEl = $("revRpm"), gearEl = $("revGear"), tireEl = $("revTire");
+    if (rpmEl && currentRpm) rpmEl.value = String(Math.round(currentRpm));
+    if (gearEl) gearEl.value = String(parseFloat((UI.gearLabel.textContent || "3.7").split(":")[0]));
+    if (tireEl && UI.tireRange) tireEl.value = parseFloat(UI.tireRange.value).toFixed(1);
+    modal.style.display = "flex";
+    calcRev();
+  }
+  document.getElementById("reverseCalcOpenBtn").addEventListener("click", openRev);
+  const mainRev = document.getElementById("reverseCalcMainBtn");
+  if (mainRev) mainRev.addEventListener("click", openRev);
+  function closeRev() { modal.style.display = "none"; }
+  $("reverseCalcCloseTop").addEventListener("click", closeRev);
+  $("reverseCalcCloseBtn").addEventListener("click", closeRev);
+  ["revRpm","revGear","revSpeed","revTire","revSolve"].forEach(function(id) {
+    $(id).addEventListener("input", calcRev);
+    $(id).addEventListener("change", calcRev);
+  });
+  document.querySelectorAll(".rev-step button[data-rev]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      const t = btn.getAttribute("data-rev");
+      const d = parseFloat(btn.getAttribute("data-d"));
+      const map = { rpm: "revRpm", speed: "revSpeed", tire: "revTire" };
+      const el = $(map[t]);
+      const next = (parseFloat(el.value) || 0) + d;
+      el.value = t === "rpm" ? String(Math.round(next)) : next.toFixed(1);
+      calcRev();
+    });
+  });
+  $("revGearMinus").addEventListener("click", function() {
+    const i = Math.max(0, gears.indexOf(n("revGear")) - 1);
+    $("revGear").value = String(gears[i]);
+    calcRev();
+  });
+  $("revGearPlus").addEventListener("click", function() {
+    const i = Math.min(gears.length - 1, gears.indexOf(n("revGear")) + 1);
+    $("revGear").value = String(gears[i]);
+    calcRev();
+  });
+})();
+document.getElementById("historyCloseTop").addEventListener("click", () => UI.historyModal.style.display = "none");
+document.getElementById("historyCloseBtn").addEventListener("click", () => UI.historyModal.style.display = "none");
+document.getElementById("saveClose").addEventListener("click", () => UI.saveModal.style.display = "none");
+document.getElementById("saveCancelBtn").addEventListener("click", () => UI.saveModal.style.display = "none");
+
+/* ダークモード初期化 */
+// ダークモード: デフォルトON（明示的に "false" のときだけライト）
+const savedDark = localStorage.getItem("darkMode");
+const isDark = savedDark === null ? true : savedDark === "true";
+if (isDark) {
+document.body.classList.add("dark-mode");
+UI.darkModeToggleBtn.textContent = "ダークモード: ON";
+UI.darkModeToggleBtn.classList.replace("gray", "blue");
+localStorage.setItem("darkMode", "true");
+} else {
+document.body.classList.remove("dark-mode");
+UI.darkModeToggleBtn.textContent = "ダークモード: OFF";
+}
+UI.darkModeToggleBtn.addEventListener("click", () => {
+const active = document.body.classList.toggle("dark-mode");
+localStorage.setItem("darkMode", active ? "true" : "false");
+UI.darkModeToggleBtn.textContent = active ? "ダークモード: ON" : "ダークモード: OFF";
+if (active) {
+UI.darkModeToggleBtn.classList.replace("gray", "blue");
+} else {
+UI.darkModeToggleBtn.classList.replace("blue", "gray");
+}
+});
+
+document.getElementById("settingsResetBtn").addEventListener("click", () => {
+UI.noiseRange.value = 20;
+UI.rpmCalRange.value = 1.00;
+UI.loadFactorRange.value = 0;
+UI.noiseLabel.textContent = "20";
+UI.rpmCalLabel.textContent = "1.00";
+UI.loadFactorLabel.textContent = "0%";
+if (typeof updateRawVisibility === "function") updateRawVisibility();
+});
+
+/* ========== 保存（負荷情報付き） ========== */
+document.getElementById("saveConfirmBtn").addEventListener("click", () => {
+const name = UI.saveNameInput.value.trim() || "No Name";
+const motor = UI.motorTypeSelect.value || "未選択";
+const loadPercent = parseFloat(UI.loadFactorRange.value);
+const hasLoad = loadPercent !== 0;
+
+const entry = {
+id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+date: new Date().toLocaleDateString(),
+datetime: new Date().toLocaleString(),
+ts: Date.now(),
+name, motor,
+rpm: Math.round((typeof maxRpmVal === "number" && maxRpmVal > 0) ? maxRpmVal : currentRpm),
+rpmRaw: Math.round((typeof maxRpmRaw === "number" && maxRpmRaw > 0) ? maxRpmRaw : currentRpmRaw),
+speed: currentSpeed.toFixed(2),
+speedRaw: currentSpeedRaw.toFixed(2),
+voltage: UI.voltageLabel.textContent.replace(" V", ""),
+gear: UI.gearLabel.textContent,
+tire: UI.tireLabel.textContent.replace(" mm", ""),
+load: hasLoad ? loadPercent + "%" : null,
+shaft: (window.machineState && machineState.shaft) || "",
+chassis: (window.machineState && machineState.chassis) || ""
+};
+
+state.history.unshift(entry);
+localStorage.setItem("rpmHistory", JSON.stringify(state.history));
+UI.saveModal.style.display = "none";
+});
+
+/* ========== お気に入りトグル ========== */
+function toggleFavorite(id) {
+const idx = favorites.indexOf(id);
+if (idx === -1) {
+favorites.push(id);
+} else {
+favorites.splice(idx, 1);
+}
+localStorage.setItem("rpmFavorites", JSON.stringify(favorites));
+renderHistory();
+}
+
+function isFavorite(id) {
+return favorites.includes(id);
+}
+
+window._histSelected = window._histSelected || {};
+function toggleHistSelect(id) {
+  if (!id) return;
+  if (!window._histSelected) window._histSelected = {};
+  if (window._histSelected[id]) delete window._histSelected[id];
+  else {
+    const keys = Object.keys(window._histSelected);
+    if (keys.length >= 2) {
+      // 古い選択を1つ外す
+      delete window._histSelected[keys[0]];
+    }
+    window._histSelected[id] = true;
+  }
+  renderHistory();
+}
+function updateHistoryDiffPanel() {
+  const panel = document.getElementById("historyDiffPanel");
+  if (!panel) return;
+  const ids = Object.keys(window._histSelected || {});
+  if (ids.length < 2) {
+    panel.classList.remove("show");
+    panel.innerHTML = "";
+    return;
+  }
+  const a = state.history.find(h => h.id === ids[0]);
+  const b = state.history.find(h => h.id === ids[1]);
+  if (!a || !b) {
+    panel.classList.remove("show");
+    return;
+  }
+  const dRpm = (Number(a.rpm) || 0) - (Number(b.rpm) || 0);
+  const dSp = (parseFloat(a.speed) || 0) - (parseFloat(b.speed) || 0);
+  const dV = (parseFloat(String(a.voltage).replace(/[^\d.]/g, "")) || 0) - (parseFloat(String(b.voltage).replace(/[^\d.]/g, "")) || 0);
+  panel.innerHTML = `<div><strong>差分比較</strong>：${a.name || "A"} vs ${b.name || "B"}</div>
+    <div>RPM：${a.rpm} − ${b.rpm} = <strong>${dRpm > 0 ? "+" : ""}${Math.round(dRpm)}</strong></div>
+    <div>速度：${a.speed} − ${b.speed} = <strong>${dSp > 0 ? "+" : ""}${dSp.toFixed(2)}</strong> km/h</div>
+    <div>電圧差：<strong>${dV > 0 ? "+" : ""}${dV.toFixed(1)}</strong> V　／　ギヤ ${a.gear || "—"} vs ${b.gear || "—"}</div>`;
+  panel.classList.add("show");
+}
+window.toggleHistSelect = toggleHistSelect;
+
+
+/* ========== フィルタ・履歴 ========== */
+function populateFilters() {
+const keys = ['date', 'name', 'motor', 'speed', 'rpm', 'voltage', 'gear', 'tire'];
+
+// お気に入りフィルタONの場合、プルダウンの選択肢もお気に入りのみ
+const sourceData = favFilterOn
+? state.history.filter(h => h.id && isFavorite(h.id))
+: state.history;
+
+keys.forEach(key => {
+const select = filters[key];
+const currentVal = select.value; // 現在の選択値を保持
+const values = [...new Set(sourceData.map(h => h[key]))].filter(v => v !== undefined).sort();
+select.innerHTML = '<option value="">すべて</option>';
+values.forEach(v => {
+const opt = document.createElement("option");
+opt.value = v;
+opt.textContent = v;
+select.appendChild(opt);
+});
+// 選択値を復元（選択肢に存在する場合のみ）
+if (currentVal && values.map(String).includes(String(currentVal))) {
+select.value = currentVal;
+}
+});
+}
+
+function renderHistory() {
+const fValues = {
+date: filters.date.value,
+name: filters.name.value,
+motor: filters.motor.value,
+speed: filters.speed.value,
+rpm: filters.rpm.value,
+voltage: filters.voltage.value,
+gear: filters.gear.value,
+tire: filters.tire.value
+};
+
+let filtered = state.history.filter(h => {
+return Object.keys(fValues).every(k => !fValues[k] || String(h[k]) === fValues[k]);
+});
+
+if (favFilterOn) {
+filtered = filtered.filter(h => h.id && isFavorite(h.id));
+}
+
+// 並び替え
+const sortMode = (document.getElementById("historySortSelect") || {}).value || "new";
+filtered = filtered.slice().sort((a, b) => {
+const ar = Number(a.rpm) || 0, br = Number(b.rpm) || 0;
+const as = parseFloat(a.speed) || 0, bs = parseFloat(b.speed) || 0;
+const at = a.ts || 0, bt = b.ts || 0;
+if (sortMode === "rpm") return br - ar;
+if (sortMode === "speed") return bs - as;
+if (sortMode === "old") return at - bt;
+return bt - at; // new
+});
+
+// サマリー
+const hsCount = document.getElementById("hsCount");
+const hsBestRpm = document.getElementById("hsBestRpm");
+const hsBestSpeed = document.getElementById("hsBestSpeed");
+const hsDelta = document.getElementById("hsDelta");
+if (hsCount) hsCount.textContent = String(filtered.length);
+let bestRpm = 0, bestSpeed = 0;
+filtered.forEach(h => {
+bestRpm = Math.max(bestRpm, Number(h.rpm) || 0);
+bestSpeed = Math.max(bestSpeed, parseFloat(h.speed) || 0);
+});
+if (hsBestRpm) hsBestRpm.textContent = bestRpm ? String(Math.round(bestRpm)) : "—";
+if (hsBestSpeed) hsBestSpeed.textContent = bestSpeed ? bestSpeed.toFixed(2) : "—";
+if (hsDelta) {
+  if (filtered.length >= 2) {
+    const newest = filtered[0];
+    const prev = filtered[1];
+    // 新しい順前提の差分。他ソート時は先頭2件の差
+    const d = (Number(newest.rpm) || 0) - (Number(prev.rpm) || 0);
+    hsDelta.textContent = (d > 0 ? "+" : "") + Math.round(d);
+    hsDelta.style.color = d > 0 ? "#34c759" : (d < 0 ? "#ff3b30" : "var(--accent-blue)");
+  } else {
+    hsDelta.textContent = "—";
+    hsDelta.style.color = "";
+  }
+}
+
+UI.historyList.innerHTML = filtered.length
+? ""
+: "<tr><td colspan='11' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
+
+filtered.forEach((h, i) => {
+const tr = document.createElement("tr");
+const isFav = h.id && isFavorite(h.id);
+const favClass = isFav ? "fav-name is-fav" : "fav-name";
+const loadBadge = h.load ? `<span class="load-badge">${h.load}</span>` : "";
+let rpmDisplay = h.rpm;
+if (h.load && h.rpmRaw) {
+rpmDisplay = `${h.rpm} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.rpmRaw})</span>`;
+}
+let speedDisplay = h.speed;
+if (h.load && h.speedRaw) {
+speedDisplay = `${h.speed} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.speedRaw})</span>`;
+}
+const isBest = bestRpm && Number(h.rpm) === bestRpm;
+if (isBest) tr.classList.add("is-best");
+const checked = window._histSelected && window._histSelected[h.id] ? "checked" : "";
+tr.innerHTML = `
+     <td><input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')" /></td>
+     <td>${i + 1}</td>
+     <td><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${loadBadge}${isBest ? " ★" : ""}</td>
+     <td>${h.motor}</td>
+     <td>${speedDisplay}</td>
+     <td>${rpmDisplay}</td>
+     <td>${h.voltage}</td>
+     <td>${h.gear}</td>
+     <td>${h.tire}</td>
+     <td>${h.datetime || h.date}</td>
+     <td><button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></td>
+`;
+UI.historyList.appendChild(tr);
+});
+updateHistoryDiffPanel();
+}
+
+UI.historySearchBtn.addEventListener("click", () => {
+renderHistory();
+});
+const historySortSelect = document.getElementById("historySortSelect");
+if (historySortSelect) historySortSelect.addEventListener("change", () => renderHistory());
+
+// フィルタリセットボタン
+document.getElementById("historyResetBtn").addEventListener("click", () => {
+Object.values(filters).forEach(sel => sel.value = "");
+if (favFilterOn) {
+favFilterOn = false;
+UI.favFilterBtn.classList.toggle("on", false);
+UI.favFilterBtn.classList.toggle("off", true);
+}
+populateFilters();
+renderHistory();
+});
+
+window.toggleFavorite = toggleFavorite;
+
+window.deleteHistory = (i) => {
+if (confirm("この履歴を削除しますか？")) {
+const removed = state.history.splice(i, 1)[0];
+// お気に入りからも削除
+if (removed && removed.id) {
+const favIdx = favorites.indexOf(removed.id);
+if (favIdx !== -1) favorites.splice(favIdx, 1);
+localStorage.setItem("rpmFavorites", JSON.stringify(favorites));
+}
+localStorage.setItem("rpmHistory", JSON.stringify(state.history));
+populateFilters();
+renderHistory();
+}
+};
+
+window.onclick = (e) => {
+if (e.target.classList.contains("modal-backdrop")) {
+e.target.style.display = "none";
+}
+};
+
+
+// Safari: タブ復帰時に AudioContext を再開
+document.addEventListener("visibilitychange", function() {
+  if (document.visibilityState === "visible" && running && audioContext && audioContext.state === "suspended") {
+    audioContext.resume().catch(function(){});
+  }
+});
+
+/* ========== ピンチイン・アウト禁止 ========== */
+document.addEventListener('touchmove', function(e) {
+    // Safari 等では e.scale が undefined。未定義のときは触らない（全部 prevent すると操作不能になる）
+    if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
+}, { passive: false });
+
+/* ========== ダブルタップズーム禁止 ========== */
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
+
+
+
+/* ========== memory アプリ ワンタッチ連携 ========== */
+const MEMORY_RPM_KEYS = ["memory_rpm_result", "mini4wd_last_rpm", "rpm_analyzer_result", "m4_rpm_result"];
+
+function getMemoryRpmPayload() {
+  // MOTOR RPM の MAX を memory に渡す（CURRENT ではない）
+  var maxR = 0;
+  try {
+    var t = (UI.rpmMax && UI.rpmMax.textContent) ? UI.rpmMax.textContent.trim() : '';
+    if (t && t !== '--') maxR = Math.round(Number(t));
+  } catch (e) {}
+  if (!maxR || isNaN(maxR)) {
+    maxR = Math.round(maxRpmVal > 0 ? maxRpmVal : 0);
+  }
+  if (!maxR) {
+    maxR = Math.round(currentRpm || 0);
+  }
+  var rpmRaw = Math.round(maxRpmRaw > 0 ? maxRpmRaw : (currentRpmRaw || 0));
+  var speed = maxSpeedVal > 0 ? Number(maxSpeedVal.toFixed(2)) : (currentSpeed ? Number(Number(currentSpeed).toFixed(2)) : 0);
+  var voltage = null, gear = null, tire = null;
+  try {
+    voltage = parseFloat(UI.voltageRange.value);
+    gear = gearOptions[UI.gearRange.value];
+    tire = parseFloat(UI.tireRange.value);
+  } catch (e) {}
+  return {
+    type: "memory-rpm",
+    source: "rpm-analyzer",
+    app: "rpm-analyzer",
+    rpm: maxR,
+    RPM: maxR,
+    maxRpm: maxR,
+    currentRpm: Math.round(currentRpm || 0),
+    rpmRaw: rpmRaw,
+    speed: speed,
+    voltage: voltage,
+    gear: gear,
+    tire: tire,
+    hz: rpmRaw > 0 ? rpmRaw / 60 : null,
+    ts: Date.now()
+  };
+}
+
+function publishToMemory(showAlert) {
+  const payload = getMemoryRpmPayload();
+  if (!payload.rpm || payload.rpm <= 0) {
+    if (showAlert) alert("有効なRPMがありません。計測してから送信してください。");
+    return false;
+  }
+  const json = JSON.stringify(payload);
+  try {
+    MEMORY_RPM_KEYS.forEach(function(k) { localStorage.setItem(k, json); });
+  } catch (e) {}
+  try {
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage(payload, "*");
+    }
+  } catch (e) {}
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(payload, "*");
+    }
+  } catch (e) {}
+  const status = document.getElementById("memorySendStatus");
+  if (status) {
+    status.textContent = "✓ memory へ MAX " + payload.rpm + " rpm"
+      + (payload.voltage != null ? " / " + payload.voltage + "V" : "")
+      + (payload.speed != null ? " / " + payload.speed + "km/h" : "")
+      + " を送信";
+    status.style.color = "#34c759";
+  }
+
+  // memory ページへ遷移（return パラメータ or opener）
+  const params = new URLSearchParams(location.search);
+  const returnUrl = params.get("return");
+  const fromMemory = params.get("from") === "memory" || params.get("callback") === "1";
+
+  function goBackToMemory() {
+    // return URL に最高RPMを載せて memory 側で確実に受け取れるようにする
+    var back = returnUrl || '';
+    if (back) {
+      try {
+        var u = new URL(back, location.href);
+        u.searchParams.set('import_rpm', String(payload.rpm));
+        u.searchParams.set('import_max_rpm', String(payload.maxRpm || payload.rpm));
+        u.searchParams.set('import_ts', String(payload.ts || Date.now()));
+        if (payload.speed != null && payload.speed !== '') u.searchParams.set('import_speed', String(payload.speed));
+        if (payload.voltage != null && payload.voltage !== '') u.searchParams.set('import_voltage', String(payload.voltage));
+        if (payload.tire != null && payload.tire !== '') u.searchParams.set('import_tire', String(payload.tire));
+        if (payload.gear != null && payload.gear !== '') u.searchParams.set('import_gear', String(payload.gear));
+        if (payload.rpmRaw != null && payload.rpmRaw !== '') u.searchParams.set('import_rpm_raw', String(payload.rpmRaw));
+        back = u.toString();
+      } catch (e) {
+        var sep = back.indexOf('?') >= 0 ? '&' : '?';
+        back = back + sep + 'import_rpm=' + encodeURIComponent(payload.rpm) +
+          '&import_max_rpm=' + encodeURIComponent(payload.maxRpm || payload.rpm) +
+          '&import_ts=' + encodeURIComponent(payload.ts || Date.now());
+        if (payload.speed != null) back += '&import_speed=' + encodeURIComponent(payload.speed);
+        if (payload.voltage != null) back += '&import_voltage=' + encodeURIComponent(payload.voltage);
+        if (payload.tire != null) back += '&import_tire=' + encodeURIComponent(payload.tire);
+        if (payload.gear != null) back += '&import_gear=' + encodeURIComponent(payload.gear);
+        if (payload.rpmRaw != null) back += '&import_rpm_raw=' + encodeURIComponent(payload.rpmRaw);
+      }
+    }
+    try {
+      if (window.opener && !window.opener.closed) {
+        try { window.opener.focus(); } catch (e) {}
+        try { window.close(); } catch (e2) {}
+        // opener が閉じられない場合は return へ
+        setTimeout(function() {
+          if (back && !window.closed) location.href = back;
+        }, 200);
+        return;
+      }
+    } catch (e) {}
+    if (back) {
+      location.href = back;
+      return;
+    }
+    if (fromMemory && history.length > 1) {
+      history.back();
+      return;
+    }
+  }
+
+  if (showAlert) {
+    // 「memoryへ戻る」押下時のみ遷移
+    goBackToMemory();
+  }
+  // ロック時などは localStorage / postMessage のみ（画面に留まる）
+  return true;
+}
+
+
+(function initMemoryBridge() {
+  document.body.classList.remove("from-memory");
+})();
+
+(function initHelpAndOnboard() {
+  const helpModal = document.getElementById("helpModalBackdrop");
+  function openHelp() {
+    if (!helpModal) return;
+    helpModal.style.display = "flex";
+    const m = helpModal.querySelector(".modal");
+    if (m) m.scrollTop = 0;
+  }
+  function closeHelp() {
+    if (helpModal) helpModal.style.display = "none";
+  }
+  window.openRpmHelp = openHelp;
+  ["helpBtn", "settingsHelpBtn", "flareOpenHelp", "helpCloseTop", "helpCloseBtn"].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("click", function() {
+      if (id.indexOf("Close") >= 0) closeHelp();
+      else openHelp();
+    });
+  });
+  document.querySelectorAll("#helpModalBackdrop .help-acc > button").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      const box = btn.parentElement;
+      const was = box.classList.contains("open");
+      document.querySelectorAll("#helpModalBackdrop .help-acc").forEach(function(x) { x.classList.remove("open"); });
+      if (!was) box.classList.add("open");
+    });
+  });
+
+  const pages = [
+    {
+      k: "1 / 3",
+      t: "回転数を測定します",
+      html: "<p class=\"onboard-p\">RPM Memory は、モーターの音の高さから回転数（RPM）を推定する測定アプリです。会話の録音アプリではありません。</p><p class=\"onboard-p\">音声は端末の中だけで処理し、サーバーには送りません。</p>"
+    },
+    {
+      k: "2 / 3",
+      t: "マイクを近づけて測る",
+      html: "<p class=\"onboard-p\">「計測開始」を押し、マイクをモーターに近づけます。グラフの山が回転の目安です。</p><p class=\"onboard-p\">周囲がうるさいときは集音範囲を絞ってください。点線の TH はノイズ閾値です。上げすぎるとモーター自身も拾いにくくなります。</p>"
+    },
+    {
+      k: "3 / 3",
+      t: "安定したらロック",
+      html: "<p class=\"onboard-p\">数字が落ち着いたらロックします。その値で机上速度・比較表・保存が使えます。値は目安です。</p><p class=\"onboard-p\">マイクを使います / Microphone access</p><p class=\"onboard-p\">モーター音の周波数から回転数（RPM）を測定するためにマイクを使います。音声は端末内だけで処理し、サーバーへ送信しません。</p><p class=\"onboard-en\">The microphone is used to measure motor RPM from sound frequency. Audio is processed on this device only and is not sent to any server.</p>"
+    }
+  ];
+  const backdrop = document.getElementById("onboardBackdrop");
+  let step = 0;
+  function renderOnboard() {
+    const p = pages[step];
+    document.getElementById("onboardKicker").textContent = p.k;
+    document.getElementById("onboardTitle").textContent = p.t;
+    document.getElementById("onboardBody").innerHTML = p.html;
+    document.querySelectorAll("#onboardDots i").forEach(function(d, i) {
+      d.classList.toggle("on", i === step);
+    });
+    document.getElementById("onboardNext").textContent = step >= pages.length - 1 ? "はじめる" : "つぎへ";
+  }
+  function openOnboard() {
+    step = 0;
+    renderOnboard();
+    backdrop.classList.add("show");
+  }
+  function closeOnboard() {
+    backdrop.classList.remove("show");
+    try { localStorage.setItem("rpmOnboardV1", "1"); } catch (e) {}
+  }
+  window.openRpmOnboard = openOnboard;
+  document.getElementById("onboardSkip").addEventListener("click", closeOnboard);
+  document.getElementById("onboardNext").addEventListener("click", function() {
+    if (step >= pages.length - 1) closeOnboard();
+    else { step += 1; renderOnboard(); }
+  });
+  const demoBtn = document.getElementById("demoModeBtn");
+  if (demoBtn) {
+    demoBtn.addEventListener("click", function() {
+      demoMode = !demoMode;
+      demoBtn.textContent = demoMode ? "審査用デモ: ON" : "審査用デモ: OFF";
+      if (running) {
+        try { if (typeof stopMic === "function") stopMic(); } catch (e) {}
+      }
+    });
+  }
+  const again = document.getElementById("settingsOnboardBtn");
+  if (again) again.addEventListener("click", function() {
+    if (UI.settingsModal) UI.settingsModal.style.display = "none";
+    openOnboard();
+  });
+  try {
+    if (localStorage.getItem("rpmOnboardV1") !== "1") openOnboard();
+  } catch (e) { openOnboard(); }
+})();
+
+
+
+
+/* ========== 外観テーマ切替 ========== */
+(function initUiTheme() {
+  const btn = document.getElementById("uiThemeToggleBtn");
+  const meta = document.querySelector('meta[name="theme-color"]');
+  const ORDER = ["sharp", "classic", "flare"];
+  const LABEL = { sharp: "外観: シャープ", classic: "外観: 現行（丸み）", flare: "外観: FLARE" };
+  const COLOR = { sharp: "#101114", classic: "#0d0d0f", flare: "#0A0A0A" };
+  function apply(theme) {
+    if (ORDER.indexOf(theme) < 0) theme = "classic";
+    document.body.classList.toggle("theme-sharp", theme === "sharp");
+    document.body.classList.toggle("theme-classic", theme === "classic");
+    document.body.classList.toggle("theme-flare", theme === "flare");
+    localStorage.setItem("rpmUiTheme", theme);
+    localStorage.setItem("rpmUiThemeV2", theme);
+    document.querySelectorAll(".theme-pick").forEach(function(b) {
+      b.classList.toggle("is-on", b.getAttribute("data-theme") === theme);
+    });
+    if (btn) btn.textContent = LABEL[theme];
+    if (meta) meta.setAttribute("content", COLOR[theme]);
+  }
+  const saved = localStorage.getItem("rpmUiThemeV2") || null;
+  apply(ORDER.indexOf(saved) >= 0 ? saved : "classic");
+  document.querySelectorAll(".theme-pick").forEach(function(b) {
+    b.addEventListener("click", function() { apply(b.getAttribute("data-theme")); });
+  });
+  if (btn) btn.addEventListener("click", function() {
+    const cur = document.body.classList.contains("theme-flare") ? "flare"
+      : document.body.classList.contains("theme-classic") ? "classic" : "sharp";
+    apply(ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length]);
+  });
+  const sm = document.getElementById("settingsMachineBtn");
+  if (sm) sm.addEventListener("click", function() {
+    if (window.openMachineModal) openMachineModal();
+  });
+})();
+
+/* ========== FLARE シェル同期 ========== */
+(function initFlareShell() {
+  function $(id) { return document.getElementById(id); }
+  const hold = $("flareHold");
+  function syncFlareFace() {
+    if (!$("flareRpmNow")) return;
+    const rpm = (UI.rpmNow && UI.rpmNow.textContent) || "--";
+    const spd = (UI.speedNow && UI.speedNow.textContent) || "--";
+    $("flareRpmNow").innerHTML = (rpm === "--" || rpm === "") ? "—<small>rpm</small>" : rpm + "<small>rpm</small>";
+    $("flareSpdNow").textContent = (spd === "--") ? "—" : spd;
+    $("flareRpmHi").textContent = (UI.rpmMax && UI.rpmMax.textContent !== "--") ? UI.rpmMax.textContent : "—";
+    $("flareRpmLo").textContent = (UI.rpmMin && UI.rpmMin.textContent !== "--") ? UI.rpmMin.textContent : "—";
+    $("flareSpdHi").textContent = (UI.speedTop && UI.speedTop.textContent !== "--") ? UI.speedTop.textContent : "—";
+    $("flareSpdLo").textContent = (UI.speedMin && UI.speedMin.textContent !== "--") ? UI.speedMin.textContent : "—";
+    const tag = $("flareLiveTag");
+    const lockTag = $("flareLockTag");
+    if (typeof running !== "undefined" && running) {
+      tag.textContent = "LIVE"; tag.classList.add("on");
+      if (hold) { hold.classList.add("hot"); var hl=$("flareHoldLabel"); if(hl && hl.textContent!=="STOP") hl.textContent="STOP"; }
+    } else {
+      tag.textContent = (typeof locked !== "undefined" && locked) ? "HOLD" : "READY";
+      tag.classList.toggle("on", !!(typeof locked !== "undefined" && locked));
+      if (hold) { hold.classList.remove("hot"); var hl=$("flareHoldLabel"); if(hl && hl.textContent!=="ROLLING") hl.textContent="ROLLING"; }
+    }
+    if (typeof locked !== "undefined" && locked) {
+      lockTag.textContent = "FIXED";
+      if (hold) hold.classList.add("locked");
+      const fx = $("flareFix"); if (fx) fx.textContent = "UNLOCK";
+    } else {
+      lockTag.textContent = (typeof running !== "undefined" && running) ? "" : "READY";
+      if (hold) hold.classList.remove("locked");
+      const fx = $("flareFix"); if (fx) fx.textContent = "FIX";
+    }
+    const hi = $("flareHiTxt"); const lo = $("flareLoTxt");
+    if (hi && typeof rpmMaxLimit !== "undefined") hi.textContent = (rpmMaxLimit >= 1000 ? (rpmMaxLimit/1000) + "k" : rpmMaxLimit);
+    if (lo && typeof rpmMinLimit !== "undefined") lo.textContent = (rpmMinLimit >= 1000 ? (rpmMinLimit/1000) + "k" : rpmMinLimit);
+  }
+  window.syncFlareFace = syncFlareFace;
+
+  function clickIf(id) { const el = $(id); if (el) el.click(); }
+
+  if (hold) {
+    var holdBusy = false;
+    function tapHold(ev) {
+      if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+      if (holdBusy) return;
+      holdBusy = true;
+      clickIf("startBtn");
+      setTimeout(function(){ holdBusy = false; syncFlareFace(); }, 200);
+    }
+    hold.addEventListener("pointerup", tapHold);
+    hold.addEventListener("click", tapHold);
+  }
+  const map = [
+    ["flareFix","lockBtn"],["flareSave","saveBtn"],["flareZero","resetBtn"],
+    ["flareMachine","machineBtn"],["flareOpenMachine","machineBtn"],
+    ["flareLab","reverseCalcMainBtn"],["flareOpenRev","reverseCalcOpenBtn"],
+    ["flareOpenSet","settingsBtn"],["flareOpenHist","historyBtn"]
+  ];
+  map.forEach(function(pair) {
+    const a = $(pair[0]);
+    if (a) a.addEventListener("click", function() { clickIf(pair[1]); setTimeout(syncFlareFace, 0); });
+  });
+  const openTable = $("flareOpenTable");
+  if (openTable) openTable.addEventListener("click", function() {
+    document.querySelectorAll("#flareApp nav.f-nav button").forEach(function(x) { x.classList.toggle("on", x.getAttribute("data-fp")==="fp-table"); });
+    document.querySelectorAll("#flareApp .f-page").forEach(function(x) { x.classList.toggle("on", x.id==="fp-table"); });
+  });
+
+  document.querySelectorAll("#flareApp nav.f-nav button").forEach(function(b) {
+    b.addEventListener("click", function() {
+      document.querySelectorAll("#flareApp nav.f-nav button").forEach(function(x) { x.classList.remove("on"); });
+      document.querySelectorAll("#flareApp .f-page").forEach(function(x) { x.classList.remove("on"); });
+      b.classList.add("on");
+      const pg = $(b.getAttribute("data-fp"));
+      if (pg) pg.classList.add("on");
+    });
+  });
+
+  const ft = $("flareThemeBtn");
+  if (ft) ft.addEventListener("click", function() {
+    const btn = $("uiThemeToggleBtn");
+    if (btn) btn.click();
+  });
+
+  function drawFlareRail() {
+    const canvas = $("flareSpectrum");
+    if (!canvas || !document.body.classList.contains("theme-flare")) return;
+    if (typeof dataArray === "undefined" || !dataArray || typeof audioContext === "undefined" || !audioContext) return;
+    const ctx = canvas.getContext("2d");
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = canvas.clientWidth || 44, h = canvas.clientHeight || 320;
+    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    ctx.clearRect(0, 0, w, h);
+    const binToHz = audioContext.sampleRate / (typeof FFT_SIZE !== "undefined" ? FFT_SIZE : 8192);
+    const minBin = Math.floor((rpmMinLimit / 60) / binToHz);
+    const maxBin = Math.ceil((rpmMaxLimit / 60) / binToHz);
+    const i0 = Math.max(1, minBin), i1 = Math.min(dataArray.length - 1, maxBin);
+    const n = Math.max(1, i1 - i0 + 1);
+    const gap = 1;
+    const bh = Math.max(1.2, (h - n * gap) / n);
+    let peakI = i0, peak = 0;
+    for (let i = i0; i <= i1; i++) if (dataArray[i] > peak) { peak = dataArray[i]; peakI = i; }
+    for (let i = i0; i <= i1; i++) {
+      const y = h - (i - i0 + 1) * (bh + gap);
+      const mag = dataArray[i] / 255;
+      const bw = Math.max(1, mag * (w - 2));
+      ctx.fillStyle = (i === peakI && dataArray[i] > 8) ? "#FF6A12" : ("rgba(255,106,18," + (0.12 + mag * 0.5) + ")");
+      ctx.fillRect(0, y, bw, bh);
+    }
+  }
+  window.drawFlareRail = drawFlareRail;
+
+  // 集音窓キャップ（既存の rpmMin/Max スライダーと同期）
+  const WIN_LO = 0, WIN_HI = 60000;
+  function placeCaps() {
+    const track = $("flareRailTrack");
+    if (!track) return;
+    const h = track.clientHeight || 240;
+    const yOf = function(rpm) { const tt = (rpm - WIN_LO) / (WIN_HI - WIN_LO); return (1 - tt) * h; };
+    const hi = $("flareCapHi"), lo = $("flareCapLo");
+    if (hi) hi.style.top = Math.max(0, yOf(rpmMaxLimit) - 10) + "px";
+    if (lo) lo.style.top = Math.min(h - 22, yOf(rpmMinLimit) - 10) + "px";
+    syncFlareFace();
+  }
+  function bindCap(el, which) {
+    if (!el) return;
+    let dragging = false;
+    const move = function(ev) {
+      if (!dragging) return;
+      const rect = $("flareRailTrack").getBoundingClientRect();
+      const y = (ev.touches ? ev.touches[0].clientY : ev.clientY) - rect.top;
+      const t = 1 - Math.min(1, Math.max(0, y / rect.height));
+      let rpm = Math.round((WIN_LO + t * (WIN_HI - WIN_LO)) / 500) * 500;
+      if (which === "max") {
+        rpm = Math.max(rpmMinLimit + 500, Math.min(WIN_HI, rpm));
+        UI.rpmMaxLimit.value = rpm;
+        UI.rpmMaxLimit.dispatchEvent(new Event("input"));
+      } else {
+        rpm = Math.min(rpmMaxLimit - 500, Math.max(WIN_LO, rpm));
+        UI.rpmMinLimit.value = rpm;
+        UI.rpmMinLimit.dispatchEvent(new Event("input"));
+      }
+      placeCaps();
+    };
+    el.addEventListener("pointerdown", function(e) { dragging = true; el.setPointerCapture(e.pointerId); move(e); });
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", function() { dragging = false; });
+  }
+  bindCap($("flareCapHi"), "max");
+  bindCap($("flareCapLo"), "min");
+  window.placeFlareCaps = placeCaps;
+  setTimeout(placeCaps, 80);
+  setInterval(function() {
+    if (document.body.classList.contains("theme-flare")) {
+      syncFlareFace();
+      drawFlareRail();
+      placeCaps();
+    }
+  }, 80);
+})();
+
+window.I18N = {
+  ja: {
+    start:"計測開始", stop:"計測停止", lock:"ロック", unlock:"ロック解除", save:"保存",
+    history:"履歴", reset:"リセット", settings:"設定", machine:"マシン設定",
+    revShort:"逆算", revTitle:"逆算電卓", revNote:"ロスなしの机上値です",
+    settingsTitle:"測定設定", settingsLead:"回転は音からの推定、速度は机上の理論値です。公式計測器の代替ではありません。",
+    machineNote:"計測中にロックを押した際に出現する比較表に反映されます。",
+    histTitle:"計測履歴", cmpTitle:"電圧別比較表",
+    themeSharp:"シャープ", themeClassic:"丸み",
+    darkOn:"ダークモード: ON", darkOff:"ダークモード: OFF",
+    setReset:"設定リセット", close:"閉じる",
+    shaftNone:"指定なし", shaftDual:"両軸", shaftSingle:"片軸",
+    applyClose:"反映して閉じる", favOnly:"お気に入りのみ", cancel:"キャンセル", saveDo:"保存する",
+    tabLive:"計器", tabMap:"マップ", tabLab:"ラボ", tabEar:"聴き方", tabLog:"記録",
+    measuring:"MEASURING — 解析中", ready:"READY — 計測待機中",
+    locked:"LOCKED — ロック中", stopped:"STOPPED — 停止中",
+    micWait:"マイク起動中…",
+    errHttps:"ERROR: HTTPSで開いてください",
+    errMic:"ERROR: マイクにアクセスできません",
+    cmpEmpty:"計測してロックすると、電圧別の机上速度が出ます。",
+    unset:"未設定", set:"設定",
+    help:"使い方", onboardAgain:"初回案内をもう一度",
+    brandSub:"モーター音で回転数を測定",
+    contactDelay:"個人で対応しているため、返信までお時間をいただくことがあります。"
+  },
+  en: {
+    start:"START", stop:"STOP", lock:"LOCK", unlock:"UNLOCK", save:"SAVE",
+    history:"LOG", reset:"RESET", settings:"SETUP", machine:"MACHINE",
+    revShort:"CALC", revTitle:"REVERSE CALC", revNote:"No-loss theoretical value",
+    settingsTitle:"MEASURE SETUP", settingsLead:"RPM is estimated from sound. Speed is theoretical. Not a certified tachometer.",
+    machineNote:"Applied to the comparison table when you lock during a run.",
+    histTitle:"HISTORY", cmpTitle:"VOLTAGE MAP",
+    themeSharp:"SHARP", themeClassic:"ROUND",
+    darkOn:"DARK: ON", darkOff:"DARK: OFF",
+    setReset:"RESET SETUP", close:"CLOSE",
+    shaftNone:"NONE", shaftDual:"DUAL", shaftSingle:"SINGLE",
+    applyClose:"APPLY", favOnly:"FAVORITES", cancel:"CANCEL", saveDo:"SAVE",
+    tabLive:"METER", tabMap:"MAP", tabLab:"LAB", tabEar:"EAR", tabLog:"LOG",
+    measuring:"MEASURING", ready:"READY",
+    locked:"LOCKED", stopped:"STOPPED",
+    micWait:"Starting mic…",
+    errHttps:"ERROR: Open over HTTPS",
+    errMic:"ERROR: Mic access denied",
+    cmpEmpty:"Lock a reading to fill the voltage map.",
+    unset:"STOCK", set:"SET",
+    help:"GUIDE", onboardAgain:"Show intro again",
+    brandSub:"Measure motor RPM from sound",
+    contactDelay:"Handled by one person, so replies may take time."
+  }
+};
+window.APP_LANG = localStorage.getItem("rpmLang") === "en" ? "en" : "ja";
+function tt(key) {
+  const pack = (window.I18N[window.APP_LANG] || window.I18N.ja);
+  return pack[key] || window.I18N.ja[key] || key;
+}
+function applyLang(lang) {
+  if (lang !== "en") lang = "ja";
+  window.APP_LANG = lang;
+  localStorage.setItem("rpmLang", lang);
+  document.documentElement.lang = lang === "en" ? "en" : "ja";
+  document.querySelectorAll("[data-i18n]").forEach(function(el) {
+    const k = el.getAttribute("data-i18n");
+    if (!k) return;
+    if (el.id === "startBtn") {
+      el.textContent = (typeof running !== "undefined" && running) ? tt("stop") : tt("start");
+      return;
+    }
+    if (el.id === "lockBtn") {
+      el.textContent = (typeof locked !== "undefined" && locked) ? tt("unlock") : tt("lock");
+      return;
+    }
+    if (el.id === "darkModeToggleBtn") {
+      el.textContent = document.body.classList.contains("dark-mode") ? tt("darkOn") : tt("darkOff");
+      return;
+    }
+    el.textContent = tt(k);
+  });
+  document.querySelectorAll(".lang-pick").forEach(function(b) {
+    b.classList.toggle("is-on", b.getAttribute("data-lang") === lang);
+  });
+  if (typeof refreshMachineStatusUI === "function") refreshMachineStatusUI();
+}
+document.querySelectorAll(".lang-pick").forEach(function(b) {
+  b.addEventListener("click", function() { applyLang(b.getAttribute("data-lang")); });
+});
+applyLang(window.APP_LANG);
+
+</script>
+</body>
+</html>
