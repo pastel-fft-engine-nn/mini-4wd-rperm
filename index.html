@@ -1,16 +1,14 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8" />
+<html lang="ja"><head>
+<meta charset="UTF-8">
 <title>RPM Memory</title>
 <link rel="icon" type="image/png" href="rpm-memory-icon-32.png">
 <link rel="apple-touch-icon" href="rpm-memory-icon-180.png">
 <link rel="manifest" href="manifest.json">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#101114" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #101114;
@@ -1119,9 +1117,9 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 <div class="dual-range-container">
 <div class="dual-range-track"></div>
-<div class="dual-range-fill" id="rangeFill"></div>
-<input type="range" id="rpmMinLimit" min="0" max="60000" step="500" value="5000" />
-<input type="range" id="rpmMaxLimit" min="0" max="60000" step="500" value="40000" />
+<div class="dual-range-fill" id="rangeFill" style="left: 8.333333%; width: 58.333333%;"></div>
+<input type="range" id="rpmMinLimit" min="0" max="60000" step="500" value="5000">
+<input type="range" id="rpmMaxLimit" min="0" max="60000" step="500" value="40000">
 </div>
 </div>
 
@@ -1199,7 +1197,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <select class="cond-select" id="voltageRange">
 <option value="2.2">2.2</option><option value="2.3">2.3</option><option value="2.4">2.4</option>
 <option value="2.5">2.5</option><option value="2.6">2.6</option><option value="2.7">2.7</option>
-<option value="2.8" selected>2.8</option><option value="2.9">2.9</option><option value="3.0">3.0</option>
+<option value="2.8" selected="">2.8</option><option value="2.9">2.9</option><option value="3.0">3.0</option>
 <option value="3.1">3.1</option><option value="3.2">3.2</option><option value="3.3">3.3</option>
 <option value="3.4">3.4</option>
 </select>
@@ -1207,7 +1205,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="setting-item">
 <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="gearLabel">3.7:1</span></div>
 <select class="cond-select" id="gearRange">
-<option value="0">3.5:1</option><option value="1" selected>3.7:1</option>
+<option value="0">3.5:1</option><option value="1" selected="">3.7:1</option>
 <option value="2">4.0:1</option><option value="3">4.2:1</option>
 <option value="4">5:1</option><option value="5">6.4:1</option>
 <option value="6">8.75:1</option><option value="7">11.2:1</option>
@@ -1217,7 +1215,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="tireLabel">22.5 mm</span></div>
 <div class="tire-step-row">
 <button type="button" class="tire-step-btn" id="tireMinus">−</button>
-<input type="number" class="tire-step-input" id="tireRange" min="20.0" max="35.0" step="0.1" value="22.5" inputmode="decimal" />
+<input type="number" class="tire-step-input" id="tireRange" min="20.0" max="35.0" step="0.1" value="22.5" inputmode="decimal">
 <button type="button" class="tire-step-btn" id="tirePlus">＋</button>
 </div>
 </div>
@@ -1228,8 +1226,8 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <section class="card">
 <div class="card-header"><div class="card-title">電圧別比較表</div></div>
 <div class="cmp-summary" id="cmpSummary">ロック後に、選択中の電圧・ギヤでの速度目安が表示されます。</div>
-<div class="cmp-machine-bar" id="cmpMachineBar">マシン設定: 未設定</div>
-<label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle" checked /> 未設定と設定を上下比較する</label>
+<div class="cmp-machine-bar" id="cmpMachineBar">マシン設定: 未設定（既定 3.7:1 / 22.5mm）</div>
+<label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle" checked=""> 未設定と設定を上下比較する</label>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -1284,8 +1282,8 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
         <div class="rail">
           <div class="rail-track" id="flareRailTrack">
             <canvas id="flareSpectrum"></canvas>
-            <div class="cap" id="flareCapHi"><i></i><span id="flareHiTxt">40k</span></div>
-            <div class="cap" id="flareCapLo"><i></i><span id="flareLoTxt">5k</span></div>
+            <div class="cap" id="flareCapHi" style="top: 70px;"><i></i><span id="flareHiTxt">40k</span></div>
+            <div class="cap" id="flareCapLo" style="top: 210px;"><i></i><span id="flareLoTxt">5k</span></div>
           </div>
         </div>
       </div>
@@ -1347,29 +1345,27 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="modal-header"><div class="modal-title" data-i18n="settingsTitle">測定設定</div><button class="modal-close" id="settingsCloseTop">×</button></div>
 <p class="help-note" data-i18n="settingsLead">回転は音からの推定、速度は机上の理論値です。公式計測器の代替ではありません。</p>
 <div class="settings-row">
-<div class="setting-item"><div class="setting-label"><span>ノイズ閾値（TH）</span><span class="setting-value" id="noiseLabel">20</span></div><input type="range" id="noiseRange" min="0" max="100" step="1" value="20" /></div>
-<div class="setting-item"><div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div><input type="range" id="rpmCalRange" min="0.5" max="1.5" step="0.01" value="1.00" /></div>
-<div class="setting-item"><div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div><input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0" /></div>
+<div class="setting-item"><div class="setting-label"><span>ノイズ閾値（TH）</span><span class="setting-value" id="noiseLabel">20</span></div><input type="range" id="noiseRange" min="0" max="100" step="1" value="20"></div>
+<div class="setting-item"><div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div><input type="range" id="rpmCalRange" min="0.5" max="1.5" step="0.01" value="1.00"></div>
+<div class="setting-item"><div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div><input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0"></div>
 <div class="setting-item" style="margin-top:6px;">
 <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
-<input type="checkbox" id="showLoadValues" checked style="width:18px;height:18px;" /><span>負荷適用値を並べて表示</span>
+<input type="checkbox" id="showLoadValues" checked="" style="width:18px;height:18px;"><span>負荷適用値を並べて表示</span>
 </label>
 </div>
 <div class="theme-pick-row" id="themePickRow">
 <button type="button" class="secondary-btn gray theme-pick" data-theme="sharp" data-i18n="themeSharp">シャープ</button>
-<button type="button" class="secondary-btn gray theme-pick" data-theme="classic" data-i18n="themeClassic">丸み</button>
+<button type="button" class="secondary-btn gray theme-pick is-on" data-theme="classic" data-i18n="themeClassic">丸み</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="flare">FLARE</button>
 </div>
 <div class="theme-pick-row" id="langPickRow" style="margin-top:8px;">
 <button type="button" class="secondary-btn gray lang-pick is-on" data-lang="ja">日本語</button>
 <button type="button" class="secondary-btn gray lang-pick" data-lang="en">English</button>
+<button class="secondary-btn blue" id="darkModeToggleBtn" data-i18n="darkOff">ダーク: ON</button>
 </div>
-<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true"></button>
-<div style="margin-top:8px;"><button class="secondary-btn gray" id="darkModeToggleBtn" style="width:100%;" data-i18n="darkOff">ダークモード: OFF</button></div>
-<div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsMachineBtn" style="width:100%;" data-i18n="machine">マシン設定</button></div>
-<div style="margin-top:8px;"><button class="secondary-btn gray" id="reverseCalcOpenBtn" style="width:100%;" data-i18n="revTitle">逆算電卓</button></div>
+<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: 現行（丸み）</button>
+<button type="button" id="reverseCalcOpenBtn" style="display:none" aria-hidden="true"></button>
 <div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsHelpBtn" style="width:100%;" data-i18n="help">使い方</button></div>
-<div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsOnboardBtn" style="width:100%;" data-i18n="onboardAgain">初回案内をもう一度</button></div>
 <div style="margin-top:8px;"><button class="secondary-btn gray" id="demoModeBtn" style="width:100%;">審査用デモ: OFF</button></div>
 <div class="privacy-box">
   音声は端末内だけで処理し、サーバーへ送りません。履歴もこの端末に保存されます。<br>
@@ -1524,6 +1520,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 The microphone is used to measure motor RPM from sound frequency. Audio is processed on this device only and is not sent to any server.<br>
 問い合わせ: enginerace.setup.notes@gmail.com<br>
 個人で対応しているため、返信までお時間をいただくことがあります。</p>
+<button class="secondary-btn gray" id="settingsOnboardBtn" style="width:100%;margin-top:8px;" data-i18n="onboardAgain">初回案内をもう一度</button>
 <button class="secondary-btn gray" id="helpCloseBtn" style="width:100%;margin-top:8px;">閉じる</button>
 </div>
 </div>
@@ -1555,20 +1552,20 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 <div class="machine-item machine-tbd">
 <div class="setting-label"><span>シャーシ</span><span class="setting-value" id="chassisLabel">共通（指定なし）</span></div>
-<select class="cond-select" id="chassisSelect" disabled></select>
+<select class="cond-select" id="chassisSelect" disabled=""><option value="common" selected="">共通（指定なし）</option><option value="me">ME</option><option value="ma">MA</option><option value="ms">MS</option><option value="fma">FM-A（フロント）</option><option value="fm">FM / Super-FM（フロント）</option><option value="ar">AR（リア）</option><option value="vz">VZ（リア）</option><option value="vs">VS（リア）</option><option value="s2">Super-II（リア）</option><option value="tz">TZ / Super-X / XX（リア）</option></select>
 <p class="hint tbd-note">Implementation TBD</p>
-<p class="hint" id="chassisHint">速度は机上換算です。シャーシ固有のロス％は入れていません。</p>
+<p class="hint" id="chassisHint">駆動・シャーシを絞らない。ギヤは全公表比。速度は机上換算で、シャーシ固有ロス％は自動加算していません。</p>
 </div>
 <div class="machine-item machine-tbd">
 <div class="setting-label"><span>モーター</span><span class="setting-value" id="machineMotorLabel">未選択</span></div>
-<select class="cond-select" id="machineMotorSelect" disabled></select>
+<select class="cond-select" id="machineMotorSelect" disabled=""><option value="" selected="">選択なし</option><option value="NMP">NMP (ノーマルPRO)</option><option value="RTP">RTP (レブPRO)</option><option value="TTP">TTP (トルクPRO)</option><option value="ATP">ATP (アトミックPRO)</option><option value="LDP">LDP (ライトPRO)</option><option value="HDP">HDP (ハイパーPRO)</option><option value="MDP">MDP (マッハPRO)</option><option value="NM">NM (ノーマル)</option><option value="RT">RT (レブ)</option><option value="TT">TT (トルク)</option><option value="AT">AT (アトミック)</option><option value="LD">LD (ライト)</option><option value="HD">HD (ハイパー)</option><option value="PD">PD (パワー)</option><option value="SD">SD (スプリント)</option><option value="UD">UD (ウルトラ)</option><option value="PLD">PLD (プラズマ)</option></select>
 <p class="hint tbd-note">Implementation TBD</p>
 </div>
 <div class="machine-item">
 <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="machineVoltLabel">2.8 V</span></div>
 <div class="tire-step-row">
 <button type="button" class="tire-step-btn" id="voltMinus">−</button>
-<select class="cond-select" id="machineVoltSelect"></select>
+<select class="cond-select" id="machineVoltSelect"><option value="2.2">2.2</option><option value="2.3">2.3</option><option value="2.4">2.4</option><option value="2.5">2.5</option><option value="2.6">2.6</option><option value="2.7">2.7</option><option value="2.8" selected="">2.8</option><option value="2.9">2.9</option><option value="3">3</option><option value="3.1">3.1</option><option value="3.2">3.2</option><option value="3.3">3.3</option><option value="3.4">3.4</option><option value="3.5">3.5</option></select>
 <button type="button" class="tire-step-btn" id="voltPlus">＋</button>
 </div>
 </div>
@@ -1576,7 +1573,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="machineGearLabel">3.7:1</span></div>
 <div class="tire-step-row">
 <button type="button" class="tire-step-btn" id="gearMinus">−</button>
-<select class="cond-select" id="machineGearSelect"></select>
+<select class="cond-select" id="machineGearSelect"><option value="3.5:1">3.5:1</option><option value="3.7:1" selected="">3.7:1</option><option value="4.0:1">4.0:1</option><option value="4.2:1">4.2:1</option><option value="5:1">5:1</option><option value="6.4:1">6.4:1</option><option value="8.75:1">8.75:1</option><option value="11.2:1">11.2:1</option></select>
 <button type="button" class="tire-step-btn" id="gearPlus">＋</button>
 </div>
 </div>
@@ -1584,7 +1581,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="setting-label"><span>タイヤ径 (mm)</span><span class="setting-value" id="machineTireLabel">22.5 mm</span></div>
 <div class="tire-step-row">
 <button type="button" class="tire-step-btn" id="machineTireMinus">−</button>
-<input type="number" class="tire-step-input" id="machineTireInput" min="20.0" max="35.0" step="0.1" value="22.5" inputmode="decimal" />
+<input type="number" class="tire-step-input" id="machineTireInput" min="20.0" max="35.0" step="0.1" value="22.5" inputmode="decimal">
 <button type="button" class="tire-step-btn" id="machineTirePlus">＋</button>
 </div>
 </div>
@@ -1595,8 +1592,8 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <option value="quick">前回の名前で上書き確認</option>
 </select>
 </div>
-<div class="machine-summary" id="machineSummary">—</div>
-<div class="machine-summary" id="machineReflectNote" style="margin-top:8px;">軸回転 = モーターrpm ÷ ギヤ比（クラウンは比1:1）</div>
+<div class="machine-summary" id="machineSummary">指定なし / 共通（指定なし） / 駆動・シャーシを絞らない。ギヤは全公表比 / 未選択 / 2.8V / 3.7:1 / 22.5mm</div>
+<div class="machine-summary" id="machineReflectNote" style="margin-top:8px;">軸回転 = モーターrpm ÷ 3.7（クラウンは比1:1） ／ ロック後の比較表・画面速度・保存メモに反映</div>
 </div>
 <div style="display:flex;gap:8px;margin-top:14px;">
 <button class="secondary-btn gray" id="machineToRevBtn" style="flex:1;">逆算電卓</button>
@@ -1619,7 +1616,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <p style="font-size:12px;color:var(--mute);margin:6px 0 0;">選んだ項目はグレーアウトします。残りの3つを入力してください。</p>
 </div>
 <div class="rev-row" data-field="rpm"><div><label style="font-size:11px;color:var(--mute);">モーター回転数 (rpm)</label><input id="revRpm" type="number" inputmode="decimal" value="28000" step="100" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="rpm" data-d="-100">−</button><button type="button" data-rev="rpm" data-d="100">＋</button></div></div>
-<div class="rev-row" data-field="gear"><div><label style="font-size:11px;color:var(--mute);">ギヤ比</label><select id="revGear" class="cond-select"><option value="3.5">3.5:1</option><option value="3.7" selected>3.7:1</option><option value="4.0">4.0:1</option><option value="4.2">4.2:1</option><option value="5">5:1</option><option value="6.4">6.4:1</option><option value="8.75">8.75:1</option><option value="11.2">11.2:1</option></select></div><div class="rev-step"><button type="button" id="revGearMinus">−</button><button type="button" id="revGearPlus">＋</button></div></div>
+<div class="rev-row" data-field="gear"><div><label style="font-size:11px;color:var(--mute);">ギヤ比</label><select id="revGear" class="cond-select"><option value="3.5">3.5:1</option><option value="3.7" selected="">3.7:1</option><option value="4.0">4.0:1</option><option value="4.2">4.2:1</option><option value="5">5:1</option><option value="6.4">6.4:1</option><option value="8.75">8.75:1</option><option value="11.2">11.2:1</option></select></div><div class="rev-step"><button type="button" id="revGearMinus">−</button><button type="button" id="revGearPlus">＋</button></div></div>
 <div class="rev-row" data-field="speed"><div><label style="font-size:11px;color:var(--mute);">速度 (km/h)</label><input id="revSpeed" type="number" inputmode="decimal" value="32.00" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="speed" data-d="-0.1">−</button><button type="button" data-rev="speed" data-d="0.1">＋</button></div></div>
 <div class="rev-row" data-field="tire"><div><label style="font-size:11px;color:var(--mute);">タイヤ径 (mm)</label><input id="revTire" type="number" inputmode="decimal" value="22.5" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="tire" data-d="-0.1">−</button><button type="button" data-rev="tire" data-d="0.1">＋</button></div></div>
 <div class="rev-out"><div class="k" id="revOutKey">速度</div><div><span class="v" id="revOutVal">--</span><span class="u" id="revOutUnit"></span></div></div>
@@ -1676,7 +1673,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="modal-backdrop" id="saveModalBackdrop">
 <div class="modal">
 <div class="modal-header"><div class="modal-title">保存</div><button class="modal-close" id="saveClose">×</button></div>
-<div class="input-row"><label>名前</label><input type="text" id="saveNameInput" maxlength="8" /></div>
+<div class="input-row"><label>名前</label><input type="text" id="saveNameInput" maxlength="8"></div>
 <div class="input-row">
 <label>モーター種類</label>
 <select id="motorTypeSelect">
@@ -3540,7 +3537,7 @@ window.I18N = {
     machineNote:"計測中にロックを押した際に出現する比較表に反映されます。",
     histTitle:"計測履歴", cmpTitle:"電圧別比較表",
     themeSharp:"シャープ", themeClassic:"丸み",
-    darkOn:"ダークモード: ON", darkOff:"ダークモード: OFF",
+    darkOn:"ダーク: ON", darkOff:"ダーク: OFF",
     setReset:"設定リセット", close:"閉じる",
     shaftNone:"指定なし", shaftDual:"両軸", shaftSingle:"片軸",
     applyClose:"反映して閉じる", favOnly:"お気に入りのみ", cancel:"キャンセル", saveDo:"保存する",
@@ -3619,5 +3616,6 @@ document.querySelectorAll(".lang-pick").forEach(function(b) {
 applyLang(window.APP_LANG);
 
 </script>
-</body>
-</html>
+
+
+</body></html>
