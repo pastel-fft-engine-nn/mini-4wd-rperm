@@ -1014,7 +1014,14 @@ body.dark-mode .machine-item.machine-tbd .setting-label,
 body.dark-mode .machine-item.machine-tbd .hint {
   color: #8a8a8a !important;
 }
-.machine-item.machine-tbd select { cursor: not-allowed; }
+.machine-item.machine-tbd { position: relative; }
+.machine-item.machine-tbd::after {
+  content: "";
+  position: absolute;
+  left: 10px; right: 10px; top: 10px; bottom: 10px;
+  background: linear-gradient(to top right, transparent calc(50% - 1.5px), #9a9aa2 calc(50% - 1.5px), #9a9aa2 calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  pointer-events: none;
+}
 .tbd-note { color: #555 !important; font-weight: 800; letter-spacing: 0.04em; margin-top: 6px; }
 body.dark-mode .tbd-note { color: #9a9a9a !important; }
 
@@ -1247,7 +1254,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
   <div class="f-bar">
     <div class="f-word">FLA<i>RE</i></div>
     <div style="display:flex;align-items:center;gap:8px;">
-      <button type="button" class="theme-mini" id="flareThemeBtn">外観</button>
+      <button type="button" class="theme-mini" id="flareThemeBtn">丸みに戻す</button>
       <div class="f-live" id="flareLiveTag">READY</div>
     </div>
   </div>
@@ -1556,10 +1563,9 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <p class="hint tbd-note">Implementation TBD</p>
 <p class="hint" id="chassisHint">駆動・シャーシを絞らない。ギヤは全公表比。速度は机上換算で、シャーシ固有ロス％は自動加算していません。</p>
 </div>
-<div class="machine-item machine-tbd">
+<div class="machine-item">
 <div class="setting-label"><span>モーター</span><span class="setting-value" id="machineMotorLabel">未選択</span></div>
-<select class="cond-select" id="machineMotorSelect" disabled=""><option value="" selected="">選択なし</option><option value="NMP">NMP (ノーマルPRO)</option><option value="RTP">RTP (レブPRO)</option><option value="TTP">TTP (トルクPRO)</option><option value="ATP">ATP (アトミックPRO)</option><option value="LDP">LDP (ライトPRO)</option><option value="HDP">HDP (ハイパーPRO)</option><option value="MDP">MDP (マッハPRO)</option><option value="NM">NM (ノーマル)</option><option value="RT">RT (レブ)</option><option value="TT">TT (トルク)</option><option value="AT">AT (アトミック)</option><option value="LD">LD (ライト)</option><option value="HD">HD (ハイパー)</option><option value="PD">PD (パワー)</option><option value="SD">SD (スプリント)</option><option value="UD">UD (ウルトラ)</option><option value="PLD">PLD (プラズマ)</option></select>
-<p class="hint tbd-note">Implementation TBD</p>
+<select class="cond-select" id="machineMotorSelect"><option value="" selected="">選択なし</option><option value="NMP">NMP (ノーマルPRO)</option><option value="RTP">RTP (レブPRO)</option><option value="TTP">TTP (トルクPRO)</option><option value="ATP">ATP (アトミックPRO)</option><option value="LDP">LDP (ライトPRO)</option><option value="HDP">HDP (ハイパーPRO)</option><option value="MDP">MDP (マッハPRO)</option><option value="NM">NM (ノーマル)</option><option value="RT">RT (レブ)</option><option value="TT">TT (トルク)</option><option value="AT">AT (アトミック)</option><option value="LD">LD (ライト)</option><option value="HD">HD (ハイパー)</option><option value="PD">PD (パワー)</option><option value="SD">SD (スプリント)</option><option value="UD">UD (ウルトラ)</option><option value="PLD">PLD (プラズマ)</option></select>
 </div>
 <div class="machine-item">
 <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="machineVoltLabel">2.8 V</span></div>
@@ -1592,12 +1598,17 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <option value="quick">前回の名前で上書き確認</option>
 </select>
 </div>
-<div class="machine-summary" id="machineSummary">指定なし / 共通（指定なし） / 駆動・シャーシを絞らない。ギヤは全公表比 / 未選択 / 2.8V / 3.7:1 / 22.5mm</div>
-<div class="machine-summary" id="machineReflectNote" style="margin-top:8px;">軸回転 = モーターrpm ÷ 3.7（クラウンは比1:1） ／ ロック後の比較表・画面速度・保存メモに反映</div>
-</div>
-<div style="display:flex;gap:8px;margin-top:14px;">
-<button class="secondary-btn gray" id="machineToRevBtn" style="flex:1;">逆算電卓</button>
+<div style="display:flex;gap:8px;margin-top:4px;">
+<button class="secondary-btn gray" id="machineToRevBtn" style="flex:1;">ロック履歴</button>
 <button class="primary-btn blue" id="machineCloseBtn" style="flex:1;">反映して閉じる</button>
+</div>
+<div id="lockSnapPanel" style="display:none;margin-top:10px;border:1px solid var(--line);max-height:220px;overflow:auto;">
+<div style="font-size:10px;letter-spacing:0.12em;color:var(--mute);padding:8px 8px 0;">ロックした瞬間。回転はその時点の表示値です。</div>
+<table id="lockSnapTable" style="min-width:0;width:100%;font-size:11px;">
+<thead><tr><th>時刻</th><th>回転</th><th>モーター</th><th>ギヤ比</th><th>電圧</th><th>タイヤ径</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
@@ -1638,11 +1649,11 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="filter-item"><label>電圧</label><select id="filterVoltage"><option value="">すべて</option></select></div>
 <div class="filter-item"><label>ギヤ比</label><select id="filterGear"><option value="">すべて</option></select></div>
 <div class="filter-item"><label>タイヤ径</label><select id="filterTire"><option value="">すべて</option></select></div>
-<div class="search-btn-row">
-<button class="fav-filter-btn off" id="favFilterBtn">お気に入りのみ</button>
-<button class="secondary-btn gray" id="historyResetBtn" style="padding:6px 12px;">リセット</button>
-<button class="primary-btn blue" id="historySearchBtn" style="padding:6px 12px;">検索</button>
-<button class="secondary-btn gray" id="historyCloseBtn" style="padding:6px 12px;">閉じる</button>
+<div class="search-btn-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+<button class="fav-filter-btn off" id="favFilterBtn" style="width:100%;min-height:44px;padding:10px 4px;">お気に入りのみ</button>
+<button class="secondary-btn gray" id="historyResetBtn" style="width:100%;min-height:44px;padding:10px 4px;">リセット</button>
+<button class="primary-btn blue" id="historySearchBtn" style="width:100%;min-height:44px;padding:10px 4px;">検索</button>
+<button class="secondary-btn gray" id="historyCloseBtn" style="width:100%;min-height:44px;padding:10px 4px;">閉じる</button>
 </div>
 </div>
 <div class="history-summary" id="historySummary">
@@ -2312,6 +2323,24 @@ const lockRaw = (currentRpmRaw > 0) ? currentRpmRaw : 0;
 lockedSnapshot = { rpm: currentRpm, speed: currentSpeed, rpmRaw: lockRaw };
 buildComparisonTable(lockRaw);
 UI.statusLine.textContent = "LOCKED — ロック中" + (isMachineSet() ? " ｜ " + machineStatusText() : "");
+try {
+  const snaps = JSON.parse(localStorage.getItem("rpmLockSnaps") || "[]");
+  const gear = (document.getElementById("machineGearSelect") || {}).value || "";
+  const volt = (document.getElementById("machineVoltSelect") || {}).value || "";
+  const tire = (document.getElementById("machineTireInput") || {}).value || "";
+  const motorRaw = (document.getElementById("machineMotorSelect") || {}).value || "";
+  const motor = motorRaw.replace(/\s*\(.*/, "") || "—";
+  snaps.unshift({
+    t: new Date().toLocaleString("ja-JP", { month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit" }),
+    rpm: Math.round(currentRpm || 0),
+    motor: motor,
+    gear: gear,
+    volt: volt,
+    tire: tire
+  });
+  localStorage.setItem("rpmLockSnaps", JSON.stringify(snaps.slice(0, 30)));
+  if (typeof window.renderLockSnaps === "function") window.renderLockSnaps();
+} catch (e) {}
 } else {
 lockedSnapshot = null;
 UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
@@ -2681,12 +2710,20 @@ function persistMachine() {
   document.getElementById("machineCloseTop").addEventListener("click", closeMachine);
   document.getElementById("machineCloseBtn").addEventListener("click", closeMachine);
   document.getElementById("machineToRevBtn").addEventListener("click", function() {
-    persistMachine();
-    backdrop.style.display = "none";
-    const openBtn = document.getElementById("reverseCalcOpenBtn");
-    if (openBtn) openBtn.click();
-    else document.getElementById("reverseCalcModalBackdrop").style.display = "flex";
+    const panel = document.getElementById("lockSnapPanel");
+    if (!panel) return;
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+    if (typeof window.renderLockSnaps === "function") window.renderLockSnaps();
   });
+  window.renderLockSnaps = function() {
+    const body = document.querySelector("#lockSnapTable tbody");
+    if (!body) return;
+    let snaps = [];
+    try { snaps = JSON.parse(localStorage.getItem("rpmLockSnaps") || "[]"); } catch (e) {}
+    body.innerHTML = snaps.length ? snaps.map(function(s) {
+      return "<tr><td>" + s.t + "</td><td>" + s.rpm + "</td><td>" + (s.motor || "—") + "</td><td>" + s.gear + "</td><td>" + s.volt + "V</td><td>" + s.tire + "mm</td></tr>";
+    }).join("") : "<tr><td colspan='6'>まだありません。計測中にロックすると残ります。</td></tr>";
+  };
   rebuildMachineLists();
 })();
 
@@ -3350,7 +3387,11 @@ function publishToMemory(showAlert) {
   const saved = localStorage.getItem("rpmUiThemeV2") || null;
   apply(ORDER.indexOf(saved) >= 0 ? saved : "classic");
   document.querySelectorAll(".theme-pick").forEach(function(b) {
-    b.addEventListener("click", function() { apply(b.getAttribute("data-theme")); });
+    b.addEventListener("click", function() {
+      apply(b.getAttribute("data-theme"));
+      if (UI.settingsModal) UI.settingsModal.style.display = "none";
+      window.scrollTo(0, 0);
+    });
   });
   if (btn) btn.addEventListener("click", function() {
     const cur = document.body.classList.contains("theme-flare") ? "flare"
@@ -3444,8 +3485,8 @@ function publishToMemory(showAlert) {
 
   const ft = $("flareThemeBtn");
   if (ft) ft.addEventListener("click", function() {
-    const btn = $("uiThemeToggleBtn");
-    if (btn) btn.click();
+    const classic = document.querySelector('.theme-pick[data-theme="classic"]');
+    if (classic) classic.click();
   });
 
   function drawFlareRail() {
