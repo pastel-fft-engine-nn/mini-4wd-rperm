@@ -240,6 +240,24 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
 #rpmMaxBlock.rpm-hit { outline: 2px solid #ff3b30; outline-offset: -2px; }
 #rpmMaxBlock.rpm-hit .stat-label,
 #rpmMaxBlock.rpm-hit .stat-value { color: #ff3b30 !important; }
+#pullRefresh {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 0;
+  right: 0;
+  height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 80;
+  pointer-events: none;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--mute);
+  background: var(--bg);
+}
 .tool-links {
   display: flex;
   flex-wrap: wrap;
@@ -3924,6 +3942,61 @@ document.querySelectorAll(".lang-pick").forEach(function(b) {
   b.addEventListener("click", function() { applyLang(b.getAttribute("data-lang")); });
 });
 applyLang(window.APP_LANG);
+
+(function initPullRefresh() {
+  var standalone = window.navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  if (!standalone) return;
+  var bar = document.createElement("div");
+  bar.id = "pullRefresh";
+  bar.textContent = "引き下げて更新";
+  document.body.appendChild(bar);
+  var startY = 0, pulling = false, dy = 0, THRESH = 78;
+  function label(ready) {
+    var en = window.APP_LANG === "en";
+    bar.textContent = ready ? (en ? "RELEASE" : "離すと更新") : (en ? "PULL" : "引き下げて更新");
+  }
+  function blocked(e) {
+    if (window.scrollY > 2) return true;
+    var nodes = document.querySelectorAll(".modal-backdrop, #onboardBackdrop");
+    for (var i = 0; i < nodes.length; i++) {
+      var s = nodes[i].style.display;
+      if (s === "flex" || nodes[i].classList.contains("show")) return true;
+    }
+    var t = e.target;
+    if (t && t.closest && t.closest("input, select, textarea, button")) return true;
+    return false;
+  }
+  document.addEventListener("touchstart", function(e) {
+    pulling = false;
+    dy = 0;
+    if (e.touches.length !== 1 || blocked(e)) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, { passive: true });
+  document.addEventListener("touchmove", function(e) {
+    if (!pulling) return;
+    if (window.scrollY > 2) { pulling = false; bar.style.height = "0px"; return; }
+    dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { bar.style.height = "0px"; return; }
+    if (dy > 10 && e.cancelable) e.preventDefault();
+    bar.style.height = Math.min(dy * 0.42, 56) + "px";
+    label(dy > THRESH);
+  }, { passive: false });
+  function endPull() {
+    if (!pulling) return;
+    pulling = false;
+    if (dy > THRESH) {
+      bar.textContent = window.APP_LANG === "en" ? "…" : "更新中";
+      location.reload();
+      return;
+    }
+    bar.style.height = "0px";
+    dy = 0;
+  }
+  document.addEventListener("touchend", endPull);
+  document.addEventListener("touchcancel", endPull);
+})();
 
 </script>
 
