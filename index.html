@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ja"><head>
 <meta charset="UTF-8">
 <title>RPM Memory</title>
@@ -46,8 +45,8 @@ body {
   overflow-x: hidden;
 }
 body:not(.dark-mode) {
-  --bg: #f4f2ee; --bg2: #faf9f6; --ink: #2c2a26; --mute: #8a857c;
-  --line: #e4e0d8; --ice: #8d7358; --soft: #efece6; --hot: #b55248;
+  --bg: #f4f2ee; --bg2: #faf9f6; --ink: #161616; --mute: #5c5c5c;
+  --line: #111111; --ice: #111111; --soft: #efece6; --hot: #b55248;
 }
 
 .app-shell {
@@ -914,28 +913,30 @@ body.theme-classic .modal,
 body.theme-classic .onboard-card { border-radius: 16px 16px 0 0; }
 
 body.theme-classic:not(.dark-mode) {
-  --bg: #f4f2ee;
-  --card-bg: #faf9f6;
-  --accent-blue: #7f8c86;
-  --accent-blue-deep: #66736d;
-  --accent-pink: #9a736f;
-  --text-main: #2c2a26;
-  --text-sub: #8a857c;
-  --border-soft: #e4e0d8;
+  --bg: #faf7f6;
+  --card-bg: #fffafb;
+  --accent-blue: #7eb6d8;
+  --accent-blue-deep: #6aa4c8;
+  --accent-pink: #f3c4d2;
+  --text-main: #7eb6d8;
+  --text-sub: #a9cbe2;
+  --border-soft: #f3c4d2;
   --shadow-soft: none;
-  --ink: #2c2a26;
-  --mute: #8a857c;
-  --line: #e4e0d8;
-  --ice: #8d7358;
-  --soft: #efece6;
-  --bg2: #faf9f6;
-  background: #f4f2ee;
-  color: #2c2a26;
+  --ink: #7eb6d8;
+  --mute: #a9cbe2;
+  --line: #f3c4d2;
+  --ice: #7eb6d8;
+  --soft: #fff5f7;
+  --bg2: #fffafb;
+  background: #faf7f6;
+  color: #7eb6d8;
 }
 body.theme-classic:not(.dark-mode) .card,
 body.theme-classic:not(.dark-mode) .modal,
 body.theme-classic:not(.dark-mode) .stat-block,
-body.theme-classic:not(.dark-mode) .secondary-btn.gray,
+body.theme-classic:not(.dark-mode) .realtime-stats,
+body.theme-classic:not(.dark-mode) .secondary-btn,
+body.theme-classic:not(.dark-mode) .primary-btn,
 body.theme-classic:not(.dark-mode) .cond-select,
 body.theme-classic:not(.dark-mode) .tire-step-input,
 body.theme-classic:not(.dark-mode) .filter-item select,
@@ -946,40 +947,44 @@ body.theme-classic:not(.dark-mode) .tire-step-btn,
 body.theme-classic:not(.dark-mode) .rev-step button,
 body.theme-classic:not(.dark-mode) .seg-btn,
 body.theme-classic:not(.dark-mode) .history-summary .hs-item,
-body.theme-classic:not(.dark-mode) .fav-filter-btn {
-  background: #faf9f6;
-  color: #2c2a26;
-}
-body.theme-classic:not(.dark-mode) .wave-container { background: #efece6; }
+body.theme-classic:not(.dark-mode) .fav-filter-btn,
 body.theme-classic:not(.dark-mode) .rpm-limit-section,
-body.theme-classic:not(.dark-mode) thead th { background: #e9e5de; }
+body.theme-classic:not(.dark-mode) .wave-container {
+  background: #fffafb;
+  color: #7eb6d8;
+  border: 1px solid #f3c4d2;
+}
+body.theme-classic:not(.dark-mode) .wave-container { background: #1c1c1e; }
+body.theme-classic:not(.dark-mode) thead th { background: #fff0f4; color: #7eb6d8; }
 body.theme-classic:not(.dark-mode) .primary-btn.blue,
 body.theme-classic:not(.dark-mode) .seg-btn.active {
-  background: #8a8175;
-  color: #faf9f6;
+  background: #fdeef2;
+  color: #6aa4c8;
+  border: 1px solid #f3c4d2;
 }
-body.theme-classic:not(.dark-mode) .secondary-btn.outline { background: #faf9f6; color: #5c564e; }
+body.theme-classic:not(.dark-mode) .secondary-btn.outline { background: #fffafb; color: #7eb6d8; border: 1px solid #f3c4d2; }
 body.theme-classic:not(.dark-mode) .kicker-rpm,
-body.theme-classic:not(.dark-mode) .stat-value,
-body.theme-classic:not(.dark-mode) .rpm-limit-value,
-body.theme-classic:not(.dark-mode) .rev-out .v { color: #8d645f !important; }
 body.theme-classic:not(.dark-mode) .kicker-speed,
+body.theme-classic:not(.dark-mode) .stat-value,
+body.theme-classic:not(.dark-mode) .stat-label,
+body.theme-classic:not(.dark-mode) .rpm-limit-value,
 body.theme-classic:not(.dark-mode) .realtime-center,
-body.theme-classic:not(.dark-mode) #fftStatusLabel { color: #6f7874 !important; }
-body.theme-classic:not(.dark-mode) .dual-range-track { background: #ddd8d0; }
-body.theme-classic:not(.dark-mode) .dual-range-fill { background: #b7aea3; }
+body.theme-classic:not(.dark-mode) #fftStatusLabel,
+body.theme-classic:not(.dark-mode) .rev-out .v { color: #7eb6d8 !important; }
+body.theme-classic:not(.dark-mode) .dual-range-track { background: #f3c4d2; }
+body.theme-classic:not(.dark-mode) .dual-range-fill { background: #7eb6d8; }
 body.theme-classic:not(.dark-mode) .dual-range-container input[type="range"]::-webkit-slider-thumb {
-  background: #8a8175; border-color: #8a8175;
+  background: #7eb6d8; border-color: #7eb6d8;
 }
 body.theme-plain:not(.dark-mode) {
-  --bg: #f4f2ee;
-  --bg2: #faf9f6;
-  --ink: #2c2a26;
-  --mute: #8a857c;
-  --line: #e4e0d8;
-  --hot: #b55248;
-  --ice: #2c2a26;
-  --soft: #efece6;
+  --bg: #f7f7f5;
+  --bg2: #ffffff;
+  --ink: #111111;
+  --mute: #6e6e6e;
+  --line: #d0d0d0;
+  --hot: #b42318;
+  --ice: #111111;
+  --soft: #efefed;
 }
 
 
@@ -1635,7 +1640,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="pref-row">
 <button type="button" class="secondary-btn gray" id="lookToggleBtn">外観</button>
 <button type="button" class="secondary-btn gray" id="langToggleBtn">言語</button>
-<button class="secondary-btn gray" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
+<button class="secondary-btn blue is-on" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
 </div>
 <div class="theme-pick-row" id="themePickRow" style="display:none;">
 <button type="button" class="secondary-btn gray theme-pick" data-theme="sharp" data-i18n="themeSharp">シャープ</button>
