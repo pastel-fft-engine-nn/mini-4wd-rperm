@@ -236,7 +236,15 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   gap: 6px;
 }
 #rpmBlock { cursor: pointer; }
-#rpmTargetMark { margin-left: 8px; font-size: 9px; letter-spacing: 0.08em; color: var(--mute); font-weight: 700; }
+#rpmMaxTarget {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--mute);
+  opacity: 0.45;
+}
+#rpmMaxBlock.rpm-hit #rpmMaxTarget { color: var(--mute) !important; opacity: 0.45; }
+#rpmMaxBlock .stat-label { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; }
 #rpmMaxBlock.rpm-hit { outline: 2px solid #ff3b30; outline-offset: -2px; }
 #rpmMaxBlock.rpm-hit .stat-label,
 #rpmMaxBlock.rpm-hit .stat-value { color: #ff3b30 !important; }
@@ -1336,7 +1344,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 <div class="stat-stack">
 <div class="stat-block stat-side" id="rpmMaxBlock">
-<div class="stat-label">MAX</div>
+<div class="stat-label">MAX<span id="rpmMaxTarget"></span></div>
 <div class="stat-value" id="rpmMax">--</div>
 <div class="stat-value-sub" id="rpmMaxRaw"></div>
 </div>
@@ -2449,7 +2457,9 @@ let rpmTarget = 0;
 try { rpmTarget = parseInt(localStorage.getItem("rpmTarget") || "0", 10) || 0; } catch (e) { rpmTarget = 0; }
 function paintRpmTarget() {
   const mark = document.getElementById("rpmTargetMark");
-  if (mark) mark.textContent = rpmTarget > 0 ? "目標 " + rpmTarget.toLocaleString() : "目標";
+  if (mark) mark.textContent = "";
+  const slot = document.getElementById("rpmMaxTarget");
+  if (slot) slot.textContent = rpmTarget > 0 ? rpmTarget.toLocaleString() : "";
 }
 function applyRpmHit() {
   const el = document.getElementById("rpmMaxBlock");
