@@ -2,9 +2,22 @@
 <html lang="ja"><head>
 <meta charset="UTF-8">
 <title>RPM Memory</title>
-<link rel="icon" type="image/png" href="rpm-memory-icon-32.png">
-<link rel="apple-touch-icon" href="rpm-memory-icon-180.png">
-<link rel="manifest" href="manifest.json">
+<script>
+if (location.protocol === "http:" || location.protocol === "https:") {
+  var h = document.head;
+  [["icon","rpm-memory-icon-32.png"],["apple-touch-icon","rpm-memory-icon-180.png"]].forEach(function(pair) {
+    var link = document.createElement("link");
+    link.rel = pair[0];
+    if (pair[0] === "icon") link.type = "image/png";
+    link.href = pair[1];
+    h.appendChild(link);
+  });
+  var manifest = document.createElement("link");
+  manifest.rel = "manifest";
+  manifest.href = "manifest.json";
+  h.appendChild(manifest);
+}
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0d0d0f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -222,6 +235,11 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
+#rpmBlock { cursor: pointer; }
+#rpmTargetMark { margin-left: 8px; font-size: 9px; letter-spacing: 0.08em; color: var(--mute); font-weight: 700; }
+#rpmMaxBlock.rpm-hit { outline: 2px solid #ff3b30; outline-offset: -2px; }
+#rpmMaxBlock.rpm-hit .stat-label,
+#rpmMaxBlock.rpm-hit .stat-value { color: #ff3b30 !important; }
 .tool-links {
   display: flex;
   flex-wrap: wrap;
@@ -786,6 +804,89 @@ body.theme-classic #conditionsCard.is-open .toggle-icon::before { transform: rot
 body.theme-classic .audio-bar { width: 3px; background: var(--accent-blue); }
 body.theme-classic .header-right-audio { font-size: 0.7rem; letter-spacing: normal; }
 
+/* 丸み・シンプルは色と角丸だけ。縦横の比率はシャープに合わせる */
+body.theme-classic .app-shell { padding: 8px 12px calc(14px + var(--safe-b)); }
+body.theme-classic .card { padding: 12px; margin-bottom: 10px; }
+body.theme-classic .card-header { margin-bottom: 8px; }
+body.theme-classic .card-title { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; }
+body.theme-classic .wave-container { padding: 8px 10px 6px; margin-bottom: 10px; }
+body.theme-classic .wave-header { font-size: 9px; letter-spacing: 0.2em; margin-bottom: 4px; }
+body.theme-classic #fftStatusLabel { font-size: 10px; letter-spacing: 0.2em; font-weight: 800; }
+body.theme-classic .rpm-limit-section { padding: 8px 10px 6px; margin: 8px 0; }
+body.theme-classic .rpm-limit-label { font-size: 10px; letter-spacing: 0.08em; }
+body.theme-classic .dual-range-container { height: 28px; margin: 4px 0 0; }
+body.theme-classic .dual-range-track,
+body.theme-classic .dual-range-fill { height: 2px; }
+body.theme-classic .dual-range-container input[type="range"]::-webkit-slider-thumb { width: 16px; height: 16px; border-width: 0; }
+body.theme-classic .section-kicker { font-size: 10px; letter-spacing: 0.22em; margin: 10px 0 6px; font-weight: 800; }
+body.theme-classic .realtime-stats { grid-template-columns: 1.58865fr 0.96135fr; gap: 0; margin-bottom: 0; border: 1px solid var(--line); }
+body.theme-classic .stat-stack { display: grid; grid-template-rows: 64px 64px; gap: 0; border-left: 1px solid var(--line); }
+body.theme-classic .stat-block { padding: 8px 10px; }
+body.theme-classic .stat-block.stat-current { padding: 10px 8px; min-height: 128px; height: auto; justify-content: center; }
+body.theme-classic .stat-block.stat-side { height: 64px; min-height: 64px; max-height: 64px; padding: 6px 8px; width: 100%; }
+body.theme-classic .stat-label,
+body.theme-classic .stat-current .stat-label,
+body.theme-classic .stat-side .stat-label { font-size: 9px; letter-spacing: 0.22em; font-weight: 700; margin-bottom: 2px; }
+body.theme-classic .stat-value { font-size: 22px; letter-spacing: -0.03em; font-weight: 800; }
+body.theme-classic .stat-current .stat-value { font-size: 52.2px !important; }
+body.theme-classic .stat-side .stat-value { font-size: 20px !important; line-height: 1; }
+body.theme-classic .stat-value-sub,
+body.theme-classic .stat-side .stat-value-sub { font-size: 10px; margin-top: 2px; }
+body.theme-classic .realtime-center { text-align: left; margin: 8px 0 10px; font-size: 11px; letter-spacing: 0.16em; }
+body.theme-classic .realtime-buttons { gap: 6px; }
+body.theme-classic .realtime-btn-row { gap: 6px; }
+body.theme-classic .primary-btn,
+body.theme-classic .secondary-btn { padding: 12px 6px; min-height: 46px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; }
+body.theme-classic .cond-select,
+body.theme-classic .tire-step-input,
+body.theme-classic .filter-item select,
+body.theme-classic .input-row input,
+body.theme-classic .input-row select,
+body.theme-classic .history-toolbar select { padding: 10px 12px; font-size: 15px; }
+body.theme-classic .modal { padding: 16px 16px calc(22px + var(--safe-b, 0px)); }
+body.theme-classic .modal-title { font-size: 16px; letter-spacing: 0.08em; }
+body.theme-classic .history-summary { gap: 0; }
+body.theme-classic .history-summary .hs-item { padding: 8px 4px; }
+body.theme-classic .fav-filter-btn { padding: 8px 12px; font-size: 11px; }
+body.theme-classic .tire-step-btn,
+body.theme-classic .rev-step button,
+body.theme-classic .seg-btn { height: 44px; }
+body.theme-classic .audio-bar { width: 2px; }
+body.theme-classic .header-right-audio { font-size: 9px; letter-spacing: 0.14em; }
+body.theme-plain .app-shell,
+body.theme-plain .card,
+body.theme-plain .wave-container,
+body.theme-plain .realtime-stats,
+body.theme-plain .stat-block,
+body.theme-plain .primary-btn,
+body.theme-plain .secondary-btn { box-sizing: border-box; }
+
+body.theme-classic .card { border-radius: 14px; }
+body.theme-classic .wave-container,
+body.theme-classic .rpm-limit-section,
+body.theme-classic .realtime-stats { border-radius: 12px; overflow: hidden; }
+body.theme-classic .stat-block,
+body.theme-classic .primary-btn,
+body.theme-classic .secondary-btn,
+body.theme-classic .cond-select,
+body.theme-classic .tire-step-input,
+body.theme-classic .filter-item select,
+body.theme-classic .input-row input,
+body.theme-classic .input-row select,
+body.theme-classic .history-toolbar select,
+body.theme-classic .table-wrapper,
+body.theme-classic .history-table-wrapper,
+body.theme-classic .fav-filter-btn,
+body.theme-classic .delete-btn,
+body.theme-classic .rev-out,
+body.theme-classic .machine-summary,
+body.theme-classic .help-acc,
+body.theme-classic .tire-step-btn,
+body.theme-classic .rev-step button,
+body.theme-classic .seg-btn { border-radius: 12px; }
+body.theme-classic .modal,
+body.theme-classic .onboard-card { border-radius: 16px 16px 0 0; }
+
 
 /* ========== THEME: FLARE ========== */
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap");
@@ -1207,7 +1308,8 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 </div>
 
-<div class="section-kicker kicker-rpm">MOTOR RPM</div>
+<div id="rpmBlock">
+<div class="section-kicker kicker-rpm">MOTOR RPM<span id="rpmTargetMark"></span></div>
 <div class="realtime-stats">
 <div class="stat-block stat-current">
 <div class="stat-label">CURRENT</div>
@@ -1215,7 +1317,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="stat-value-sub" id="rpmNowRaw"></div>
 </div>
 <div class="stat-stack">
-<div class="stat-block stat-side">
+<div class="stat-block stat-side" id="rpmMaxBlock">
 <div class="stat-label">MAX</div>
 <div class="stat-value" id="rpmMax">--</div>
 <div class="stat-value-sub" id="rpmMaxRaw"></div>
@@ -1224,6 +1326,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="stat-label">MIN</div>
 <div class="stat-value" id="rpmMin">--</div>
 <div class="stat-value-sub" id="rpmMinRaw"></div>
+</div>
 </div>
 </div>
 </div>
@@ -1260,10 +1363,9 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="tool-links">
 <button type="button" id="historyBtn" data-i18n="history">履歴</button>
 <button type="button" id="resetBtn" data-i18n="reset">リセット</button>
-<button type="button" id="settingsBtn" data-i18n="settings">設定</button>
 <button type="button" id="machineBtn" data-i18n="machine">マシン設定</button>
 <button type="button" id="reverseCalcMainBtn" data-i18n="revShort">逆算</button>
-<button type="button" id="helpBtn" data-i18n="help">使い方</button>
+<button type="button" id="settingsBtn" data-i18n="settings">設定</button>
 </div>
 </div>
 </section>
@@ -1623,6 +1725,21 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
       <button class="primary-btn blue" id="onboardNext" style="flex:1;">つぎへ</button>
     </div>
   </div>
+</div>
+
+<div class="modal-backdrop" id="targetModalBackdrop">
+<div class="modal">
+<div class="modal-header"><div class="modal-title">目標回転</div><button class="modal-close" id="targetCloseTop" type="button">×</button></div>
+<p class="help-note">MAX の数字がこの値以上になると、赤く強調されます。</p>
+<div class="input-row">
+<label for="rpmTargetInput">目標 (rpm)</label>
+<input type="number" id="rpmTargetInput" min="0" max="120000" step="100" inputmode="numeric" placeholder="例: 30000">
+</div>
+<div style="display:flex;gap:8px;">
+<button class="primary-btn blue" id="rpmTargetSave" type="button" style="flex:1;">設定する</button>
+<button class="secondary-btn gray" id="rpmTargetClear" type="button" style="flex:1;">解除</button>
+</div>
+</div>
 </div>
 
 <div class="modal-backdrop" id="machineModalBackdrop">
@@ -2144,6 +2261,20 @@ if (value >= rpmMinLimit && value <= rpmMaxLimit) return value;
 return "--";
 }
 
+let rpmTarget = 0;
+try { rpmTarget = parseInt(localStorage.getItem("rpmTarget") || "0", 10) || 0; } catch (e) { rpmTarget = 0; }
+function paintRpmTarget() {
+  const mark = document.getElementById("rpmTargetMark");
+  if (mark) mark.textContent = rpmTarget > 0 ? "目標 " + rpmTarget.toLocaleString() : "目標";
+}
+function applyRpmHit() {
+  const el = document.getElementById("rpmMaxBlock");
+  if (!el) return;
+  const n = (typeof maxRpmVal === "number" && maxRpmVal > 0) ? maxRpmVal : NaN;
+  el.classList.toggle("rpm-hit", rpmTarget > 0 && isFinite(n) && n >= rpmTarget);
+}
+paintRpmTarget();
+
 function loopFFT() {
 if (!running) return;
 requestAnimationFrame(loopFFT);
@@ -2240,6 +2371,7 @@ if (minSpeedRaw === Infinity || rawSpeed < minSpeedRaw) minSpeedRaw = rawSpeed;
 
 // 表示（負荷適用後 = メイン表示）
 UI.rpmNow.textContent = dispNow;
+applyRpmHit();
 UI.rpmMax.textContent = maxRpmVal > 0 ? Math.round(maxRpmVal) : "--";
 UI.rpmMin.textContent = minRpmVal !== Infinity ? Math.round(minRpmVal) : "--";
 
@@ -2443,6 +2575,7 @@ maxSpeedRaw = 0;
 minSpeedRaw = Infinity;
 
 UI.rpmNow.textContent = "--";
+applyRpmHit();
 UI.rpmMax.textContent = "--";
 UI.rpmMin.textContent = "--";
 UI.rpmNowRaw.textContent = "";
@@ -2464,6 +2597,39 @@ UI.lockBtn.classList.add("outline");
 UI.statusLine.textContent = running ? "MEASURING — 解析中" : "READY — 計測待機中";
 }
 });
+
+(function initRpmTarget() {
+  const modal = document.getElementById("targetModalBackdrop");
+  const input = document.getElementById("rpmTargetInput");
+  const block = document.getElementById("rpmBlock");
+  function openTarget() {
+    if (!modal) return;
+    if (input) input.value = rpmTarget > 0 ? String(rpmTarget) : "";
+    modal.style.display = "flex";
+  }
+  function closeTarget() { if (modal) modal.style.display = "none"; }
+  if (block) block.addEventListener("click", openTarget);
+  const top = document.getElementById("targetCloseTop");
+  if (top) top.addEventListener("click", closeTarget);
+  if (modal) modal.addEventListener("click", function(e) { if (e.target === modal) closeTarget(); });
+  const save = document.getElementById("rpmTargetSave");
+  if (save) save.addEventListener("click", function() {
+    const n = parseInt(input && input.value, 10);
+    rpmTarget = isFinite(n) && n > 0 ? n : 0;
+    try { localStorage.setItem("rpmTarget", String(rpmTarget)); } catch (e) {}
+    paintRpmTarget();
+    applyRpmHit();
+    closeTarget();
+  });
+  const clear = document.getElementById("rpmTargetClear");
+  if (clear) clear.addEventListener("click", function() {
+    rpmTarget = 0;
+    try { localStorage.removeItem("rpmTarget"); } catch (e) {}
+    paintRpmTarget();
+    applyRpmHit();
+    closeTarget();
+  });
+})();
 
 /* 履歴・設定・保存を開いても計測は継続 */
 UI.historyBtn.addEventListener("click", () => {
