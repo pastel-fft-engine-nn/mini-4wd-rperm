@@ -400,6 +400,22 @@ table td, table th { text-align: center !important; }
   border-radius: 0;
 }
 .machine-grid { display: grid; gap: 14px; }
+#machineModalBackdrop .modal {
+  padding: 8px 14px calc(8px + var(--safe-b));
+}
+#machineModalBackdrop .modal-header { margin-bottom: 6px; }
+#machineModalBackdrop .modal-title { font-size: 15px; }
+#machineModalBackdrop .modal-title-note { font-size: 10px; line-height: 1.3; }
+#machineModalBackdrop .machine-grid { gap: 6px; }
+#machineModalBackdrop .setting-label { font-size: 11px; }
+#machineModalBackdrop .machine-item .hint { margin: 2px 0 0; font-size: 10px; line-height: 1.3; }
+#machineModalBackdrop .seg-btn,
+#machineModalBackdrop .tire-step-btn { height: 34px; min-height: 34px; font-size: 14px; }
+#machineModalBackdrop .cond-select,
+#machineModalBackdrop .tire-step-input { padding: 6px 8px; font-size: 14px; }
+#machineModalBackdrop .primary-btn,
+#machineModalBackdrop .secondary-btn { min-height: 40px; padding: 8px 6px; }
+#machineModalBackdrop .machine-item.machine-tbd { padding: 4px 6px; }
 .machine-item .hint { font-size: 11px; color: var(--mute); margin: 6px 0 0; line-height: 1.45; }
 .seg-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
 .seg-btn {
@@ -1437,15 +1453,15 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: 現行（丸み）</button>
 <button type="button" id="reverseCalcOpenBtn" style="display:none" aria-hidden="true"></button>
 <div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsHelpBtn" style="width:100%;" data-i18n="help">使い方</button></div>
+<div style="display:flex;gap:8px;margin-top:12px;">
+<button class="primary-btn blue" id="settingsResetBtn" style="flex:1;" data-i18n="setReset">設定リセット</button>
+<button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1;" data-i18n="close">閉じる</button>
+</div>
 <div style="margin-top:8px;"><button class="secondary-btn gray" id="demoModeBtn" style="width:100%;">審査用デモ: OFF</button></div>
 <div class="privacy-box">
   音声は端末内だけで処理し、サーバーへ送りません。履歴もこの端末に保存されます。<br>
   問い合わせ: <a href="mailto:enginerace.setup.notes@gmail.com" style="color:inherit;">enginerace.setup.notes@gmail.com</a><br>
   個人で対応しているため、返信までお時間をいただくことがあります。
-</div>
-<div style="display:flex;gap:8px;margin-top:12px;">
-<button class="primary-btn blue" id="settingsResetBtn" style="flex:1;" data-i18n="setReset">設定リセット</button>
-<button class="secondary-btn gray" id="settingsCloseBtn" style="flex:1;" data-i18n="close">閉じる</button>
 </div>
 </div>
 </div>
