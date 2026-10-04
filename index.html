@@ -1590,9 +1590,167 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="modal-backdrop" id="helpModalBackdrop">
 <div class="modal">
 <div class="modal-header"><div class="modal-title" data-i18n="help">使い方</div><button class="modal-close" id="helpCloseTop">×</button></div>
-<p class="help-note">RPM Memory はモーター音の高さから回転数を推定する測定アプリです。値は推定と机上計算です。公式回転計の代替ではありません。</p>
+<p class="help-note">RPM Memory はモーター音の高さから回転数を推定する測定アプリです。値は推定と机上計算です。公式回転計の代替ではありません。下の項目は、閉じたまま並んでいます。知りたい名前を押すと開きます。</p>
 
 <div class="help-acc open">
+<button type="button">トップ画面の名前</button>
+<div class="help-body">
+<p>上から順に、画面に出ているものの意味です。</p>
+<h4>RPM MEMORY</h4>
+<p>アプリの名前です。押しても何も起きません。</p>
+<h4>スペクトラム</h4>
+<p>マイクが今聞いている音を、横の山で表します。山が高いほど、その高さの音が強いです。回転の数字は、この山から出しています。</p>
+<h4>マイクの棒と READY</h4>
+<p>マイクが入っているかの印です。READY はまだ測っていない状態です。計測を始めると MEASURING — 解析中 に変わります。</p>
+<h4>MOTOR RPM</h4>
+<p>モーター回転の推定です。CURRENT が今の値、MAX がこの計測でいちばん高かった値、MIN がいちばん低かった値です。枠を押すと目標を入れられます。詳しくは「目標回転」。</p>
+<h4>SPEED (km/h)</h4>
+<p>その回転から計算した机上の速度です。CURRENT が今、TOP がこの計測の最高、MIN が最低です。実走の速度計ではありません。計算の中身は「速度が机上値である理由」。</p>
+<h4>状態の文字</h4>
+<p>数字の下の READY や MEASURING は、今が待機か計測中かを示す一行です。</p>
+<p class="onboard-en">Top of the screen: the spectrum is the live sound, MOTOR RPM is the estimate (current / max / min), SPEED is a desk calculation, not a track speed.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">上の3つのボタン</button>
+<div class="help-body">
+<h4>計測開始 / 計測停止</h4>
+<p>計測開始でマイクを使い始めます。最初の一回だけ、マイクの許可を聞かれます。許可しないと数字は出ません。押したあとは計測停止になり、もう一度押すとマイクをやめます。</p>
+<h4>ロック</h4>
+<p>今の数字をその場で固定します。保存ではありません。比較表は、ロックした回転を起点にします。もう一度押すと解除です。ロックした瞬間の時刻・回転・モーター・ギヤ・電圧・タイヤ径は、マシン設定の「ロック履歴」に残ります。</p>
+<h4>保存</h4>
+<p>記録をこの端末の履歴に残します。残るのは、その計測の最高回転が基本です。保存モードが「毎回名前を聞いて保存」なら名前を聞きます。「前回の名前で上書き確認」なら、前回の名前で上書きしていいかを聞きます。</p>
+<p class="onboard-en">Start uses the mic. Lock freezes the number for the chart. Save writes a record on this device only.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">下の文字</button>
+<div class="help-body">
+<p>大きなボタンではありません。左から順です。</p>
+<h4>履歴</h4>
+<p>保存した記録の一覧を開きます。詳しくは「履歴の画面」。</p>
+<h4>リセット</h4>
+<p>今画面に出ている CURRENT、MAX、MIN と速度だけを消します。履歴は消えません。計測の途中なら、計測自体は続きます。ロック中ならロックも外れます。</p>
+<h4>マシン設定</h4>
+<p>駆動、モーター、電圧、ギヤ比、タイヤ径を入れます。詳しくは「マシン設定の項目」。</p>
+<h4>逆算</h4>
+<p>速度、回転、ギヤ、タイヤのどれか一つを、残りの数字から計算します。詳しくは「比較表・履歴・逆算」。</p>
+<h4>設定</h4>
+<p>ノイズ閾値、校正、負荷、外観、言語、ダークを変えます。この使い方も、設定の中から開きます。トップには使い方のボタンはありません。</p>
+<p class="onboard-en">The text row is history, reset, machine, reverse calc, and settings. Reset clears only the live numbers.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">目標回転</button>
+<div class="help-body">
+<p>MOTOR RPM の枠を押すと、目標の画面が開きます。</p>
+<ul>
+<li>目標 (rpm) に、超えたい数字を入れる。例: 30000</li>
+<li>設定する、で閉じる。MOTOR RPM の横に「目標 30,000」と出る</li>
+<li>この計測の MAX が 30,000 以上になると、MAX だけ赤くなり、枠が付く</li>
+<li>CURRENT と MIN は色が変わりません</li>
+<li>解除を押すと目標は消えます</li>
+</ul>
+<p>目標はこの端末に残ります。アプリを閉じても、次に開いたとき同じ数字です。測る前の目印なので、回転そのものの計算は変えません。</p>
+<p class="onboard-en">Tap the MOTOR RPM block to set a target. Only MAX turns red when it reaches that number.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">集音フィルタ</button>
+<div class="help-body">
+<p>スペクトラムの下にある、左右の丸いつまみです。左が下限、右が上限です。最初は 5,000 から 40,000 です。</p>
+<p>この範囲の外にある山は、回転として使いません。見たい回転の近くだけに狭めると、別の大きな音に飛びにくくなります。広げると、関係ない音も候補になります。</p>
+<p>ノイズ閾値（TH）とは別です。フィルタはどの回転帯を見るか（左右）。TH はどれだけ強い山だけを採用するか（上下）。両方を同時に使います。</p>
+<p class="onboard-en">The two knobs set the RPM window. Sounds outside it are ignored. This is separate from the TH line.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">設定の外観・言語・ダーク</button>
+<div class="help-body">
+<p>設定を開くと、スライダーの下に横3つだけあります。外観、言語、ダークです。</p>
+<h4>外観</h4>
+<p>押すと4つ出ます。もう一度押すと閉じます。どれかを選ぶと設定は閉じて、その見た目のトップに戻ります。</p>
+<ul>
+<li>シャープ … 角が直角。項目の大きさの基準</li>
+<li>丸み … シャープと同じ大きさで、角だけ丸い</li>
+<li>FLARE … 別のデザインの画面。測る機能は同じ</li>
+<li>シンプル … 白、黒、グレーだけ。グラフの中だけ暗い</li>
+</ul>
+<h4>言語</h4>
+<p>押すと日本語と English が出ます。ボタンの言葉が切り替わります。測定の数字や、この説明文の本文は日本語のままです。</p>
+<h4>ダーク</h4>
+<p>暗い画面と明るい画面を切り替えます。オンのときはボタンに枠が付きます。最初はオンです。</p>
+<h4>その下</h4>
+<ul>
+<li>負荷適用値を並べて表示 … オンだと、負荷を掛けた数字の下に、掛ける前の生の数字も出ます</li>
+<li>設定リセット … ノイズ閾値を 20、校正を 1.00、負荷を 0% に戻します。履歴、外観、目標は消しません</li>
+<li>閉じる … 設定をしまいます</li>
+<li>使い方 … この説明です</li>
+<li>審査用デモ … ふだんは OFF。ON にするとマイクなしで見本の山が出ます。自分で測るときは必ず OFF に戻してください</li>
+</ul>
+<p>ノイズ閾値、校正係数、走行負荷の意味は、それぞれの項目に書いてあります。</p>
+<p class="onboard-en">Look has four themes. Language switches labels. Dark toggles the light and dark screen. Reset does not delete history.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">マシン設定の項目</button>
+<div class="help-body">
+<p>上から順です。反映して閉じるまで、比較表と速度には入りません。</p>
+<h4>駆動</h4>
+<p>指定なし、両軸、片軸。モーターの候補が変わります。指定なしのままなら、両方のモーターから選べます。</p>
+<h4>シャーシ</h4>
+<p>今は選べません。斜めの線は「まだ使えない」印です。速度に、シャーシごとのロスは自動では足しません。</p>
+<h4>モーター</h4>
+<p>今載せている種類です。履歴やロック履歴では短い名前になります。例: ノーマルPRO は NMP、マッハPRO は MDP。</p>
+<h4>電圧</h4>
+<p>電池の目安です。速度の式には直接入りません。記録と比較のときのメモです。− と ＋ で隣の値に動きます。</p>
+<h4>ギヤ比</h4>
+<p>速度の計算に使います。モーター回転を、車軸の回転に直す比率です。</p>
+<h4>タイヤ径</h4>
+<p>ミリメートルです。速度の計算に使います。最初は 22.5。− と ＋ で 0.1mm ずつ動きます。</p>
+<h4>保存モード</h4>
+<p>毎回名前を聞いて保存するか、前回の名前で上書き確認するか、です。</p>
+<h4>ロック履歴</h4>
+<p>ロックを押した瞬間の一覧です。時刻、そのときの表示回転、モーターの短い名前、ギヤ比、電圧、タイヤ径が残ります。回転の計算は変えません。</p>
+<h4>反映して閉じる</h4>
+<p>入れた電圧・ギヤ・タイヤを、トップの速度と比較表に反映して閉じます。</p>
+<p class="onboard-en">Machine settings store shaft, motor, voltage, gear and tire. Chassis cannot be selected yet. Apply and close copies them into the speed math.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">履歴の画面</button>
+<div class="help-body">
+<p>保存した行の一覧です。この端末の中だけに残ります。ほかの電話やクラウドとは共有されません。</p>
+<ul>
+<li>お気に入り … 名前を押すと印が付きます。お気に入りだけに絞れます</li>
+<li>検索 … 名前や条件で行を絞ります</li>
+<li>リセット … 絞り込みを戻します。保存そのものは消えません</li>
+<li>閉じる … 履歴をしまいます</li>
+<li>行の削除 … その一行だけ消します。戻せません</li>
+</ul>
+<p>あとで見比べるときは、電圧、ギヤ、負荷%が同じかを先に見てください。違う条件の数字をそのまま並べないでください。</p>
+<p class="onboard-en">History stays on this device. Delete removes one row. Reset there only clears the filter.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">引き下げて更新</button>
+<div class="help-body">
+<p>iPhone のホーム画面に追加して、そのアイコンから開いたときだけ使えます。</p>
+<p>画面の一番上で、下へ引きます。「引き下げて更新」と出ます。十分に引いて指を離すと、ページを読み直します。</p>
+<p>Safari のタブで開いているときは入りません。ブラウザ自身の更新を使ってください。設定やマシン設定を開いているとき、ボタンやスライダーを触っているときは動きません。</p>
+<p class="onboard-en">Pull down from the top to reload, only when opened from the Home Screen icon.</p>
+</div>
+</div>
+
+<div class="help-acc">
 <button type="button">このアプリは何をするか</button>
 <div class="help-body">
 <p>モーターは回転すると、回転に比例した周波数の音を出します。マイクでその音を取り込み、強い山の周波数を RPM に換算します。</p>
@@ -1704,9 +1862,17 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="help-acc">
 <button type="button">比較表・履歴・逆算</button>
 <div class="help-body">
+<p>トップの「比較表条件」は、電圧・ギヤ比・タイヤ径の見比べ用です。開くと中の数字を変えられます。マシン設定で反映した値もここに揃います。比較表そのものは、ロックしたあとでないと中身が出ません。</p>
 <p>比較表はロックした回転を起点にした仮定です。ギヤを変えると実回転も変わるので、「このギヤなら必ずこの速度」ではありません。</p>
 <p>履歴はこの端末に残ります。クラウド同期はありません。比べるときは電圧・ギヤ・負荷%を揃えるか、生RPMで見てください。</p>
-<p>逆算は速度計算の逆です。目標速度から必要な回転や径を見る見当用で、これもロスなしの理論値です。</p>
+<p>逆算は速度計算の逆です。求めたいものを選んで使います。</p>
+<ul>
+<li>速度 km/h … 回転・ギヤ・タイヤから机上速度</li>
+<li>必要なタイヤ径 mm … 目標の速度になる径</li>
+<li>必要なモーター回転数 rpm … 目標の速度になる回転</li>
+<li>必要なギヤ比 … 目標の速度になるギヤ</li>
+</ul>
+<p>どれもロスなしの理論値です。実走の答えではありません。</p>
 </div>
 </div>
 
