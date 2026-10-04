@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ja"><head>
 <meta charset="UTF-8">
 <title>RPM Memory</title>
@@ -221,9 +222,33 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
-.realtime-btn-row.row-2 {
-  grid-template-columns: 1fr 1fr;
+.tool-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 8px;
+  padding: 2px 2px 0;
 }
+.tool-links button {
+  flex: 1 1 auto;
+  border: 0;
+  background: transparent;
+  color: var(--mute);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 8px 2px;
+  min-height: 36px;
+}
+.pref-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.pref-row > button { width: 100%; min-height: 44px; padding: 10px 4px; }
+.pref-row > button.is-on { outline: 2px solid var(--ice); }
 .modal-title-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
 .modal-title-note { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; color: var(--mute); line-height: 1.4; }
 .primary-btn, .secondary-btn {
@@ -1039,6 +1064,42 @@ body.dark-mode .tbd-note { color: #9a9a9a !important; }
 }
 body.theme-classic .theme-pick-row .theme-pick.is-on { outline-color: var(--accent-blue, #1f7aff); }
 body.theme-flare .theme-pick-row .theme-pick.is-on { outline-color: #FF6A12; }
+#themePickRow { grid-template-columns: 1fr 1fr; }
+body.theme-plain {
+  --bg: #f7f7f5;
+  --bg2: #ffffff;
+  --ink: #111111;
+  --mute: #6e6e6e;
+  --line: #d8d8d6;
+  --hot: #b42318;
+  --ice: #111111;
+  --soft: #efefed;
+}
+body.theme-plain.dark-mode {
+  --bg: #111111;
+  --bg2: #1a1a1a;
+  --ink: #f5f5f3;
+  --mute: #9a9a9a;
+  --line: #2c2c2c;
+  --hot: #e25b4a;
+  --ice: #f5f5f3;
+  --soft: #222222;
+}
+body.theme-plain .primary-btn.blue,
+body.theme-plain .seg-btn.active,
+body.theme-plain .fav-filter-btn.on { background: var(--ice); color: var(--bg); border-color: var(--ice); }
+body.theme-plain .wave-container,
+body.theme-plain:not(.dark-mode) .wave-container { background: #111; }
+body.theme-plain .dual-range-fill,
+body.theme-plain .audio-bar { background: var(--ice); }
+body.theme-plain .theme-pick.is-on,
+body.theme-plain .lang-pick.is-on { outline-color: var(--ice); }
+body.theme-plain .highlight-row { background: rgba(0,0,0,.06) !important; }
+body.theme-plain.dark-mode .highlight-row { background: rgba(255,255,255,.08) !important; }
+body.theme-plain .fav-name.is-fav,
+body.theme-plain .history-diff-panel strong,
+body.theme-plain .section-kicker,
+body.theme-plain #fftStatusLabel { color: var(--ice); }
 .lang-pick.is-on { outline: 2px solid var(--ice, #7EC0E0); font-weight: 800; }
 body.theme-classic .lang-pick.is-on { outline-color: var(--accent-blue, #1f7aff); }
 body.theme-flare .lang-pick.is-on { outline-color: #FF6A12; }
@@ -1180,15 +1241,13 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button class="secondary-btn outline" id="lockBtn" data-i18n="lock">ロック</button>
 <button class="secondary-btn gray" id="saveBtn" data-i18n="save">保存</button>
 </div>
-<div class="realtime-btn-row">
-<button class="secondary-btn gray" id="historyBtn" data-i18n="history">履歴</button>
-<button class="secondary-btn gray" id="resetBtn" data-i18n="reset">リセット</button>
-<button class="secondary-btn gray" id="settingsBtn" data-i18n="settings">設定</button>
-</div>
-<div class="realtime-btn-row row-2">
-<button class="secondary-btn gray" id="machineBtn" data-i18n="machine">マシン設定</button>
-<button class="secondary-btn gray" id="reverseCalcMainBtn" data-i18n="revShort">逆算</button>
-<button class="secondary-btn gray" id="helpBtn" type="button" data-i18n="help">使い方</button>
+<div class="tool-links">
+<button type="button" id="historyBtn" data-i18n="history">履歴</button>
+<button type="button" id="resetBtn" data-i18n="reset">リセット</button>
+<button type="button" id="settingsBtn" data-i18n="settings">設定</button>
+<button type="button" id="machineBtn" data-i18n="machine">マシン設定</button>
+<button type="button" id="reverseCalcMainBtn" data-i18n="revShort">逆算</button>
+<button type="button" id="helpBtn" data-i18n="help">使い方</button>
 </div>
 </div>
 </section>
@@ -1360,15 +1419,20 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <input type="checkbox" id="showLoadValues" checked="" style="width:18px;height:18px;"><span>負荷適用値を並べて表示</span>
 </label>
 </div>
-<div class="theme-pick-row" id="themePickRow">
+<div class="pref-row">
+<button type="button" class="secondary-btn gray" id="lookToggleBtn">外観</button>
+<button type="button" class="secondary-btn gray" id="langToggleBtn">言語</button>
+<button class="secondary-btn gray" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
+</div>
+<div class="theme-pick-row" id="themePickRow" style="display:none;">
 <button type="button" class="secondary-btn gray theme-pick" data-theme="sharp" data-i18n="themeSharp">シャープ</button>
 <button type="button" class="secondary-btn gray theme-pick is-on" data-theme="classic" data-i18n="themeClassic">丸み</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="flare">FLARE</button>
+<button type="button" class="secondary-btn gray theme-pick" data-theme="plain" data-i18n="themePlain">シンプル</button>
 </div>
-<div class="theme-pick-row" id="langPickRow" style="margin-top:8px;">
+<div class="theme-pick-row" id="langPickRow" style="display:none;margin-top:8px;">
 <button type="button" class="secondary-btn gray lang-pick is-on" data-lang="ja">日本語</button>
 <button type="button" class="secondary-btn gray lang-pick" data-lang="en">English</button>
-<button class="secondary-btn blue" id="darkModeToggleBtn" data-i18n="darkOff">ダーク: ON</button>
 </div>
 <button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: 現行（丸み）</button>
 <button type="button" id="reverseCalcOpenBtn" style="display:none" aria-hidden="true"></button>
@@ -2083,7 +2147,7 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 const binToHz = audioContext.sampleRate / FFT_SIZE;
 ctx.beginPath();
-ctx.strokeStyle = "#ff973d";
+ctx.strokeStyle = document.body.classList.contains("theme-plain") ? "#f2f2f0" : "#ff973d";
 ctx.lineWidth = 2 * dpr;
 let started = false;
 
@@ -2824,17 +2888,20 @@ const savedDark = localStorage.getItem("darkMode");
 const isDark = savedDark === null ? true : savedDark === "true";
 if (isDark) {
 document.body.classList.add("dark-mode");
-UI.darkModeToggleBtn.textContent = "ダークモード: ON";
+UI.darkModeToggleBtn.textContent = "ダーク";
+UI.darkModeToggleBtn.classList.add("is-on");
 UI.darkModeToggleBtn.classList.replace("gray", "blue");
 localStorage.setItem("darkMode", "true");
 } else {
 document.body.classList.remove("dark-mode");
-UI.darkModeToggleBtn.textContent = "ダークモード: OFF";
+UI.darkModeToggleBtn.textContent = "ダーク";
+UI.darkModeToggleBtn.classList.remove("is-on");
 }
 UI.darkModeToggleBtn.addEventListener("click", () => {
 const active = document.body.classList.toggle("dark-mode");
 localStorage.setItem("darkMode", active ? "true" : "false");
-UI.darkModeToggleBtn.textContent = active ? "ダークモード: ON" : "ダークモード: OFF";
+UI.darkModeToggleBtn.textContent = "ダーク";
+UI.darkModeToggleBtn.classList.toggle("is-on", active);
 if (active) {
 UI.darkModeToggleBtn.classList.replace("gray", "blue");
 } else {
@@ -3368,14 +3435,15 @@ function publishToMemory(showAlert) {
 (function initUiTheme() {
   const btn = document.getElementById("uiThemeToggleBtn");
   const meta = document.querySelector('meta[name="theme-color"]');
-  const ORDER = ["sharp", "classic", "flare"];
-  const LABEL = { sharp: "外観: シャープ", classic: "外観: 現行（丸み）", flare: "外観: FLARE" };
-  const COLOR = { sharp: "#101114", classic: "#0d0d0f", flare: "#0A0A0A" };
+  const ORDER = ["sharp", "classic", "flare", "plain"];
+  const LABEL = { sharp: "外観: シャープ", classic: "外観: 現行（丸み）", flare: "外観: FLARE", plain: "外観: シンプル" };
+  const COLOR = { sharp: "#101114", classic: "#0d0d0f", flare: "#0A0A0A", plain: "#f7f7f5" };
   function apply(theme) {
     if (ORDER.indexOf(theme) < 0) theme = "classic";
     document.body.classList.toggle("theme-sharp", theme === "sharp");
     document.body.classList.toggle("theme-classic", theme === "classic");
     document.body.classList.toggle("theme-flare", theme === "flare");
+    document.body.classList.toggle("theme-plain", theme === "plain");
     localStorage.setItem("rpmUiTheme", theme);
     localStorage.setItem("rpmUiThemeV2", theme);
     document.querySelectorAll(".theme-pick").forEach(function(b) {
@@ -3394,9 +3462,28 @@ function publishToMemory(showAlert) {
     });
   });
   if (btn) btn.addEventListener("click", function() {
-    const cur = document.body.classList.contains("theme-flare") ? "flare"
+    const cur = document.body.classList.contains("theme-plain") ? "plain"
+      : document.body.classList.contains("theme-flare") ? "flare"
       : document.body.classList.contains("theme-classic") ? "classic" : "sharp";
     apply(ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length]);
+  });
+  const lookBtn = document.getElementById("lookToggleBtn");
+  const langBtn = document.getElementById("langToggleBtn");
+  const themeRow = document.getElementById("themePickRow");
+  const langRow = document.getElementById("langPickRow");
+  if (lookBtn && themeRow) lookBtn.addEventListener("click", function() {
+    const open = themeRow.style.display === "none";
+    themeRow.style.display = open ? "grid" : "none";
+    if (langRow) langRow.style.display = "none";
+    lookBtn.classList.toggle("is-on", open);
+    if (langBtn) langBtn.classList.remove("is-on");
+  });
+  if (langBtn && langRow) langBtn.addEventListener("click", function() {
+    const open = langRow.style.display === "none";
+    langRow.style.display = open ? "grid" : "none";
+    if (themeRow) themeRow.style.display = "none";
+    langBtn.classList.toggle("is-on", open);
+    if (lookBtn) lookBtn.classList.remove("is-on");
   });
   const sm = document.getElementById("settingsMachineBtn");
   if (sm) sm.addEventListener("click", function() {
@@ -3577,8 +3664,8 @@ window.I18N = {
     settingsTitle:"測定設定", settingsLead:"回転は音からの推定、速度は机上の理論値です。公式計測器の代替ではありません。",
     machineNote:"計測中にロックを押した際に出現する比較表に反映されます。",
     histTitle:"計測履歴", cmpTitle:"電圧別比較表",
-    themeSharp:"シャープ", themeClassic:"丸み",
-    darkOn:"ダーク: ON", darkOff:"ダーク: OFF",
+    themeSharp:"シャープ", themeClassic:"丸み", themePlain:"シンプル",
+    darkOn:"ダーク", darkOff:"ダーク",
     setReset:"設定リセット", close:"閉じる",
     shaftNone:"指定なし", shaftDual:"両軸", shaftSingle:"片軸",
     applyClose:"反映して閉じる", favOnly:"お気に入りのみ", cancel:"キャンセル", saveDo:"保存する",
@@ -3601,8 +3688,8 @@ window.I18N = {
     settingsTitle:"MEASURE SETUP", settingsLead:"RPM is estimated from sound. Speed is theoretical. Not a certified tachometer.",
     machineNote:"Applied to the comparison table when you lock during a run.",
     histTitle:"HISTORY", cmpTitle:"VOLTAGE MAP",
-    themeSharp:"SHARP", themeClassic:"ROUND",
-    darkOn:"DARK: ON", darkOff:"DARK: OFF",
+    themeSharp:"SHARP", themeClassic:"ROUND", themePlain:"PLAIN",
+    darkOn:"DARK", darkOff:"DARK",
     setReset:"RESET SETUP", close:"CLOSE",
     shaftNone:"NONE", shaftDual:"DUAL", shaftSingle:"SINGLE",
     applyClose:"APPLY", favOnly:"FAVORITES", cancel:"CANCEL", saveDo:"SAVE",
