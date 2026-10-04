@@ -18,7 +18,7 @@ if (location.protocol === "http:" || location.protocol === "https:") {
 }
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0d0d0f">
+<meta name="theme-color" content="#f7f7f5">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -1367,7 +1367,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 
 </style>
 </head>
-<body class="dark-mode load-zero theme-classic">
+<body class="load-zero theme-plain">
 <div class="app-shell">
 
 <section class="card">
@@ -1640,19 +1640,19 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="pref-row">
 <button type="button" class="secondary-btn gray" id="lookToggleBtn">外観</button>
 <button type="button" class="secondary-btn gray" id="langToggleBtn">言語</button>
-<button class="secondary-btn blue is-on" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
+<button class="secondary-btn gray" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
 </div>
 <div class="theme-pick-row" id="themePickRow" style="display:none;">
 <button type="button" class="secondary-btn gray theme-pick" data-theme="sharp" data-i18n="themeSharp">シャープ</button>
-<button type="button" class="secondary-btn gray theme-pick is-on" data-theme="classic" data-i18n="themeClassic">丸み</button>
+<button type="button" class="secondary-btn gray theme-pick" data-theme="classic" data-i18n="themeClassic">丸み</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="flare">FLARE</button>
-<button type="button" class="secondary-btn gray theme-pick" data-theme="plain" data-i18n="themePlain">シンプル</button>
+<button type="button" class="secondary-btn gray theme-pick is-on" data-theme="plain" data-i18n="themePlain">シンプル</button>
 </div>
 <div class="theme-pick-row" id="langPickRow" style="display:none;margin-top:8px;">
 <button type="button" class="secondary-btn gray lang-pick is-on" data-lang="ja">日本語</button>
 <button type="button" class="secondary-btn gray lang-pick" data-lang="en">English</button>
 </div>
-<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: 現行（丸み）</button>
+<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: シンプル</button>
 <button type="button" id="reverseCalcOpenBtn" style="display:none" aria-hidden="true"></button>
 <div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsHelpBtn" style="width:100%;" data-i18n="help">使い方</button></div>
 <div style="display:flex;gap:8px;margin-top:12px;">
