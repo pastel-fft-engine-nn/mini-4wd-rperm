@@ -914,7 +914,7 @@ body.theme-classic .modal,
 body.theme-classic .onboard-card { border-radius: 16px 16px 0 0; }
 
 body.theme-classic:not(.dark-mode) {
-  --bg: #faf7f6;
+  --bg: #faf9f7;
   --card-bg: #fffafb;
   --accent-blue: #7eb6d8;
   --accent-blue-deep: #6aa4c8;
@@ -928,8 +928,8 @@ body.theme-classic:not(.dark-mode) {
   --line: #f3c4d2;
   --ice: #7eb6d8;
   --soft: #fff5f7;
-  --bg2: #fffafb;
-  background: #faf7f6;
+  --bg2: #fffcfb;
+  background: #faf9f7;
   color: #7eb6d8;
 }
 body.theme-classic:not(.dark-mode) .card,
@@ -1185,6 +1185,53 @@ body.theme-flare #flareApp {
 }
 body.theme-flare .modal { max-width: 480px; }
 
+body.theme-flare:not(.dark-mode) {
+  background: #faf9f7 !important;
+  color: #2a2118 !important;
+}
+body.theme-flare:not(.dark-mode) #flareApp {
+  background: #faf9f7;
+  color: #2a2118;
+}
+body.theme-flare:not(.dark-mode) #flareApp .f-word,
+body.theme-flare:not(.dark-mode) #flareApp .num,
+body.theme-flare:not(.dark-mode) #flareApp .subspd em,
+body.theme-flare:not(.dark-mode) #flareApp .ticks b { color: #2a2118; }
+body.theme-flare:not(.dark-mode) #flareApp .f-live,
+body.theme-flare:not(.dark-mode) #flareApp .lbl,
+body.theme-flare:not(.dark-mode) #flareApp .num small,
+body.theme-flare:not(.dark-mode) #flareApp .subspd,
+body.theme-flare:not(.dark-mode) #flareApp .ticks div,
+body.theme-flare:not(.dark-mode) #flareApp .hold,
+body.theme-flare:not(.dark-mode) #flareApp .p,
+body.theme-flare:not(.dark-mode) .theme-mini { color: #8a7568; }
+body.theme-flare:not(.dark-mode) #flareApp .hold,
+body.theme-flare:not(.dark-mode) .theme-mini { border-color: #e4d3c4; background: transparent; }
+body.theme-flare:not(.dark-mode) #flareApp nav.f-nav { background: #f3eee8; }
+body.theme-flare:not(.dark-mode) #flareApp nav.f-nav button {
+  color: #6b5346;
+  background: #fff;
+  border-color: #e4d3c4;
+}
+body.theme-flare:not(.dark-mode) #flareApp nav.f-nav button.on {
+  color: #140800;
+  background: #ff6a12;
+  border-color: #ff6a12;
+}
+body.theme-flare:not(.dark-mode) .modal,
+body.theme-flare:not(.dark-mode) .cond-select,
+body.theme-flare:not(.dark-mode) .tire-step-input,
+body.theme-flare:not(.dark-mode) .tire-step-btn,
+body.theme-flare:not(.dark-mode) .seg-btn {
+  background: #fff;
+  color: #2a2118;
+  border-color: #e4d3c4;
+}
+body.theme-flare:not(.dark-mode) .secondary-btn.gray {
+  background: #fff;
+  color: #6b5346;
+  border-color: #e4d3c4;
+}
 
 .realtime-btn-row { grid-template-columns: repeat(3, 1fr) !important; }
 .realtime-btn-row .primary-btn,
@@ -1279,6 +1326,12 @@ body.dark-mode .machine-item.machine-tbd .hint {
 body.dark-mode .tbd-note { color: #9a9a9a !important; }
 
 
+#machineModalBackdrop .machine-item.machine-tbd { display: none !important; }
+.pref-board { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.pref-group { border: 1px solid var(--line); padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+.pref-group > .secondary-btn { width: 100%; }
+.pref-group .theme-pick-row { margin-top: 0; }
+.pref-dark { grid-column: 1 / -1; min-height: 44px; }
 .theme-pick-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -1650,20 +1703,24 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <input type="checkbox" id="showLoadValues" checked="" style="width:18px;height:18px;"><span>負荷適用値を並べて表示</span>
 </label>
 </div>
-<div class="pref-row">
+<div class="pref-board">
+<div class="pref-group" id="lookGroup">
 <button type="button" class="secondary-btn gray" id="lookToggleBtn">外観</button>
-<button type="button" class="secondary-btn gray" id="langToggleBtn">言語</button>
-<button class="secondary-btn gray" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
-</div>
 <div class="theme-pick-row" id="themePickRow" style="display:none;">
 <button type="button" class="secondary-btn gray theme-pick" data-theme="sharp" data-i18n="themeSharp">シャープ</button>
 <button type="button" class="secondary-btn gray theme-pick is-on" data-theme="classic" data-i18n="themeClassic">丸み</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="flare">FLARE</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="plain" data-i18n="themePlain">シンプル</button>
 </div>
-<div class="theme-pick-row" id="langPickRow" style="display:none;margin-top:8px;">
+</div>
+<div class="pref-group" id="langGroup">
+<button type="button" class="secondary-btn gray" id="langToggleBtn">言語</button>
+<div class="theme-pick-row" id="langPickRow" style="display:none;">
 <button type="button" class="secondary-btn gray lang-pick is-on" data-lang="ja">日本語</button>
 <button type="button" class="secondary-btn gray lang-pick" data-lang="en">English</button>
+</div>
+</div>
+<button class="secondary-btn gray pref-dark" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
 </div>
 <button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: 現行（丸み）</button>
 <button type="button" id="reverseCalcOpenBtn" style="display:none" aria-hidden="true"></button>
