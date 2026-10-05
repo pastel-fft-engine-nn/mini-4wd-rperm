@@ -18,7 +18,7 @@ if (location.protocol === "http:" || location.protocol === "https:") {
 }
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f7f7f5">
+<meta name="theme-color" content="#0d0d0f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@ body {
 }
 body:not(.dark-mode) {
   --bg: #f4f2ee; --bg2: #faf9f6; --ink: #161616; --mute: #5c5c5c;
-  --line: #111111; --ice: #111111; --soft: #efece6; --hot: #b55248;
+  --line: #111111; --ice: #ff973d; --soft: #efece6; --hot: #b55248;
 }
 
 .app-shell {
@@ -977,14 +977,14 @@ body.theme-classic:not(.dark-mode) .dual-range-container input[type="range"]::-w
   background: #7eb6d8; border-color: #7eb6d8;
 }
 body.theme-plain:not(.dark-mode) {
-  --bg: #f7f7f5;
-  --bg2: #ffffff;
-  --ink: #111111;
-  --mute: #6e6e6e;
-  --line: #d0d0d0;
-  --hot: #b42318;
-  --ice: #111111;
-  --soft: #efefed;
+  --bg: #f6f1e6;
+  --bg2: #fbf7f0;
+  --ink: #5c5348;
+  --mute: #9a8f80;
+  --line: #e6dccb;
+  --hot: #a15a4e;
+  --ice: #8a7b68;
+  --soft: #efe6d6;
 }
 
 
@@ -1215,11 +1215,10 @@ body.dark-mode .cmp-machine-bar {
   color: var(--mute, var(--text-sub, #8e8e93));
 }
 .cmp-machine-bar.is-set { font-weight: 700; }
-.cmp-split-toggle {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.75rem; color: var(--mute, #8e8e93);
-  margin: 0 0 8px; cursor: pointer;
-}
+#conditionsCard { display: none !important; }
+.cmp-split-toggle { display: none !important; }
+#cmpTable th.cmp-off,
+#cmpTable td.cmp-off { opacity: 0.35; }
 .cmp-cell-split { display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
 .cmp-cell-split .u { font-size: 0.68rem; color: var(--mute, #8e8e93); }
 .cmp-cell-split .s { font-weight: 700; }
@@ -1283,14 +1282,14 @@ body.theme-classic .theme-pick-row .theme-pick.is-on { outline-color: var(--acce
 body.theme-flare .theme-pick-row .theme-pick.is-on { outline-color: #FF6A12; }
 #themePickRow { grid-template-columns: 1fr 1fr; }
 body.theme-plain {
-  --bg: #f7f7f5;
-  --bg2: #ffffff;
-  --ink: #111111;
-  --mute: #6e6e6e;
-  --line: #d8d8d6;
-  --hot: #b42318;
-  --ice: #111111;
-  --soft: #efefed;
+  --bg: #f6f1e6;
+  --bg2: #fbf7f0;
+  --ink: #5c5348;
+  --mute: #9a8f80;
+  --line: #e6dccb;
+  --hot: #a15a4e;
+  --ice: #8a7b68;
+  --soft: #efe6d6;
 }
 body.theme-plain.dark-mode {
   --bg: #111111;
@@ -1367,7 +1366,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 
 </style>
 </head>
-<body class="load-zero theme-plain">
+<body class="dark-mode load-zero theme-classic">
 <div class="app-shell">
 
 <section class="card">
@@ -1510,10 +1509,11 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <section class="card">
 <div class="card-header"><div class="card-title">電圧別比較表</div></div>
 <div class="cmp-summary" id="cmpSummary">ロック後に、選択中の電圧・ギヤでの速度目安が表示されます。</div>
-<div class="cmp-machine-bar" id="cmpMachineBar">マシン設定: 未設定（既定 3.7:1 / 22.5mm）</div>
-<label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle" checked=""> 未設定と設定を上下比較する</label>
+<div class="cmp-machine-bar" id="cmpMachineBar">駆動は未選択　モーター未選択　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm</div>
+<label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle"> 未設定と設定を上下比較する</label>
+<p class="cmp-machine-bar" id="cmpGearNote">薄い列は、今の駆動では使わないギヤです。色の濃い列が、マシン設定の範囲です。</p>
 <div class="table-wrapper">
-<table>
+<table id="cmpTable">
 <thead>
 <tr>
 <th>電圧</th><th>RPM</th><th class="raw-col">RPM(生)</th>
@@ -1644,15 +1644,15 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 <div class="theme-pick-row" id="themePickRow" style="display:none;">
 <button type="button" class="secondary-btn gray theme-pick" data-theme="sharp" data-i18n="themeSharp">シャープ</button>
-<button type="button" class="secondary-btn gray theme-pick" data-theme="classic" data-i18n="themeClassic">丸み</button>
+<button type="button" class="secondary-btn gray theme-pick is-on" data-theme="classic" data-i18n="themeClassic">丸み</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="flare">FLARE</button>
-<button type="button" class="secondary-btn gray theme-pick is-on" data-theme="plain" data-i18n="themePlain">シンプル</button>
+<button type="button" class="secondary-btn gray theme-pick" data-theme="plain" data-i18n="themePlain">シンプル</button>
 </div>
 <div class="theme-pick-row" id="langPickRow" style="display:none;margin-top:8px;">
 <button type="button" class="secondary-btn gray lang-pick is-on" data-lang="ja">日本語</button>
 <button type="button" class="secondary-btn gray lang-pick" data-lang="en">English</button>
 </div>
-<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: シンプル</button>
+<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: 現行（丸み）</button>
 <button type="button" id="reverseCalcOpenBtn" style="display:none" aria-hidden="true"></button>
 <div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsHelpBtn" style="width:100%;" data-i18n="help">使い方</button></div>
 <div style="display:flex;gap:8px;margin-top:12px;">
@@ -1942,9 +1942,18 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 
 <div class="help-acc">
+<button type="button">マシン設定と比較表の違い</button>
+<div class="help-body">
+<p>マシン設定は、今の車のメモです。駆動、モーター、保存モード、ロック履歴はここだけです。シャーシはまだ速度に入りません。「反映して閉じる」と、電圧・ギヤ比・タイヤ径が比較表の計算にコピーされます。その入力欄はトップには出しません。</p>
+<p>比較表の上に、駆動・モーター・電圧・ギヤ・タイヤが出ます。片軸か両軸かで、使えるギヤの列が違います。薄い列は、今の駆動では使わないギヤです。選んだ電圧の行と、選んだギヤの列が強調されます。</p>
+<p class="onboard-en">Machine settings copy voltage, gear and tire into the table. The top page no longer shows those inputs. Pale columns are gears that shaft does not use.</p>
+</div>
+</div>
+
+<div class="help-acc">
 <button type="button">比較表・履歴・逆算</button>
 <div class="help-body">
-<p>トップの「比較表条件」は、電圧・ギヤ比・タイヤ径の見比べ用です。開くと中の数字を変えられます。マシン設定で反映した値もここに揃います。比較表そのものは、ロックしたあとでないと中身が出ません。</p>
+<p>電圧・ギヤ比・タイヤ径は、マシン設定で入れて比較表に反映します。トップには入力欄を出していません。比較表そのものは、ロックしたあとでないと中身が出ません。</p>
 <p>比較表はロックした回転を起点にした仮定です。ギヤを変えると実回転も変わるので、「このギヤなら必ずこの速度」ではありません。</p>
 <p>履歴はこの端末に残ります。クラウド同期はありません。比べるときは電圧・ギヤ・負荷%を揃えるか、生RPMで見てください。</p>
 <p>逆算は速度計算の逆です。求めたいものを選んで使います。</p>
@@ -2562,7 +2571,7 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 const binToHz = audioContext.sampleRate / FFT_SIZE;
 ctx.beginPath();
-ctx.strokeStyle = document.body.classList.contains("theme-plain") ? "#f2f2f0" : "#ff973d";
+ctx.strokeStyle = document.body.classList.contains("theme-plain") ? "#e6dccb" : "#ff973d";
 ctx.lineWidth = 2 * dpr;
 let started = false;
 
@@ -2689,16 +2698,39 @@ function machineStatusText() {
   return "マシン設定中: " + shaftText + " / " + chassisName + " / " + motor + " / " + volt + " / " + gear + " / " + tire;
 }
 
+function machineBarText() {
+  const ms = window.machineState || {};
+  const shaftText = ms.shaft === "single" ? "片軸" : (ms.shaft === "dual" ? "両軸" : "駆動は未選択");
+  const motor = ms.motor || "モーター未選択";
+  const gear = (UI.gearLabel && UI.gearLabel.textContent) || "3.7:1";
+  const tire = (UI.tireLabel && UI.tireLabel.textContent) || "22.5 mm";
+  const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "2.8 V";
+  return shaftText + "　" + motor + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire;
+}
+
 function refreshMachineStatusUI() {
   const bar = document.getElementById("cmpMachineBar");
   const txt = machineStatusText();
   if (bar) {
-    bar.textContent = txt;
+    bar.textContent = machineBarText();
     bar.classList.toggle("is-set", isMachineSet());
   }
   if (UI.statusLine && !locked) {
     const base = running ? "MEASURING — 解析中" : "READY — 計測待機中";
     UI.statusLine.textContent = isMachineSet() ? (base + " ｜ " + txt) : base;
+  }
+  if (typeof gearOptions !== "undefined") {
+    const allowed = (typeof gearsForCurrentMachine === "function") ? gearsForCurrentMachine() : gearOptions;
+    const shaft = (window.machineState && machineState.shaft) || "none";
+    gearOptions.forEach(function(g, idx) {
+      const off = shaft !== "none" && allowed.indexOf(g) < 0;
+      const th = document.querySelectorAll("#cmpTable thead th")[idx + 3];
+      if (th) th.classList.toggle("cmp-off", off);
+    });
+    const note = document.getElementById("cmpGearNote");
+    if (note) note.textContent = shaft === "none"
+      ? "駆動を選ぶと、使わないギヤの列が薄くなります。"
+      : "薄い列は、今の駆動では使わないギヤです。";
   }
 }
 
@@ -2710,8 +2742,7 @@ const tireUnset = 22.5;
 const loadPercent = parseFloat(UI.loadFactorRange && UI.loadFactorRange.value) || 0;
 const chassisFactor = (typeof chassisLossFactor === "function") ? chassisLossFactor() : 1;
 const loadFactor = (1 - (loadPercent / 100)) * chassisFactor;
-const splitEl = document.getElementById("cmpSplitToggle");
-const split = !!(splitEl && splitEl.checked);
+const split = false;
 const rpm0 = Number(baseRpm);
 const safeBase = (isFinite(rpm0) && rpm0 > 0) ? rpm0 : 0;
 
@@ -2750,6 +2781,12 @@ gearOptions.forEach((g, idx) => {
   } else {
     td.textContent = speedSet.toFixed(2);
   }
+  const allowed = (typeof gearsForCurrentMachine === "function") ? gearsForCurrentMachine() : gearOptions;
+  const shaft = (window.machineState && machineState.shaft) || "none";
+  const off = shaft !== "none" && allowed.indexOf(g) < 0;
+  td.classList.toggle("cmp-off", off);
+  const th = document.querySelectorAll("#cmpTable thead th")[idx + 3];
+  if (th) th.classList.toggle("cmp-off", off);
   if (idx == UI.gearRange.value) td.classList.add("highlight-col");
   tr.appendChild(td);
 });
@@ -2773,11 +2810,8 @@ try {
     const gearRatio = parseFloat(String(gearLabel).split(":")[0]) || 1;
     const rpmAt = safeBase * loadFactor;
     const speedAt = (rpmAt / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
-    const speedUnsetAt = (safeBase / gearRatio) * (tireUnset * Math.PI * 60) / 1000000;
-    sum.innerHTML = `基準 <span class="emph">${currentV.toFixed(1)} V</span> / 選択ギヤ <span class="emph">${gearLabel}</span> で `
-      + `設定 <span class="emph">${speedAt.toFixed(2)} km/h</span>`
-      + (split ? `　／　未設定 <span class="emph">${speedUnsetAt.toFixed(2)} km/h</span>` : "")
-      + (isMachineSet() ? "　｜　マシン設定を反映" : "　｜　マシン未設定");
+    const shaftText = (window.machineState && machineState.shaft === "single") ? "片軸" : ((window.machineState && machineState.shaft === "dual") ? "両軸" : "駆動未選択");
+    sum.innerHTML = shaftText + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span> で <span class="emph">${speedAt.toFixed(2)} km/h</span>`;
   }
 } catch (eSum) {}
 
