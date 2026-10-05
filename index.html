@@ -1229,6 +1229,8 @@ body.dark-mode .cmp-machine-bar {
 .cmp-split-toggle { display: none !important; }
 #cmpTable th.cmp-off,
 #cmpTable td.cmp-off { opacity: 0.35; }
+.cmp-shaft-cell { display: flex; flex-direction: column; line-height: 1.15; }
+.cmp-shaft-cell .plain, #cmpSummary .plain-line { display: block; color: var(--mute); font-size: 0.68rem; font-weight: 600; }
 .cmp-cell-split { display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
 .cmp-cell-split .u { font-size: 0.68rem; color: var(--mute, #8e8e93); }
 .cmp-cell-split .s { font-weight: 700; }
@@ -2771,7 +2773,13 @@ function refreshMachineStatusUI() {
     const gear = (UI.gearLabel && UI.gearLabel.textContent) || "3.7:1";
     const tire = (UI.tireLabel && UI.tireLabel.textContent) || "22.5 mm";
     const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "2.8 V";
-    if (sum) sum.textContent = shaftMarkText() + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire + "　伝達 " + drive.pct + "。ロックすると速度が出ます。";
+    if (sum) {
+      const mark = shaftMarkText();
+      const line = mark + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire + "　伝達 " + drive.pct;
+      sum.innerHTML = (mark === "片" || mark === "両")
+        ? line + '<span class="plain-line">(未　伝達 100%)</span>'
+        : line + "。ロックすると速度が出ます。";
+    }
   }
   if (UI.statusLine && !locked) {
     const base = running ? "MEASURING — 解析中" : "READY — 計測待機中";
@@ -2841,15 +2849,18 @@ if (split) {
 gearOptions.forEach((g, idx) => {
   const gearRatio = parseFloat(g.split(":")[0]);
   const speedUnset = (rpmUnset / gearRatio) * (tireUnset * Math.PI * 60) / 1000000;
-  const speedSet = (rpmSet / gearRatio) * (tireSet * Math.PI * 60) / 1000000 * drive.factor;
+  const speedPlain = (rpmSet / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
+  const speedSet = speedPlain * drive.factor;
   const td = document.createElement("td");
+  const allowed = (typeof gearsForCurrentMachine === "function") ? gearsForCurrentMachine() : gearOptions;
+  const shaft = ((window.machineState || {}).shaft) || "none";
   if (split) {
     td.innerHTML = `<div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${speedUnset.toFixed(2)}</span><span class="s"><span class="tag">設</span>${speedSet.toFixed(2)}</span></div>`;
+  } else if (shaft === "single" || shaft === "dual") {
+    td.innerHTML = `<div class="cmp-shaft-cell"><span>${speedSet.toFixed(2)}</span><span class="plain">(${speedPlain.toFixed(2)})</span></div>`;
   } else {
     td.textContent = speedSet.toFixed(2);
   }
-  const allowed = (typeof gearsForCurrentMachine === "function") ? gearsForCurrentMachine() : gearOptions;
-  const shaft = ((window.machineState || {}).shaft) || "none";
   const off = shaft !== "none" && allowed.indexOf(g) < 0;
   td.classList.toggle("cmp-off", off);
   const th = document.querySelectorAll("#cmpTable thead th")[idx + 3];
@@ -2862,15 +2873,6 @@ UI.comparisonBody.appendChild(tr);
 
 if (typeof updateRawVisibility === "function") updateRawVisibility();
 try {
-  const fb = document.getElementById("flareCmpBody");
-  const src = UI.comparisonBody;
-  if (fb && src) fb.innerHTML = src.innerHTML;
-  const fs = document.getElementById("flareCmpSummary");
-  const ss = document.getElementById("cmpSummary");
-  if (fs && ss) fs.innerHTML = ss.innerHTML;
-} catch (eFlareCmp) {}
-
-try {
   const sum = document.getElementById("cmpSummary");
   if (sum) {
     const gearLabel = gearOptions[UI.gearRange.value] || "";
@@ -2878,10 +2880,21 @@ try {
     const rpmAt = safeBase * loadFactor;
     const speedAt = (rpmAt / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
     const speedLoss = speedAt * drive.factor;
-    sum.innerHTML = shaftMarkText() + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span> で `
-      + `ロスなし <span class="emph">${speedAt.toFixed(2)} km/h</span>　／　伝達込み <span class="emph">${speedLoss.toFixed(2)} km/h</span>（${drive.pct}）`;
+    const mark = shaftMarkText();
+    const head = mark + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span>　<span class="emph">${speedLoss.toFixed(2)} km/h</span>（${drive.pct}）`;
+    sum.innerHTML = (mark === "片" || mark === "両")
+      ? head + `<span class="plain-line">(未　${speedAt.toFixed(2)} km/h)</span>`
+      : head;
   }
 } catch (eSum) {}
+try {
+  const fb = document.getElementById("flareCmpBody");
+  const src = UI.comparisonBody;
+  if (fb && src) fb.innerHTML = src.innerHTML;
+  const fs = document.getElementById("flareCmpSummary");
+  const ss = document.getElementById("cmpSummary");
+  if (fs && ss) fs.innerHTML = ss.innerHTML;
+} catch (eFlareCmp) {}
 
 }
 
