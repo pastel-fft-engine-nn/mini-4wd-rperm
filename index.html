@@ -3695,8 +3695,24 @@ function histDateOnly(h) {
   }
   return String((h && (h.date || h.datetime)) || "").replace(/\s+\d{1,2}:\d{2}(:\d{2})?.*$/, "");
 }
-function histCell(k, v) {
-  return `<div class="hist-cell"><span class="hist-k">${k}</span><span class="hist-v">${v}</span></div>`;
+function histCell(v) {
+  return `<div class="hist-cell"><span class="hist-v">${v}</span></div>`;
+}
+function histGearLabel(g) {
+  const s = String(g || "").trim();
+  if (!s) return "—";
+  if (s.indexOf(":") >= 0) return s;
+  const n = parseFloat(s);
+  return isFinite(n) ? n + ":1" : s;
+}
+function histMotorShort(m) {
+  const s = String(m || "").trim();
+  if (!s || s === "未選択" || s === "選択なし") return "—";
+  return s.split(/[\s(]/)[0];
+}
+function histNumUnit(raw, unit) {
+  const s = String(raw == null ? "" : raw).replace(new RegExp("\\s*" + unit + "$"), "").trim();
+  return s ? s + " " + unit : "—";
 }
 
 function renderHistory() {
@@ -3767,13 +3783,13 @@ const card = document.createElement("div");
 const isFav = h.id && isFavorite(h.id);
 const favClass = isFav ? "fav-name is-fav" : "fav-name";
 const loadBadge = h.load ? `<span class="load-badge">${h.load}</span>` : "";
-let rpmDisplay = h.rpm;
+let rpmDisplay = histNumUnit(h.rpm, "RPM");
 if (h.load && h.rpmRaw) {
-rpmDisplay = `${h.rpm}<span style="color:var(--mute);font-size:8px;"> 生${h.rpmRaw}</span>`;
+rpmDisplay = `${histNumUnit(h.rpm, "RPM")}<span style="color:var(--mute);font-size:8px;"> 生${h.rpmRaw}</span>`;
 }
-let speedDisplay = h.speed;
+let speedDisplay = histNumUnit(h.speed, "km/h");
 if (h.load && h.speedRaw) {
-speedDisplay = `${h.speed}<span style="color:var(--mute);font-size:8px;"> 生${h.speedRaw}</span>`;
+speedDisplay = `${histNumUnit(h.speed, "km/h")}<span style="color:var(--mute);font-size:8px;"> 生${h.speedRaw}</span>`;
 }
 const isBest = bestRpm && Number(h.rpm) === bestRpm;
 const checked = window._histSelected && window._histSelected[h.id] ? "checked" : "";
@@ -3781,16 +3797,16 @@ const star = isBest ? " ★" : "";
 card.className = "hist-card" + (isBest ? " is-best" : "");
 card.innerHTML = `
   <div class="hist-line">
-    <div class="hist-cell hist-name"><span class="hist-k">名前</span><span class="hist-v"><input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}<button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></span></div>
-    ${histCell("モーター", h.motor || "—")}
-    ${histCell("速度", speedDisplay)}
-    ${histCell("RPM", rpmDisplay)}
+    <div class="hist-cell hist-name"><span class="hist-v"><input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}<button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></span></div>
+    ${histCell(histMotorShort(h.motor))}
+    ${histCell(speedDisplay)}
+    ${histCell(rpmDisplay)}
   </div>
   <div class="hist-line">
-    ${histCell("電圧", h.voltage || "—")}
-    ${histCell("ギヤ比", h.gear || "—")}
-    ${histCell("タイヤ径", h.tire || "—")}
-    ${histCell("日付", histDateOnly(h))}
+    ${histCell(histNumUnit(h.voltage, "V"))}
+    ${histCell(histGearLabel(h.gear))}
+    ${histCell(histNumUnit(h.tire, "mm"))}
+    ${histCell(histDateOnly(h))}
   </div>`;
 UI.historyList.appendChild(card);
 });
