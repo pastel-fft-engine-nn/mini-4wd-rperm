@@ -326,7 +326,27 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .history-table-wrapper { max-height: none; overflow: visible; }
 .hist-card { border-bottom: 1px solid var(--line); padding: 4px 2px 5px; }
-.hist-card.is-best { background: rgba(255, 151, 61, 0.08); }
+.hist-card:nth-child(4n+1) { background: #fff; }
+.hist-card:nth-child(4n+2) { background: #fff1e4; }
+.hist-card:nth-child(4n+3) { background: #f4f2ee; }
+.hist-card:nth-child(4n) { background: #f7f3ea; }
+.hist-card.is-best { box-shadow: inset 3px 0 0 var(--ice); }
+body.dark-mode .hist-card:nth-child(4n+1) { background: #141414; }
+body.dark-mode .hist-card:nth-child(4n+2) { background: #24180f; }
+body.dark-mode .hist-card:nth-child(4n+3) { background: #1c1c1c; }
+body.dark-mode .hist-card:nth-child(4n) { background: #1a1714; }
+body.theme-classic:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fffafb; }
+body.theme-classic:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #fdeef2; }
+body.theme-classic:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #f3f8fc; }
+body.theme-classic:not(.dark-mode) .hist-card:nth-child(4n) { background: #fff5f7; }
+body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fbf7f0; }
+body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #f3ead8; }
+body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #f6f1e6; }
+body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n) { background: #efe6d6; }
+body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fff; }
+body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #fff1e8; }
+body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #faf9f7; }
+body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n) { background: #f3eee8; }
 .hist-line { display: grid; grid-template-columns: 1.35fr 0.85fr 0.75fr 0.85fr; gap: 1px 4px; }
 .hist-line + .hist-line { margin-top: 2px; }
 .hist-k { display: block; font-size: 8px; line-height: 1.1; letter-spacing: 0.04em; color: var(--mute); font-weight: 700; }
