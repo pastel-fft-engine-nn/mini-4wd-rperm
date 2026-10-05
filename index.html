@@ -324,7 +324,16 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: 8px; border: 1px solid var(--line); overflow-x: auto;
   max-height: 405px; background: var(--bg2);
 }
-.history-table-wrapper { max-height: 350px; }
+.history-table-wrapper { max-height: none; overflow: visible; }
+.hist-card { border-bottom: 1px solid var(--line); padding: 4px 2px 5px; }
+.hist-card.is-best { background: rgba(255, 151, 61, 0.08); }
+.hist-line { display: grid; grid-template-columns: 1.35fr 0.85fr 0.75fr 0.85fr; gap: 1px 4px; }
+.hist-line + .hist-line { margin-top: 2px; }
+.hist-k { display: block; font-size: 8px; line-height: 1.1; letter-spacing: 0.04em; color: var(--mute); font-weight: 700; }
+.hist-v { display: block; font-family: var(--num); font-size: 11px; font-weight: 700; line-height: 1.15; word-break: break-all; }
+.hist-name .hist-v { font-family: var(--font); font-size: 12px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.hist-card .delete-btn { padding: 1px 5px; font-size: 9px; line-height: 1.4; }
+.hist-card .hist-check { width: 14px; height: 14px; margin: 0; }
 table {
   border-collapse: collapse; width: 100%; min-width: 700px;
   font-size: 11px; font-variant-numeric: tabular-nums; font-family: var(--num);
@@ -1881,14 +1890,17 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="help-body">
 <p>保存した行の一覧です。この端末の中だけに残ります。ほかの電話やクラウドとは共有されません。</p>
 <ul>
-<li>お気に入り … 名前を押すと印が付きます。お気に入りだけに絞れます</li>
+<li>お気に入りの付け方 … 名前を押します。名前の色が変わります。もう一度押すと外れます</li>
+<li>お気に入りだけ見る … 「お気に入りのみ」を押します。もう一度押すと全部に戻ります</li>
+<li>削除 … その行の「削除」を押し、確認すると消えます。戻せません。お気に入りも一緒に外れます</li>
+<li>名前の横の★ … いま出している履歴の中で、RPM が一番高い行です。お気に入りではありません</li>
 <li>検索 … 名前や条件で行を絞ります</li>
 <li>リセット … 絞り込みを戻します。保存そのものは消えません</li>
 <li>閉じる … 履歴をしまいます</li>
-<li>行の削除 … その一行だけ消します。戻せません</li>
 </ul>
 <p>あとで見比べるときは、電圧、ギヤ、負荷%が同じかを先に見てください。違う条件の数字をそのまま並べないでください。</p>
-<p class="onboard-en">History stays on this device. Delete removes one row. Reset there only clears the filter.</p>
+<p>名前の横の★は、いま出している履歴の中で RPM が一番高い行です。お気に入りではありません。</p>
+<p class="onboard-en">The star marks the highest RPM in the list now shown. It is not a favorite. Tap the name to favorite. Delete removes that one row.</p>
 </div>
 </div>
 
@@ -2225,12 +2237,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <span style="color:var(--mute);font-size:11px;">行を2つ選ぶと差分表示</span>
 </div>
 <div class="history-diff-panel" id="historyDiffPanel"></div>
-<div class="history-table-wrapper">
-<table class="history-table">
-<thead><tr><th></th><th>#</th><th>名前</th><th>モーター</th><th>速度</th><th>RPM</th><th>電圧</th><th>ギヤ比</th><th>タイヤ径</th><th>日付</th><th>操作</th></tr></thead>
-<tbody id="historyList"></tbody>
-</table>
-</div>
+<div class="history-table-wrapper" id="historyList"></div>
 </div>
 </div>
 
@@ -3661,6 +3668,17 @@ select.value = currentVal;
 });
 }
 
+function histDateOnly(h) {
+  if (h && h.ts) {
+    const d = new Date(h.ts);
+    if (!isNaN(d.getTime())) return d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
+  }
+  return String((h && (h.date || h.datetime)) || "").replace(/\s+\d{1,2}:\d{2}(:\d{2})?.*$/, "");
+}
+function histCell(k, v) {
+  return `<div class="hist-cell"><span class="hist-k">${k}</span><span class="hist-v">${v}</span></div>`;
+}
+
 function renderHistory() {
 const fValues = {
 date: filters.date.value,
@@ -3722,38 +3740,39 @@ if (hsDelta) {
 
 UI.historyList.innerHTML = filtered.length
 ? ""
-: "<tr><td colspan='11' style='padding:20px; text-align:center; color:#999;'>履歴はありません</td></tr>";
+: "<div style='padding:16px; text-align:center; color:#999;'>履歴はありません</div>";
 
-filtered.forEach((h, i) => {
-const tr = document.createElement("tr");
+filtered.forEach((h) => {
+const card = document.createElement("div");
 const isFav = h.id && isFavorite(h.id);
 const favClass = isFav ? "fav-name is-fav" : "fav-name";
 const loadBadge = h.load ? `<span class="load-badge">${h.load}</span>` : "";
 let rpmDisplay = h.rpm;
 if (h.load && h.rpmRaw) {
-rpmDisplay = `${h.rpm} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.rpmRaw})</span>`;
+rpmDisplay = `${h.rpm}<span style="color:var(--mute);font-size:8px;"> 生${h.rpmRaw}</span>`;
 }
 let speedDisplay = h.speed;
 if (h.load && h.speedRaw) {
-speedDisplay = `${h.speed} <span style="color:var(--text-sub);font-size:0.6rem;">(生:${h.speedRaw})</span>`;
+speedDisplay = `${h.speed}<span style="color:var(--mute);font-size:8px;"> 生${h.speedRaw}</span>`;
 }
 const isBest = bestRpm && Number(h.rpm) === bestRpm;
-if (isBest) tr.classList.add("is-best");
 const checked = window._histSelected && window._histSelected[h.id] ? "checked" : "";
-tr.innerHTML = `
-     <td><input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')" /></td>
-     <td>${i + 1}</td>
-     <td><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${loadBadge}${isBest ? " ★" : ""}</td>
-     <td>${h.motor}</td>
-     <td>${speedDisplay}</td>
-     <td>${rpmDisplay}</td>
-     <td>${h.voltage}</td>
-     <td>${h.gear}</td>
-     <td>${h.tire}</td>
-     <td>${h.datetime || h.date}</td>
-     <td><button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></td>
-`;
-UI.historyList.appendChild(tr);
+const star = isBest ? " ★" : "";
+card.className = "hist-card" + (isBest ? " is-best" : "");
+card.innerHTML = `
+  <div class="hist-line">
+    <div class="hist-cell hist-name"><span class="hist-k">名前</span><span class="hist-v"><input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}<button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></span></div>
+    ${histCell("モーター", h.motor || "—")}
+    ${histCell("速度", speedDisplay)}
+    ${histCell("RPM", rpmDisplay)}
+  </div>
+  <div class="hist-line">
+    ${histCell("電圧", h.voltage || "—")}
+    ${histCell("ギヤ比", h.gear || "—")}
+    ${histCell("タイヤ径", h.tire || "—")}
+    ${histCell("日付", histDateOnly(h))}
+  </div>`;
+UI.historyList.appendChild(card);
 });
 updateHistoryDiffPanel();
 }
