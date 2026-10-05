@@ -46,8 +46,8 @@ body {
   overflow-x: hidden;
 }
 body:not(.dark-mode) {
-  --bg: #f4f2ee; --bg2: #faf9f6; --ink: #2c2a26; --mute: #8a857c;
-  --line: #e4e0d8; --ice: #8d7358; --soft: #efece6; --hot: #b55248;
+  --bg: #f4f2ee; --bg2: #faf9f6; --ink: #161616; --mute: #5c5c5c;
+  --line: #111111; --ice: #ff973d; --soft: #efece6; --hot: #b55248;
 }
 
 .app-shell {
@@ -914,28 +914,30 @@ body.theme-classic .modal,
 body.theme-classic .onboard-card { border-radius: 16px 16px 0 0; }
 
 body.theme-classic:not(.dark-mode) {
-  --bg: #f4f2ee;
-  --card-bg: #faf9f6;
-  --accent-blue: #7f8c86;
-  --accent-blue-deep: #66736d;
-  --accent-pink: #9a736f;
-  --text-main: #2c2a26;
-  --text-sub: #8a857c;
-  --border-soft: #e4e0d8;
+  --bg: #faf7f6;
+  --card-bg: #fffafb;
+  --accent-blue: #7eb6d8;
+  --accent-blue-deep: #6aa4c8;
+  --accent-pink: #f3c4d2;
+  --text-main: #7eb6d8;
+  --text-sub: #a9cbe2;
+  --border-soft: #f3c4d2;
   --shadow-soft: none;
-  --ink: #2c2a26;
-  --mute: #8a857c;
-  --line: #e4e0d8;
-  --ice: #8d7358;
-  --soft: #efece6;
-  --bg2: #faf9f6;
-  background: #f4f2ee;
-  color: #2c2a26;
+  --ink: #7eb6d8;
+  --mute: #a9cbe2;
+  --line: #f3c4d2;
+  --ice: #7eb6d8;
+  --soft: #fff5f7;
+  --bg2: #fffafb;
+  background: #faf7f6;
+  color: #7eb6d8;
 }
 body.theme-classic:not(.dark-mode) .card,
 body.theme-classic:not(.dark-mode) .modal,
 body.theme-classic:not(.dark-mode) .stat-block,
-body.theme-classic:not(.dark-mode) .secondary-btn.gray,
+body.theme-classic:not(.dark-mode) .realtime-stats,
+body.theme-classic:not(.dark-mode) .secondary-btn,
+body.theme-classic:not(.dark-mode) .primary-btn,
 body.theme-classic:not(.dark-mode) .cond-select,
 body.theme-classic:not(.dark-mode) .tire-step-input,
 body.theme-classic:not(.dark-mode) .filter-item select,
@@ -946,40 +948,44 @@ body.theme-classic:not(.dark-mode) .tire-step-btn,
 body.theme-classic:not(.dark-mode) .rev-step button,
 body.theme-classic:not(.dark-mode) .seg-btn,
 body.theme-classic:not(.dark-mode) .history-summary .hs-item,
-body.theme-classic:not(.dark-mode) .fav-filter-btn {
-  background: #faf9f6;
-  color: #2c2a26;
-}
-body.theme-classic:not(.dark-mode) .wave-container { background: #efece6; }
+body.theme-classic:not(.dark-mode) .fav-filter-btn,
 body.theme-classic:not(.dark-mode) .rpm-limit-section,
-body.theme-classic:not(.dark-mode) thead th { background: #e9e5de; }
+body.theme-classic:not(.dark-mode) .wave-container {
+  background: #fffafb;
+  color: #7eb6d8;
+  border: 1px solid #f3c4d2;
+}
+body.theme-classic:not(.dark-mode) .wave-container { background: #1c1c1e; }
+body.theme-classic:not(.dark-mode) thead th { background: #fff0f4; color: #7eb6d8; }
 body.theme-classic:not(.dark-mode) .primary-btn.blue,
 body.theme-classic:not(.dark-mode) .seg-btn.active {
-  background: #8a8175;
-  color: #faf9f6;
+  background: #fdeef2;
+  color: #6aa4c8;
+  border: 1px solid #f3c4d2;
 }
-body.theme-classic:not(.dark-mode) .secondary-btn.outline { background: #faf9f6; color: #5c564e; }
+body.theme-classic:not(.dark-mode) .secondary-btn.outline { background: #fffafb; color: #7eb6d8; border: 1px solid #f3c4d2; }
 body.theme-classic:not(.dark-mode) .kicker-rpm,
-body.theme-classic:not(.dark-mode) .stat-value,
-body.theme-classic:not(.dark-mode) .rpm-limit-value,
-body.theme-classic:not(.dark-mode) .rev-out .v { color: #8d645f !important; }
 body.theme-classic:not(.dark-mode) .kicker-speed,
+body.theme-classic:not(.dark-mode) .stat-value,
+body.theme-classic:not(.dark-mode) .stat-label,
+body.theme-classic:not(.dark-mode) .rpm-limit-value,
 body.theme-classic:not(.dark-mode) .realtime-center,
-body.theme-classic:not(.dark-mode) #fftStatusLabel { color: #6f7874 !important; }
-body.theme-classic:not(.dark-mode) .dual-range-track { background: #ddd8d0; }
-body.theme-classic:not(.dark-mode) .dual-range-fill { background: #b7aea3; }
+body.theme-classic:not(.dark-mode) #fftStatusLabel,
+body.theme-classic:not(.dark-mode) .rev-out .v { color: #7eb6d8 !important; }
+body.theme-classic:not(.dark-mode) .dual-range-track { background: #f3c4d2; }
+body.theme-classic:not(.dark-mode) .dual-range-fill { background: #7eb6d8; }
 body.theme-classic:not(.dark-mode) .dual-range-container input[type="range"]::-webkit-slider-thumb {
-  background: #8a8175; border-color: #8a8175;
+  background: #7eb6d8; border-color: #7eb6d8;
 }
 body.theme-plain:not(.dark-mode) {
-  --bg: #f4f2ee;
-  --bg2: #faf9f6;
-  --ink: #2c2a26;
-  --mute: #8a857c;
-  --line: #e4e0d8;
-  --hot: #b55248;
-  --ice: #2c2a26;
-  --soft: #efece6;
+  --bg: #f6f1e6;
+  --bg2: #fbf7f0;
+  --ink: #5c5348;
+  --mute: #9a8f80;
+  --line: #e6dccb;
+  --hot: #a15a4e;
+  --ice: #8a7b68;
+  --soft: #efe6d6;
 }
 
 
@@ -1210,11 +1216,19 @@ body.dark-mode .cmp-machine-bar {
   color: var(--mute, var(--text-sub, #8e8e93));
 }
 .cmp-machine-bar.is-set { font-weight: 700; }
-.cmp-split-toggle {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.75rem; color: var(--mute, #8e8e93);
-  margin: 0 0 8px; cursor: pointer;
+#cmpShaftMark {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 6px;
+  border: 1px solid var(--ice);
+  color: var(--ice);
+  letter-spacing: 0.14em;
+  font-weight: 800;
 }
+#conditionsCard { display: none !important; }
+.cmp-split-toggle { display: none !important; }
+#cmpTable th.cmp-off,
+#cmpTable td.cmp-off { opacity: 0.35; }
 .cmp-cell-split { display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
 .cmp-cell-split .u { font-size: 0.68rem; color: var(--mute, #8e8e93); }
 .cmp-cell-split .s { font-weight: 700; }
@@ -1278,14 +1292,14 @@ body.theme-classic .theme-pick-row .theme-pick.is-on { outline-color: var(--acce
 body.theme-flare .theme-pick-row .theme-pick.is-on { outline-color: #FF6A12; }
 #themePickRow { grid-template-columns: 1fr 1fr; }
 body.theme-plain {
-  --bg: #f7f7f5;
-  --bg2: #ffffff;
-  --ink: #111111;
-  --mute: #6e6e6e;
-  --line: #d8d8d6;
-  --hot: #b42318;
-  --ice: #111111;
-  --soft: #efefed;
+  --bg: #f6f1e6;
+  --bg2: #fbf7f0;
+  --ink: #5c5348;
+  --mute: #9a8f80;
+  --line: #e6dccb;
+  --hot: #a15a4e;
+  --ice: #8a7b68;
+  --soft: #efe6d6;
 }
 body.theme-plain.dark-mode {
   --bg: #111111;
@@ -1503,12 +1517,14 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </section>
 
 <section class="card">
-<div class="card-header"><div class="card-title">電圧別比較表</div></div>
+<div class="card-header"><div class="card-title">電圧別比較表 <span id="cmpShaftMark">未</span></div></div>
 <div class="cmp-summary" id="cmpSummary">ロック後に、選択中の電圧・ギヤでの速度目安が表示されます。</div>
-<div class="cmp-machine-bar" id="cmpMachineBar">マシン設定: 未設定（既定 3.7:1 / 22.5mm）</div>
-<label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle" checked=""> 未設定と設定を上下比較する</label>
+<div class="cmp-machine-bar" id="cmpMachineBar">駆動は未選択　モーター未選択　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm</div>
+<label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle"> 未設定と設定を上下比較する</label>
+<p class="cmp-machine-bar" id="cmpGearNote">薄い列は、今の駆動では使わないギヤです。色の濃い列が、マシン設定の範囲です。</p>
+<p class="cmp-machine-bar" id="cmpDriveNote">駆動が未選択なので、ピニオン・クラウン・プロペラの摩擦は掛けていません。</p>
 <div class="table-wrapper">
-<table>
+<table id="cmpTable">
 <thead>
 <tr>
 <th>電圧</th><th>RPM</th><th class="raw-col">RPM(生)</th>
@@ -1933,13 +1949,33 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <p>速度(km/h) ＝ (モーターrpm ÷ ギヤ比) × タイヤ径(mm) × (π × 60 / 1,000,000)</p>
 <p>モーター回転をギヤで軸回転に直し、タイヤ円周で進む距離にしています。スリップ、接地、ロス、電圧降下、発熱は入っていません。実走より速く出ることがほとんどです。</p>
 <p>電圧は式に直接入りません。測った電源のメモと比較表の列分けに使います。</p>
+<p>比較表の速度だけ、駆動ごとの伝達ロスを掛けた見積もりも出します。トップの SPEED はロスなしのままです。公式の摩擦値はなく、仮定です。詳しくは「伝達ロスの仮定」。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">伝達ロスの仮定</button>
+<div class="help-body">
+<p>比較表の km/h は、ロスなしの机上速度に、駆動ごとの残り割合を掛けたものです。トップの SPEED と回転数は変えません。測った音には、すでにその場の摩擦が入っていることがあるからです。</p>
+<p>両軸は 97% です。ピニオンとカウンター（スパー）の1段だけを見ています。クラウンとプロペラシャフトはありません。</p>
+<p>片軸は 86.6% です。ピニオンからクラウンへ 94%、プロペラシャフトを支える摩擦 98%、車軸側のクラウン 94% を掛けています。ギヤ比そのものは 1:1 のままです。</p>
+<p>これは公式の測定値ではありません。グリス、傾き、トルクで変わります。効率は本来、速度ではなくトルクと動力の残りです。同じ割合で速度が落ちるとは限りません。見比べ用の仮定です。駆動が未選択のときは 100% で、掛けません。</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">マシン設定と比較表の違い</button>
+<div class="help-body">
+<p>マシン設定は、今の車のメモです。駆動、モーター、保存モード、ロック履歴はここだけです。シャーシはまだ速度に入りません。「反映して閉じる」と、電圧・ギヤ比・タイヤ径が比較表の計算にコピーされます。その入力欄はトップには出しません。</p>
+<p>比較表の上に、駆動・モーター・電圧・ギヤ・タイヤが出ます。片軸か両軸かで、使えるギヤの列が違います。薄い列は、今の駆動では使わないギヤです。選んだ電圧の行と、選んだギヤの列が強調されます。</p>
+<p class="onboard-en">Machine settings copy voltage, gear and tire into the table. The top page no longer shows those inputs. Pale columns are gears that shaft does not use.</p>
 </div>
 </div>
 
 <div class="help-acc">
 <button type="button">比較表・履歴・逆算</button>
 <div class="help-body">
-<p>トップの「比較表条件」は、電圧・ギヤ比・タイヤ径の見比べ用です。開くと中の数字を変えられます。マシン設定で反映した値もここに揃います。比較表そのものは、ロックしたあとでないと中身が出ません。</p>
+<p>電圧・ギヤ比・タイヤ径は、マシン設定で入れて比較表に反映します。トップには入力欄を出していません。比較表そのものは、ロックしたあとでないと中身が出ません。</p>
 <p>比較表はロックした回転を起点にした仮定です。ギヤを変えると実回転も変わるので、「このギヤなら必ずこの速度」ではありません。</p>
 <p>履歴はこの端末に残ります。クラウド同期はありません。比べるときは電圧・ギヤ・負荷%を揃えるか、生RPMで見てください。</p>
 <p>逆算は速度計算の逆です。求めたいものを選んで使います。</p>
@@ -2499,6 +2535,25 @@ function chassisLossFactor() {
     return 1;
 }
 
+function driveLossInfo() {
+    const shaft = ((window.machineState || {}).shaft) || "none";
+    if (shaft === "dual") {
+        return {
+            factor: 0.97,
+            pct: "97%",
+            text: "両軸の仮定: ピニオンとカウンター（スパー）の1段を97%。クラウンとプロペラは無いので掛けていません。"
+        };
+    }
+    if (shaft === "single") {
+        return {
+            factor: 0.866,
+            pct: "86.6%",
+            text: "片軸の仮定: ピニオン→クラウン 94%、プロペラの軸摩擦 98%、車軸側クラウン 94%。掛け合わせで86.6%。"
+        };
+    }
+    return { factor: 1, pct: "100%", text: "駆動が未選択なので、ピニオン・クラウン・プロペラの摩擦は掛けていません。" };
+}
+
 function computeSpeedFromRpm(rpm) {
     const tire = parseFloat(UI.tireRange.value);
     const gearRatio = parseFloat(gearOptions[UI.gearRange.value].split(":")[0]);
@@ -2557,7 +2612,7 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 const binToHz = audioContext.sampleRate / FFT_SIZE;
 ctx.beginPath();
-ctx.strokeStyle = document.body.classList.contains("theme-plain") ? "#f2f2f0" : "#ff973d";
+ctx.strokeStyle = document.body.classList.contains("theme-plain") ? "#e6dccb" : "#ff973d";
 ctx.lineWidth = 2 * dpr;
 let started = false;
 
@@ -2684,16 +2739,64 @@ function machineStatusText() {
   return "マシン設定中: " + shaftText + " / " + chassisName + " / " + motor + " / " + volt + " / " + gear + " / " + tire;
 }
 
+function machineBarText() {
+  const ms = window.machineState || {};
+  const shaftText = ms.shaft === "single" ? "片軸" : (ms.shaft === "dual" ? "両軸" : "駆動は未選択");
+  const motor = ms.motor || "モーター未選択";
+  const gear = (UI.gearLabel && UI.gearLabel.textContent) || "3.7:1";
+  const tire = (UI.tireLabel && UI.tireLabel.textContent) || "22.5 mm";
+  const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "2.8 V";
+  return shaftText + "　" + motor + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire;
+}
+
+function shaftMarkText() {
+  const shaft = ((window.machineState || {}).shaft) || "none";
+  if (shaft === "single") return "片";
+  if (shaft === "dual") return "両";
+  return "未";
+}
+
 function refreshMachineStatusUI() {
   const bar = document.getElementById("cmpMachineBar");
   const txt = machineStatusText();
   if (bar) {
-    bar.textContent = txt;
+    bar.textContent = machineBarText();
     bar.classList.toggle("is-set", isMachineSet());
+  }
+  const mark = document.getElementById("cmpShaftMark");
+  if (mark) mark.textContent = shaftMarkText();
+  if (!locked) {
+    const sum = document.getElementById("cmpSummary");
+    const drive = (typeof driveLossInfo === "function") ? driveLossInfo() : { pct: "100%" };
+    const gear = (UI.gearLabel && UI.gearLabel.textContent) || "3.7:1";
+    const tire = (UI.tireLabel && UI.tireLabel.textContent) || "22.5 mm";
+    const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "2.8 V";
+    if (sum) sum.textContent = shaftMarkText() + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire + "　伝達 " + drive.pct + "。ロックすると速度が出ます。";
   }
   if (UI.statusLine && !locked) {
     const base = running ? "MEASURING — 解析中" : "READY — 計測待機中";
     UI.statusLine.textContent = isMachineSet() ? (base + " ｜ " + txt) : base;
+  }
+  if (typeof gearOptions !== "undefined") {
+    const ms = window.machineState || {};
+    const allowed = (typeof gearsForCurrentMachine === "function") ? gearsForCurrentMachine() : gearOptions;
+    const shaft = ms.shaft || "none";
+    gearOptions.forEach(function(g, idx) {
+      const off = shaft !== "none" && allowed.indexOf(g) < 0;
+      const th = document.querySelectorAll("#cmpTable thead th")[idx + 3];
+      if (th) {
+        if (!th.dataset.base) th.dataset.base = th.textContent.replace(/^[片両]\s/, "").trim();
+        const tag = shaft === "single" ? "片 " : (shaft === "dual" ? "両 " : "");
+        th.textContent = tag + th.dataset.base;
+        th.classList.toggle("cmp-off", off);
+      }
+    });
+    const note = document.getElementById("cmpGearNote");
+    if (note) note.textContent = shaft === "none"
+      ? "駆動を選ぶと、使わないギヤの列が薄くなります。"
+      : "薄い列は、今の駆動では使わないギヤです。";
+    const driveNote = document.getElementById("cmpDriveNote");
+    if (driveNote && typeof driveLossInfo === "function") driveNote.textContent = driveLossInfo().text;
   }
 }
 
@@ -2705,8 +2808,8 @@ const tireUnset = 22.5;
 const loadPercent = parseFloat(UI.loadFactorRange && UI.loadFactorRange.value) || 0;
 const chassisFactor = (typeof chassisLossFactor === "function") ? chassisLossFactor() : 1;
 const loadFactor = (1 - (loadPercent / 100)) * chassisFactor;
-const splitEl = document.getElementById("cmpSplitToggle");
-const split = !!(splitEl && splitEl.checked);
+const drive = (typeof driveLossInfo === "function") ? driveLossInfo() : { factor: 1, pct: "100%", text: "" };
+const split = false;
 const rpm0 = Number(baseRpm);
 const safeBase = (isFinite(rpm0) && rpm0 > 0) ? rpm0 : 0;
 
@@ -2738,13 +2841,19 @@ if (split) {
 gearOptions.forEach((g, idx) => {
   const gearRatio = parseFloat(g.split(":")[0]);
   const speedUnset = (rpmUnset / gearRatio) * (tireUnset * Math.PI * 60) / 1000000;
-  const speedSet = (rpmSet / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
+  const speedSet = (rpmSet / gearRatio) * (tireSet * Math.PI * 60) / 1000000 * drive.factor;
   const td = document.createElement("td");
   if (split) {
     td.innerHTML = `<div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${speedUnset.toFixed(2)}</span><span class="s"><span class="tag">設</span>${speedSet.toFixed(2)}</span></div>`;
   } else {
     td.textContent = speedSet.toFixed(2);
   }
+  const allowed = (typeof gearsForCurrentMachine === "function") ? gearsForCurrentMachine() : gearOptions;
+  const shaft = ((window.machineState || {}).shaft) || "none";
+  const off = shaft !== "none" && allowed.indexOf(g) < 0;
+  td.classList.toggle("cmp-off", off);
+  const th = document.querySelectorAll("#cmpTable thead th")[idx + 3];
+  if (th) th.classList.toggle("cmp-off", off);
   if (idx == UI.gearRange.value) td.classList.add("highlight-col");
   tr.appendChild(td);
 });
@@ -2768,11 +2877,9 @@ try {
     const gearRatio = parseFloat(String(gearLabel).split(":")[0]) || 1;
     const rpmAt = safeBase * loadFactor;
     const speedAt = (rpmAt / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
-    const speedUnsetAt = (safeBase / gearRatio) * (tireUnset * Math.PI * 60) / 1000000;
-    sum.innerHTML = `基準 <span class="emph">${currentV.toFixed(1)} V</span> / 選択ギヤ <span class="emph">${gearLabel}</span> で `
-      + `設定 <span class="emph">${speedAt.toFixed(2)} km/h</span>`
-      + (split ? `　／　未設定 <span class="emph">${speedUnsetAt.toFixed(2)} km/h</span>` : "")
-      + (isMachineSet() ? "　｜　マシン設定を反映" : "　｜　マシン未設定");
+    const speedLoss = speedAt * drive.factor;
+    sum.innerHTML = shaftMarkText() + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span> で `
+      + `ロスなし <span class="emph">${speedAt.toFixed(2)} km/h</span>　／　伝達込み <span class="emph">${speedLoss.toFixed(2)} km/h</span>（${drive.pct}）`;
   }
 } catch (eSum) {}
 
@@ -2931,7 +3038,6 @@ if (cmpSplitToggle) {
     if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
   });
 }
-if (typeof refreshMachineStatusUI === "function") refreshMachineStatusUI();
 
 UI.voltageRange.addEventListener("input", () => {
 UI.voltageLabel.textContent = parseFloat(UI.voltageRange.value).toFixed(1) + " V";
@@ -3029,6 +3135,7 @@ if (!machineState.shaft) machineState.shaft = "none";
 if (machineState.chassis === "common" && machineState.shaft === "dual") {
   /* 旧保存値はそのまま使う */
 }
+if (typeof refreshMachineStatusUI === "function") refreshMachineStatusUI();
 
 function fillSelect(el, items, selected) {
   if (!el) return;
@@ -3068,10 +3175,11 @@ function chassisInfo(key) {
 }
 
 function gearsForCurrentMachine() {
-  const info = chassisInfo(machineState.chassis);
-  if (machineState.chassis && machineState.chassis !== "common" && info.gears && info.gears.length) return info.gears.slice();
-  if (machineState.shaft === "dual") return DUAL_GEARS.slice();
-  if (machineState.shaft === "single") return SINGLE_GEARS.slice();
+  const ms = window.machineState || { shaft: "none", chassis: "common" };
+  const info = chassisInfo(ms.chassis);
+  if (ms.chassis && ms.chassis !== "common" && info.gears && info.gears.length) return info.gears.slice();
+  if (ms.shaft === "dual") return DUAL_GEARS.slice();
+  if (ms.shaft === "single") return SINGLE_GEARS.slice();
   return ALL_GEARS.slice();
 }
 
