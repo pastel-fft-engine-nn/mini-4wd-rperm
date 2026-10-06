@@ -22,6 +22,7 @@ if (location.protocol === "http:" || location.protocol === "https:") {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #101114;
@@ -348,6 +349,7 @@ body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #faf9f
 body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n) { background: #f3eee8; }
 .hist-line { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(40px, 0.7fr) minmax(92px, 1.05fr) minmax(78px, 0.95fr); column-gap: 12px; row-gap: 1px; align-items: center; }
 .hist-line + .hist-line { margin-top: 2px; }
+.hist-top { display: flex; align-items: center; gap: 6px; min-height: 16px; }
 .hist-k { display: block; font-size: 8px; line-height: 1.1; letter-spacing: 0.04em; color: var(--mute); font-weight: 700; }
 .hist-v { display: block; font-family: var(--num); font-size: 11px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
 .hist-name .hist-v { font-family: var(--font); font-size: 12px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; white-space: normal; }
@@ -1018,7 +1020,6 @@ body.theme-plain:not(.dark-mode) {
 
 
 /* ========== THEME: FLARE ========== */
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap");
 body.theme-flare {
   --bg: #0A0A0A;
   --bg2: #111111;
@@ -1601,7 +1602,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 
 <section class="card">
 <div class="card-header"><div class="card-title">電圧別比較表 <span id="cmpShaftMark">未</span></div></div>
-<div class="cmp-summary" id="cmpSummary">未　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm　伝達 100%。ロックすると速度が出ます。</div>
+<div class="cmp-summary" id="cmpSummary">未　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm。ロックすると速度が出ます。</div>
 <div class="cmp-machine-bar" id="cmpMachineBar">駆動は未選択　モーター未選択　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm</div>
 <label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle"> 未設定と設定を上下比較する</label>
 <p class="cmp-machine-bar" id="cmpGearNote">駆動を選ぶと、使わないギヤの列が薄くなります。</p>
@@ -2039,14 +2040,14 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <p>速度(km/h) ＝ (モーターrpm ÷ ギヤ比) × タイヤ径(mm) × (π × 60 / 1,000,000)</p>
 <p>モーター回転をギヤで軸回転に直し、タイヤ円周で進む距離にしています。スリップ、接地、ロス、電圧降下、発熱は入っていません。実走より速く出ることがほとんどです。</p>
 <p>電圧は式に直接入りません。測った電源のメモと比較表の列分けに使います。</p>
-<p>比較表の速度だけ、駆動ごとの伝達ロスを掛けた見積もりも出します。トップの SPEED はロスなしのままです。公式の摩擦値はなく、仮定です。詳しくは「伝達ロスの仮定」。</p>
+<p>比較表の上の数字はロスなしです。片軸か両軸のとき、下の括弧だけが伝達込みの仮定です。トップの SPEED はロスなしのままです。公式の摩擦値はありません。詳しくは「伝達ロスの仮定」。</p>
 </div>
 </div>
 
 <div class="help-acc">
 <button type="button">伝達ロスの仮定</button>
 <div class="help-body">
-<p>比較表の km/h は、ロスなしの机上速度に、駆動ごとの残り割合を掛けたものです。トップの SPEED と回転数は変えません。測った音には、すでにその場の摩擦が入っていることがあるからです。</p>
+<p>比較表の上の km/h はロスなしです。括弧の中だけ、駆動ごとの残り割合を掛けています。トップの SPEED と回転数は変えません。測った音には、すでにその場の摩擦が入っていることがあります。そこへさらに掛けると、二重に引くことになります。</p>
 <p>両軸は 97% です。ピニオンとカウンター（スパー）の1段だけを見ています。クラウンとプロペラシャフトはありません。</p>
 <p>片軸は 86.6% です。ピニオンからクラウンへ 94%、プロペラシャフトを支える摩擦 98%、車軸側のクラウン 94% を掛けています。ギヤ比そのものは 1:1 のままです。</p>
 <p>これは公式の測定値ではありません。グリス、傾き、トルクで変わります。効率は本来、速度ではなくトルクと動力の残りです。同じ割合で速度が落ちるとは限りません。見比べ用の仮定です。駆動が未選択のときは 100% で、掛けません。</p>
@@ -2056,7 +2057,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="help-acc">
 <button type="button">マシン設定と比較表の違い</button>
 <div class="help-body">
-<p>マシン設定は、今の車のメモです。駆動、シャーシ、モーター、保存モード、ロック履歴はここだけです。シャーシを選ぶと駆動と使えるギヤが揃います。速度に足すのは、片軸か両軸の伝達だけです。「反映して閉じる」と、電圧・ギヤ比・タイヤ径が比較表の計算にコピーされます。その入力欄はトップには出しません。</p>
+<p>マシン設定は、今の車のメモです。駆動、シャーシ、モーター、保存モード、ロック履歴はここだけです。シャーシを選ぶと駆動と使えるギヤが揃います。速度の主表示には伝達を掛けません。括弧だけが仮定です。「反映して閉じる」と、電圧・ギヤ比・タイヤ径が比較表の計算にコピーされます。その入力欄はトップには出しません。</p>
 <p>比較表の上に、駆動・モーター・電圧・ギヤ・タイヤが出ます。片軸か両軸かで、使えるギヤの列が違います。薄い列は、今の駆動では使わないギヤです。選んだ電圧の行と、選んだギヤの列が強調されます。</p>
 <p class="onboard-en">Machine settings copy voltage, gear and tire into the table. The top page no longer shows those inputs. Pale columns are gears that shaft does not use.</p>
 </div>
@@ -2066,7 +2067,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button type="button">比較表・履歴・逆算</button>
 <div class="help-body">
 <p>電圧・ギヤ比・タイヤ径は、マシン設定で入れて比較表に反映します。トップには入力欄を出していません。比較表そのものは、ロックしたあとでないと中身が出ません。</p>
-<p>比較表はロックした回転を起点にした仮定です。ギヤを変えると実回転も変わるので、「このギヤなら必ずこの速度」ではありません。</p>
+<p>比較表はロックした回転を起点にした仮定です。ギヤを変えると実回転も変わるので、「このギヤなら必ずこの速度」ではありません。別の電圧の行は、回転が電圧に比例するとして並べています。実際はおおむね比例しますが、完全ではありません。</p>
 <p>履歴はこの端末に残ります。クラウド同期はありません。比べるときは電圧・ギヤ・負荷%を揃えるか、生RPMで見てください。</p>
 <p>逆算は速度計算の逆です。求めたいものを選んで使います。</p>
 <ul>
@@ -2492,6 +2493,10 @@ if (!demoMode && !gum) {
 running = true;
 try {
   if (demoMode) {
+    if (micStream) {
+      try { micStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {}
+      micStream = null;
+    }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (AC && !audioContext) audioContext = new AC();
     if (audioContext && audioContext.state === "suspended") {
@@ -2544,6 +2549,8 @@ try {
     }
   }
 
+  if (!analyser || typeof analyser.fftSize !== "number") analyser = null;
+
   if (!analyser) {
     analyser = audioContext.createAnalyser();
     analyser.fftSize = FFT_SIZE;
@@ -2582,8 +2589,13 @@ try {
 
 function stopMic() {
 running = false;
+if (micStream) {
+  try { micStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {}
+  micStream = null;
+}
+analyser = null;
 if (audioContext && audioContext.state === "running") {
-audioContext.suspend();
+  try { audioContext.suspend(); } catch (e) {}
 }
 UI.fftStatusLabel.textContent = "PAUSED";
 UI.statusLine.textContent = "STOPPED — 停止中";
@@ -2857,9 +2869,9 @@ function refreshMachineStatusUI() {
     const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "2.8 V";
     if (sum) {
       const mark = shaftMarkText();
-      const line = mark + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire + "　伝達 " + drive.pct;
+      const line = mark + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire;
       sum.innerHTML = (mark === "片" || mark === "両")
-        ? line + '<span class="plain-line">(未　伝達 100%)</span>'
+        ? line + '<span class="plain-line">(伝達込み ' + drive.pct + ' は仮定。上の速度はロスなし)</span>'
         : line + "。ロックすると速度が出ます。";
     }
   }
@@ -2937,11 +2949,11 @@ gearOptions.forEach((g, idx) => {
   const allowed = (typeof gearsForCurrentMachine === "function") ? gearsForCurrentMachine() : gearOptions;
   const shaft = ((window.machineState || {}).shaft) || "none";
   if (split) {
-    td.innerHTML = `<div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${speedUnset.toFixed(2)}</span><span class="s"><span class="tag">設</span>${speedSet.toFixed(2)}</span></div>`;
+    td.innerHTML = `<div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${speedUnset.toFixed(2)}</span><span class="s"><span class="tag">設</span>${speedPlain.toFixed(2)}</span></div>`;
   } else if (shaft === "single" || shaft === "dual") {
-    td.innerHTML = `<div class="cmp-shaft-cell"><span>${speedSet.toFixed(2)}</span><span class="plain">(${speedPlain.toFixed(2)})</span></div>`;
+    td.innerHTML = `<div class="cmp-shaft-cell"><span>${speedPlain.toFixed(2)}</span><span class="plain">(${speedSet.toFixed(2)})</span></div>`;
   } else {
-    td.textContent = speedSet.toFixed(2);
+    td.textContent = speedPlain.toFixed(2);
   }
   const off = shaft !== "none" && allowed.indexOf(g) < 0;
   td.classList.toggle("cmp-off", off);
@@ -2963,9 +2975,9 @@ try {
     const speedAt = (rpmAt / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
     const speedLoss = speedAt * drive.factor;
     const mark = shaftMarkText();
-    const head = mark + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span>　<span class="emph">${speedLoss.toFixed(2)} km/h</span>（${drive.pct}）`;
+    const head = mark + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span>　<span class="emph">${speedAt.toFixed(2)} km/h</span>`;
     sum.innerHTML = (mark === "片" || mark === "両")
-      ? head + `<span class="plain-line">(未　${speedAt.toFixed(2)} km/h)</span>`
+      ? head + `<span class="plain-line">(伝達込み ${speedLoss.toFixed(2)} km/h・仮定 ${drive.pct})</span>`
       : head;
   }
 } catch (eSum) {}
@@ -3598,8 +3610,8 @@ ts: Date.now(),
 name, motor,
 rpm: Math.round((typeof maxRpmVal === "number" && maxRpmVal > 0) ? maxRpmVal : currentRpm),
 rpmRaw: Math.round((typeof maxRpmRaw === "number" && maxRpmRaw > 0) ? maxRpmRaw : currentRpmRaw),
-speed: currentSpeed.toFixed(2),
-speedRaw: currentSpeedRaw.toFixed(2),
+speed: ((typeof maxSpeedVal === "number" && maxSpeedVal > 0) ? maxSpeedVal : currentSpeed).toFixed(2),
+speedRaw: ((typeof maxSpeedRaw === "number" && maxSpeedRaw > 0) ? maxSpeedRaw : currentSpeedRaw).toFixed(2),
 voltage: UI.voltageLabel.textContent.replace(" V", ""),
 gear: UI.gearLabel.textContent,
 tire: UI.tireLabel.textContent.replace(" mm", ""),
@@ -3806,8 +3818,12 @@ const checked = window._histSelected && window._histSelected[h.id] ? "checked" :
 const star = isBest ? " ★" : "";
 card.className = "hist-card" + (isBest ? " is-best" : "");
 card.innerHTML = `
+  <div class="hist-top">
+    <input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')">
+    <button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button>
+  </div>
   <div class="hist-line">
-    <div class="hist-cell hist-name"><span class="hist-v"><input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}<button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></span></div>
+    <div class="hist-cell hist-name"><span class="hist-v"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}</span></div>
     ${histCell(histMotorShort(h.motor))}
     ${histCell(speedDisplay)}
     ${histCell(rpmDisplay)}
@@ -3877,18 +3893,6 @@ document.addEventListener('touchmove', function(e) {
     // Safari 等では e.scale が undefined。未定義のときは触らない（全部 prevent すると操作不能になる）
     if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
 }, { passive: false });
-
-/* ========== ダブルタップズーム禁止 ========== */
-let lastTouchEnd = 0;
-document.addEventListener('touchend', function(e) {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
-    }
-    lastTouchEnd = now;
-}, false);
-
-
 
 /* ========== memory アプリ ワンタッチ連携 ========== */
 const MEMORY_RPM_KEYS = ["memory_rpm_result", "mini4wd_last_rpm", "rpm_analyzer_result", "m4_rpm_result"];
@@ -4108,6 +4112,7 @@ function publishToMemory(showAlert) {
       if (running) {
         try { if (typeof stopMic === "function") stopMic(); } catch (e) {}
       }
+      if (!demoMode && analyser && typeof analyser.fftSize !== "number") analyser = null;
     });
   }
   const again = document.getElementById("settingsOnboardBtn");
