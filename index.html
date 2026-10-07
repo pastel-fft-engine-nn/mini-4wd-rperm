@@ -440,7 +440,24 @@ table td, table th { text-align: center !important; }
 #lockSnapPanel { margin-top: 10px; border: 1px solid var(--line); }
 #lockSnapScroll { max-height: 220px; overflow: auto; }
 #lockSnapTable { border-collapse: separate; border-spacing: 0; min-width: 0; width: 100%; font-size: 11px; }
-#lockSnapTable thead th { position: sticky; top: 0; z-index: 2; background: var(--bg); }
+#lockSnapTable td, #lockSnapTable th { position: static; }
+#lockSnapTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: var(--bg);
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+#lockSnapTable .lock-name {
+  width: 7.5em;
+  min-height: 32px;
+  padding: 4px 6px;
+  font-size: 13px;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--ink);
+  font-family: var(--font);
+}
 #saveModalBackdrop { z-index: 140; }
 #saveNameInput, #recordNameInput { min-height: 48px; font-size: 18px; }
 .input-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
@@ -1954,7 +1971,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <h4>保存モード</h4>
 <p>保存を押すと名前の画面が開きます。「毎回名前を聞いて保存」は名前欄が空です。「前回の名前で上書き確認」は、いちばん新しい履歴の名前が入っています。どちらも新しい履歴が1件増えます。前の記録は消えません。</p>
 <h4>ロック履歴</h4>
-<p>ロックを押した瞬間の一覧です。日付、そのときの表示回転、モーターの短い名前、ギヤ比、電圧、タイヤ径が残ります。時間は残しません。回転の計算は変えません。</p>
+<p>ロックを押した瞬間の一覧です。各行の名前欄に入れた文字は、その行だけに保存されます。この端末のロック履歴に残ります。トップの「履歴」には入りません。日付、表示回転、モーター、ギヤ比、電圧、タイヤ径も残ります。時間は残しません。</p>
 <h4>反映して閉じる</h4>
 <p>入れた電圧・ギヤ・タイヤを、トップの速度と比較表に反映して閉じます。</p>
 <p class="onboard-en">Machine settings store shaft, chassis, motor, voltage, gear and tire. Choosing a chassis sets the shaft and the gear list. It does not add a separate chassis loss. Apply and close copies voltage, gear and tire into the speed math.</p>
@@ -2252,7 +2269,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div style="font-size:10px;letter-spacing:0.12em;color:var(--mute);padding:8px 8px 4px;">ロックした瞬間。日付だけを残します。</div>
 <div id="lockSnapScroll">
 <table id="lockSnapTable">
-<thead><tr><th>日付</th><th>回転</th><th>モーター</th><th>ギヤ比</th><th>電圧</th><th>タイヤ径</th></tr></thead>
+<thead><tr><th>日付</th><th>名前</th><th>回転</th><th>モーター</th><th>ギヤ比</th><th>電圧</th><th>タイヤ径</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
@@ -3173,6 +3190,7 @@ try {
   const motor = motorRaw.replace(/\s*\(.*/, "") || "—";
   snaps.unshift({
     t: new Date().toLocaleDateString("ja-JP", { month:"2-digit", day:"2-digit" }),
+    name: "",
     rpm: Math.round(currentRpm || 0),
     motor: motor,
     gear: gear,
@@ -3689,10 +3707,29 @@ function persistMachine() {
     if (!body) return;
     let snaps = [];
     try { snaps = JSON.parse(localStorage.getItem("rpmLockSnaps") || "[]"); } catch (e) {}
-    body.innerHTML = snaps.length ? snaps.map(function(s) {
+    body.innerHTML = snaps.length ? snaps.map(function(s, i) {
       const day = String(s.t || "").replace(/\s+\d{1,2}:\d{2}(:\d{2})?.*$/, "");
-      return "<tr><td>" + day + "</td><td>" + s.rpm + "</td><td>" + (s.motor || "—") + "</td><td>" + s.gear + "</td><td>" + s.volt + "V</td><td>" + s.tire + "mm</td></tr>";
-    }).join("") : "<tr><td colspan='6'>まだありません。計測中にロックすると残ります。</td></tr>";
+      const name = String(s.name || "").replace(/[&<>"]/g, function(c) {
+        if (c === "&") return "&" + "amp;";
+        if (c === "<") return "&" + "lt;";
+        if (c === ">") return "&" + "gt;";
+        return "&" + "quot;";
+      });
+      return "<tr><td>" + day + "</td><td><input class=\"lock-name\" data-i=\"" + i + "\" maxlength=\"16\" value=\"" + name + "\" placeholder=\"名前\"></td><td>" + s.rpm + "</td><td>" + (s.motor || "—") + "</td><td>" + s.gear + "</td><td>" + s.volt + "V</td><td>" + s.tire + "mm</td></tr>";
+    }).join("") : "<tr><td colspan='7'>まだありません。計測中にロックすると残ります。</td></tr>";
+    if (!body.dataset.bound) {
+      body.dataset.bound = "1";
+      body.addEventListener("input", function(ev) {
+        const input = ev.target;
+        if (!input || !input.classList || !input.classList.contains("lock-name")) return;
+        const i = Number(input.getAttribute("data-i"));
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem("rpmLockSnaps") || "[]"); } catch (e) {}
+        if (!list[i]) return;
+        list[i].name = input.value;
+        localStorage.setItem("rpmLockSnaps", JSON.stringify(list));
+      });
+    }
   };
   rebuildMachineLists();
 })();
