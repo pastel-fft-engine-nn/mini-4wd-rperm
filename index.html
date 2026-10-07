@@ -2075,8 +2075,8 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button type="button">伝達ロスの仮定</button>
 <div class="help-body">
 <p>比較表の上の km/h はロスなしです。括弧の中だけ、駆動ごとの残り割合を掛けています。トップの SPEED と回転数は変えません。測った音には、すでにその場の摩擦が入っていることがあります。そこへさらに掛けると、二重に引くことになります。</p>
-<p>両軸は 94% です。走行負荷 6% と同じ残り割合です。以前の 97% は、いま計算に使っていません。</p>
-<p>片軸は 83.9% です。94% に、以前の 86.6 ÷ 97 を掛けています。以前の 86.6% そのものは、いま計算に使っていません。</p>
+<p>両軸は 97.5% です。以前の 97% と、走行負荷 6% と同じ 94% は、いま計算に使っていません。</p>
+<p>片軸は 87.0% です。97.5% に、以前の 86.6 ÷ 97 を掛けています。</p>
 <p>これは公式の測定値ではありません。グリス、傾き、トルクで変わります。効率は本来、速度ではなくトルクと動力の残りです。同じ割合で速度が落ちるとは限りません。見比べ用の仮定です。駆動が未選択のときは 100% で、掛けません。</p>
 </div>
 </div>
@@ -2686,8 +2686,8 @@ function driveLossInfo() {
     const USE_LEGACY_DRIVE_LOSS = false;
     const LEGACY_DRIVE_LOSS = { dual: 0.97, single: 0.866 };
     const LIVE_DRIVE_LOSS = {
-        dual: 0.94,
-        single: 0.94 * (0.866 / 0.97)
+        dual: 0.975,
+        single: 0.975 * (0.866 / 0.97)
     };
     const shaft = ((window.machineState || {}).shaft) || "none";
     const table = USE_LEGACY_DRIVE_LOSS ? LEGACY_DRIVE_LOSS : LIVE_DRIVE_LOSS;
@@ -2702,7 +2702,7 @@ function driveLossInfo() {
             pct: pctOf(factor),
             text: USE_LEGACY_DRIVE_LOSS
                 ? "両軸の仮定: 以前の係数 97%。ピニオンとカウンターの1段だけを見ています。"
-                : "両軸の仮定: 走行負荷 6% と同じ 94%。以前の 97% は使っていません。"
+                : "両軸の仮定: 97.5%。以前の 97% と、負荷 6% 相当の 94% は使っていません。"
         };
     }
     if (shaft === "single") {
@@ -2712,7 +2712,7 @@ function driveLossInfo() {
             pct: pctOf(factor),
             text: USE_LEGACY_DRIVE_LOSS
                 ? "片軸の仮定: 以前の係数 86.6%。"
-                : "片軸の仮定: 83.9%。両軸 94% に、以前の 86.6÷97 を掛けています。"
+                : "片軸の仮定: 87.0%。両軸 97.5% に、以前の 86.6÷97 を掛けています。"
         };
     }
     return { factor: 1, pct: "100%", text: "駆動が未選択なので、ピニオン・クラウン・プロペラの摩擦は掛けていません。" };
@@ -3590,8 +3590,17 @@ function persistMachine() {
   function stepSelect(id, list, dir) {
     const el = document.getElementById(id);
     if (!el) return;
-    const vals = list.map(function(x){ return Array.isArray(x) ? String(x[0]) : String(x); });
-    const i = Math.max(0, Math.min(vals.length - 1, vals.indexOf(String(el.value)) + dir));
+    const vals = list.map(function(x){
+      const raw = Array.isArray(x) ? x[0] : x;
+      return typeof raw === "number" ? raw.toFixed(1) : String(raw);
+    });
+    let i = vals.indexOf(String(el.value));
+    if (i < 0) {
+      const n = parseFloat(el.value);
+      i = vals.findIndex(function(v){ return Math.abs(parseFloat(v) - n) < 0.001; });
+    }
+    if (i < 0) i = 0;
+    i = Math.max(0, Math.min(vals.length - 1, i + dir));
     el.value = vals[i];
     persistMachine();
   }
