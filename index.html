@@ -166,7 +166,29 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   margin: 10px 0 6px;
   color: var(--ice);
 }
-.kicker-speed { display: block; }
+.kicker-speed { display: flex; align-items: center; gap: 6px; }
+.qmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--mute);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.qmark.is-on { color: var(--ice); }
+.card-title .qmark { margin-left: 8px; vertical-align: -3px; }
 .speed-basis { margin: -2px 0 8px; letter-spacing: 0.02em; font-size: 12px; font-weight: 700; line-height: 1.45; color: var(--mute); }
 .realtime-center.is-plain { letter-spacing: 0.02em; line-height: 1.45; }
 
@@ -1550,8 +1572,8 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 </div>
 
-<div class="section-kicker kicker-speed">SPEED (km/h)</div>
-<div class="speed-basis" id="speedBasis">音の回転をギヤ比で車軸に落とし、タイヤの円周で km/h にしています。校正と走行負荷は、変えたときだけ掛かります。</div>
+<div class="section-kicker kicker-speed">SPEED (km/h)<button type="button" class="qmark" id="speedHelpBtn" aria-label="速度の説明">?</button></div>
+<div class="speed-basis" id="speedBasis" hidden>音の回転をギヤ比で車軸に落とし、タイヤの円周で km/h にしています。校正と走行負荷は、変えたときだけ掛かります。</div>
 <div class="realtime-stats">
 <div class="stat-block stat-current">
 <div class="stat-label">CURRENT</div>
@@ -1628,12 +1650,14 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </section>
 
 <section class="card">
-<div class="card-header"><div class="card-title">電圧別比較表 <span id="cmpShaftMark">未</span></div><label class="cmp-volt-prec"><input type="checkbox" id="cmpVoltFine"> 小数2位</label></div>
+<div class="card-header"><div class="card-title">電圧別比較表 <span id="cmpShaftMark">未</span><button type="button" class="qmark" id="cmpHelpBtn" aria-label="比較表の説明">?</button></div><label class="cmp-volt-prec"><input type="checkbox" id="cmpVoltFine"> 小数2位</label></div>
 <div class="cmp-summary" id="cmpSummary">ロック後に、選択中の電圧・ギヤでの速度目安が表示されます。</div>
+<div id="cmpHelpNotes" hidden>
 <div class="cmp-machine-bar" id="cmpMachineBar">駆動は未選択　モーター未選択　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm</div>
 <label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle"> 未設定と設定を上下比較する</label>
 <p class="cmp-machine-bar" id="cmpGearNote">薄い列は、今の駆動では使わないギヤです。色の濃い列が、マシン設定の範囲です。</p>
 <p class="cmp-machine-bar" id="cmpDriveNote">駆動が未選択なので、ピニオン・クラウン・プロペラの摩擦は掛けていません。</p>
+</div>
 <div class="table-wrapper">
 <table id="cmpTable">
 <thead>
@@ -1753,7 +1777,6 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="settings-row">
 <div class="setting-item"><div class="setting-label"><span>ノイズ閾値（TH）</span><span class="setting-value" id="noiseLabel">40</span></div><input type="range" id="noiseRange" min="0" max="100" step="1" value="20"></div>
 <div class="setting-item"><div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div><input type="range" id="rpmCalRange" min="0.5" max="1.5" step="0.01" value="1.00"></div>
-<div class="setting-item"><div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div><input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0"></div>
 <div class="setting-item" style="margin-top:6px;">
 <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
 <input type="checkbox" id="showLoadValues" checked="" style="width:18px;height:18px;"><span>負荷適用値を並べて表示</span>
@@ -1789,7 +1812,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="privacy-box">
   音声は端末内だけで処理し、サーバーへ送りません。履歴もこの端末に保存されます。<br>
   問い合わせ: <a href="mailto:enginerace.setup.notes@gmail.com" style="color:inherit;">enginerace.setup.notes@gmail.com</a><br>
-  個人で対応しているため、返信までお時間をいただくことがあります。
+  個人で対応しているため、気ままなタイミングで返信となります。
 </div>
 </div>
 </div>
@@ -1923,7 +1946,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <h4>タイヤ径</h4>
 <p>ミリメートルです。速度の計算に使います。最初は 22.5。− と ＋ で 0.1mm ずつ動きます。</p>
 <h4>保存モード</h4>
-<p>毎回名前を聞いて保存するか、前回の名前で上書き確認するか、です。</p>
+<p>保存を押すと名前の画面が開きます。「毎回名前を聞いて保存」は名前欄が空です。「前回の名前で上書き確認」は、いちばん新しい履歴の名前が入っています。どちらも新しい履歴が1件増えます。前の記録は消えません。</p>
 <h4>ロック履歴</h4>
 <p>ロックを押した瞬間の一覧です。時刻、そのときの表示回転、モーターの短い名前、ギヤ比、電圧、タイヤ径が残ります。回転の計算は変えません。</p>
 <h4>反映して閉じる</h4>
@@ -2123,7 +2146,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <p class="privacy-box">マイク許可: モーター音の周波数から回転数（RPM）を測定するためにマイクを使います。音声は端末内だけで処理し、サーバーへ送信しません。<br>
 The microphone is used to measure motor RPM from sound frequency. Audio is processed on this device only and is not sent to any server.<br>
 問い合わせ: enginerace.setup.notes@gmail.com<br>
-個人で対応しているため、返信までお時間をいただくことがあります。</p>
+個人で対応しているため、気ままなタイミングで返信となります。</p>
 <button class="secondary-btn gray" id="settingsOnboardBtn" style="width:100%;margin-top:8px;" data-i18n="onboardAgain">初回案内をもう一度</button>
 <button class="secondary-btn gray" id="helpCloseBtn" style="width:100%;margin-top:8px;">閉じる</button>
 </div>
@@ -2159,7 +2182,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 
 <div class="modal-backdrop" id="machineModalBackdrop">
 <div class="modal">
-<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">マシン設定</div><div class="modal-title-note">計測中にロックを押した際に出現する比較表に反映されます。</div></div><button class="modal-close" id="machineCloseTop">×</button></div>
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">マシン設定</div><div class="modal-title-note">計測中にロックを押した際に出現する比較表に反映されます。机上での計算なので、実際と差異があります。</div></div><button class="modal-close" id="machineCloseTop">×</button></div>
 <div class="machine-grid">
 <div class="machine-item">
 <div class="setting-label"><span>駆動</span><span class="setting-value" id="shaftLabel">指定なし</span></div>
@@ -2203,11 +2226,16 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 </div>
 <div class="machine-item">
+<div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
+<input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0">
+</div>
+<div class="machine-item">
 <div class="setting-label"><span>保存モード</span></div>
 <select class="cond-select" id="saveModeSelect">
 <option value="ask">毎回名前を聞いて保存</option>
 <option value="quick">前回の名前で上書き確認</option>
 </select>
+<p class="hint">保存を押すと、どちらも名前の画面が開きます。上は、名前欄を空にするか、前回の名前を入れておくか、の違いです。履歴は新しく1件増えます。前の記録は消えません。</p>
 </div>
 <div style="display:flex;gap:8px;margin-top:4px;">
 <button class="secondary-btn gray" id="machineToRevBtn" style="flex:1;">ロック履歴</button>
@@ -2290,7 +2318,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="modal-backdrop" id="saveModalBackdrop">
 <div class="modal">
 <div class="modal-header"><div class="modal-title">保存</div><button class="modal-close" id="saveClose">×</button></div>
-<div class="input-row"><label>名前</label><input type="text" id="saveNameInput" maxlength="8"></div>
+<div class="input-row"><label>名前</label><input type="text" id="saveNameInput" maxlength="8" placeholder="名前を入力"></div>
 <div class="input-row">
 <label>モーター種類</label>
 <select id="motorTypeSelect">
@@ -2931,6 +2959,20 @@ function paintSpeedBasis() {
   el.textContent = "音の回転をギヤ比で車軸に落とし、タイヤの円周で km/h にしています。校正と走行負荷は、変えたときだけ掛かります。";
 }
 
+function bindHelpToggle(btnId, panelId) {
+  const btn = document.getElementById(btnId);
+  const panel = document.getElementById(panelId);
+  if (!btn || !panel) return;
+  btn.addEventListener("click", function(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    panel.hidden = !panel.hidden;
+    btn.classList.toggle("is-on", !panel.hidden);
+  });
+}
+bindHelpToggle("speedHelpBtn", "speedBasis");
+bindHelpToggle("cmpHelpBtn", "cmpHelpNotes");
+
 function refreshMachineStatusUI() {
   const bar = document.getElementById("cmpMachineBar");
   const txt = machineStatusText();
@@ -3219,13 +3261,15 @@ if (document.getElementById("machineBtn")) {
   });
 }
 UI.saveBtn.addEventListener("click", () => {
-  if (window.machineState && machineState.saveMode === "quick" && state.history.length) {
+  const quick = window.machineState && machineState.saveMode === "quick" && state.history.length;
+  if (quick) {
     UI.saveNameInput.value = state.history[0].name || "";
-    if (machineState.motor) UI.motorTypeSelect.value = machineState.motor;
-  } else if (window.machineState && machineState.motor) {
-    UI.motorTypeSelect.value = machineState.motor;
+  } else {
+    UI.saveNameInput.value = "";
   }
+  if (window.machineState && machineState.motor) UI.motorTypeSelect.value = machineState.motor;
   UI.saveModal.style.display = "flex";
+  if (!quick) setTimeout(function() { UI.saveNameInput.focus(); }, 60);
 });
 
 
@@ -4536,7 +4580,7 @@ window.I18N = {
     history:"履歴", reset:"リセット", settings:"設定", machine:"マシン設定",
     revShort:"逆算", revTitle:"逆算電卓", revNote:"ロスなしの机上値です",
     settingsTitle:"測定設定", settingsLead:"回転は音からの推定、速度は机上の理論値です。公式計測器の代替ではありません。",
-    machineNote:"計測中にロックを押した際に出現する比較表に反映されます。",
+    machineNote:"計測中にロックを押した際に出現する比較表に反映されます。机上での計算なので、実際と差異があります。",
     histTitle:"計測履歴", cmpTitle:"電圧別比較表",
     themeSharp:"シャープ", themeClassic:"丸み", themePlain:"シンプル",
     darkOn:"ダーク", darkOff:"ダーク",
@@ -4553,14 +4597,14 @@ window.I18N = {
     unset:"未設定", set:"設定",
     help:"使い方", onboardAgain:"初回案内をもう一度",
     brandSub:"モーター音で回転数を測定",
-    contactDelay:"個人で対応しているため、返信までお時間をいただくことがあります。"
+    contactDelay:"個人で対応しているため、気ままなタイミングで返信となります。"
   },
   en: {
     start:"START", stop:"STOP", lock:"LOCK", unlock:"UNLOCK", save:"SAVE",
     history:"LOG", reset:"RESET", settings:"SETUP", machine:"MACHINE",
     revShort:"CALC", revTitle:"REVERSE CALC", revNote:"No-loss theoretical value",
     settingsTitle:"MEASURE SETUP", settingsLead:"RPM is estimated from sound. Speed is theoretical. Not a certified tachometer.",
-    machineNote:"Applied to the comparison table when you lock during a run.",
+    machineNote:"Applied to the comparison table when you lock during a run. It is a desk calculation, so it can differ from the real result.",
     histTitle:"HISTORY", cmpTitle:"VOLTAGE MAP",
     themeSharp:"SHARP", themeClassic:"ROUND", themePlain:"PLAIN",
     darkOn:"DARK", darkOff:"DARK",
@@ -4577,7 +4621,7 @@ window.I18N = {
     unset:"STOCK", set:"SET",
     help:"GUIDE", onboardAgain:"Show intro again",
     brandSub:"Measure motor RPM from sound",
-    contactDelay:"Handled by one person, so replies may take time."
+    contactDelay:"Handled by one person, so replies come whenever there's time."
   }
 };
 window.APP_LANG = localStorage.getItem("rpmLang") === "en" ? "en" : "ja";
