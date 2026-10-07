@@ -167,7 +167,7 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   color: var(--ice);
 }
 .kicker-speed { display: block; }
-.speed-basis { margin: -2px 0 8px; letter-spacing: 0.02em; font-size: 12px; font-weight: 700; color: var(--ink); }
+.speed-basis { margin: -2px 0 8px; letter-spacing: 0.02em; font-size: 12px; font-weight: 700; line-height: 1.45; color: var(--mute); }
 .realtime-center.is-plain { letter-spacing: 0.02em; line-height: 1.45; }
 
 .realtime-center {
@@ -205,6 +205,14 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   color: var(--ink);
   font-variant-numeric: tabular-nums;
   font-family: var(--num);
+}
+.pickup-note {
+  margin: -2px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--mute);
 }
 
 .dual-range-container { position: relative; width: 100%; height: 28px; margin: 4px 0 0; }
@@ -1517,6 +1525,8 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 </div>
 
+<p class="pickup-note">下の回転数は、いま回しているモーターが出している音を集音した数値です。</p>
+
 <div id="rpmBlock">
 <div class="section-kicker kicker-rpm">MOTOR RPM<span id="rpmTargetMark"></span></div>
 <div class="realtime-stats">
@@ -1541,7 +1551,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 
 <div class="section-kicker kicker-speed">SPEED (km/h)</div>
-<div class="speed-basis" id="speedBasis">計算に使用 · 2.8 V · 3.7:1 · 22.5 mm</div>
+<div class="speed-basis" id="speedBasis">音の回転をギヤ比で車軸に落とし、タイヤの円周で km/h にしています。校正と走行負荷は、変えたときだけ掛かります。</div>
 <div class="realtime-stats">
 <div class="stat-block stat-current">
 <div class="stat-label">CURRENT</div>
@@ -2172,7 +2182,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="machineVoltLabel">2.8 V</span></div>
 <div class="tire-step-row">
 <button type="button" class="tire-step-btn" id="voltMinus">−</button>
-<select class="cond-select" id="machineVoltSelect"><option value="2.2">2.2</option><option value="2.3">2.3</option><option value="2.4">2.4</option><option value="2.5">2.5</option><option value="2.6">2.6</option><option value="2.7">2.7</option><option value="2.8" selected="">2.8</option><option value="2.9">2.9</option><option value="3">3</option><option value="3.1">3.1</option><option value="3.2">3.2</option><option value="3.3">3.3</option><option value="3.4">3.4</option><option value="3.5">3.5</option></select>
+<select class="cond-select" id="machineVoltSelect"><option value="2.2">2.2</option><option value="2.3">2.3</option><option value="2.4">2.4</option><option value="2.5">2.5</option><option value="2.6">2.6</option><option value="2.7">2.7</option><option value="2.8" selected="">2.8</option><option value="2.9">2.9</option><option value="3.0">3.0</option><option value="3.1">3.1</option><option value="3.2">3.2</option><option value="3.3">3.3</option><option value="3.4">3.4</option><option value="3.5">3.5</option></select>
 <button type="button" class="tire-step-btn" id="voltPlus">＋</button>
 </div>
 </div>
@@ -2900,10 +2910,7 @@ function shaftMarkText() {
 function paintSpeedBasis() {
   const el = document.getElementById("speedBasis");
   if (!el) return;
-  const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "2.8 V";
-  const gear = (UI.gearLabel && UI.gearLabel.textContent) || "3.7:1";
-  const tire = (UI.tireLabel && UI.tireLabel.textContent) || "22.5 mm";
-  el.textContent = "計算に使用 · " + volt + " · " + gear + " · " + tire;
+  el.textContent = "音の回転をギヤ比で車軸に落とし、タイヤの円周で km/h にしています。校正と走行負荷は、変えたときだけ掛かります。";
 }
 
 function refreshMachineStatusUI() {
@@ -2957,6 +2964,14 @@ function refreshMachineStatusUI() {
   }
 }
 
+function readMachineVolt() {
+  const raw = (document.getElementById("machineVoltSelect") || {}).value;
+  const n = parseFloat(raw);
+  if (isFinite(n)) return n;
+  const fallback = parseFloat(UI.voltageRange && UI.voltageRange.value);
+  return isFinite(fallback) ? fallback : 2.8;
+}
+
 function buildComparisonTable(baseRpm) {
 const fineOn = !!(document.getElementById("cmpVoltFine") && document.getElementById("cmpVoltFine").checked);
 const voltages = [];
@@ -2967,7 +2982,7 @@ if (fineOn) {
 }
 const voltDigits = fineOn ? 2 : 1;
 const voltTol = fineOn ? 0.005 : 0.049;
-const currentV = parseFloat(UI.voltageRange && UI.voltageRange.value) || 2.8;
+const currentV = readMachineVolt();
 const tireSet = parseFloat(UI.tireRange && UI.tireRange.value);
 const tireUnset = 22.5;
 const loadPercent = parseFloat(UI.loadFactorRange && UI.loadFactorRange.value) || 0;
@@ -3347,8 +3362,14 @@ function syncMachineToMain() {
   const tireInp = document.getElementById("machineTireInput");
   const motorSel = document.getElementById("machineMotorSelect");
   if (voltSel && UI.voltageRange) {
-    UI.voltageRange.value = voltSel.value;
-    UI.voltageLabel.textContent = parseFloat(voltSel.value).toFixed(1) + " V";
+    const n = parseFloat(voltSel.value);
+    if (isFinite(n)) {
+      const opt = Array.prototype.find.call(UI.voltageRange.options, function(o) {
+        return Math.abs(parseFloat(o.value) - n) < 0.001;
+      });
+      if (opt) UI.voltageRange.value = opt.value;
+      UI.voltageLabel.textContent = n.toFixed(1) + " V";
+    }
   }
   if (gearSel && UI.gearRange) {
     const idx = gearOptions.indexOf(gearSel.value);
@@ -3459,7 +3480,7 @@ function rebuildMachineLists() {
     const gs = document.getElementById("machineGearSelect");
     if (gs) gs.value = gears[0];
   }
-  fillSelect(document.getElementById("machineVoltSelect"), VOLT_LIST.map(function(v){ return [String(v), String(v)]; }), UI.voltageRange ? UI.voltageRange.value : "2.8");
+  fillSelect(document.getElementById("machineVoltSelect"), VOLT_LIST.map(function(v){ return [v.toFixed(1), v.toFixed(1)]; }), UI.voltageRange ? parseFloat(UI.voltageRange.value).toFixed(1) : "2.8");
   const ti = document.getElementById("machineTireInput");
   if (ti && UI.tireRange) ti.value = UI.tireRange.value;
   document.querySelectorAll(".seg-btn[data-shaft]").forEach(function(b) {
