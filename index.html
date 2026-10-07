@@ -377,6 +377,10 @@ body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fbf7f
 body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #f3ead8; }
 body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #f6f1e6; }
 body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n) { background: #efe6d6; }
+body.theme-plain.dark-mode .hist-card:nth-child(4n+1) { background: #2a241c; }
+body.theme-plain.dark-mode .hist-card:nth-child(4n+2) { background: #3a3024; }
+body.theme-plain.dark-mode .hist-card:nth-child(4n+3) { background: #322a22; }
+body.theme-plain.dark-mode .hist-card:nth-child(4n) { background: #241e18; }
 body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fff; }
 body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #fff1e8; }
 body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #faf9f7; }
@@ -554,6 +558,26 @@ table td, table th { text-align: center !important; }
   background: var(--bg2); color: var(--ink); font-size: 13px; font-weight: 800; letter-spacing: 0.08em;
 }
 .seg-btn.active { background: var(--ice); color: #111; border-color: var(--ice); }
+.seg-btn.is-locked,
+.field-locked {
+  position: relative;
+  opacity: 0.38;
+  filter: grayscale(1);
+  pointer-events: none;
+}
+.seg-btn.is-locked { color: var(--mute); background: var(--soft); }
+.seg-btn.is-locked::after,
+.field-locked::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 50%;
+  height: 2px;
+  background: #8a8b90;
+  transform: rotate(-16deg);
+  z-index: 2;
+}
 .machine-summary {
   font-size: 12px; color: var(--mute); line-height: 1.55;
   border: 1px solid var(--line); padding: 10px 12px;
@@ -932,8 +956,9 @@ body.theme-classic .dual-range-track,
 body.theme-classic .dual-range-fill { height: 2px; }
 body.theme-classic .dual-range-container input[type="range"]::-webkit-slider-thumb { width: 16px; height: 16px; border-width: 0; }
 body.theme-classic .section-kicker { font-size: 10px; letter-spacing: 0.22em; margin: 10px 0 6px; font-weight: 800; }
-body.theme-classic .realtime-stats { grid-template-columns: 1.58865fr 0.96135fr; gap: 0; margin-bottom: 0; border: 1px solid var(--line); }
-body.theme-classic .stat-stack { display: grid; grid-template-rows: 64px 64px; gap: 0; border-left: 1px solid var(--line); }
+body.theme-classic .realtime-stats { grid-template-columns: 1.58865fr 0.96135fr; gap: 0; margin-bottom: 0; border: none; }
+body.theme-classic .stat-stack { display: grid; grid-template-rows: 64px 64px; gap: 0; border-left: none; }
+body.theme-classic .stat-stack .stat-block + .stat-block { border-top: none; }
 body.theme-classic .stat-block { padding: 8px 10px; }
 body.theme-classic .stat-block.stat-current { padding: 10px 8px; min-height: 128px; height: auto; justify-content: center; }
 body.theme-classic .stat-block.stat-side { height: 64px; min-height: 64px; max-height: 64px; padding: 6px 8px; width: 100%; }
@@ -1455,20 +1480,20 @@ body.theme-plain {
   --soft: #efe6d6;
 }
 body.theme-plain.dark-mode {
-  --bg: #111111;
-  --bg2: #1a1a1a;
-  --ink: #f5f5f3;
-  --mute: #9a9a9a;
-  --line: #2c2c2c;
-  --hot: #e25b4a;
-  --ice: #f5f5f3;
-  --soft: #222222;
+  --bg: #2a241c;
+  --bg2: #342c22;
+  --ink: #f3eadc;
+  --mute: #b5a68f;
+  --line: #5c4e3c;
+  --hot: #c4785a;
+  --ice: #d7b48a;
+  --soft: #3d3428;
 }
 body.theme-plain .primary-btn.blue,
 body.theme-plain .seg-btn.active,
 body.theme-plain .fav-filter-btn.on { background: var(--ice); color: var(--bg); border-color: var(--ice); }
-body.theme-plain .wave-container,
 body.theme-plain:not(.dark-mode) .wave-container { background: #111; }
+body.theme-plain.dark-mode .wave-container { background: #1c1814; }
 body.theme-plain .dual-range-fill,
 body.theme-plain .audio-bar { background: var(--ice); }
 body.theme-plain .theme-pick.is-on,
@@ -2211,13 +2236,15 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="setting-label"><span>駆動</span><span class="setting-value" id="shaftLabel">指定なし</span></div>
 <div class="seg-row">
 <button type="button" class="seg-btn active" data-shaft="none">指定なし</button>
-<button type="button" class="seg-btn" data-shaft="dual">両軸</button>
-<button type="button" class="seg-btn" data-shaft="single">片軸</button>
+<button type="button" class="seg-btn is-locked" data-shaft="dual" disabled>両軸</button>
+<button type="button" class="seg-btn is-locked" data-shaft="single" disabled>片軸</button>
 </div>
 </div>
 <div class="machine-item">
 <div class="setting-label"><span>シャーシ</span><span class="setting-value" id="chassisLabel">共通（指定なし）</span></div>
-<select class="cond-select" id="chassisSelect"><option value="common" selected="">共通（指定なし）</option></select>
+<div class="field-locked">
+<select class="cond-select" id="chassisSelect" disabled><option value="common" selected="">共通（指定なし）</option></select>
+</div>
 <p class="hint" id="chassisHint">駆動・シャーシを絞らない。ギヤは全公表比。</p>
 </div>
 <div class="machine-item">
@@ -3575,6 +3602,8 @@ function refreshMachineSummary() {
 }
 
 function rebuildMachineLists() {
+  machineState.shaft = "none";
+  machineState.chassis = "common";
   const motors = machineState.shaft === "single" ? SINGLE_MOTORS
     : machineState.shaft === "dual" ? DUAL_MOTORS
     : [["","選択なし"]].concat(DUAL_MOTORS).concat(SINGLE_MOTORS);
@@ -3634,6 +3663,7 @@ function persistMachine() {
   if (!backdrop) return;
   document.querySelectorAll(".seg-btn[data-shaft]").forEach(function(btn) {
     btn.addEventListener("click", function() {
+      if (btn.classList.contains("is-locked") || btn.disabled) return;
       machineState.shaft = btn.getAttribute("data-shaft");
       machineState.motor = "";
       rebuildMachineLists();
@@ -3642,6 +3672,7 @@ function persistMachine() {
   });
   const cs = document.getElementById("chassisSelect");
   if (cs) cs.addEventListener("change", function() {
+    if (cs.disabled) return;
     machineState.chassis = cs.value;
     const info = chassisInfo(machineState.chassis);
     if (info.shaft === "dual" || info.shaft === "single") machineState.shaft = info.shaft;
