@@ -3276,9 +3276,43 @@ UI.gearRange.addEventListener("change", () => {
 UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = String(noiseThreshold()));
 UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2));
 UI.loadFactorRange.addEventListener("input", () => {
-UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%";
-updateRawVisibility();
+  UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%";
+  updateRawVisibility();
+  applyLoadToShown();
 });
+function applyLoadToShown() {
+  const loadPercent = parseFloat(UI.loadFactorRange.value) || 0;
+  const loadFactor = (1 - loadPercent / 100) * chassisLossFactor();
+  const showLoad = UI.showLoadValues && UI.showLoadValues.checked;
+  const hasLoad = loadPercent !== 0;
+  if (currentRpmRaw > 0) {
+    currentRpm = currentRpmRaw * loadFactor;
+    currentSpeed = currentSpeedRaw * loadFactor;
+    const disp = limitDisplay(Math.round(currentRpm));
+    UI.rpmNow.textContent = disp === "--" ? "--" : String(disp);
+    UI.speedNow.textContent = disp === "--" ? "--" : currentSpeed.toFixed(2);
+    UI.rpmNowRaw.textContent = (showLoad && hasLoad && disp !== "--") ? ("生: " + Math.round(currentRpmRaw)) : "";
+    UI.speedNowRaw.textContent = (showLoad && hasLoad && disp !== "--") ? ("生: " + currentSpeedRaw.toFixed(2)) : "";
+  }
+  if (maxRpmRaw > 0) {
+    maxRpmVal = maxRpmRaw * loadFactor;
+    maxSpeedVal = maxSpeedRaw * loadFactor;
+    UI.rpmMax.textContent = String(Math.round(maxRpmVal));
+    UI.speedTop.textContent = maxSpeedVal.toFixed(2);
+    UI.rpmMaxRaw.textContent = (showLoad && hasLoad) ? ("生: " + Math.round(maxRpmRaw)) : "";
+    UI.speedTopRaw.textContent = (showLoad && hasLoad) ? ("生: " + maxSpeedRaw.toFixed(2)) : "";
+    applyRpmHit();
+  }
+  if (minRpmRaw !== Infinity && minRpmRaw > 0) {
+    minRpmVal = minRpmRaw * loadFactor;
+    minSpeedVal = minSpeedRaw * loadFactor;
+    UI.rpmMin.textContent = String(Math.round(minRpmVal));
+    UI.speedMin.textContent = minSpeedVal.toFixed(2);
+    UI.rpmMinRaw.textContent = (showLoad && hasLoad) ? ("生: " + Math.round(minRpmRaw)) : "";
+    UI.speedMinRaw.textContent = (showLoad && hasLoad) ? ("生: " + minSpeedRaw.toFixed(2)) : "";
+  }
+  if (locked && lockedSnapshot) buildComparisonTable(lockedSnapshot.rpmRaw || 0);
+}
 function updateRawVisibility() {
   const lp = parseFloat(UI.loadFactorRange.value) || 0;
   document.body.classList.toggle("load-zero", lp === 0);
