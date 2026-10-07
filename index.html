@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ja"><head>
 <meta charset="UTF-8">
 <title>RPM Memory</title>
@@ -18,11 +19,10 @@ if (location.protocol === "http:" || location.protocol === "https:") {
 }
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f7f7f5">
+<meta name="theme-color" content="#0d0d0f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #101114;
@@ -349,7 +349,6 @@ body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #faf9f
 body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n) { background: #f3eee8; }
 .hist-line { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(40px, 0.7fr) minmax(92px, 1.05fr) minmax(78px, 0.95fr); column-gap: 12px; row-gap: 1px; align-items: center; }
 .hist-line + .hist-line { margin-top: 2px; }
-.hist-top { display: flex; align-items: center; gap: 6px; min-height: 16px; }
 .hist-k { display: block; font-size: 8px; line-height: 1.1; letter-spacing: 0.04em; color: var(--mute); font-weight: 700; }
 .hist-v { display: block; font-family: var(--num); font-size: 11px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
 .hist-name .hist-v { font-family: var(--font); font-size: 12px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; white-space: normal; }
@@ -1020,6 +1019,7 @@ body.theme-plain:not(.dark-mode) {
 
 
 /* ========== THEME: FLARE ========== */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap");
 body.theme-flare {
   --bg: #0A0A0A;
   --bg2: #111111;
@@ -1460,7 +1460,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 
 </style>
 </head>
-<body class="load-zero theme-plain">
+<body class="dark-mode load-zero theme-classic">
 <div class="app-shell">
 
 <section class="card">
@@ -1602,18 +1602,18 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 
 <section class="card">
 <div class="card-header"><div class="card-title">電圧別比較表 <span id="cmpShaftMark">未</span></div></div>
-<div class="cmp-summary" id="cmpSummary">未　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm。ロックすると速度が出ます。</div>
+<div class="cmp-summary" id="cmpSummary">ロック後に、選択中の電圧・ギヤでの速度目安が表示されます。</div>
 <div class="cmp-machine-bar" id="cmpMachineBar">駆動は未選択　モーター未選択　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm</div>
 <label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle"> 未設定と設定を上下比較する</label>
-<p class="cmp-machine-bar" id="cmpGearNote">駆動を選ぶと、使わないギヤの列が薄くなります。</p>
+<p class="cmp-machine-bar" id="cmpGearNote">薄い列は、今の駆動では使わないギヤです。色の濃い列が、マシン設定の範囲です。</p>
 <p class="cmp-machine-bar" id="cmpDriveNote">駆動が未選択なので、ピニオン・クラウン・プロペラの摩擦は掛けていません。</p>
 <div class="table-wrapper">
 <table id="cmpTable">
 <thead>
 <tr>
 <th>電圧</th><th>RPM</th><th class="raw-col">RPM(生)</th>
-<th data-base="3.5:1">3.5:1</th><th data-base="3.7:1">3.7:1</th><th data-base="4.0:1">4.0:1</th><th data-base="4.2:1">4.2:1</th>
-<th data-base="5.0:1">5.0:1</th><th data-base="6.4:1">6.4:1</th><th data-base="8.75:1">8.75:1</th><th data-base="11.2:1">11.2:1</th>
+<th>3.5:1</th><th>3.7:1</th><th>4.0:1</th><th>4.2:1</th>
+<th>5.0:1</th><th>6.4:1</th><th>8.75:1</th><th>11.2:1</th>
 </tr>
 </thead>
 <tbody id="comparisonBody"></tbody>
@@ -1737,9 +1737,9 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button type="button" class="secondary-btn gray" id="lookToggleBtn">外観</button>
 <div class="theme-pick-row" id="themePickRow" style="display:none;">
 <button type="button" class="secondary-btn gray theme-pick" data-theme="sharp" data-i18n="themeSharp">シャープ</button>
-<button type="button" class="secondary-btn gray theme-pick" data-theme="classic" data-i18n="themeClassic">丸み</button>
+<button type="button" class="secondary-btn gray theme-pick is-on" data-theme="classic" data-i18n="themeClassic">丸み</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="flare">FLARE</button>
-<button type="button" class="secondary-btn gray theme-pick is-on" data-theme="plain" data-i18n="themePlain">シンプル</button>
+<button type="button" class="secondary-btn gray theme-pick" data-theme="plain" data-i18n="themePlain">シンプル</button>
 </div>
 </div>
 <div class="pref-group" id="langGroup">
@@ -1751,7 +1751,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 <button class="secondary-btn gray pref-dark" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
 </div>
-<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: シンプル</button>
+<button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: 現行（丸み）</button>
 <button type="button" id="reverseCalcOpenBtn" style="display:none" aria-hidden="true"></button>
 <div style="margin-top:8px;"><button class="secondary-btn gray" id="settingsHelpBtn" style="width:100%;" data-i18n="help">使い方</button></div>
 <div style="display:flex;gap:8px;margin-top:12px;">
@@ -1886,7 +1886,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <h4>駆動</h4>
 <p>指定なし、両軸、片軸。モーターの候補が変わります。指定なしのままなら、両方のモーターから選べます。</p>
 <h4>シャーシ</h4>
-<p>選べます。両軸は ME・MA・MS、片軸は FM-A からタイプ1までです。選ぶと駆動が揃い、そのシャーシのギヤだけが残ります。名前だけでは、速度に別のロスは足しません。</p>
+<p>今は選べません。斜めの線は「まだ使えない」印です。速度に、シャーシごとのロスは自動では足しません。</p>
 <h4>モーター</h4>
 <p>今載せている種類です。履歴やロック履歴では短い名前になります。例: ノーマルPRO は NMP、マッハPRO は MDP。</p>
 <h4>電圧</h4>
@@ -1901,7 +1901,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <p>ロックを押した瞬間の一覧です。時刻、そのときの表示回転、モーターの短い名前、ギヤ比、電圧、タイヤ径が残ります。回転の計算は変えません。</p>
 <h4>反映して閉じる</h4>
 <p>入れた電圧・ギヤ・タイヤを、トップの速度と比較表に反映して閉じます。</p>
-<p class="onboard-en">Machine settings store shaft, chassis, motor, voltage, gear and tire. Choosing a chassis sets the shaft and the gear list. It does not add a separate chassis loss. Apply and close copies voltage, gear and tire into the speed math.</p>
+<p class="onboard-en">Machine settings store shaft, motor, voltage, gear and tire. Chassis cannot be selected yet. Apply and close copies them into the speed math.</p>
 </div>
 </div>
 
@@ -2040,14 +2040,14 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <p>速度(km/h) ＝ (モーターrpm ÷ ギヤ比) × タイヤ径(mm) × (π × 60 / 1,000,000)</p>
 <p>モーター回転をギヤで軸回転に直し、タイヤ円周で進む距離にしています。スリップ、接地、ロス、電圧降下、発熱は入っていません。実走より速く出ることがほとんどです。</p>
 <p>電圧は式に直接入りません。測った電源のメモと比較表の列分けに使います。</p>
-<p>比較表の上の数字はロスなしです。片軸か両軸のとき、下の括弧だけが伝達込みの仮定です。トップの SPEED はロスなしのままです。公式の摩擦値はありません。詳しくは「伝達ロスの仮定」。</p>
+<p>比較表の速度だけ、駆動ごとの伝達ロスを掛けた見積もりも出します。トップの SPEED はロスなしのままです。公式の摩擦値はなく、仮定です。詳しくは「伝達ロスの仮定」。</p>
 </div>
 </div>
 
 <div class="help-acc">
 <button type="button">伝達ロスの仮定</button>
 <div class="help-body">
-<p>比較表の上の km/h はロスなしです。括弧の中だけ、駆動ごとの残り割合を掛けています。トップの SPEED と回転数は変えません。測った音には、すでにその場の摩擦が入っていることがあります。そこへさらに掛けると、二重に引くことになります。</p>
+<p>比較表の km/h は、ロスなしの机上速度に、駆動ごとの残り割合を掛けたものです。トップの SPEED と回転数は変えません。測った音には、すでにその場の摩擦が入っていることがあるからです。</p>
 <p>両軸は 97% です。ピニオンとカウンター（スパー）の1段だけを見ています。クラウンとプロペラシャフトはありません。</p>
 <p>片軸は 86.6% です。ピニオンからクラウンへ 94%、プロペラシャフトを支える摩擦 98%、車軸側のクラウン 94% を掛けています。ギヤ比そのものは 1:1 のままです。</p>
 <p>これは公式の測定値ではありません。グリス、傾き、トルクで変わります。効率は本来、速度ではなくトルクと動力の残りです。同じ割合で速度が落ちるとは限りません。見比べ用の仮定です。駆動が未選択のときは 100% で、掛けません。</p>
@@ -2057,7 +2057,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="help-acc">
 <button type="button">マシン設定と比較表の違い</button>
 <div class="help-body">
-<p>マシン設定は、今の車のメモです。駆動、シャーシ、モーター、保存モード、ロック履歴はここだけです。シャーシを選ぶと駆動と使えるギヤが揃います。速度の主表示には伝達を掛けません。括弧だけが仮定です。「反映して閉じる」と、電圧・ギヤ比・タイヤ径が比較表の計算にコピーされます。その入力欄はトップには出しません。</p>
+<p>マシン設定は、今の車のメモです。駆動、モーター、保存モード、ロック履歴はここだけです。シャーシはまだ速度に入りません。「反映して閉じる」と、電圧・ギヤ比・タイヤ径が比較表の計算にコピーされます。その入力欄はトップには出しません。</p>
 <p>比較表の上に、駆動・モーター・電圧・ギヤ・タイヤが出ます。片軸か両軸かで、使えるギヤの列が違います。薄い列は、今の駆動では使わないギヤです。選んだ電圧の行と、選んだギヤの列が強調されます。</p>
 <p class="onboard-en">Machine settings copy voltage, gear and tire into the table. The top page no longer shows those inputs. Pale columns are gears that shaft does not use.</p>
 </div>
@@ -2067,7 +2067,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button type="button">比較表・履歴・逆算</button>
 <div class="help-body">
 <p>電圧・ギヤ比・タイヤ径は、マシン設定で入れて比較表に反映します。トップには入力欄を出していません。比較表そのものは、ロックしたあとでないと中身が出ません。</p>
-<p>比較表はロックした回転を起点にした仮定です。ギヤを変えると実回転も変わるので、「このギヤなら必ずこの速度」ではありません。別の電圧の行は、回転が電圧に比例するとして並べています。実際はおおむね比例しますが、完全ではありません。</p>
+<p>比較表はロックした回転を起点にした仮定です。ギヤを変えると実回転も変わるので、「このギヤなら必ずこの速度」ではありません。</p>
 <p>履歴はこの端末に残ります。クラウド同期はありません。比べるときは電圧・ギヤ・負荷%を揃えるか、生RPMで見てください。</p>
 <p>逆算は速度計算の逆です。求めたいものを選んで使います。</p>
 <ul>
@@ -2142,9 +2142,10 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <button type="button" class="seg-btn" data-shaft="single">片軸</button>
 </div>
 </div>
-<div class="machine-item">
+<div class="machine-item machine-tbd">
 <div class="setting-label"><span>シャーシ</span><span class="setting-value" id="chassisLabel">共通（指定なし）</span></div>
-<select class="cond-select" id="chassisSelect"><option value="common" selected="">共通（指定なし）</option><option value="me">ME（両軸）</option><option value="ma">MA（両軸）</option><option value="ms">MS（両軸）</option><option value="fma">FM-A（前・片軸）</option><option value="vz">VZ（後・片軸）</option><option value="ar">AR（後・片軸）</option><option value="s2">スーパーII（後・片軸）</option><option value="vs">VS（後・片軸）</option><option value="sxx">スーパーXX（後・片軸）</option><option value="sfm">スーパーFM（前・片軸）</option><option value="fm">FM（前・片軸）</option><option value="stzx">スーパーTZ-X（後・片軸）</option><option value="tz">スーパーTZ（後・片軸）</option><option value="sx">スーパーX（後・片軸）</option><option value="s1">スーパー1（後・片軸）</option><option value="zero">ゼロ（後・片軸）</option><option value="t5">タイプ5（後・片軸）</option><option value="t4">タイプ4（後・片軸）</option><option value="t3">タイプ3（後・片軸）</option><option value="t2">タイプ2（後・片軸）</option><option value="t1">タイプ1（後・片軸）</option></select>
+<select class="cond-select" id="chassisSelect" disabled=""><option value="common" selected="">共通（指定なし）</option><option value="me">ME</option><option value="ma">MA</option><option value="ms">MS</option><option value="fma">FM-A（フロント）</option><option value="fm">FM / Super-FM（フロント）</option><option value="ar">AR（リア）</option><option value="vz">VZ（リア）</option><option value="vs">VS（リア）</option><option value="s2">Super-II（リア）</option><option value="tz">TZ / Super-X / XX（リア）</option></select>
+<p class="hint tbd-note">Implementation TBD</p>
 <p class="hint" id="chassisHint">駆動・シャーシを絞らない。ギヤは全公表比。速度は机上換算で、シャーシ固有ロス％は自動加算していません。</p>
 </div>
 <div class="machine-item">
@@ -2301,8 +2302,6 @@ let dataArray = null;
 let running = false;
 let locked = false;
 let ignoreFrames = 0;
-let dullHoldHz = 0;
-let dullHoldCount = 0;
 
 let currentRpm = 0;
 let currentRpmRaw = 0;
@@ -2495,10 +2494,6 @@ if (!demoMode && !gum) {
 running = true;
 try {
   if (demoMode) {
-    if (micStream) {
-      try { micStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {}
-      micStream = null;
-    }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (AC && !audioContext) audioContext = new AC();
     if (audioContext && audioContext.state === "suspended") {
@@ -2533,30 +2528,27 @@ try {
   }
 
   if (!micStream) {
-    const raw = {
-      audio: {
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl: false
-      }
-    };
+    // Safari は単純な { audio: true } が最も安定
     try {
-      micStream = await gum(raw);
+      micStream = await gum({ audio: true });
     } catch (err1) {
       try {
-        micStream = await gum({ audio: true });
+        micStream = await gum({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false
+          }
+        });
       } catch (err2) {
         throw err1;
       }
     }
   }
 
-  if (!analyser || typeof analyser.fftSize !== "number") analyser = null;
-
   if (!analyser) {
     analyser = audioContext.createAnalyser();
     analyser.fftSize = FFT_SIZE;
-    analyser.smoothingTimeConstant = 0.93;
     dataArray = new Uint8Array(analyser.frequencyBinCount);
     const source = audioContext.createMediaStreamSource(micStream);
     source.connect(analyser);
@@ -2592,15 +2584,8 @@ try {
 
 function stopMic() {
 running = false;
-if (micStream) {
-  try { micStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {}
-  micStream = null;
-}
-analyser = null;
-dullHoldHz = 0;
-dullHoldCount = 0;
 if (audioContext && audioContext.state === "running") {
-  try { audioContext.suspend(); } catch (e) {}
+audioContext.suspend();
 }
 UI.fftStatusLabel.textContent = "PAUSED";
 UI.statusLine.textContent = "STOPPED — 停止中";
@@ -2626,22 +2611,10 @@ maxIdx = i;
 if (maxIdx <= 0 || maxIdx >= data.length - 1) return 0;
 if (maxVal < parseInt(UI.noiseRange.value)) return 0;
 
-let floorSum = 0, floorN = 0;
-const floorA = Math.max(1, minBin);
-const floorB = Math.min(data.length - 1, maxBin);
-for (let i = floorA; i < floorB; i++) { floorSum += data[i]; floorN++; }
-const floorMean = floorN ? floorSum / floorN : 0;
-if (maxVal < floorMean + 10) return 0;
-
 const y1 = data[maxIdx - 1], y2 = data[maxIdx], y3 = data[maxIdx + 1];
 const denom = (y1 - 2 * y2 + y3);
 const offset = denom === 0 ? 0 : (y1 - y3) / (2 * denom);
-const hz = (maxIdx + offset) * binToHz;
-if (!(hz > 0)) return 0;
-if (dullHoldHz > 0 && Math.abs(hz - dullHoldHz) / dullHoldHz < 0.06) dullHoldCount++;
-else { dullHoldHz = hz; dullHoldCount = 1; }
-if (dullHoldCount < 9) return 0;
-return hz;
+return (maxIdx + offset) * binToHz;
 }
 
 function chassisLossFactor() {
@@ -2826,11 +2799,6 @@ UI.speedNowRaw.textContent = "";
 UI.speedTopRaw.textContent = "";
 UI.speedMinRaw.textContent = "";
 }
-} else if (UI.rpmNow) {
-UI.rpmNow.textContent = "--";
-UI.speedNow.textContent = "--";
-if (UI.rpmNowRaw) UI.rpmNowRaw.textContent = "";
-if (UI.speedNowRaw) UI.speedNowRaw.textContent = "";
 }
 }
 
@@ -2891,9 +2859,9 @@ function refreshMachineStatusUI() {
     const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "2.8 V";
     if (sum) {
       const mark = shaftMarkText();
-      const line = mark + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire;
+      const line = mark + "　" + volt + "　ギヤ " + gear + "　タイヤ " + tire + "　伝達 " + drive.pct;
       sum.innerHTML = (mark === "片" || mark === "両")
-        ? line + '<span class="plain-line">(伝達込み ' + drive.pct + ' は仮定。上の速度はロスなし)</span>'
+        ? line + '<span class="plain-line">(未　伝達 100%)</span>'
         : line + "。ロックすると速度が出ます。";
     }
   }
@@ -2971,11 +2939,11 @@ gearOptions.forEach((g, idx) => {
   const allowed = (typeof gearsForCurrentMachine === "function") ? gearsForCurrentMachine() : gearOptions;
   const shaft = ((window.machineState || {}).shaft) || "none";
   if (split) {
-    td.innerHTML = `<div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${speedUnset.toFixed(2)}</span><span class="s"><span class="tag">設</span>${speedPlain.toFixed(2)}</span></div>`;
+    td.innerHTML = `<div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${speedUnset.toFixed(2)}</span><span class="s"><span class="tag">設</span>${speedSet.toFixed(2)}</span></div>`;
   } else if (shaft === "single" || shaft === "dual") {
-    td.innerHTML = `<div class="cmp-shaft-cell"><span>${speedPlain.toFixed(2)}</span><span class="plain">(${speedSet.toFixed(2)})</span></div>`;
+    td.innerHTML = `<div class="cmp-shaft-cell"><span>${speedSet.toFixed(2)}</span><span class="plain">(${speedPlain.toFixed(2)})</span></div>`;
   } else {
-    td.textContent = speedPlain.toFixed(2);
+    td.textContent = speedSet.toFixed(2);
   }
   const off = shaft !== "none" && allowed.indexOf(g) < 0;
   td.classList.toggle("cmp-off", off);
@@ -2997,9 +2965,9 @@ try {
     const speedAt = (rpmAt / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
     const speedLoss = speedAt * drive.factor;
     const mark = shaftMarkText();
-    const head = mark + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span>　<span class="emph">${speedAt.toFixed(2)} km/h</span>`;
+    const head = mark + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span>　<span class="emph">${speedLoss.toFixed(2)} km/h</span>（${drive.pct}）`;
     sum.innerHTML = (mark === "片" || mark === "両")
-      ? head + `<span class="plain-line">(伝達込み ${speedLoss.toFixed(2)} km/h・仮定 ${drive.pct})</span>`
+      ? head + `<span class="plain-line">(未　${speedAt.toFixed(2)} km/h)</span>`
       : head;
   }
 } catch (eSum) {}
@@ -3241,30 +3209,18 @@ const DUAL_GEARS = ["3.5:1","3.7:1","4.0:1"];
 const SINGLE_GEARS = ["3.5:1","3.7:1","4.0:1","4.2:1","5:1"];
 const SINGLE_OLD_GEARS = ["6.4:1","8.75:1","11.2:1"];
 const ALL_GEARS = DUAL_GEARS.concat(["4.2:1","5:1"]).concat(SINGLE_OLD_GEARS);
-const OLD_GEARS = ["11.2:1","8.75:1","6.4:1"];
 const CHASSIS_CATALOG = {
   common: { name:"共通（指定なし）", shaft:"none", pos:"any", drive:"any", stock:null, gears:ALL_GEARS, note:"駆動・シャーシを絞らない。ギヤは全公表比" },
-  me: { name:"ME（両軸）", shaft:"dual", pos:"mid", drive:"direct", stock:"3.5:1", gears:DUAL_GEARS.slice(), note:"両軸・ミッドシップ。標準 3.5:1。ギヤ 3.5 / 3.7 / 4" },
-  ma: { name:"MA（両軸）", shaft:"dual", pos:"mid", drive:"direct", stock:"3.5:1", gears:DUAL_GEARS.slice(), note:"両軸・ミッドシップ。標準 3.5:1。ギヤ 3.5 / 3.7 / 4" },
-  ms: { name:"MS（両軸）", shaft:"dual", pos:"mid", drive:"direct", stock:"4.0:1", gears:DUAL_GEARS.slice(), note:"両軸・ミッドシップ。標準 4:1。ギヤ 3.5 / 3.7 / 4" },
-  fma: { name:"FM-A（前・片軸）", shaft:"single", pos:"front", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"フロント・片軸。標準 3.5:1" },
-  vz: { name:"VZ（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 3.5:1" },
-  ar: { name:"AR（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"4.2:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 4.2:1" },
-  s2: { name:"スーパーII（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"4.2:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 4.2:1" },
-  vs: { name:"VS（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4.2:1、4:1" },
-  sxx: { name:"スーパーXX（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 3.5:1" },
-  sfm: { name:"スーパーFM（前・片軸）", shaft:"single", pos:"front", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"フロント・片軸。標準 5:1、4:1" },
-  fm: { name:"FM（前・片軸）", shaft:"single", pos:"front", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"フロント・片軸。標準 5:1、4.2:1" },
-  stzx: { name:"スーパーTZ-X（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4:1" },
-  tz: { name:"スーパーTZ（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4:1" },
-  sx: { name:"スーパーX（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4:1" },
-  s1: { name:"スーパー1（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4:1" },
-  zero: { name:"ゼロ（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4.2:1" },
-  t5: { name:"タイプ5（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4.2:1" },
-  t4: { name:"タイプ4（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4.2:1" },
-  t3: { name:"タイプ3（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"6.4:1", gears:["6.4:1","5:1","8.75:1","11.2:1"], note:"リア・片軸。標準 6.4:1、5:1。旧比も含む" },
-  t2: { name:"タイプ2（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リア・片軸。標準 5:1、4.2:1" },
-  t1: { name:"タイプ1（後・片軸）", shaft:"single", pos:"rear", drive:"shaft", stock:"11.2:1", gears:OLD_GEARS.slice(), note:"リア・片軸。いちばん古い。標準 11.2:1、6.4:1" }
+  me: { name:"ME", shaft:"dual", pos:"mid", drive:"direct", stock:"3.5:1", gears:DUAL_GEARS.slice(), note:"ミッドシップ・両軸・ダイレクト。公式ギヤ 3.5 / 3.7 / 4。標準 3.5:1" },
+  ma: { name:"MA", shaft:"dual", pos:"mid", drive:"direct", stock:"3.5:1", gears:DUAL_GEARS.slice(), note:"ミッドシップ・両軸・ダイレクト。公式ギヤ 3.5 / 3.7 / 4。標準 3.5:1" },
+  ms: { name:"MS", shaft:"dual", pos:"mid", drive:"direct", stock:"4.0:1", gears:DUAL_GEARS.slice(), note:"ミッドシップ・両軸・ダイレクト。公式ギヤ 3.5 / 3.7 / 4。標準 4:1" },
+  fma: { name:"FM-A（フロント）", shaft:"single", pos:"front", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"フロントモーター・片軸。クラウン＋プロペラは比1:1。公式ギヤ 3.5〜5。標準 3.5:1" },
+  fm: { name:"FM / Super-FM（フロント）", shaft:"single", pos:"front", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"フロントモーター・片軸。公式ギヤ 3.5〜5" },
+  ar: { name:"AR（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"4.2:1", gears:SINGLE_GEARS.slice(), note:"リアモーター・片軸。クラウン＋プロペラは比1:1。公式ギヤ 3.5〜5" },
+  vz: { name:"VZ（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"3.5:1", gears:SINGLE_GEARS.slice(), note:"リアモーター・片軸。公式ギヤ 3.5〜5。標準 3.5:1" },
+  vs: { name:"VS（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リアモーター・片軸。公式ギヤ 3.5〜5" },
+  s2: { name:"Super-II（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.slice(), note:"リアモーター・片軸。公式ギヤ 3.5〜5" },
+  tz: { name:"TZ / Super-X / XX（リア）", shaft:"single", pos:"rear", drive:"shaft", stock:"5:1", gears:SINGLE_GEARS.concat(SINGLE_OLD_GEARS), note:"リアモーター・片軸。現行比に旧比 6.4 / 8.75 / 11.2 を含む" }
 };
 const CHASSIS_GEARS = Object.fromEntries(Object.entries(CHASSIS_CATALOG).map(function(e){ return [e[0], e[1].gears]; }));
 const CHASSIS_NAME = Object.fromEntries(Object.entries(CHASSIS_CATALOG).map(function(e){ return [e[0], e[1].name]; }));
@@ -3632,8 +3588,8 @@ ts: Date.now(),
 name, motor,
 rpm: Math.round((typeof maxRpmVal === "number" && maxRpmVal > 0) ? maxRpmVal : currentRpm),
 rpmRaw: Math.round((typeof maxRpmRaw === "number" && maxRpmRaw > 0) ? maxRpmRaw : currentRpmRaw),
-speed: ((typeof maxSpeedVal === "number" && maxSpeedVal > 0) ? maxSpeedVal : currentSpeed).toFixed(2),
-speedRaw: ((typeof maxSpeedRaw === "number" && maxSpeedRaw > 0) ? maxSpeedRaw : currentSpeedRaw).toFixed(2),
+speed: currentSpeed.toFixed(2),
+speedRaw: currentSpeedRaw.toFixed(2),
 voltage: UI.voltageLabel.textContent.replace(" V", ""),
 gear: UI.gearLabel.textContent,
 tire: UI.tireLabel.textContent.replace(" mm", ""),
@@ -3840,12 +3796,8 @@ const checked = window._histSelected && window._histSelected[h.id] ? "checked" :
 const star = isBest ? " ★" : "";
 card.className = "hist-card" + (isBest ? " is-best" : "");
 card.innerHTML = `
-  <div class="hist-top">
-    <input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')">
-    <button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button>
-  </div>
   <div class="hist-line">
-    <div class="hist-cell hist-name"><span class="hist-v"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}</span></div>
+    <div class="hist-cell hist-name"><span class="hist-v"><input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}<button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button></span></div>
     ${histCell(histMotorShort(h.motor))}
     ${histCell(speedDisplay)}
     ${histCell(rpmDisplay)}
@@ -3915,6 +3867,18 @@ document.addEventListener('touchmove', function(e) {
     // Safari 等では e.scale が undefined。未定義のときは触らない（全部 prevent すると操作不能になる）
     if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
 }, { passive: false });
+
+/* ========== ダブルタップズーム禁止 ========== */
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
+
+
 
 /* ========== memory アプリ ワンタッチ連携 ========== */
 const MEMORY_RPM_KEYS = ["memory_rpm_result", "mini4wd_last_rpm", "rpm_analyzer_result", "m4_rpm_result"];
@@ -4134,7 +4098,6 @@ function publishToMemory(showAlert) {
       if (running) {
         try { if (typeof stopMic === "function") stopMic(); } catch (e) {}
       }
-      if (!demoMode && analyser && typeof analyser.fftSize !== "number") analyser = null;
     });
   }
   const again = document.getElementById("settingsOnboardBtn");
