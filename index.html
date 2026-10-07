@@ -1305,6 +1305,18 @@ body.dark-mode .cmp-machine-bar {
   letter-spacing: 0.14em;
   font-weight: 800;
 }
+.cmp-volt-prec {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.cmp-volt-prec input { width: 16px; height: 16px; margin: 0; }
 #conditionsCard { display: none !important; }
 .cmp-split-toggle { display: none !important; }
 #cmpTable th.cmp-off,
@@ -1606,7 +1618,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </section>
 
 <section class="card">
-<div class="card-header"><div class="card-title">電圧別比較表 <span id="cmpShaftMark">未</span></div></div>
+<div class="card-header"><div class="card-title">電圧別比較表 <span id="cmpShaftMark">未</span></div><label class="cmp-volt-prec"><input type="checkbox" id="cmpVoltFine"> 小数2位</label></div>
 <div class="cmp-summary" id="cmpSummary">ロック後に、選択中の電圧・ギヤでの速度目安が表示されます。</div>
 <div class="cmp-machine-bar" id="cmpMachineBar">駆動は未選択　モーター未選択　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm</div>
 <label class="cmp-split-toggle"><input type="checkbox" id="cmpSplitToggle"> 未設定と設定を上下比較する</label>
@@ -2946,7 +2958,15 @@ function refreshMachineStatusUI() {
 }
 
 function buildComparisonTable(baseRpm) {
-const voltages = [2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5];
+const fineOn = !!(document.getElementById("cmpVoltFine") && document.getElementById("cmpVoltFine").checked);
+const voltages = [];
+if (fineOn) {
+  for (let i = 220; i <= 350; i++) voltages.push(i / 100);
+} else {
+  for (let i = 22; i <= 35; i++) voltages.push(i / 10);
+}
+const voltDigits = fineOn ? 2 : 1;
+const voltTol = fineOn ? 0.005 : 0.049;
 const currentV = parseFloat(UI.voltageRange && UI.voltageRange.value) || 2.8;
 const tireSet = parseFloat(UI.tireRange && UI.tireRange.value);
 const tireUnset = 22.5;
@@ -2973,14 +2993,14 @@ voltages.forEach(v => {
 const rpmUnset = safeBase * (v / currentV);
 const rpmSet = rpmUnset * loadFactor;
 const tr = document.createElement("tr");
-if (Math.abs(v - currentV) < 0.05) tr.classList.add("highlight-row");
+if (Math.abs(v - currentV) < voltTol) tr.classList.add("highlight-row");
 
 if (split) {
-  tr.innerHTML = `<td>${v.toFixed(1)}</td>
+  tr.innerHTML = `<td>${v.toFixed(voltDigits)}</td>
     <td class="cmp-split-td"><div class="cmp-cell-split"><span class="u"><span class="tag">未</span>${Math.round(rpmUnset)}</span><span class="s"><span class="tag">設</span>${Math.round(rpmSet)}</span></div></td>
     <td class="raw-col" style="color:var(--text-sub);font-size:0.68rem;">${Math.round(rpmUnset)}</td>`;
 } else {
-  tr.innerHTML = `<td>${v.toFixed(1)}</td><td>${Math.round(rpmSet)}</td><td class="raw-col" style="color:var(--text-sub);font-size:0.68rem;">${Math.round(rpmUnset)}</td>`;
+  tr.innerHTML = `<td>${v.toFixed(voltDigits)}</td><td>${Math.round(rpmSet)}</td><td class="raw-col" style="color:var(--text-sub);font-size:0.68rem;">${Math.round(rpmUnset)}</td>`;
 }
 
 gearOptions.forEach((g, idx) => {
@@ -3018,7 +3038,7 @@ try {
     const speedAt = (rpmAt / gearRatio) * (tireSet * Math.PI * 60) / 1000000;
     const speedLoss = speedAt * drive.factor;
     const mark = shaftMarkText();
-    const head = mark + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(1)} V</span>　<span class="emph">${speedAt.toFixed(2)} km/h</span>`;
+    const head = mark + `　ギヤ <span class="emph">${gearLabel}</span>　タイヤ <span class="emph">${tireSet.toFixed(1)} mm</span>。基準 <span class="emph">${currentV.toFixed(voltDigits)} V</span>　<span class="emph">${speedAt.toFixed(2)} km/h</span>`;
     sum.innerHTML = (mark === "片" || mark === "両")
       ? head + `<span class="plain-line">(伝達込み ${speedLoss.toFixed(2)} km/h・仮定 ${drive.pct})</span>`
       : head;
@@ -3181,6 +3201,16 @@ UI.saveBtn.addEventListener("click", () => {
   UI.saveModal.style.display = "flex";
 });
 
+
+const cmpVoltFine = document.getElementById("cmpVoltFine");
+if (cmpVoltFine) {
+  cmpVoltFine.checked = localStorage.getItem("rpmCmpVoltFine") === "1";
+  cmpVoltFine.addEventListener("change", function() {
+    localStorage.setItem("rpmCmpVoltFine", cmpVoltFine.checked ? "1" : "0");
+    const base = (locked && lockedSnapshot) ? (lockedSnapshot.rpmRaw || 0) : 0;
+    buildComparisonTable(base);
+  });
+}
 
 const cmpSplitToggle = document.getElementById("cmpSplitToggle");
 if (cmpSplitToggle) {
