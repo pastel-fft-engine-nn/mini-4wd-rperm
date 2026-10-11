@@ -54,7 +54,7 @@ body:not(.dark-mode) {
 .app-shell {
   width: min(560px, 100%);
   margin: 0 auto;
-  padding: 8px 12px calc(14px + var(--safe-b));
+  padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(14px + var(--safe-b));
 }
 
 .card {
@@ -118,10 +118,12 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   display: grid;
   grid-template-columns: 1.58865fr 0.96135fr;
   gap: 0;
-  margin-bottom: 0;
+  margin: 0 12px 0;
+  width: calc(100% - 24px);
   align-items: stretch;
   border: 1px solid var(--line);
 }
+.kicker-rpm, .kicker-speed { margin-left: 12px; margin-right: 12px; }
 .stat-stack {
   display: grid;
   grid-template-rows: 64px 64px;
@@ -166,7 +168,7 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   margin: 10px 0 6px;
   color: var(--ice);
 }
-.kicker-speed { display: flex; align-items: center; gap: 6px; }
+.kicker-speed, .kicker-rpm { display: flex; align-items: center; gap: 6px; }
 .qmark {
   display: inline-flex;
   align-items: center;
@@ -190,15 +192,34 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
 .qmark.is-on { color: var(--ice); }
 .card-title .qmark { margin-left: 8px; vertical-align: -3px; }
 .speed-basis { margin: -2px 0 8px; letter-spacing: 0.02em; font-size: 12px; font-weight: 700; line-height: 1.45; color: var(--mute); }
+.stat-avg {
+  margin-top: 2px;
+  text-align: right;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--mute);
+  font-weight: 800;
+}
+.stat-avg span {
+  font-family: var(--num);
+  font-size: 15px;
+  letter-spacing: 0;
+  color: var(--ink);
+  font-weight: 800;
+  margin-left: 6px;
+}
+.stat-avg small { font-size: 10px; letter-spacing: 0.04em; margin-left: 4px; }
 .realtime-center.is-plain { letter-spacing: 0.02em; line-height: 1.45; }
 
 .realtime-center {
   text-align: left;
-  margin: 8px 0 10px;
+  margin: 6px 0 8px;
   font-size: 11px;
   color: var(--mute);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
 }
+.status-sub { display: block; margin-top: 2px; font-size: 10px; letter-spacing: 0.01em; }
 
 .header-right-audio {
   display: flex; align-items: center; gap: 6px;
@@ -211,11 +232,11 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 0;
-  padding: 8px 10px 6px;
-  margin: 8px 0;
+  padding: 4px 8px 2px;
+  margin: 4px 0;
 }
 .rpm-limit-label {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--mute);
   font-weight: 700;
   display: flex;
@@ -229,15 +250,14 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   font-family: var(--num);
 }
 .pickup-note {
-  margin: -2px 0 8px;
-  font-size: 12px;
+  margin: 0 0 6px;
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1.45;
+  line-height: 1.4;
   letter-spacing: 0.02em;
   color: var(--mute);
 }
-
-.dual-range-container { position: relative; width: 100%; height: 28px; margin: 4px 0 0; }
+.dual-range-container { position: relative; width: 100%; height: 20px; margin: 0; }
 .dual-range-track {
   position: absolute; top: 50%; transform: translateY(-50%);
   width: 100%; height: 2px; background: var(--line);
@@ -306,6 +326,8 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   justify-content: space-between;
   gap: 2px 8px;
   padding: 2px 2px 0;
+  position: relative;
+  z-index: 5;
 }
 .tool-links button {
   flex: 1 1 auto;
@@ -317,7 +339,10 @@ body.from-memory .wave-container { padding-top: 8px; padding-bottom: 8px; }
   font-weight: 700;
   letter-spacing: 0.04em;
   padding: 8px 2px;
-  min-height: 36px;
+  min-height: 40px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0,0,0,.08);
 }
 .pref-row {
   display: grid;
@@ -385,11 +410,22 @@ body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fff; 
 body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #fff1e8; }
 body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #faf9f7; }
 body.theme-flare:not(.dark-mode) .hist-card:nth-child(4n) { background: #f3eee8; }
-.hist-line { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(40px, 0.7fr) minmax(92px, 1.05fr) minmax(78px, 0.95fr); column-gap: 12px; row-gap: 1px; align-items: center; }
-.hist-line + .hist-line { margin-top: 2px; }
+.hist-stack { display: flex; flex-direction: column; gap: 2px; }
+.hist-stack .hist-avg { font-size: 10px; color: var(--mute); font-weight: 700; }
+.hist-fold-btn {
+  width: 100%; text-align: left; border: 1px solid var(--line); background: transparent;
+  color: var(--ink); font-family: var(--font); font-size: 12px; font-weight: 800;
+  padding: 10px; margin: 0 0 8px; cursor: pointer;
+}
+.hist-fold-body { display: none; }
+.hist-fold-body.open { display: block; }
+.hist-line { display: grid; grid-template-columns: 0.8fr 1.2fr 1.2fr; column-gap: 8px; align-items: center; }
+.hist-line + .hist-line { margin-top: 4px; }
+.hist-body { display: grid; grid-template-columns: minmax(78px, 0.85fr) 2.3fr; gap: 4px 8px; align-items: start; }
+.hist-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .hist-top { display: flex; align-items: center; gap: 6px; min-height: 16px; }
 .hist-k { display: block; font-size: 8px; line-height: 1.1; letter-spacing: 0.04em; color: var(--mute); font-weight: 700; }
-.hist-v { display: block; font-family: var(--num); font-size: 11px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
+.hist-v { display: block; font-family: var(--num); font-size: 11px; font-weight: 700; line-height: 1.2; white-space: normal; overflow-wrap: anywhere; }
 .hist-name .hist-v { font-family: var(--font); font-size: 12px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; white-space: normal; }
 .hist-card .delete-btn { padding: 1px 5px; font-size: 9px; line-height: 1.4; }
 .hist-card .hist-check { width: 14px; height: 14px; margin: 0; }
@@ -409,17 +445,36 @@ table td, table th { text-align: center !important; }
 
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,.72);
-  display: none; align-items: flex-end; justify-content: center; z-index: 100;
+  display: none; align-items: flex-start; justify-content: center; z-index: 100;
 }
 .modal {
-  width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+  width: 100%; max-width: 560px; max-height: 100dvh; overflow-y: auto;
   background: var(--bg); color: var(--ink);
-  border-top: 1px solid var(--line);
-  padding: 16px 16px calc(22px + var(--safe-b));
+  border-top: 0;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px calc(16px + var(--safe-b));
+  -webkit-overflow-scrolling: touch;
 }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.modal-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  position: sticky; top: 0; z-index: 8;
+  margin: 0 0 10px; padding: 2px 0 6px;
+  background: var(--bg);
+}
 .modal-title { font-size: 16px; font-weight: 800; letter-spacing: 0.08em; }
-.modal-close { border: 0; background: transparent; font-size: 28px; line-height: 1; cursor: pointer; color: var(--ink); }
+.modal-close {
+  flex: 0 0 36px; width: 36px; height: 36px; margin: 0; padding: 0;
+  border: 0; background: transparent; font-size: 26px; line-height: 36px;
+  text-align: center; cursor: pointer; color: var(--ink);
+}
+.wave-container.is-folded canvas#spectrum { display: none; }
+.wave-container.is-folded { padding-bottom: 4px; margin-bottom: 4px; }
+.wave-fold {
+  border: 0; background: transparent; color: var(--mute);
+  font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+  padding: 0 4px; cursor: pointer;
+}
+.wave-th { display: none; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; color: var(--ice); }
+.wave-container.is-folded .wave-th { display: inline; }
 
 .filter-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
@@ -535,10 +590,40 @@ table td, table th { text-align: center !important; }
   border-radius: 0;
 }
 .machine-grid { display: grid; gap: 14px; }
-#machineModalBackdrop .modal {
-  padding: 8px 14px calc(8px + var(--safe-b));
+#machineModalBackdrop {
+  align-items: flex-start;
+  justify-content: center;
 }
-#machineModalBackdrop .modal-header { margin-bottom: 6px; }
+#machineModalBackdrop .modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 100dvh;
+  margin-top: 0;
+  border-top: 0;
+  border-radius: 0;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 14px calc(12px + var(--safe-b));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#machineModalBackdrop .modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  margin: 0 0 8px;
+  padding: 2px 0 6px;
+  background: var(--bg);
+  align-items: flex-start;
+}
+#machineModalBackdrop .modal-close {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  font-size: 26px;
+  line-height: 36px;
+  text-align: center;
+}
 #machineModalBackdrop .modal-title { font-size: 15px; }
 #machineModalBackdrop .modal-title-note { font-size: 10px; line-height: 1.3; }
 #machineModalBackdrop .machine-grid { gap: 6px; }
@@ -622,14 +707,24 @@ body:not(.load-zero) .stat-value-sub { display: block; min-height: 0.9em; }
 }
 .cmp-summary .emph { font-weight: 800; color: var(--ink); }
 
-.stat-current .stat-value { font-size: 52.2px; }
-.stat-side .stat-value { font-size: 20px; line-height: 1; }
-.stat-block.stat-current { display: flex; flex-direction: column; justify-content: center; padding: 10px 8px; min-height: 128px; }
+.stat-current .stat-value { font-size: 47px; }
+.stat-side .stat-value { font-size: 18px; line-height: 1; }
+.stat-current { position: relative; }
+.stat-current .stat-label { position: absolute; top: 2px; left: 6px; margin: 0; font-size: 8px; letter-spacing: 0.12em; }
+.cur-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 6px; margin-top: 12px; }
+.cur-k { display: block; font-size: 8px; letter-spacing: 0.08em; color: var(--mute); font-weight: 700; }
+.cur-v { display: block; font-family: var(--num); font-size: 20px; font-weight: 800; line-height: 1.05; }
+.stat-avg, .cur-pair + .cur-k { margin-top: 2px; }
+.cur-pair { display: none; }
+body.machine-applied #speedBlock .cur-pair { display: grid; }
+body.machine-applied #speedBlock .stat-avg { display: none; }
+body.machine-applied #speedBlock .stat-current .stat-value { display: none; }
+.stat-block.stat-current { display: flex; flex-direction: column; justify-content: center; padding: 8px 8px; min-height: 115px; }
 .stat-block.stat-side {
   width: 100%;
-  height: 64px;
-  min-height: 64px;
-  max-height: 64px;
+  height: 58px;
+  min-height: 58px;
+  max-height: 58px;
   padding: 6px 8px;
   display: flex;
   flex-direction: column;
@@ -690,7 +785,7 @@ body.theme-classic .app-shell {
   width: min(560px, 100%);
   max-width: 560px;
   margin: 0 auto;
-  padding: 4px 8px 8px;
+  padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(14px + var(--safe-b));
 }
 body.theme-classic .card {
   background: var(--card-bg);
@@ -832,7 +927,7 @@ body.theme-classic .stat-value {
   color: #e891b0;
   letter-spacing: -0.02em;
 }
-body.theme-classic .stat-current .stat-value { font-size: 52.2px !important; }
+body.theme-classic .stat-current .stat-value { font-size: 47px !important; }
 body.theme-classic .stat-side .stat-value { font-size: 1.20rem !important; line-height: 1.1; }
 body.theme-classic .stat-value-sub { font-size: 0.85rem; color: var(--text-sub); }
 body.theme-classic .stat-side .stat-value-sub { font-size: 0.68rem; margin-top: 0; }
@@ -942,32 +1037,33 @@ body.theme-classic .audio-bar { width: 3px; background: var(--accent-blue); }
 body.theme-classic .header-right-audio { font-size: 0.7rem; letter-spacing: normal; }
 
 /* 丸み・シンプルは色と角丸だけ。縦横の比率はシャープに合わせる */
-body.theme-classic .app-shell { padding: 8px 12px calc(14px + var(--safe-b)); }
-body.theme-classic .card { padding: 12px; margin-bottom: 10px; }
+body.theme-classic .app-shell { padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(14px + var(--safe-b)); margin-top: 0; }
+body.theme-classic .card { padding: 0 12px 12px; margin-bottom: 10px; }
+body.theme-classic .app-shell > .card:first-child { margin-top: 0; padding-top: 0; }
 body.theme-classic .card-header { margin-bottom: 8px; }
 body.theme-classic .card-title { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; }
 body.theme-classic .wave-container { padding: 8px 10px 6px; margin-bottom: 10px; }
 body.theme-classic .wave-header { font-size: 9px; letter-spacing: 0.2em; margin-bottom: 4px; }
 body.theme-classic #fftStatusLabel { font-size: 10px; letter-spacing: 0.2em; font-weight: 800; }
-body.theme-classic .rpm-limit-section { padding: 8px 10px 6px; margin: 8px 0; }
+body.theme-classic .rpm-limit-section { padding: 4px 8px 2px; margin: 4px 0 0; }
 body.theme-classic .rpm-limit-label { font-size: 10px; letter-spacing: 0.08em; }
 body.theme-classic .dual-range-container { height: 28px; margin: 4px 0 0; }
 body.theme-classic .dual-range-track,
 body.theme-classic .dual-range-fill { height: 2px; }
 body.theme-classic .dual-range-container input[type="range"]::-webkit-slider-thumb { width: 16px; height: 16px; border-width: 0; }
-body.theme-classic .section-kicker { font-size: 10px; letter-spacing: 0.22em; margin: 10px 0 6px; font-weight: 800; }
-body.theme-classic .realtime-stats { grid-template-columns: 1.58865fr 0.96135fr; gap: 0; margin-bottom: 0; border: none; }
+body.theme-classic .section-kicker { font-size: 10px; letter-spacing: 0.22em; margin: 4px 12px 4px; font-weight: 800; }
+body.theme-classic .realtime-stats { grid-template-columns: 1.58865fr 0.96135fr; gap: 0; margin: 0 12px; width: calc(100% - 24px); border: none; }
 body.theme-classic .stat-stack { display: grid; grid-template-rows: 64px 64px; gap: 0; border-left: none; }
 body.theme-classic .stat-stack .stat-block + .stat-block { border-top: none; }
 body.theme-classic .stat-block { padding: 8px 10px; }
-body.theme-classic .stat-block.stat-current { padding: 10px 8px; min-height: 128px; height: auto; justify-content: center; }
-body.theme-classic .stat-block.stat-side { height: 64px; min-height: 64px; max-height: 64px; padding: 6px 8px; width: 100%; }
+body.theme-classic .stat-block.stat-current { padding: 8px 8px; min-height: 115px; height: auto; justify-content: center; }
+body.theme-classic .stat-block.stat-side { height: 58px; min-height: 58px; max-height: 58px; padding: 5px 8px; width: 100%; }
 body.theme-classic .stat-label,
 body.theme-classic .stat-current .stat-label,
 body.theme-classic .stat-side .stat-label { font-size: 9px; letter-spacing: 0.22em; font-weight: 700; margin-bottom: 2px; }
 body.theme-classic .stat-value { font-size: 22px; letter-spacing: -0.03em; font-weight: 800; }
 body.theme-classic .stat-current .stat-value { font-size: 52.2px !important; }
-body.theme-classic .stat-side .stat-value { font-size: 20px !important; line-height: 1; }
+body.theme-classic .stat-side .stat-value { font-size: 18px !important; line-height: 1; }
 body.theme-classic .stat-value-sub,
 body.theme-classic .stat-side .stat-value-sub { font-size: 10px; margin-top: 2px; }
 body.theme-classic .realtime-center { text-align: left; margin: 8px 0 10px; font-size: 11px; letter-spacing: 0.16em; }
@@ -981,7 +1077,7 @@ body.theme-classic .filter-item select,
 body.theme-classic .input-row input,
 body.theme-classic .input-row select,
 body.theme-classic .history-toolbar select { padding: 10px 12px; font-size: 15px; }
-body.theme-classic .modal { padding: 16px 16px calc(22px + var(--safe-b, 0px)); }
+body.theme-classic .modal { padding: calc(10px + env(safe-area-inset-top, 0px)) 16px calc(16px + var(--safe-b, 0px)); border-radius: 0; }
 body.theme-classic .modal-title { font-size: 16px; letter-spacing: 0.08em; }
 body.theme-classic .history-summary { gap: 0; }
 body.theme-classic .history-summary .hs-item { padding: 8px 4px; }
@@ -1510,10 +1606,10 @@ body.theme-flare .lang-pick.is-on { outline-color: #FF6A12; }
 
 .brand-bar {
   display: flex; align-items: baseline; justify-content: space-between;
-  padding: 4px 2px 8px;
+  padding: 0 2px 4px;
 }
-.brand-name { font-size: 13px; font-weight: 800; letter-spacing: 0.16em; }
-.brand-sub { font-size: 10px; letter-spacing: 0.08em; color: var(--mute); }
+.brand-name { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; }
+.brand-sub { font-size: 8px; letter-spacing: 0.04em; color: var(--mute); }
 .help-acc { border: 1px solid var(--line); margin: 0 0 8px; }
 .help-acc > button {
   width: 100%; text-align: left; background: transparent; color: var(--ink);
@@ -1552,6 +1648,45 @@ body.theme-classic .onboard-card { border-radius: 12px 12px 0 0; border-top: non
 body.theme-classic .help-acc { border: none; border-radius: 8px; background: var(--card-bg, #fff); }
 .privacy-box { font-size: 12px; line-height: 1.55; color: var(--mute); margin-top: 12px; }
 
+
+/* ========== THEME: LIST (羅列) ========== */
+body.theme-list .card,
+body.theme-list .wave-container,
+body.theme-list .rpm-limit-section,
+body.theme-list .realtime-stats,
+body.theme-list .stat-block {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+body.theme-list .card { padding: 0; margin-bottom: 8px; }
+body.theme-list .meter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+body.theme-list #rpmBlock, body.theme-list #speedBlock { min-width: 0; }
+
+body.theme-list .brand-sub { display: none; }
+body.theme-list .realtime-stats {
+  display: block;
+  width: 100%;
+  margin: 0 0 8px;
+}
+body.theme-list .stat-stack { display: block; border: 0; }
+body.theme-list .stat-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 0;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+}
+body.theme-list .stat-value { font-size: 22px !important; text-align: right; }
+body.theme-list .stat-current .stat-value { font-size: 28px !important; }
+body.theme-list .stat-label { margin: 0; }
+body.theme-list .stat-avg { margin: 0 0 6px; text-align: right; }
+body.theme-list .primary-btn,
+body.theme-list .secondary-btn { border-radius: 0; }
+body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top: 8px; }
 </style>
 </head>
 <body class="dark-mode load-zero theme-classic">
@@ -1566,6 +1701,8 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="wave-header">
 <span>スペクトラム</span>
 <div class="wave-header-right">
+<span class="wave-th" id="waveThMark">TH 20</span>
+<button type="button" class="wave-fold" id="waveFoldBtn" aria-label="スペクトラムを折りたたむ">たたむ</button>
 <div class="header-right-audio">
 <span>マイク</span>
 <div class="audio-bars" id="audioIndicator">
@@ -1583,7 +1720,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 
 <div class="rpm-limit-section">
-<div class="rpm-limit-label" style="margin-bottom:4px;">
+<div class="rpm-limit-label">
 <span>集音フィルタ (RPM範囲)</span>
 <span class="rpm-limit-value"><span id="rpmMinLimitValue">5000</span> — <span id="rpmMaxLimitValue">40000</span></span>
 </div>
@@ -1595,15 +1732,16 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 </div>
 
-<p class="pickup-note">下の回転数は、いま回しているモーターが出している音を集音した数値です。</p>
-
+<div class="meter-row">
 <div id="rpmBlock">
-<div class="section-kicker kicker-rpm">MOTOR RPM<span id="rpmTargetMark"></span></div>
+<div class="section-kicker kicker-rpm">MOTOR RPM<span id="rpmTargetMark"></span><button type="button" class="qmark" id="rpmHelpBtn" aria-label="回転の説明">?</button></div>
+<div class="speed-basis" id="rpmBasis" hidden>下は回しているモーターが出す音を集音した数値です。平均値は、回してから計測開始を押してください。もしくは、回してるときにリセット押してください。</div>
 <div class="realtime-stats">
 <div class="stat-block stat-current">
 <div class="stat-label">CURRENT</div>
 <div class="stat-value" id="rpmNow">--</div>
 <div class="stat-value-sub" id="rpmNowRaw"></div>
+<div class="stat-avg">AVG <span id="rpmAvg">--</span><small id="rpmAvgNote"></small></div>
 </div>
 <div class="stat-stack">
 <div class="stat-block stat-side" id="rpmMaxBlock">
@@ -1620,13 +1758,19 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 </div>
 
+<div id="speedBlock">
 <div class="section-kicker kicker-speed">SPEED (km/h)<button type="button" class="qmark" id="speedHelpBtn" aria-label="速度の説明">?</button></div>
 <div class="speed-basis" id="speedBasis" hidden>音の回転をギヤ比で車軸に落とし、タイヤの円周で km/h にしています。校正と走行負荷は、変えたときだけ掛かります。</div>
 <div class="realtime-stats">
 <div class="stat-block stat-current">
 <div class="stat-label">CURRENT</div>
 <div class="stat-value" id="speedNow">--</div>
+<div class="cur-pair">
+<div><span class="cur-k">未設定</span><span class="cur-v" id="speedNowStock">--</span></div>
+<div><span class="cur-k">設定</span><span class="cur-v" id="speedNowSet">--</span></div>
+</div>
 <div class="stat-value-sub" id="speedNowRaw"></div>
+<div class="stat-avg">AVG <span id="speedAvg">--</span><small id="speedAvgNote"></small></div><div class="cur-pair"><div><span class="cur-k">未AVG</span><span class="cur-v" id="speedAvgStock">--</span></div><div><span class="cur-k">設AVG</span><span class="cur-v" id="speedAvgSet">--</span></div></div>
 </div>
 <div class="stat-stack">
 <div class="stat-block stat-side">
@@ -1642,6 +1786,8 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 </div>
 </div>
 
+</div>
+</div>
 <div class="realtime-center" id="statusLine">READY — 計測待機中</div>
 
 <div class="realtime-buttons">
@@ -1820,15 +1966,21 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 
 <div class="modal-backdrop" id="settingsModalBackdrop">
 <div class="modal">
-<div class="modal-header"><div class="modal-title" data-i18n="settingsTitle">測定設定</div><button class="modal-close" id="settingsCloseTop">×</button></div>
-<p class="help-note" data-i18n="settingsLead">回転は音からの推定、速度は机上の理論値です。公式計測器の代替ではありません。</p>
+<div class="modal-header"><div class="modal-title" data-i18n="settingsTitle">測定設定<button type="button" class="qmark" id="settingsLeadBtn" aria-label="設定の説明">?</button></div><button class="modal-close" id="settingsCloseTop">×</button></div>
+<p class="speed-basis" id="settingsLead" hidden>回転は音からの推定、速度は机上の理論値です。公式計測器の代替ではありません。</p>
 <div class="settings-row">
-<div class="setting-item"><div class="setting-label"><span>ノイズ閾値（TH）</span><span class="setting-value" id="noiseLabel">40</span></div><input type="range" id="noiseRange" min="0" max="100" step="1" value="20"></div>
+<div class="setting-item"><div class="setting-label"><span>ノイズ閾値（TH）</span><span class="setting-value" id="noiseLabel">20</span></div><input type="range" id="noiseRange" min="0" max="100" step="1" value="20"></div>
 <div class="setting-item"><div class="setting-label"><span>RPM校正係数</span><span class="setting-value" id="rpmCalLabel">1.00</span></div><input type="range" id="rpmCalRange" min="0.5" max="1.5" step="0.01" value="1.00"></div>
 <div class="setting-item" style="margin-top:6px;">
 <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
 <input type="checkbox" id="showLoadValues" checked="" style="width:18px;height:18px;"><span>負荷適用値を並べて表示</span>
 </label>
+</div>
+<div class="setting-item">
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+<input type="checkbox" id="stableGate" checked="" style="width:18px;height:18px;"><span>安定してから MAX / MIN / AVG を数える</span><button type="button" class="qmark" id="stableGateBtn" aria-label="安定後の説明">?</button>
+</label>
+<p class="speed-basis" id="stableGateNote" hidden>CURRENT はすぐ動きます。8000rpm以上が0.6秒続いたら、そこからトップ・ミニマム・平均を記録します。オフにすると、数字が出た瞬間から記録します。</p>
 </div>
 <div class="pref-board">
 <div class="pref-group" id="lookGroup">
@@ -1838,6 +1990,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button type="button" class="secondary-btn gray theme-pick is-on" data-theme="classic" data-i18n="themeClassic">丸み</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="flare">FLARE</button>
 <button type="button" class="secondary-btn gray theme-pick" data-theme="plain" data-i18n="themePlain">シンプル</button>
+<button type="button" class="secondary-btn gray theme-pick" data-theme="list">羅列</button>
 </div>
 </div>
 <div class="pref-group" id="langGroup">
@@ -1869,6 +2022,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="modal-backdrop" id="helpModalBackdrop">
 <div class="modal">
 <div class="modal-header"><div class="modal-title" data-i18n="help">使い方</div><button class="modal-close" id="helpCloseTop">×</button></div>
+<div id="helpJa">
 <p class="help-note">RPM Memory はモーター音の高さから回転数を推定する測定アプリです。値は推定と机上計算です。公式回転計の代替ではありません。下の項目は、閉じたまま並んでいます。知りたい名前を押すと開きます。</p>
 
 <div class="help-acc open">
@@ -1882,9 +2036,9 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <h4>マイクの棒と READY</h4>
 <p>マイクが入っているかの印です。READY はまだ測っていない状態です。計測を始めると MEASURING — 解析中 に変わります。</p>
 <h4>MOTOR RPM</h4>
-<p>モーター回転の推定です。CURRENT が今の値、MAX がこの計測でいちばん高かった値、MIN がいちばん低かった値です。枠を押すと目標を入れられます。詳しくは「目標回転」。</p>
+<p>モーター回転の推定です。CURRENT が今の値、そのすぐ下の AVG が安定しているあいだの平均です。MAX がこの計測でいちばん高かった値、MIN がいちばん低かった値です。設定で「安定してから数える」がオンなら、MAX・MIN・AVG は 8000rpm 以上が 0.6秒続いたあとからです。平均値は、回してから計測開始を押してください。もしくは、回してるときにリセットを押してください。枠を押すと目標を入れられます。</p>
 <h4>SPEED (km/h)</h4>
-<p>その回転から計算した机上の速度です。CURRENT が今、TOP がこの計測の最高、MIN が最低です。実走の速度計ではありません。計算の中身は「速度が机上値である理由」。</p>
+<p>その回転から計算した机上の速度です。CURRENT のすぐ下の AVG が、同じ区間の平均速度です。TOP がこの計測の最高、MIN が最低です。安定してから数えるがオンなら、TOP・MIN・AVG も立ち上がりを入れません。実走の速度計ではありません。</p>
 <h4>状態の文字</h4>
 <p>数字の下の READY や MEASURING は、今が待機か計測中かを示す一行です。</p>
 <p class="onboard-en">Top of the screen: the spectrum is the live sound, MOTOR RPM is the estimate (current / max / min), SPEED is a desk calculation, not a track speed.</p>
@@ -1911,7 +2065,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <h4>履歴</h4>
 <p>保存した記録の一覧を開きます。詳しくは「履歴の画面」。</p>
 <h4>リセット</h4>
-<p>今画面に出ている CURRENT、MAX、MIN と速度だけを消します。履歴は消えません。計測の途中なら、計測自体は続きます。ロック中ならロックも外れます。</p>
+<p>今画面に出ている CURRENT、MAX、MIN、AVG と速度だけを消します。履歴は消えません。計測の途中なら、計測自体は続きます。ロック中ならロックも外れます。</p>
 <h4>マシン設定</h4>
 <p>駆動、モーター、電圧、ギヤ比、タイヤ径を入れます。詳しくは「マシン設定の項目」。</p>
 <h4>逆算</h4>
@@ -1919,6 +2073,39 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <h4>設定</h4>
 <p>ノイズ閾値、校正、負荷、外観、言語、ダークを変えます。この使い方も、設定の中から開きます。トップには使い方のボタンはありません。</p>
 <p class="onboard-en">The text row is history, reset, machine, reverse calc, and settings. Reset clears only the live numbers.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">平均</button>
+<div class="help-body">
+<p>CURRENT のすぐ下にある AVG は、この計測で安定して回っていたあいだの平均です。コースを走った実平均ではありません。平均値は、回してから計測開始を押してください。もしくは、回してるときにリセットを押してください。</p>
+<p>設定の「安定してから MAX / MIN / AVG を数える」がオンのときは、CURRENT だけすぐ動きます。MAX・MIN・AVG は、8000rpm 以上が 0.6秒続いたあとから記録します。立ち上がりの低い数字は、トップにもミニマムにも入りません。オフにすると、数字が出た瞬間から MAX・MIN を記録します。選んだ状態は残ります。最初はオンです。</p>
+<ul>
+<li>8000rpm 未満は入れない。電源を入れた直後の低い回転を外すため</li>
+<li>急に上がっているあいだも入れない。計測開始が先でも、電源が先でも、立ち上がりは両方とも外す</li>
+<li>落ち着いてから 0.6 秒たって数え始め、合計 1 秒以上で数字を出す。それまでは --</li>
+<li>音が途切れて -- のあいだは平均に足さない</li>
+<li>ロックすると止まる。停止しても値は残るので、そのあと保存できる</li>
+<li>次の計測開始とリセットで消える</li>
+</ul>
+<p>履歴では、速度のすぐ上に平均速度、RPM のすぐ上に平均RPMが残ります。単位は km/hA と RPMA です。</p>
+<p class="onboard-en">AVG is the stable part of this run only. Spin-up and gaps are left out. It is not a lap average.</p>
+</div>
+</div>
+
+<div class="help-acc">
+<button type="button">設定のお気に入り</button>
+<div class="help-body">
+<p>マシン設定の「設定のお気に入り」です。今の車の条件を、名前つきでまとめて残せます。</p>
+<ul>
+<li>先に記録名を入れる。それがお気に入りの名前になる</li>
+<li>この設定を登録、で残る。駆動、シャーシ、モーター、電圧、ギヤ、タイヤ、閾値、集音範囲、負荷、校正</li>
+<li>名前を押すと、その一式に戻る</li>
+<li>削除で、その登録だけ消える。履歴の記録は消えない</li>
+<li>この端末の中だけに残る。最大 12 件</li>
+</ul>
+<p class="onboard-en">Setup favorites store the whole machine and measure setup under the record name. Tap a name to restore it.</p>
 </div>
 </div>
 
@@ -1959,6 +2146,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <li>丸み … シャープと同じ大きさで、角だけ丸い</li>
 <li>FLARE … 別のデザインの画面。測る機能は同じ</li>
 <li>シンプル … 白、黒、グレーだけ。グラフの中だけ暗い</li>
+<li>羅列 … 枠を外して、スペクトラムと数字とボタンだけを並べます。比較表はそのままです</li>
 </ul>
 <h4>言語</h4>
 <p>押すと日本語と English が出ます。ボタンの言葉が切り替わります。測定の数字や、この説明文の本文は日本語のままです。</p>
@@ -1966,6 +2154,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <p>暗い画面と明るい画面を切り替えます。オンのときはボタンに枠が付きます。最初はオンです。</p>
 <h4>その下</h4>
 <ul>
+<li>安定してから MAX / MIN / AVG を数える … オンだと、8000rpm以上が0.6秒続くまで MAX・MIN・AVG を記録しません。CURRENT はすぐ動きます。オフだと、数字が出た瞬間から MAX・MIN を記録します。最初はオンです</li>
 <li>負荷適用値を並べて表示 … オンだと、負荷を掛けた数字の下に、掛ける前の生の数字も出ます</li>
 <li>設定リセット … ノイズ閾値を 20、校正を 1.00、負荷を 0% に戻します。履歴、外観、目標は消しません</li>
 <li>閉じる … 設定をしまいます</li>
@@ -2007,7 +2196,9 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button type="button">履歴の画面</button>
 <div class="help-body">
 <p>保存した行の一覧です。この端末の中だけに残ります。ほかの電話やクラウドとは共有されません。</p>
+<p>右の3段です。1段目がモーター、RPM、速さ。2段目がギヤ、平均RPM（RPMA）、平均速度（km/hA）。3段目がタイヤ、日付です。左のチェック、削除、名前、電圧はそのままです。平均が無い古い記録は — です。</p>
 <ul>
+<li>絞り込み・並び替え … 最初は閉じています。押すと、日付・名前・モーターなどのプルダウンと並び替えが開きます。もう一度で閉じます</li>
 <li>お気に入りの付け方 … 名前を押します。名前の色が変わります。もう一度押すと外れます</li>
 <li>お気に入りだけ見る … 「お気に入りのみ」を押します。もう一度押すと全部に戻ります</li>
 <li>削除 … その行の「削除」を押し、確認すると消えます。戻せません。お気に入りも一緒に外れます</li>
@@ -2060,7 +2251,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="help-acc">
 <button type="button">スペクトルの TH</button>
 <div class="help-body">
-<p>グラフの横点線と「TH 40」が Threshold（閾値）です。スライダー目盛り 20 の2倍が、この線の高さです。目盛りを 1 動かすと、線は 2 上がります。</p>
+<p>グラフの横点線と「TH 20」が Threshold（閾値）です。スライダーの目盛りが、そのまま線の高さです。初期値は 20 です。</p>
 <ul>
 <li>線より上の山だけを回転の候補にする</li>
 <li>線より下の小さな揺れは使わない</li>
@@ -2079,7 +2270,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <div class="help-acc">
 <button type="button">ノイズ閾値</button>
 <div class="help-body">
-<p>周波数ごとの強さに対する採用ラインです。スライダーは 0〜100 を 1 刻み。初期の目盛りは 20 で、線の高さは 40 です。21 なら線は 42。表示の数字は線の高さです。</p>
+<p>周波数ごとの強さに対する採用ラインです。スライダーは 0〜100 を 1 刻み。初期値は 20 で、線の高さも 20 です。表示の数字が線の高さです。</p>
 <p><strong>上げるとき:</strong> 声・空調・他車・机の振動を切りたい。代償としてモーター自身も拾いにくくなる。少し離しただけ、電圧が落ちて音が細くなっただけで -- になりやすい。「測れているのに急に消える」は TH が高すぎることが多い。</p>
 <p><strong>下げるとき:</strong> 弱いモーター音でも数字を出したい。代償として無関係な音でも山になり、回転が跳ぶ・倍になる・測っていないのに動く。</p>
 <p><strong>合わせ方:</strong></p>
@@ -2089,7 +2280,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <li>回して、山が TH をはっきり超えるか見る</li>
 <li>超えないときは、閾値を下げるより先にマイクを近づける。それでも弱いときだけ下げる</li>
 </ul>
-<p>サーキットで上げたくなったら、集音範囲も同時に狭めてください。閾値だけ上げると自分のモーターまで消えます。自宅の静かな机なら目盛り 20（線は 40）のままで足りることが多いです。暴れるときだけ動かし、リセットで目盛り 20 に戻ります。</p>
+<p>サーキットで上げたくなったら、集音範囲も同時に狭めてください。閾値だけ上げると自分のモーターまで消えます。自宅の静かな机なら 20 のままで足りることが多いです。暴れるときだけ動かし、リセットで目盛り 20 に戻ります。</p>
 <p>線が上にあるほど厳しい、下にあるほど甘い。山が線から少し出る程度が扱いやすいです。山が線に埋まっているなら上げすぎ、線の近くに小さな山がいくつもあるなら下げすぎか窓が広いです。</p>
 </div>
 </div>
@@ -2124,7 +2315,7 @@ body.theme-classic .help-acc { border: none; border-radius: 8px; background: var
 <button type="button">3つの設定の違い</button>
 <div class="help-body">
 <ul>
-<li>ノイズ閾値 / TH … どの強さの山を回転と認めるか。普段は目盛り 20（線は 40）。暴れる・消えるときだけ</li>
+<li>ノイズ閾値 / TH … どの強さの山を回転と認めるか。普段は 20。暴れる・消えるときだけ</li>
 <li>RPM校正係数 … 測定値全体の倍率。普段は 1.00。基準があるときだけ</li>
 <li>走行負荷 … 車載で落ちると仮定して表示を落とす。普段は 0%。記録のメモ用</li>
 </ul>
@@ -2213,10 +2404,44 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
   </div>
 </div>
 
+</div>
+<div id="helpEn" hidden>
+<p class="help-note">RPM Memory estimates motor RPM from sound. Values are estimates and desk calculations. It is not a certified tachometer. Tap a heading to open it.</p>
+<div class="help-acc open">
+<button type="button">Screen</button>
+<div class="help-body">
+<p>From the top: the name, the spectrum, the pickup window, MOTOR RPM, SPEED, status, and buttons.</p>
+<p>CURRENT is the live value. AVG is the stable part of this run. MAX and MIN are the high and low of this run. With "count after stable" on, MAX, MIN and AVG start only after 8000 rpm has held for 0.6 seconds.</p>
+<p>SPEED is a desk calculation from RPM, gear and tire. It is not track speed.</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">Buttons</button>
+<div class="help-body">
+<p>Start uses the microphone. Lock freezes the number for the chart and writes a lock memo. Save asks for a name and writes a measurement record. Reset clears only the live numbers.</p>
+<p>History is the list of saved measurements. The lock memo in machine setup is a separate list of lock moments. They are not the same.</p>
+<p>Reverse calc opens with the locked numbers, and you can still edit them. The item you solve for is greyed out.</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">History</button>
+<div class="help-body">
+<p>Each card is a saved measurement. The left side is the check, delete, name and voltage. Row 1 is motor, RPM and speed. Row 2 is gear, average RPM (RPMA) and average speed (km/hA). Row 3 is tire and date.</p>
+<p>Filter and sort is closed until you tap it. Delete RPM 0 removes records whose RPM is 0.</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">Machine setup</button>
+<div class="help-body">
+<p>Set shaft, chassis, motor, voltage, gear, tire and load. Registering a setup asks for a name and stores voltage and running load too.</p>
+<p>There is no name field here. The name is asked when you tap Save on the top screen. The name field inside the lock memo is only for that lock moment.</p>
+</div>
+</div>
+</div>
 <div class="modal-backdrop" id="targetModalBackdrop">
 <div class="modal">
-<div class="modal-header"><div class="modal-title">目標回転</div><button class="modal-close" id="targetCloseTop" type="button">×</button></div>
-<p class="help-note">MAX の数字がこの値以上になると、赤く強調されます。</p>
+<div class="modal-header"><div class="modal-title">目標回転<button type="button" class="qmark" id="targetNoteBtn" aria-label="目標の説明">?</button></div><button class="modal-close" id="targetCloseTop" type="button">×</button></div>
+<p class="speed-basis" id="targetNote" hidden>MAX の数字がこの値以上になると、赤く強調されます。</p>
 <div class="input-row">
 <label for="rpmTargetInput">目標 (rpm)</label>
 <input type="number" id="rpmTargetInput" min="0" max="120000" step="100" inputmode="numeric" placeholder="例: 30000">
@@ -2230,7 +2455,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 
 <div class="modal-backdrop" id="machineModalBackdrop">
 <div class="modal">
-<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">マシン設定</div><div class="modal-title-note">計測中にロックを押した際に出現する比較表に反映されます。机上での計算なので、実際と差異があります。</div></div><button class="modal-close" id="machineCloseTop">×</button></div>
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">マシン設定<button type="button" class="qmark" id="machineNoteBtn" aria-label="マシン設定の説明">?</button></div><div class="speed-basis" id="machineNote" hidden>計測中にロックを押した際に出現する比較表に反映されます。机上での計算なので、実際と差異があります。</div></div><button class="modal-close" id="machineCloseTop">×</button></div>
 <div class="machine-grid">
 <div class="machine-item">
 <div class="setting-label"><span>駆動</span><span class="setting-value" id="shaftLabel">指定なし</span></div>
@@ -2241,11 +2466,11 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 </div>
 <div class="machine-item">
-<div class="setting-label"><span>シャーシ</span><span class="setting-value" id="chassisLabel">共通（指定なし）</span></div>
+<div class="setting-label"><span>シャーシ<button type="button" class="qmark" id="chassisHintBtn" aria-label="シャーシの説明">?</button></span><span class="setting-value" id="chassisLabel">共通（指定なし）</span></div>
 <div class="field-locked">
 <select class="cond-select" id="chassisSelect" disabled><option value="common" selected="">共通（指定なし）</option></select>
 </div>
-<p class="hint" id="chassisHint">駆動・シャーシを絞らない。ギヤは全公表比。</p>
+<p class="speed-basis" id="chassisHint" hidden>駆動・シャーシを絞らない。ギヤは全公表比。</p>
 </div>
 <div class="machine-item">
 <div class="setting-label"><span>モーター</span><span class="setting-value" id="machineMotorLabel">未選択</span></div>
@@ -2280,34 +2505,29 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0">
 </div>
 <div class="machine-item">
-<div class="setting-label"><span>保存モード</span></div>
-<select class="cond-select" id="saveModeSelect">
-<option value="ask">毎回名前を聞いて保存</option>
-<option value="quick">前回の名前で上書き確認</option>
-</select>
-<p class="hint">下の欄が、この記録の名前です。トップの「保存」を押すと、この名前が入った確認画面が開きます。空なら、その場で入力できます。履歴は「履歴」の計測履歴に1件増えます。前の記録は消えません。</p>
-<input type="text" class="tire-step-input" id="recordNameInput" maxlength="16" placeholder="ここに名前を入力" autocomplete="off" style="margin-top:8px;">
+<div class="setting-label"><span>名前の聞き方<button type="button" class="qmark" id="saveModeNoteBtn" aria-label="保存の説明">?</button></span></div>
+<p class="speed-basis" id="saveModeNote" hidden>名前は、トップの「保存」を押したときに聞きます。ここには名前欄はありません。ロック履歴の名前欄は、ロックした瞬間のメモ用です。計測履歴とは別です。</p>
+</div>
+<div class="machine-item">
+<div class="setting-label"><span>設定のお気に入り<button type="button" class="qmark" id="favNoteBtn" aria-label="お気に入りの説明">?</button></span></div>
+<p class="speed-basis" id="favNote" hidden>駆動、シャーシ、モーター、電圧、ギヤ、タイヤ、閾値、集音範囲、走行負荷、校正をまとめて残します。電圧と走行負荷も保存されます。登録するとき名前を聞きます。</p>
+<div style="display:flex;gap:8px;margin-top:8px;">
+<button type="button" class="secondary-btn gray" id="setupFavSave" style="flex:1;">この設定を登録</button>
+</div>
+<div id="setupFavList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;"></div>
 </div>
 <div style="display:flex;gap:8px;margin-top:4px;">
-<button class="secondary-btn gray" id="machineToRevBtn" style="flex:1;">ロック履歴</button>
+<button class="secondary-btn gray" id="machineNormalBtn" style="flex:1;">通常表示に戻す</button>
 <button class="primary-btn blue" id="machineCloseBtn" style="flex:1;">反映して閉じる</button>
 </div>
-<div id="lockSnapPanel" style="display:none;">
-<div style="font-size:10px;letter-spacing:0.12em;color:var(--mute);padding:8px 8px 4px;">ロックした瞬間。日付だけを残します。</div>
-<div id="lockSnapScroll">
-<table id="lockSnapTable">
-<thead><tr><th>日付</th><th>名前</th><th>回転</th><th>モーター</th><th>ギヤ比</th><th>電圧</th><th>タイヤ径</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</div>
+<div id="lockSnapPanel" hidden></div>
 </div>
 </div>
 </div>
 
 <div class="modal-backdrop" id="reverseCalcModalBackdrop">
 <div class="modal">
-<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">逆算電卓</div><div class="modal-title-note">ロスなしの机上値です</div></div><button class="modal-close" id="reverseCalcCloseTop">×</button></div>
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">逆算電卓<button type="button" class="qmark" id="revNoteBtn" aria-label="逆算の説明">?</button></div><div class="speed-basis" id="revNotePanel" hidden>ロックした数値が反映していますが、自由に数値の変更ができます。選んだ項目はグレーアウトします。残りの3つを入力してください。速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000</div></div><button class="modal-close" id="reverseCalcCloseTop">×</button></div>
 <div class="setting-item" style="margin-bottom:10px;">
 <div class="setting-label"><span>求めたいもの</span></div>
 <select class="cond-select" id="revSolve">
@@ -2316,7 +2536,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <option value="rpm">必要なモーター回転数 rpm</option>
 <option value="gear">必要なギヤ比</option>
 </select>
-<p style="font-size:12px;color:var(--mute);margin:6px 0 0;">選んだ項目はグレーアウトします。残りの3つを入力してください。</p>
+
 </div>
 <div class="rev-row" data-field="rpm"><div><label style="font-size:11px;color:var(--mute);">モーター回転数 (rpm)</label><input id="revRpm" type="number" inputmode="decimal" value="28000" step="100" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="rpm" data-d="-100">−</button><button type="button" data-rev="rpm" data-d="100">＋</button></div></div>
 <div class="rev-row" data-field="gear"><div><label style="font-size:11px;color:var(--mute);">ギヤ比</label><select id="revGear" class="cond-select"><option value="3.5">3.5:1</option><option value="3.7" selected="">3.7:1</option><option value="4.0">4.0:1</option><option value="4.2">4.2:1</option><option value="5">5:1</option><option value="6.4">6.4:1</option><option value="8.75">8.75:1</option><option value="11.2">11.2:1</option></select></div><div class="rev-step"><button type="button" id="revGearMinus">−</button><button type="button" id="revGearPlus">＋</button></div></div>
@@ -2324,14 +2544,16 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="rev-row" data-field="tire"><div><label style="font-size:11px;color:var(--mute);">タイヤ径 (mm)</label><input id="revTire" type="number" inputmode="decimal" value="22.5" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="tire" data-d="-0.1">−</button><button type="button" data-rev="tire" data-d="0.1">＋</button></div></div>
 <div class="rev-out"><div class="k" id="revOutKey">速度</div><div><span class="v" id="revOutVal">--</span><span class="u" id="revOutUnit"></span></div></div>
 <p id="revNote" style="font-size:12px;color:var(--mute);margin-top:8px;"></p>
-<p style="font-size:11px;color:var(--mute);margin-top:8px;line-height:1.55;">速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000</p>
+
 <button class="secondary-btn gray" id="reverseCalcCloseBtn" style="width:100%;margin-top:12px;">閉じる</button>
 </div>
 </div>
 
 <div class="modal-backdrop" id="historyModalBackdrop">
 <div class="modal" style="max-width:95vw;width:95vw;">
-<div class="modal-header"><div class="modal-title">計測履歴</div><button class="modal-close" id="historyCloseTop">×</button></div>
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">計測履歴</div><div class="modal-title-note">保存を押した記録だけです。ロックした数字は比較表の裏で使い、ここには出しません。</div></div><button class="modal-close" id="historyCloseTop">×</button></div>
+<button type="button" class="hist-fold-btn" id="histFoldBtn">絞り込み・並び替え（押すと開きます） ▸</button>
+<div class="hist-fold-body" id="histFoldBody">
 <div class="filter-grid">
 <div class="filter-item"><label>日付</label><select id="filterDate"><option value="">すべて</option></select></div>
 <div class="filter-item"><label>名前</label><select id="filterName"><option value="">すべて</option></select></div>
@@ -2348,12 +2570,6 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <button class="secondary-btn gray" id="historyCloseBtn" style="width:100%;min-height:44px;padding:10px 4px;">閉じる</button>
 </div>
 </div>
-<div class="history-summary" id="historySummary">
-<div class="hs-item"><div class="hs-label">件数</div><div class="hs-value" id="hsCount">0</div></div>
-<div class="hs-item"><div class="hs-label">最高RPM</div><div class="hs-value" id="hsBestRpm">—</div></div>
-<div class="hs-item"><div class="hs-label">最高速度</div><div class="hs-value" id="hsBestSpeed">—</div></div>
-<div class="hs-item"><div class="hs-label">前回比RPM</div><div class="hs-value" id="hsDelta">—</div></div>
-</div>
 <div class="history-toolbar">
 <label>並び替え
 <select id="historySortSelect">
@@ -2362,6 +2578,14 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </select>
 </label>
 <span style="color:var(--mute);font-size:11px;">行を2つ選ぶと差分表示</span>
+</div>
+</div>
+<button type="button" class="secondary-btn gray" id="histDeleteZeroBtn" style="width:100%;margin:0 0 8px;">RPM 0 を削除</button>
+<div class="history-summary" id="historySummary">
+<div class="hs-item"><div class="hs-label">件数</div><div class="hs-value" id="hsCount">0</div></div>
+<div class="hs-item"><div class="hs-label">最高RPM</div><div class="hs-value" id="hsBestRpm">—</div></div>
+<div class="hs-item"><div class="hs-label">最高速度</div><div class="hs-value" id="hsBestSpeed">—</div></div>
+<div class="hs-item"><div class="hs-label">前回比RPM</div><div class="hs-value" id="hsDelta">—</div></div>
 </div>
 <div class="history-diff-panel" id="historyDiffPanel"></div>
 <div class="history-table-wrapper" id="historyList"></div>
@@ -2422,6 +2646,82 @@ let currentSpeed = 0;
 let currentSpeedRaw = 0;
 let maxSpeedVal = 0;
 let minSpeedVal = Infinity;
+let avgSpeedSum = 0;
+let avgRpmSum = 0;
+let avgSpeedStockSum = 0;
+let avgRpmStockSum = 0;
+let avgSpeedMs = 0;
+let avgLastTs = 0;
+let avgLastRpm = 0;
+let avgStableMs = 0;
+function resetSpeedAvg() {
+  avgSpeedSum = 0;
+  avgRpmSum = 0;
+  avgSpeedStockSum = 0;
+  avgRpmStockSum = 0;
+  avgSpeedMs = 0;
+  avgLastTs = 0;
+  avgLastRpm = 0;
+  avgStableMs = 0;
+  paintSpeedAvg();
+}
+function currentAvgSpeed() {
+  if (avgSpeedMs < 1000) return null;
+  return avgSpeedSum / avgSpeedMs;
+}
+function currentAvgRpm() {
+  if (avgSpeedMs < 1000) return null;
+  return avgRpmSum / avgSpeedMs;
+}
+function paintSpeedAvg() {
+  const el = document.getElementById("speedAvg");
+  const note = document.getElementById("speedAvgNote");
+  const rpmEl = document.getElementById("rpmAvg");
+  const rpmNote = document.getElementById("rpmAvgNote");
+  const v = currentAvgSpeed();
+  const r = currentAvgRpm();
+  const sec = avgSpeedMs >= 1000 ? (avgSpeedMs / 1000).toFixed(1) + "s" : "安定後・1秒以上";
+  if (el) el.textContent = v == null ? "--" : v.toFixed(2);
+  if (note) note.textContent = sec;
+  if (rpmEl) rpmEl.textContent = r == null ? "--" : Math.round(r).toLocaleString();
+  if (rpmNote) rpmNote.textContent = sec;
+  const rpmSet = document.getElementById("rpmAvgSet");
+  const speedSet = document.getElementById("speedAvgSet");
+  const gearNow = parseFloat(String((gearOptions && gearOptions[UI.gearRange.value]) || "3.7").split(":")[0]) || 3.7;
+  if (rpmSet) rpmSet.textContent = avgSpeedMs < 1000 ? "--" : String(Math.round((avgRpmStockSum / avgSpeedMs) / gearNow));
+  if (speedSet) speedSet.textContent = v == null ? "--" : v.toFixed(2);
+  const rs = document.getElementById("rpmAvgStock");
+  const ss = document.getElementById("speedAvgStock");
+  if (rs) rs.textContent = avgSpeedMs < 1000 ? "--" : Math.round(avgRpmStockSum / avgSpeedMs).toLocaleString();
+  if (ss) ss.textContent = avgSpeedMs < 1000 ? "--" : (avgSpeedStockSum / avgSpeedMs).toFixed(2);
+}
+function addSpeedSample(speed, rpm, dt) {
+  if (!(dt > 0) || !(rpm > 0) || !isFinite(rpm)) return;
+  if (speed > 0 && isFinite(speed)) avgSpeedSum += speed * dt;
+  avgRpmSum += rpm * dt;
+  const raw = currentRpmRaw > 0 ? currentRpmRaw : rpm;
+  avgRpmStockSum += raw * dt;
+  avgSpeedStockSum += (raw / 3.7 * 22.5 * Math.PI * 60 / 1e6) * dt;
+  avgSpeedMs += dt;
+  paintSpeedAvg();
+}
+function noteStable(rpm) {
+  if (!(rpm > 0) || !isFinite(rpm)) {
+    avgLastTs = 0; avgLastRpm = 0; avgStableMs = 0; return { ready: false, dt: 0 };
+  }
+  const now = performance.now();
+  const dt = avgLastTs > 0 ? Math.min(400, now - avgLastTs) : 0;
+  const rising = avgLastRpm > 0 && dt > 0 && ((rpm - avgLastRpm) / dt) > 6;
+  avgLastTs = now;
+  avgLastRpm = rpm;
+  if (rising || rpm < 8000 || dt <= 0) { avgStableMs = 0; return { ready: false, dt: 0 }; }
+  avgStableMs += dt;
+  return { ready: avgStableMs >= 600, dt: dt };
+}
+function stableGateOn() {
+  const box = document.getElementById("stableGate");
+  return !box || box.checked;
+}
 let maxSpeedRaw = 0;
 let minSpeedRaw = Infinity;
 let lockedSnapshot = null;
@@ -2616,6 +2916,7 @@ try {
     dataArray = new Uint8Array(bins);
     analyser = { getByteFrequencyData: function() { fillDemoSpectrum(); } };
     ignoreFrames = 2;
+    resetSpeedAvg();
     UI.fftStatusLabel.textContent = "DEMO";
     UI.statusLine.textContent = "DEMO — マイクなしの見本波形";
     UI.startBtn.textContent = "計測停止";
@@ -2675,6 +2976,7 @@ try {
   }
 
   ignoreFrames = 8;
+  resetSpeedAvg();
   UI.fftStatusLabel.textContent = "ACTIVE";
   UI.statusLine.textContent = "MEASURING — 解析中";
   UI.startBtn.textContent = "計測停止";
@@ -2718,7 +3020,7 @@ UI.startBtn.classList.replace("red", "blue");
 
 function noiseThreshold() {
   const slider = parseFloat(UI.noiseRange && UI.noiseRange.value !== "" ? UI.noiseRange.value : 20);
-  const n = (isFinite(slider) ? slider : 20) * 2;
+  const n = isFinite(slider) ? slider : 20;
   return Math.max(0, Math.min(255, n));
 }
 
@@ -2920,25 +3222,37 @@ const hasLoad = loadPercent !== 0;
 // CURRENT に数字が出たときだけ MAX / MIN を更新
 if (dispNow !== "--") {
 const rpmNum = Number(dispNow);
+const gate = noteStable(rpmNum);
+const ready = gate.ready;
+const count = !stableGateOn() || ready;
+if (count) {
 if (maxRpmVal === 0 || rpmNum > maxRpmVal) maxRpmVal = rpmNum;
 if (minRpmVal === Infinity || rpmNum < minRpmVal) minRpmVal = rpmNum;
 if (maxSpeedVal === 0 || speed > maxSpeedVal) maxSpeedVal = speed;
 if (minSpeedVal === Infinity || speed < minSpeedVal) minSpeedVal = speed;
-
-// 生の値のMAX/MIN
 if (maxRpmRaw === 0 || rawRpm > maxRpmRaw) maxRpmRaw = rawRpm;
 if (minRpmRaw === Infinity || rawRpm < minRpmRaw) minRpmRaw = rawRpm;
 if (maxSpeedRaw === 0 || rawSpeed > maxSpeedRaw) maxSpeedRaw = rawSpeed;
 if (minSpeedRaw === Infinity || rawSpeed < minSpeedRaw) minSpeedRaw = rawSpeed;
 }
+if (ready) addSpeedSample(speed, rpmNum, gate.dt);
+}
 
 // 表示（負荷適用後 = メイン表示）
 UI.rpmNow.textContent = dispNow;
+const gearNow = parseFloat(String((gearOptions && gearOptions[UI.gearRange.value]) || "3.7").split(":")[0]) || 3.7;
+const rpmSet = document.getElementById("rpmNowSet");
+if (rpmSet) rpmSet.textContent = dispNow === "--" ? "--" : String(Math.round(rawRpm / gearNow));
+const rpmStock = document.getElementById("rpmNowStock");
+if (rpmStock) rpmStock.textContent = dispNow === "--" ? "--" : String(Math.round(rawRpm));
 applyRpmHit();
 UI.rpmMax.textContent = maxRpmVal > 0 ? Math.round(maxRpmVal) : "--";
 UI.rpmMin.textContent = minRpmVal !== Infinity ? Math.round(minRpmVal) : "--";
 
 UI.speedNow.textContent = dispNow === "--" ? "--" : speed.toFixed(2);
+const speedSet = document.getElementById("speedNowSet"); if (speedSet) speedSet.textContent = dispNow === "--" ? "--" : speed.toFixed(2);
+const speedStock = document.getElementById("speedNowStock");
+if (speedStock) speedStock.textContent = dispNow === "--" ? "--" : (rawRpm / 3.7 * 22.5 * Math.PI * 60 / 1e6).toFixed(2);
 UI.speedTop.textContent = maxSpeedVal > 0 ? maxSpeedVal.toFixed(2) : "--";
 UI.speedMin.textContent = minSpeedVal !== Infinity ? minSpeedVal.toFixed(2) : "--";
 
@@ -2959,8 +3273,13 @@ UI.speedTopRaw.textContent = "";
 UI.speedMinRaw.textContent = "";
 }
 } else if (UI.rpmNow) {
+avgLastTs = 0;
 UI.rpmNow.textContent = "--";
 UI.speedNow.textContent = "--";
+const rpmStockR = document.getElementById("rpmNowStock"); if (rpmStockR) rpmStockR.textContent = "--";
+const speedStockR = document.getElementById("speedNowStock"); if (speedStockR) speedStockR.textContent = "--";
+const rpmStock0 = document.getElementById("rpmNowStock"); if (rpmStock0) rpmStock0.textContent = "--";
+const speedStock0 = document.getElementById("speedNowStock"); if (speedStock0) speedStock0.textContent = "--";
 if (UI.rpmNowRaw) UI.rpmNowRaw.textContent = "";
 if (UI.speedNowRaw) UI.speedNowRaw.textContent = "";
 }
@@ -2978,15 +3297,16 @@ function isMachineSet() {
 }
 
 function machineStatusText() {
+  const en = window.APP_LANG === "en";
   const ms = window.machineState || {};
-  if (!isMachineSet()) return "マシン設定: 未設定（既定 3.7:1 / 22.5mm）";
-  const shaftText = ms.shaft === "single" ? "片軸" : (ms.shaft === "dual" ? "両軸" : "駆動未指定");
-  const chassisName = (typeof CHASSIS_NAME !== "undefined" && CHASSIS_NAME[ms.chassis]) ? CHASSIS_NAME[ms.chassis] : (ms.chassis || "共通");
-  const motor = ms.motor || "モーター未選択";
+  if (!isMachineSet()) return en ? "Machine: not set (default 3.7:1 / 22.5mm)" : "マシン設定: 未設定（既定 3.7:1 / 22.5mm）";
+  const shaftText = ms.shaft === "single" ? (en ? "single" : "片軸") : (ms.shaft === "dual" ? (en ? "dual" : "両軸") : (en ? "shaft unset" : "駆動未指定"));
+  const chassisName = (typeof CHASSIS_NAME !== "undefined" && CHASSIS_NAME[ms.chassis]) ? CHASSIS_NAME[ms.chassis] : (ms.chassis || (en ? "common" : "共通"));
+  const motor = ms.motor || (en ? "no motor" : "モーター未選択");
   const gear = (UI.gearLabel && UI.gearLabel.textContent) || "3.7:1";
   const tire = (UI.tireLabel && UI.tireLabel.textContent) || "22.5 mm";
   const volt = (UI.voltageLabel && UI.voltageLabel.textContent) || "";
-  return "マシン設定中: " + shaftText + " / " + chassisName + " / " + motor + " / " + volt + " / " + gear + " / " + tire;
+  return (en ? "Machine: " : "マシン設定中: ") + shaftText + " / " + chassisName + " / " + motor + " / " + volt + " / " + gear + " / " + tire;
 }
 
 function machineBarText() {
@@ -3009,7 +3329,7 @@ function shaftMarkText() {
 function paintSpeedBasis() {
   const el = document.getElementById("speedBasis");
   if (!el) return;
-  el.textContent = "音の回転をギヤ比で車軸に落とし、タイヤの円周で km/h にしています。校正と走行負荷は、変えたときだけ掛かります。";
+  el.textContent = window.APP_LANG === "en" ? "Speed is RPM divided by gear, times the tire circumference. Calibration and load apply only when you change them." : "音の回転をギヤ比で車軸に落とし、タイヤの円周で km/h にしています。校正と走行負荷は、変えたときだけ掛かります。";
 }
 
 function bindHelpToggle(btnId, panelId) {
@@ -3024,7 +3344,16 @@ function bindHelpToggle(btnId, panelId) {
   });
 }
 bindHelpToggle("speedHelpBtn", "speedBasis");
+bindHelpToggle("rpmHelpBtn", "rpmBasis");
 bindHelpToggle("cmpHelpBtn", "cmpHelpNotes");
+bindHelpToggle("settingsLeadBtn", "settingsLead");
+bindHelpToggle("stableGateBtn", "stableGateNote");
+bindHelpToggle("machineNoteBtn", "machineNote");
+bindHelpToggle("chassisHintBtn", "chassisHint");
+bindHelpToggle("revNoteBtn", "revNotePanel");
+bindHelpToggle("targetNoteBtn", "targetNote");
+bindHelpToggle("saveModeNoteBtn", "saveModeNote");
+bindHelpToggle("favNoteBtn", "favNote");
 
 function refreshMachineStatusUI() {
   const bar = document.getElementById("cmpMachineBar");
@@ -3051,8 +3380,12 @@ function refreshMachineStatusUI() {
     }
   }
   if (UI.statusLine && !locked) {
-    const base = running ? "MEASURING — 解析中" : "READY — 計測待機中";
-    UI.statusLine.textContent = isMachineSet() ? (base + " ｜ " + txt) : base;
+    const en = window.APP_LANG === "en";
+    const base = running ? (en ? "Measuring" : "計測中") : (en ? "Waiting" : "計測待機中");
+    const machine = isMachineSet()
+      ? (en ? txt.replace("マシン設定中: ", "Machine ") : txt.replace("マシン設定中: ", "マシン　"))
+      : (en ? "Machine not set" : "マシン　未設定");
+    UI.statusLine.innerHTML = base + '<span class="status-sub">' + machine + "</span>";
   }
   if (typeof gearOptions !== "undefined") {
     const ms = window.machineState || {};
@@ -3248,6 +3581,7 @@ maxSpeedVal = 0;
 minSpeedVal = Infinity;
 maxSpeedRaw = 0;
 minSpeedRaw = Infinity;
+resetSpeedAvg();
 
 UI.rpmNow.textContent = "--";
 applyRpmHit();
@@ -3315,14 +3649,10 @@ if (document.getElementById("machineBtn")) {
   });
 }
 UI.saveBtn.addEventListener("click", () => {
-  const quick = window.machineState && machineState.saveMode === "quick" && state.history.length;
-  const typed = ((document.getElementById("recordNameInput") || {}).value || "").trim();
-  if (typed) UI.saveNameInput.value = typed;
-  else if (quick) UI.saveNameInput.value = state.history[0].name || "";
-  else UI.saveNameInput.value = "";
+  UI.saveNameInput.value = "";
   if (window.machineState && machineState.motor) UI.motorTypeSelect.value = machineState.motor;
   UI.saveModal.style.display = "flex";
-  if (!quick) setTimeout(function() { UI.saveNameInput.focus(); }, 60);
+  setTimeout(function() { UI.saveNameInput.focus(); }, 60);
 });
 
 
@@ -3382,7 +3712,34 @@ UI.gearRange.addEventListener("change", () => {
   if (locked) buildComparisonTable((lockedSnapshot && lockedSnapshot.rpmRaw) || currentRpmRaw || 0);
 });
 
-UI.noiseRange.addEventListener("input", () => UI.noiseLabel.textContent = String(noiseThreshold()));
+const box = document.getElementById("stableGate");
+if (box) {
+  box.checked = localStorage.getItem("rpmStableGate") !== "0";
+  box.addEventListener("change", function() {
+    localStorage.setItem("rpmStableGate", box.checked ? "1" : "0");
+  });
+}
+UI.noiseRange.addEventListener("input", () => {
+  UI.noiseLabel.textContent = String(noiseThreshold());
+  const mark = document.getElementById("waveThMark");
+  if (mark) mark.textContent = "TH " + Math.round(noiseThreshold());
+});
+(function initWaveFold() {
+  const box = document.querySelector(".wave-container");
+  const btn = document.getElementById("waveFoldBtn");
+  if (!box || !btn) return;
+  function paint() {
+    const folded = box.classList.contains("is-folded");
+    btn.textContent = folded ? "開く" : "たたむ";
+    const mark = document.getElementById("waveThMark");
+    if (mark) mark.textContent = "TH " + Math.round(noiseThreshold());
+  }
+  btn.addEventListener("click", function() {
+    box.classList.toggle("is-folded");
+    paint();
+  });
+  paint();
+})();
 UI.rpmCalRange.addEventListener("input", () => UI.rpmCalLabel.textContent = parseFloat(UI.rpmCalRange.value).toFixed(2));
 UI.loadFactorRange.addEventListener("input", () => {
   UI.loadFactorLabel.textContent = UI.loadFactorRange.value + "%";
@@ -3400,6 +3757,13 @@ function applyLoadToShown() {
     const disp = limitDisplay(Math.round(currentRpm));
     UI.rpmNow.textContent = disp === "--" ? "--" : String(disp);
     UI.speedNow.textContent = disp === "--" ? "--" : currentSpeed.toFixed(2);
+    const rpmStock = document.getElementById("rpmNowStock");
+    const speedStock = document.getElementById("speedNowStock");
+    const gearNow = parseFloat(String((gearOptions && gearOptions[UI.gearRange.value]) || "3.7").split(":")[0]) || 3.7;
+    const rpmSet = document.getElementById("rpmNowSet");
+    if (rpmSet) rpmSet.textContent = String(Math.round(currentRpmRaw / gearNow));
+    if (rpmStock) rpmStock.textContent = String(Math.round(currentRpmRaw));
+    if (speedStock) speedStock.textContent = (currentRpmRaw / 3.7 * 22.5 * Math.PI * 60 / 1e6).toFixed(2);
     UI.rpmNowRaw.textContent = (showLoad && hasLoad && disp !== "--") ? ("生: " + Math.round(currentRpmRaw)) : "";
     UI.speedNowRaw.textContent = (showLoad && hasLoad && disp !== "--") ? ("生: " + currentSpeedRaw.toFixed(2)) : "";
   }
@@ -3540,17 +3904,17 @@ function kmhFromShownRpm(rpm) {
 
 function refreshDisplayedSpeed() {
   if (!UI.speedNow) return;
-  const now = kmhFromShownRpm(currentRpm);
-  if (now != null && UI.speedNow.textContent !== "--") UI.speedNow.textContent = now.toFixed(2);
-  const top = kmhFromShownRpm(maxRpmVal);
-  if (top != null && UI.speedTop && UI.speedTop.textContent !== "--") {
-    maxSpeedVal = top;
-    UI.speedTop.textContent = top.toFixed(2);
+  const cond = document.getElementById("speedNowCond");
+  if (cond) {
+    const gear = (UI.gearLabel && UI.gearLabel.textContent) || "3.7:1";
+    const tire = (UI.tireLabel && UI.tireLabel.textContent) || "22.5 mm";
+    const load = (UI.loadFactorLabel && UI.loadFactorLabel.textContent) || "0%";
+    cond.textContent = gear + " / " + tire + (load !== "0%" ? " / " + load : "");
   }
-  const min = kmhFromShownRpm(minRpmVal);
-  if (min != null && UI.speedMin && UI.speedMin.textContent !== "--") {
-    minSpeedVal = min;
-    UI.speedMin.textContent = min.toFixed(2);
+  const now = kmhFromShownRpm(currentRpm);
+  if (now != null) {
+    currentSpeed = now;
+    UI.speedNow.textContent = now.toFixed(2);
   }
 }
 
@@ -3642,6 +4006,7 @@ function rebuildMachineLists() {
 
 window.openMachineModal = function() {
   rebuildMachineLists();
+  document.body.style.overflow = "hidden";
   document.getElementById("machineModalBackdrop").style.display = "flex";
 };
 
@@ -3657,6 +4022,87 @@ function persistMachine() {
   syncMachineToMain();
   refreshMachineSummary();
 }
+
+function loadSetupFavs() {
+  try { return JSON.parse(localStorage.getItem("rpmSetupFavs") || "[]"); } catch (e) { return []; }
+}
+function saveSetupFavs(list) {
+  localStorage.setItem("rpmSetupFavs", JSON.stringify(list.slice(0, 12)));
+}
+function captureSetupFav() {
+  const asked = window.prompt(window.APP_LANG === "en" ? "Name for this setup" : "この設定の名前", "設定");
+  if (asked == null) return null;
+  const name = asked.trim() || "設定";
+  return {
+    id: Date.now().toString(36),
+    name: name,
+    shaft: machineState.shaft || "none",
+    chassis: machineState.chassis || "common",
+    motor: (document.getElementById("machineMotorSelect") || {}).value || "",
+    volt: (document.getElementById("machineVoltSelect") || {}).value || "2.8",
+    gear: (document.getElementById("machineGearSelect") || {}).value || "3.7:1",
+    tire: (document.getElementById("machineTireInput") || {}).value || "22.5",
+    noise: (UI.noiseRange && UI.noiseRange.value) || "20",
+    rpmMin: (UI.rpmMinLimit && UI.rpmMinLimit.value) || "5000",
+    rpmMax: (UI.rpmMaxLimit && UI.rpmMaxLimit.value) || "40000",
+    load: (UI.loadFactorRange && UI.loadFactorRange.value) || "0",
+    cal: (UI.rpmCalRange && UI.rpmCalRange.value) || "1.00"
+  };
+}
+function applySetupFav(fav) {
+  if (!fav) return;
+  machineState.shaft = fav.shaft || "none";
+  machineState.chassis = fav.chassis || "common";
+  machineState.motor = fav.motor || "";
+  rebuildMachineLists();
+  const set = function(id, v) { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+  set("machineVoltSelect", fav.volt);
+  set("machineGearSelect", fav.gear);
+  set("machineTireInput", fav.tire);
+  set("machineMotorSelect", fav.motor);
+  if (UI.noiseRange && fav.noise != null) { UI.noiseRange.value = fav.noise; UI.noiseLabel.textContent = String(noiseThreshold()); }
+  if (UI.rpmMinLimit && fav.rpmMin) { UI.rpmMinLimit.value = fav.rpmMin; UI.rpmMinLimit.dispatchEvent(new Event("input")); }
+  if (UI.rpmMaxLimit && fav.rpmMax) { UI.rpmMaxLimit.value = fav.rpmMax; UI.rpmMaxLimit.dispatchEvent(new Event("input")); }
+  if (UI.loadFactorRange && fav.load != null) { UI.loadFactorRange.value = fav.load; UI.loadFactorLabel.textContent = fav.load + "%"; }
+  if (UI.rpmCalRange && fav.cal != null) { UI.rpmCalRange.value = fav.cal; UI.rpmCalLabel.textContent = Number(fav.cal).toFixed(2); }
+  persistMachine();
+}
+function renderSetupFavs() {
+  const box = document.getElementById("setupFavList");
+  if (!box) return;
+  const list = loadSetupFavs();
+  box.innerHTML = list.length ? "" : "<p class=\"hint\">" + (window.APP_LANG === "en" ? "None yet. You will be asked for a name." : "まだありません。登録するとき名前を聞きます。電圧と走行負荷も残ります。") + "</p>";
+  list.forEach(function(fav) {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:6px;";
+    const apply = document.createElement("button");
+    apply.type = "button";
+    apply.className = "secondary-btn gray";
+    apply.style.flex = "1";
+    apply.textContent = fav.name + " / " + (fav.volt || "") + "V / " + (fav.load || "0") + "% / " + (fav.gear || "") + " / " + (fav.tire || "") + "mm";
+    apply.addEventListener("click", function() { applySetupFav(fav); });
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "secondary-btn gray";
+    del.textContent = "削除";
+    del.addEventListener("click", function() {
+      saveSetupFavs(loadSetupFavs().filter(function(x) { return x.id !== fav.id; }));
+      renderSetupFavs();
+    });
+    row.appendChild(apply);
+    row.appendChild(del);
+    box.appendChild(row);
+  });
+}
+document.getElementById("setupFavSave") && document.getElementById("setupFavSave").addEventListener("click", function() {
+  const fav = captureSetupFav();
+  if (!fav) return;
+  const list = loadSetupFavs();
+  list.unshift(fav);
+  saveSetupFavs(list);
+  renderSetupFavs();
+});
+renderSetupFavs();
 
 (function initMachineModal() {
   const backdrop = document.getElementById("machineModalBackdrop");
@@ -3723,14 +4169,26 @@ function persistMachine() {
   });
   function closeMachine() {
     persistMachine();
+    if (typeof applyLoadToShown === "function") applyLoadToShown();
+    if (typeof refreshDisplayedSpeed === "function") refreshDisplayedSpeed();
     backdrop.style.display = "none";
+    document.body.style.overflow = "";
   }
   document.getElementById("machineCloseTop").addEventListener("click", closeMachine);
-  document.getElementById("machineCloseBtn").addEventListener("click", closeMachine);
-  document.getElementById("machineToRevBtn").addEventListener("click", function() {
-    const panel = document.getElementById("lockSnapPanel");
-    if (!panel) return;
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
+  document.getElementById("machineCloseBtn").addEventListener("click", function() {
+    document.body.classList.add("machine-applied");
+    localStorage.setItem("rpmMachineApplied", "1");
+    closeMachine();
+  });
+  const normalBtn = document.getElementById("machineNormalBtn");
+  if (normalBtn) normalBtn.addEventListener("click", function() {
+    document.body.classList.remove("machine-applied");
+    localStorage.removeItem("rpmMachineApplied");
+    closeMachine();
+  });
+  if (localStorage.getItem("rpmMachineApplied") === "1") document.body.classList.add("machine-applied");
+  const lockMemoBtn = document.getElementById("machineToRevBtn");
+  if (lockMemoBtn) lockMemoBtn.addEventListener("click", function() {
     if (typeof window.renderLockSnaps === "function") window.renderLockSnaps();
   });
   window.renderLockSnaps = function() {
@@ -3747,7 +4205,7 @@ function persistMachine() {
         return "&" + "quot;";
       });
       return "<tr><td>" + day + "</td><td><input class=\"lock-name\" data-i=\"" + i + "\" maxlength=\"16\" value=\"" + name + "\" placeholder=\"名前\"></td><td>" + s.rpm + "</td><td>" + (s.motor || "—") + "</td><td>" + s.gear + "</td><td>" + s.volt + "V</td><td>" + s.tire + "mm</td></tr>";
-    }).join("") : "<tr><td colspan='7'>まだありません。計測中にロックすると残ります。</td></tr>";
+    }).join("") : "<tr><td colspan='7'>" + (window.APP_LANG === "en" ? "None yet. Lock during a run to keep one." : "まだありません。計測中にロックすると残ります。") + "</td></tr>";
     if (!body.dataset.bound) {
       body.dataset.bound = "1";
       body.addEventListener("input", function(ev) {
@@ -3812,8 +4270,12 @@ function persistMachine() {
     }
   }
   function openRev() {
-    const rpmEl = $("revRpm"), gearEl = $("revGear"), tireEl = $("revTire");
-    if (rpmEl && currentRpm) rpmEl.value = String(Math.round(currentRpm));
+    const rpmEl = $("revRpm"), gearEl = $("revGear"), tireEl = $("revTire"), speedEl = $("revSpeed");
+    const snap = (typeof locked !== "undefined" && locked && lockedSnapshot) ? lockedSnapshot : null;
+    const rpmSrc = snap && snap.rpm ? snap.rpm : currentRpm;
+    const speedSrc = snap && snap.speed ? snap.speed : currentSpeed;
+    if (rpmEl && rpmSrc) rpmEl.value = String(Math.round(Number(rpmSrc) || 0));
+    if (speedEl && speedSrc) speedEl.value = Number(speedSrc).toFixed(2);
     if (gearEl) gearEl.value = String(parseFloat((UI.gearLabel.textContent || "3.7").split(":")[0]));
     if (tireEl && UI.tireRange) tireEl.value = parseFloat(UI.tireRange.value).toFixed(1);
     modal.style.display = "flex";
@@ -3891,7 +4353,7 @@ document.getElementById("settingsResetBtn").addEventListener("click", () => {
 UI.noiseRange.value = 20;
 UI.rpmCalRange.value = 1.00;
 UI.loadFactorRange.value = 0;
-UI.noiseLabel.textContent = "40";
+UI.noiseLabel.textContent = "20";
 UI.rpmCalLabel.textContent = "1.00";
 UI.loadFactorLabel.textContent = "0%";
 if (typeof updateRawVisibility === "function") updateRawVisibility();
@@ -3920,8 +4382,10 @@ ts: Date.now(),
 name, motor,
 rpm: Math.round((typeof maxRpmVal === "number" && maxRpmVal > 0) ? maxRpmVal : currentRpm),
 rpmRaw: Math.round((typeof maxRpmRaw === "number" && maxRpmRaw > 0) ? maxRpmRaw : currentRpmRaw),
+rpmAvg: (function(){ const v = currentAvgRpm(); return v == null ? null : Math.round(v); })(),
 speed: ((typeof maxSpeedVal === "number" && maxSpeedVal > 0) ? maxSpeedVal : currentSpeed).toFixed(2),
 speedRaw: ((typeof maxSpeedRaw === "number" && maxSpeedRaw > 0) ? maxSpeedRaw : currentSpeedRaw).toFixed(2),
+speedAvg: (function(){ const v = currentAvgSpeed(); return v == null ? null : v.toFixed(2); })(),
 voltage: UI.voltageLabel.textContent.replace(" V", ""),
 gear: UI.gearLabel.textContent,
 tire: UI.tireLabel.textContent.replace(" mm", ""),
@@ -4108,7 +4572,7 @@ if (hsDelta) {
 
 UI.historyList.innerHTML = filtered.length
 ? ""
-: "<div style='padding:16px; text-align:center; color:#999;'>履歴はありません</div>";
+: "<div style='padding:16px; text-align:center; color:#999;'>" + (window.APP_LANG === "en" ? "No records" : "履歴はありません") + "</div>";
 
 filtered.forEach((h) => {
 const card = document.createElement("div");
@@ -4123,6 +4587,8 @@ let speedDisplay = histNumUnit(h.speed, "km/h");
 if (h.load && h.speedRaw) {
 speedDisplay = `${histNumUnit(h.speed, "km/h")}<span style="color:var(--mute);font-size:8px;"> 生${h.speedRaw}</span>`;
 }
+const avgRpmDisplay = histNumUnit(h.rpmAvg, "RPMA");
+const avgSpeedDisplay = h.speedAvg ? histNumUnit(Number(h.speedAvg).toFixed(2), "km/hA") : histNumUnit("", "km/hA");
 const isBest = bestRpm && Number(h.rpm) === bestRpm;
 const checked = window._histSelected && window._histSelected[h.id] ? "checked" : "";
 const star = isBest ? " ★" : "";
@@ -4130,19 +4596,30 @@ card.className = "hist-card" + (isBest ? " is-best" : "");
 card.innerHTML = `
   <div class="hist-top">
     <input type="checkbox" class="hist-check" data-id="${h.id || ""}" ${checked} onclick="toggleHistSelect('${h.id || ""}')">
-    <button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">削除</button>
+    <button class="delete-btn" onclick="deleteHistory(${state.history.indexOf(h)})">${window.APP_LANG === "en" ? "Delete" : "削除"}</button>
   </div>
-  <div class="hist-line">
-    <div class="hist-cell hist-name"><span class="hist-v"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}</span></div>
-    ${histCell(histMotorShort(h.motor))}
-    ${histCell(speedDisplay)}
-    ${histCell(rpmDisplay)}
-  </div>
-  <div class="hist-line">
-    ${histCell(histNumUnit(h.voltage, "V"))}
-    ${histCell(histGearLabel(h.gear))}
-    ${histCell(histNumUnit(h.tire, "mm"))}
-    ${histCell(histDateOnly(h))}
+  <div class="hist-body">
+    <div class="hist-left">
+      <div class="hist-cell hist-name"><span class="hist-v"><span class="${favClass}" onclick="toggleFavorite('${h.id}')">${h.name}</span>${star}${loadBadge}</span></div>
+      ${histCell(histNumUnit(h.voltage, "V"))}
+    </div>
+    <div class="hist-rows">
+      <div class="hist-line">
+        ${histCell(histMotorShort(h.motor))}
+        ${histCell(rpmDisplay)}
+        ${histCell(speedDisplay)}
+      </div>
+      <div class="hist-line">
+        ${histCell(histGearLabel(h.gear))}
+        ${histCell(avgRpmDisplay)}
+        ${histCell(avgSpeedDisplay)}
+      </div>
+      <div class="hist-line">
+        ${histCell(histNumUnit(h.tire, "mm"))}
+        ${histCell(histDateOnly(h))}
+        ${histCell("")}
+      </div>
+    </div>
   </div>`;
 UI.historyList.appendChild(card);
 });
@@ -4154,6 +4631,28 @@ renderHistory();
 });
 const historySortSelect = document.getElementById("historySortSelect");
 if (historySortSelect) historySortSelect.addEventListener("change", () => renderHistory());
+(function initHistFold() {
+  const btn = document.getElementById("histFoldBtn");
+  const body = document.getElementById("histFoldBody");
+  if (!btn || !body) return;
+  btn.addEventListener("click", function() {
+    const open = body.classList.toggle("open");
+    const base = window.APP_LANG === "en" ? "Filter and sort (tap to open)" : "絞り込み・並び替え（押すと開きます）";
+    btn.textContent = base + (open ? " ▾" : " ▸");
+  });
+})();
+const histDeleteZeroBtn = document.getElementById("histDeleteZeroBtn");
+if (histDeleteZeroBtn) histDeleteZeroBtn.addEventListener("click", function() {
+  const before = state.history.length;
+  state.history = state.history.filter(function(h) { return Number(h.rpm) > 0; });
+  const removed = before - state.history.length;
+  localStorage.setItem("rpmHistory", JSON.stringify(state.history));
+  if (typeof populateFilters === "function") populateFilters();
+  renderHistory();
+  alert(removed
+    ? (window.APP_LANG === "en" ? removed + " zero-RPM records deleted" : removed + "件の RPM 0 を削除しました")
+    : (window.APP_LANG === "en" ? "No zero-RPM records" : "RPM 0 の記録はありません"));
+});
 
 // フィルタリセットボタン
 document.getElementById("historyResetBtn").addEventListener("click", () => {
@@ -4170,7 +4669,7 @@ renderHistory();
 window.toggleFavorite = toggleFavorite;
 
 window.deleteHistory = (i) => {
-if (confirm("この履歴を削除しますか？")) {
+if (confirm(window.APP_LANG === "en" ? "Delete this record?" : "この履歴を削除しますか？")) {
 const removed = state.history.splice(i, 1)[0];
 // お気に入りからも削除
 if (removed && removed.id) {
@@ -4442,15 +4941,16 @@ function publishToMemory(showAlert) {
 (function initUiTheme() {
   const btn = document.getElementById("uiThemeToggleBtn");
   const meta = document.querySelector('meta[name="theme-color"]');
-  const ORDER = ["sharp", "classic", "flare", "plain"];
-  const LABEL = { sharp: "外観: シャープ", classic: "外観: 現行（丸み）", flare: "外観: FLARE", plain: "外観: シンプル" };
-  const COLOR = { sharp: "#101114", classic: "#0d0d0f", flare: "#0A0A0A", plain: "#f7f7f5" };
+  const ORDER = ["sharp", "classic", "flare", "plain", "list"];
+  const LABEL = { sharp: "外観: シャープ", classic: "外観: 現行（丸み）", flare: "外観: FLARE", plain: "外観: シンプル", list: "外観: 羅列" };
+  const COLOR = { sharp: "#101114", classic: "#0d0d0f", flare: "#0A0A0A", plain: "#f7f7f5", list: "#101114" };
   function apply(theme) {
     if (ORDER.indexOf(theme) < 0) theme = "classic";
     document.body.classList.toggle("theme-sharp", theme === "sharp");
     document.body.classList.toggle("theme-classic", theme === "classic");
     document.body.classList.toggle("theme-flare", theme === "flare");
     document.body.classList.toggle("theme-plain", theme === "plain");
+    document.body.classList.toggle("theme-list", theme === "list");
     localStorage.setItem("rpmUiTheme", theme);
     localStorage.setItem("rpmUiThemeV2", theme);
     document.querySelectorAll(".theme-pick").forEach(function(b) {
@@ -4471,7 +4971,7 @@ function publishToMemory(showAlert) {
   if (btn) btn.addEventListener("click", function() {
     const cur = document.body.classList.contains("theme-plain") ? "plain"
       : document.body.classList.contains("theme-flare") ? "flare"
-      : document.body.classList.contains("theme-classic") ? "classic" : "sharp";
+      : document.body.classList.contains("theme-classic") ? "classic" : document.body.classList.contains("theme-list") ? "list" : "sharp";
     apply(ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length]);
   });
   const lookBtn = document.getElementById("lookToggleBtn");
@@ -4713,6 +5213,139 @@ window.I18N = {
     contactDelay:"Handled by one person, so replies come whenever there's time."
   }
 };
+
+window.EN_MAP = {
+  "絞り込み・並び替え（押すと開きます）": "Filter and sort (tap to open)",
+  "RPM 0 を削除": "Delete RPM 0",
+  "計測履歴": "Saved runs",
+  "保存した計測の一覧です。マシン設定の「ロック瞬間メモ」とは別です。": "Saved measurements. Separate from the lock memo in machine setup.",
+  "お気に入りのみ": "Favorites only",
+  "リセット": "Reset",
+  "検索": "Search",
+  "閉じる": "Close",
+  "並び替え": "Sort",
+  "新しい順": "Newest",
+  "RPM高い順": "Highest RPM",
+  "速度高い順": "Highest speed",
+  "古い順": "Oldest",
+  "行を2つ選ぶと差分表示": "Pick two rows to compare",
+  "件数": "Count",
+  "最高RPM": "Best RPM",
+  "最高速度": "Best speed",
+  "前回比RPM": "RPM delta",
+  "日付": "Date",
+  "名前": "Name",
+  "モーター": "Motor",
+  "速度": "Speed",
+  "電圧": "Voltage",
+  "ギヤ比": "Gear",
+  "タイヤ径": "Tire",
+  "すべて": "All",
+  "削除": "Delete",
+  "保存": "Save",
+  "キャンセル": "Cancel",
+  "保存する": "Save",
+  "名前を入力": "Enter a name",
+  "モーター種類": "Motor type",
+  "選択なし": "None",
+  "両軸": "Dual shaft",
+  "片軸": "Single shaft",
+  "測定設定": "Measure setup",
+  "使い方": "Guide",
+  "設定リセット": "Reset setup",
+  "外観": "Look",
+  "言語": "Language",
+  "ダーク": "Dark",
+  "シャープ": "Sharp",
+  "丸み": "Round",
+  "シンプル": "Plain",
+  "羅列": "List",
+  "ノイズ閾値（TH）": "Noise threshold (TH)",
+  "RPM校正係数": "RPM calibration",
+  "負荷適用値を並べて表示": "Show raw values beside load",
+  "安定してから MAX / MIN / AVG を数える": "Count MAX / MIN / AVG after stable",
+  "マシン設定": "Machine",
+  "ロック瞬間メモ": "Lock memo",
+  "反映して閉じる": "Apply and close",
+  "この設定を登録": "Save this setup",
+  "名前の聞き方": "When the name is asked",
+  "設定のお気に入り": "Setup favorites",
+  "走行負荷 (%)": "Running load (%)",
+  "駆動": "Shaft",
+  "シャーシ": "Chassis",
+  "指定なし": "None",
+  "共通（指定なし）": "Common (none)",
+  "未選択": "Not selected",
+  "逆算電卓": "Reverse calc",
+  "求めたいもの": "Solve for",
+  "必要なタイヤ径 mm": "Needed tire mm",
+  "必要なモーター回転数 rpm": "Needed motor rpm",
+  "必要なギヤ比": "Needed gear",
+  "モーター回転数 (rpm)": "Motor RPM",
+  "速度 (km/h)": "Speed (km/h)",
+  "タイヤ径 (mm)": "Tire (mm)",
+  "目標回転": "Target RPM",
+  "設定する": "Set",
+  "解除": "Clear",
+  "目標 (rpm)": "Target (rpm)",
+  "たたむ": "Fold",
+  "開く": "Open",
+  "スペクトラム": "Spectrum",
+  "マイク": "Mic",
+  "集音フィルタ (RPM範囲)": "Pickup window (RPM)",
+  "電圧別比較表": "Voltage map",
+  "小数2位": "2 decimals",
+  "比較表条件": "Chart conditions",
+  "履歴はありません": "No records",
+  "この履歴を削除しますか？": "Delete this record?",
+  "ロックした瞬間のメモです。トップの「履歴」とは別です。トップの履歴は、保存した計測の一覧です。": "This is a memo of lock moments. It is not the saved-run list on the top screen."
+};
+function applyStaticLang(lang) {
+  const en = lang === "en";
+  const jaHelp = document.getElementById("helpJa");
+  const enHelp = document.getElementById("helpEn");
+  if (jaHelp) jaHelp.hidden = en;
+  if (enHelp) enHelp.hidden = !en;
+  const map = window.EN_MAP;
+  const keys = Object.keys(map).sort(function(a, b) { return b.length - a.length; });
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(function(node) {
+    if (node.parentElement && node.parentElement.closest && node.parentElement.closest("#helpJa, #helpEn, script, style")) return;
+    if (!node.__ja) node.__ja = node.nodeValue;
+    const src = node.__ja;
+    if (!en) { node.nodeValue = src; return; }
+    let out = src;
+    keys.forEach(function(k) {
+      if (out.indexOf(k) >= 0) out = out.split(k).join(map[k]);
+    });
+    node.nodeValue = out;
+  });
+  document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach(function(el) {
+    if (!el.dataset.jaPh) el.dataset.jaPh = el.getAttribute("placeholder") || "";
+    const src = el.dataset.jaPh;
+    if (!en) { el.setAttribute("placeholder", src); return; }
+    let out = src;
+    keys.forEach(function(k) { if (out.indexOf(k) >= 0) out = out.split(k).join(map[k]); });
+    el.setAttribute("placeholder", out);
+  });
+  document.querySelectorAll("option").forEach(function(el) {
+    if (!el.dataset.ja) el.dataset.ja = el.textContent;
+    const src = el.dataset.ja;
+    if (!en) { el.textContent = src; return; }
+    let out = src;
+    keys.forEach(function(k) { if (out.indexOf(k) >= 0) out = out.split(k).join(map[k]); });
+    el.textContent = out;
+  });
+  const fold = document.getElementById("histFoldBtn");
+  if (fold) {
+    const open = document.getElementById("histFoldBody") && document.getElementById("histFoldBody").classList.contains("open");
+    fold.textContent = (en ? "Filter and sort (tap to open)" : "絞り込み・並び替え（押すと開きます）") + (open ? " ▾" : " ▸");
+  }
+  if (typeof renderHistory === "function") renderHistory();
+  if (typeof window.renderLockSnaps === "function") window.renderLockSnaps();
+}
 window.APP_LANG = localStorage.getItem("rpmLang") === "en" ? "en" : "ja";
 function tt(key) {
   const pack = (window.I18N[window.APP_LANG] || window.I18N.ja);
@@ -4744,11 +5377,24 @@ function applyLang(lang) {
     b.classList.toggle("is-on", b.getAttribute("data-lang") === lang);
   });
   if (typeof refreshMachineStatusUI === "function") refreshMachineStatusUI();
+  if (typeof applyStaticLang === "function") applyStaticLang(lang);
 }
 document.querySelectorAll(".lang-pick").forEach(function(b) {
   b.addEventListener("click", function() { applyLang(b.getAttribute("data-lang")); });
 });
 applyLang(window.APP_LANG);
+
+(function lockPageBehindSheets() {
+  const nodes = document.querySelectorAll(".modal-backdrop");
+  function sync() {
+    let open = false;
+    nodes.forEach(function(n) { if (n.style.display === "flex") open = true; });
+    document.body.style.overflow = open ? "hidden" : "";
+  }
+  nodes.forEach(function(n) {
+    new MutationObserver(sync).observe(n, { attributes: true, attributeFilter: ["style"] });
+  });
+})();
 
 (function initPullRefresh() {
   var standalone = window.navigator.standalone === true ||
