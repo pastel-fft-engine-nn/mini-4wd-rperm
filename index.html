@@ -13,6 +13,8 @@
   .box { width: min(420px, 100%); text-align: center; }
   .msg { font-size: 22px; letter-spacing: 0.04em; line-height: 1.6; }
   .hit { color: #f4f2ee;  cursor: pointer; background: none; border: 0; font: inherit; padding: 0; }
+  .alt { margin-top: calc(22px * 1.6 * 4); }
+  .alt a { color: #f4f2ee; text-decoration: none; font-size: 16px; letter-spacing: 0.04em; }
   .form { display: none; margin-top: 22px; }
   .form.show { display: block; }
   input { width: 100%; min-height: 48px; border-radius: 12px; border: 1px solid #3a3a40; background: #17171a; color: #f4f2ee; font-size: 18px; padding: 0 14px; text-align: center; }
@@ -24,6 +26,7 @@
 <div class="gate">
   <div class="box">
     <div class="msg">ちょっと使えない<button type="button" class="hit" id="openPw">期間</button>です</div>
+    <div class="alt"><a href="https://pastel-fft-engine-nn.github.io/test/">⇨そのかわりにこちらをどうぞ⇦</a></div>
     <form class="form" id="form">
       <input id="pw" type="password" autocomplete="current-password" placeholder="パスワード">
       <button class="go" type="submit">入る</button>
