@@ -1996,10 +1996,10 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
 </div>
 
 
-<div class="modal-backdrop" id="restoreAskBackdrop" style="display: flex; z-index: 200;">
+<div class="modal-backdrop" id="restoreAskBackdrop" style="display: none; z-index: 200;">
 <div class="modal" style="max-width:420px;margin:20vh 16px 0;padding:18px;">
 <div class="modal-title">復元しますか</div>
-<p class="speed-basis" style="margin-top:10px;">前の端末やサイトのバックアップがあれば、はいを押してファイルを選んでください。</p>
+<p class="speed-basis" style="margin-top:10px;">前の端末やサイトのバックアップがあれば、はいを押してファイルを選んでください。ここでしなくても、設定からいつでもできます。</p>
 <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;font-weight:700;">
 <input type="checkbox" id="restoreAskNever"> 二度と表示しない
 </label>
@@ -2469,7 +2469,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
     <div class="onboard-k" id="onboardKicker">1 / 3</div>
     <h2 class="onboard-h" id="onboardTitle"></h2>
     <div id="onboardBody"></div>
-    <div class="onboard-dots" id="onboardDots"><i class="on"></i><i></i><i></i></div>
+    <div class="onboard-dots" id="onboardDots"><i class="on"></i><i></i><i></i><i></i></div>
     <div class="onboard-nav">
       <button class="secondary-btn gray" id="onboardSkip" style="flex:1;">とばす</button>
       <button class="primary-btn blue" id="onboardNext" style="flex:1;">つぎへ</button>
@@ -2653,6 +2653,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <span style="color:var(--mute);font-size:11px;">行を2つ選ぶと差分表示</span>
 </div>
 </div>
+<button type="button" class="secondary-btn gray" id="histCsvBtn" style="width:100%;margin:0 0 8px;">履歴をCSVで出す</button>
 <button type="button" class="secondary-btn gray" id="histDeleteZeroBtn" style="width:100%;margin:0 0 8px;">RPM 0 を削除</button>
 <div class="history-summary" id="historySummary">
 <div class="hs-item"><div class="hs-label">件数</div><div class="hs-value" id="hsCount">0</div></div>
@@ -4564,9 +4565,7 @@ if (themeMeta) themeMeta.setAttribute("content", active ? "#0d0d0f" : "#f4f2ee")
   const yes = document.getElementById("restoreAskYes");
   const no = document.getElementById("restoreAskNo");
   const never = document.getElementById("restoreAskNever");
-  if (ask && localStorage.getItem("rpmRestoreNever") !== "1") {
-    ask.style.display = "flex";
-  }
+  if (ask) ask.style.display = "none";
   function markAsked() {
     if (never && never.checked) localStorage.setItem("rpmRestoreNever", "1");
   }
@@ -4872,6 +4871,36 @@ if (historySortSelect) historySortSelect.addEventListener("change", () => render
     btn.textContent = base + (open ? " ▾" : " ▸");
   });
 })();
+
+function exportHistoryCsv() {
+  const rows = state.history || [];
+  if (!rows.length) { alert("履歴はありません"); return; }
+  const cols = [
+    ["date","日付"], ["datetime","日時"], ["name","名前"], ["motor","モーター"],
+    ["rpm","RPM"], ["rpmAvg","平均RPM"], ["rpmRaw","RPM生"],
+    ["speed","速度"], ["speedAvg","平均速度"], ["speedRaw","速度生"],
+    ["voltage","電圧"], ["gear","ギヤ比"], ["tire","タイヤ径"],
+    ["load","負荷"], ["shaft","駆動"], ["chassis","シャーシ"]
+  ];
+  function cell(v) {
+    const s = v == null ? "" : String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  const lines = [cols.map(function(c){ return c[1]; }).join(",")];
+  rows.forEach(function(h) {
+    lines.push(cols.map(function(c){ return cell(h[c[0]]); }).join(","));
+  });
+  const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const d = new Date();
+  const stamp = d.getFullYear() + String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0");
+  a.download = "rpm-history-" + stamp + ".csv";
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+}
+const histCsvBtn = document.getElementById("histCsvBtn");
+if (histCsvBtn) histCsvBtn.addEventListener("click", exportHistoryCsv);
 const histDeleteZeroBtn = document.getElementById("histDeleteZeroBtn");
 if (histDeleteZeroBtn) histDeleteZeroBtn.addEventListener("click", function() {
   const before = state.history.length;
@@ -5201,19 +5230,24 @@ function publishToMemory(showAlert) {
 
   const pages = [
     {
-      k: "1 / 3",
+      k: "1 / 4",
       t: "回転数を測定します",
       html: "<p class=\"onboard-p\">RPM Memory は、モーターの音の高さから回転数（RPM）を推定する測定アプリです。会話の録音アプリではありません。</p><p class=\"onboard-p\">音声は端末の中だけで処理し、サーバーには送りません。</p>"
     },
     {
-      k: "2 / 3",
+      k: "2 / 4",
       t: "マイクを近づけて測る",
       html: "<p class=\"onboard-p\">「計測開始」を押し、マイクをモーターに近づけます。グラフの山が回転の目安です。</p><p class=\"onboard-p\">周囲がうるさいときは集音範囲を絞ってください。点線の TH はノイズ閾値です。上げすぎるとモーター自身も拾いにくくなります。</p><p class=\"onboard-p\">スペクトラムの表は、たたんで小さくできます。</p>"
     },
     {
-      k: "3 / 3",
+      k: "3 / 4",
       t: "安定したらロック",
       html: "<p class=\"onboard-p\">数字が落ち着いたらロックします。その値で机上速度・比較表・保存が使えます。値は目安です。</p><p class=\"onboard-p\">マシン設定を行えば、簡易比較表が表れます。</p><p class=\"onboard-p\">マイクを使います / Microphone access</p><p class=\"onboard-p\">モーター音の周波数から回転数（RPM）を測定するためにマイクを使います。音声は端末内だけで処理し、サーバーへ送信しません。</p><p class=\"onboard-en\">The microphone is used to measure motor RPM from sound frequency. Audio is processed on this device only and is not sent to any server.</p>"
+    },
+    {
+      k: "4 / 4",
+      t: "復元しますか",
+      html: "<p class=\"onboard-p\">前の端末やサイトのバックアップがあれば、復元できます。</p><p class=\"onboard-p\">ここでしなくても大丈夫です。設定から、いつでも書き出しと復元ができます。</p>"
     }
   ];
   const backdrop = document.getElementById("onboardBackdrop");
@@ -5238,10 +5272,26 @@ function publishToMemory(showAlert) {
     try { localStorage.setItem("rpmOnboardV1", "1"); } catch (e) {}
   }
   window.openRpmOnboard = openOnboard;
-  document.getElementById("onboardSkip").addEventListener("click", closeOnboard);
+  function openRestoreFromOnboard() {
+    const ask = document.getElementById("restoreAskBackdrop");
+    if (ask) ask.style.display = "flex";
+    else {
+      const file = document.getElementById("backupImportFile");
+      if (file) file.click();
+    }
+  }
+  document.getElementById("onboardSkip").addEventListener("click", function() {
+    if (step === pages.length - 1) openRestoreFromOnboard();
+    else closeOnboard();
+  });
   document.getElementById("onboardNext").addEventListener("click", function() {
-    if (step >= pages.length - 1) closeOnboard();
-    else { step += 1; renderOnboard(); }
+    if (step >= pages.length - 1) { closeOnboard(); return; }
+    step += 1;
+    renderOnboard();
+    if (step === pages.length - 1) {
+      document.getElementById("onboardNext").textContent = "あとで";
+      document.getElementById("onboardSkip").textContent = "復元する";
+    }
   });
   const demoBtn = document.getElementById("demoModeBtn");
   if (demoBtn) {
