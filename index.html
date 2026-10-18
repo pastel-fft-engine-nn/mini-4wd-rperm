@@ -4513,7 +4513,7 @@ if (themeMeta) themeMeta.setAttribute("content", active ? "#0d0d0f" : "#f4f2ee")
 
 
 (function initBackup() {
-  const KEYS = ["rpmHistory","rpmFavorites","rpmTarget","rpmLockSnaps","rpmCmpVoltFine","rpmCmpSplit","rpmStableGate","rpmMachine","rpmSetupFavs","rpmMachineApplied","darkMode","rpmOnboardV1","rpmUiTheme","rpmUiThemeV2","rpmLang"];
+  const KEYS = ["rpmHistory","rpmFavorites","rpmTarget","rpmLockSnaps","rpmCmpVoltFine","rpmCmpSplit","rpmStableGate","rpmMachine","rpmSetupFavs","rpmMachineApplied","darkMode","rpmOnboardV2","rpmUiTheme","rpmUiThemeV2","rpmLang"];
   const exportBtn = document.getElementById("backupExportBtn");
   const importBtn = document.getElementById("backupImportBtn");
   const file = document.getElementById("backupImportFile");
@@ -5269,7 +5269,7 @@ function publishToMemory(showAlert) {
   }
   function closeOnboard() {
     backdrop.classList.remove("show");
-    try { localStorage.setItem("rpmOnboardV1", "1"); } catch (e) {}
+    try { localStorage.setItem("rpmOnboardV2", "1"); } catch (e) {}
   }
   window.openRpmOnboard = openOnboard;
   function openRestoreFromOnboard() {
@@ -5310,7 +5310,7 @@ function publishToMemory(showAlert) {
     openOnboard();
   });
   try {
-    if (localStorage.getItem("rpmOnboardV1") !== "1") openOnboard();
+    if (localStorage.getItem("rpmOnboardV2") !== "1") openOnboard();
   } catch (e) { openOnboard(); }
 })();
 
