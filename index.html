@@ -1819,6 +1819,8 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
 <div class="cmp-live" id="cmpLive" hidden="">
 <div class="cmp-live-row" id="gearLiveRow"></div>
 <div class="cmp-live-row" id="tireLiveRow"></div>
+<div class="cmp-live-row" id="vaLiveHead"></div>
+<div class="cmp-live-row" id="vaLiveRow"></div>
 </div>
 <div class="realtime-center" id="statusLine">計測待機中<span class="status-sub">マシン　未設定</span></div>
 
@@ -2638,6 +2640,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
 <input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0">
 </div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
 <div class="machine-item">
 <div class="setting-label"><span>名前の聞き方<button type="button" class="qmark" id="saveModeNoteBtn" aria-label="保存の説明">?</button></span></div>
 <p class="speed-basis" id="saveModeNote" hidden="">名前は、トップの「保存」を押したときに聞きます。ここには名前欄はありません。ロック履歴の名前欄は、ロックした瞬間のメモ用です。計測履歴とは別です。</p>
@@ -2649,6 +2652,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <button type="button" class="secondary-btn gray" id="setupFavSave" style="flex:1;">この設定を登録</button>
 </div>
 <div id="setupFavList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;"><p class="hint">まだありません。登録するとき名前を聞きます。電圧と走行負荷も残ります。</p></div>
+</div>
 </div>
 <div style="display:flex;gap:8px;margin-top:4px;">
 <button class="secondary-btn gray" id="machineNormalBtn" style="flex:1;">通常表示に戻す</button>
@@ -3270,6 +3274,28 @@ function paintGearLive() {
     + cell(tire.toFixed(1) + " mm", now, true)
     + cell((tire + 0.5).toFixed(1) + " mm", speedAt(gear, tire + 0.5), false);
   tireRow.hidden = false;
+  const vaHead = document.getElementById("vaLiveHead");
+  const vaRow = document.getElementById("vaLiveRow");
+  if (vaHead && vaRow) {
+    const voltSel = document.getElementById("machineVoltSelect");
+    const ampRange = document.getElementById("vaAmpRange");
+    const vNow = voltSel ? (parseFloat(voltSel.value) || 2.8) : 2.8;
+    const aNow = ampRange ? (parseFloat(ampRange.value) || 1) : 1;
+    function factorOf(a) { return 1 / (1 + Math.max(0, a - 1) * 0.04); }
+    const baseF = factorOf(aNow) || 1;
+    function atAmp(a) { return now * (factorOf(a) / baseF); }
+    function atVolt(v) { return now * (v / vNow); }
+    function dcell(label, speed) {
+      const d = speed - now;
+      const sign = d > 0 ? "+" : "";
+      return '<div class="cmp-live-cell"><div class="cmp-live-k">' + label + '</div><div class="cmp-live-s">' + speed.toFixed(2) + '</div><div class="cmp-live-d">' + sign + d.toFixed(2) + '</div></div>';
+    }
+    vaHead.innerHTML = '<div class="cmp-live-cell is-now" style="flex:1;"><div class="cmp-live-k">今の電圧とアンペア</div><div class="cmp-live-s">' + vNow.toFixed(1) + ' V / ' + aNow.toFixed(1) + ' A</div></div>';
+    vaRow.innerHTML = dcell("A " + (aNow - 0.5).toFixed(1), atAmp(aNow - 0.5))
+      + dcell("A " + (aNow + 0.5).toFixed(1), atAmp(aNow + 0.5))
+      + dcell("V " + (vNow - 0.2).toFixed(1), atVolt(vNow - 0.2))
+      + dcell("V " + (vNow + 0.2).toFixed(1), atVolt(vNow + 0.2));
+  }
   box.hidden = false;
 }function computeSpeedFromRpm(rpm) {
     const tire = parseFloat(UI.tireRange.value);
