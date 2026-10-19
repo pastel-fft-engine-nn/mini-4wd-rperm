@@ -53,7 +53,18 @@ body:not(.dark-mode) {
 .app-shell {
   width: min(560px, 100%);
   margin: 0 auto;
-  padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(14px + var(--safe-b));
+  padding: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)) 12px calc(14px + var(--safe-b));
+}
+body.theme-classic .app-shell,
+body.theme-plain .app-shell,
+body.theme-flare .app-shell,
+body.theme-list .app-shell,
+body.theme-mini .app-shell {
+  padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)) !important;
+}
+body.theme-flare #flareApp {
+  padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 8px));
+  box-sizing: border-box;
 }
 
 .card {
@@ -794,7 +805,7 @@ body.theme-classic .app-shell {
   width: min(560px, 100%);
   max-width: 560px;
   margin: 0 auto;
-  padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(14px + var(--safe-b));
+  padding: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)) 12px calc(14px + var(--safe-b));
 }
 body.theme-classic .card {
   background: var(--card-bg);
@@ -1312,7 +1323,7 @@ body.theme-flare #flareApp {
 }
 #flareApp .f-bar {
   display: flex; align-items: baseline; justify-content: space-between;
-  padding: 14px 20px 8px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 20px 8px;
 }
 #flareApp .f-word { font-size: 11px; letter-spacing: .42em; font-weight: 500; }
 #flareApp .f-word i { color: #FF6A12; font-style: normal; }
@@ -1375,7 +1386,7 @@ body.theme-flare #flareApp {
 #flareApp .h { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
 #flareApp .p { font-size: 12px; color: #7A746C; line-height: 1.6; margin-bottom: 16px; }
 #flareApp nav.f-nav {
-  display: grid; grid-template-columns: repeat(5,1fr);
+  display: grid; grid-template-columns: repeat(3,1fr);
   border-top: 2px solid #FF6A12;
   background: #141414;
   padding: 4px 6px calc(10px + env(safe-area-inset-bottom));
@@ -1805,11 +1816,12 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
 
 </div>
 </div>
-<div class="cmp-live" id="cmpLive" hidden>
+<div class="cmp-live" id="cmpLive" hidden="">
 <div class="cmp-live-row" id="gearLiveRow"></div>
 <div class="cmp-live-row" id="tireLiveRow"></div>
 </div>
 <div class="realtime-center" id="statusLine">計測待機中<span class="status-sub">マシン　未設定</span></div>
+
 <div class="realtime-buttons">
 <div class="realtime-btn-row">
 <button class="primary-btn blue" id="startBtn" data-i18n="start">計測開始</button>
@@ -1885,11 +1897,13 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
 </table>
 </div>
 
-<div id="lockTune" hidden style="margin:6px 12px 10px;padding:6px 8px;border:1px solid var(--line);">
+<div id="lockTune" hidden="" style="margin:6px 12px 10px;padding:6px 8px;border:1px solid var(--line);">
   <div class="setting-item" style="gap:2px;">
     <div class="setting-label"><span>電圧</span><span class="setting-value" id="lockVoltLabel">2.8 V</span></div>
     <input type="range" id="lockVoltRange" min="2.2" max="3.5" step="0.1" value="2.8">
   </div>
+
+
   <div class="setting-item" style="gap:2px;margin-top:6px;">
     <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="lockGearLabel">3.7:1</span></div>
     <input type="range" id="lockGearRange" min="0" max="4" step="1" value="1">
@@ -1901,10 +1915,7 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
 <div id="flareApp">
   <div class="f-bar">
     <div class="f-word">FLA<i>RE</i></div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <button type="button" class="theme-mini" id="flareThemeBtn">丸みに戻す</button>
-      <div class="f-live" id="flareLiveTag">READY</div>
-    </div>
+    <div class="f-live" id="flareLiveTag">READY</div>
   </div>
   <div class="f-pages">
     <section class="f-page on" id="fp-live">
@@ -1983,6 +1994,24 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
         <div class="h">記録</div>
         <p class="p">保存した履歴は、これまでの履歴画面と同じです。</p>
         <button type="button" id="flareOpenHist" class="hold" style="margin-top:8px;">履歴を開く</button>
+    
+    <section class="f-page" id="fp-set">
+      <div class="sheet">
+        <div class="h">設定</div>
+        <p class="p">外観の切り替えと測定設定は、ここから開きます。</p>
+        <button type="button" id="flareThemeBtn" class="hold" style="margin-top:8px;">丸みに戻す</button>
+        <button type="button" id="flareOpenSet2" class="hold" style="margin-top:8px;">測定設定</button>
+      </div>
+    </section>
+  </div>
+    </section>
+
+    <section class="f-page" id="fp-set">
+      <div class="sheet">
+        <div class="h">設定</div>
+        <p class="p">外観の切り替えと測定設定は、ここから開きます。</p>
+        <button type="button" id="flareThemeBtn" class="hold" style="margin-top:8px;">丸みに戻す</button>
+        <button type="button" id="flareOpenSet2" class="hold" style="margin-top:8px;">測定設定</button>
       </div>
     </section>
   </div>
@@ -1992,6 +2021,7 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
     <button data-fp="fp-lab">ラボ</button>
     <button data-fp="fp-ear">聴き方</button>
     <button data-fp="fp-log">記録</button>
+    <button data-fp="fp-set">設定</button>
   </nav>
 </div>
 
@@ -2075,7 +2105,7 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
 <div class="modal-header"><div class="modal-title" data-i18n="help">使い方</div><button class="modal-close" id="helpCloseTop">×</button></div>
 <div id="helpJa">
 <div class="help-search">
-  <input id="helpSearchInput" type="search" placeholder="使い方を検索" autocomplete="off">
+  <input id="helpSearchInput" type="search" placeholder="使い方を検索" autocomplete="off" data-ja-ph="使い方を検索">
   <button type="button" id="helpSearchBtn">検索</button>
 </div>
 <div id="helpHits"></div>
@@ -2464,11 +2494,11 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 </div>
 
-<div id="onboardBackdrop">
+<div id="onboardBackdrop" class="show">
   <div class="onboard-card">
-    <div class="onboard-k" id="onboardKicker">1 / 3</div>
-    <h2 class="onboard-h" id="onboardTitle"></h2>
-    <div id="onboardBody"></div>
+    <div class="onboard-k" id="onboardKicker">1 / 4</div>
+    <h2 class="onboard-h" id="onboardTitle">回転数を測定します</h2>
+    <div id="onboardBody"><p class="onboard-p">RPM Memory は、モーターの音の高さから回転数（RPM）を推定する測定アプリです。会話の録音アプリではありません。</p><p class="onboard-p">音声は端末の中だけで処理し、サーバーには送りません。</p></div>
     <div class="onboard-dots" id="onboardDots"><i class="on"></i><i></i><i></i><i></i></div>
     <div class="onboard-nav">
       <button class="secondary-btn gray" id="onboardSkip" style="flex:1;">とばす</button>
@@ -2555,6 +2585,26 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <button type="button" class="tire-step-btn" id="voltMinus">−</button>
 <select class="cond-select" id="machineVoltSelect"><option value="2.2" data-ja="2.2">2.2</option><option value="2.3" data-ja="2.3">2.3</option><option value="2.4" data-ja="2.4">2.4</option><option value="2.5" data-ja="2.5">2.5</option><option value="2.6" data-ja="2.6">2.6</option><option value="2.7" data-ja="2.7">2.7</option><option value="2.8" selected="" data-ja="2.8">2.8</option><option value="2.9" data-ja="2.9">2.9</option><option value="3.0" data-ja="3.0">3.0</option><option value="3.1" data-ja="3.1">3.1</option><option value="3.2" data-ja="3.2">3.2</option><option value="3.3" data-ja="3.3">3.3</option><option value="3.4" data-ja="3.4">3.4</option><option value="3.5" data-ja="3.5">3.5</option></select>
 <button type="button" class="tire-step-btn" id="voltPlus">＋</button>
+</div>
+</div>
+<div id="vaCard" class="machine-item" style="margin-top:8px;padding:8px;border:1px solid var(--line);">
+  <div class="setting-label"><span>育成の電圧とアンペア</span><span class="setting-value" id="vaPower">14.0 W</span></div>
+<label style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;font-weight:700;">
+<input type="checkbox" id="vaUseInMeasure"> アンペアを計測に使う
+</label>
+<p class="speed-basis" id="vaFactorNote" style="margin:0 0 6px;">オフのときは畳んでいます。チェックを入れると開きます。RPMは音の測定のままなので、アンペアの数値を変化させても音は変わりません。あくまで机上の数値と、実際の音での判断になります。</p>
+<div id="vaFold" hidden="">
+  <div class="setting-label" style="margin-top:4px;"><span>電流</span><span class="setting-value" id="vaAmpLabel">5.0 A</span></div>
+  <input type="range" id="vaAmpRange" min="1.0" max="20.0" step="0.1" value="5.0">
+  <div id="vaPresets" style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">
+    <button type="button" class="secondary-btn gray" data-a="1" style="flex:1;min-height:32px;padding:4px;">1A</button>
+    <button type="button" class="secondary-btn gray" data-a="2" style="flex:1;min-height:32px;padding:4px;">2A</button>
+    <button type="button" class="secondary-btn gray" data-a="5" style="flex:1;min-height:32px;padding:4px;">5A</button>
+    <button type="button" class="secondary-btn gray" data-a="10" style="flex:1;min-height:32px;padding:4px;">10A</button>
+    <button type="button" class="secondary-btn gray" data-a="15" style="flex:1;min-height:32px;padding:4px;">15A</button>
+    <button type="button" class="secondary-btn gray" data-a="20" style="flex:1;min-height:32px;padding:4px;">20A</button>
+  </div>
+  <div id="vaTable" style="margin-top:6px;font-size:11px;color:var(--mute);line-height:1.5;">2.8 V × 1A=2.8W / 2A=5.6W / 5A=14.0W / 10A=28.0W / 15A=42.0W / 20A=56.0W</div>
 </div>
 </div>
 <div class="machine-item">
@@ -2826,6 +2876,8 @@ speedMin: document.getElementById("speedMin"),
 speedNowRaw: document.getElementById("speedNowRaw"),
 speedTopRaw: document.getElementById("speedTopRaw"),
 speedMinRaw: document.getElementById("speedMinRaw"),
+
+
 statusLine: document.getElementById("statusLine"),
 fftStatusLabel: document.getElementById("fftStatusLabel"),
 audioIndicator: document.getElementById("audioIndicator"),
@@ -3190,7 +3242,8 @@ function paintGearLive() {
   const loadFactor = 1 - (loadPercent / 100);
   const chassisFactor = (typeof chassisLossFactor === "function") ? chassisLossFactor() : 1;
   function speedAt(ratio, mm) {
-    return (rpm / ratio) * (mm * Math.PI * 60) / 1000000 * loadFactor * chassisFactor;
+    const ampFactor = (typeof window.ampMeasureFactor === "function") ? window.ampMeasureFactor() : 1;
+    return (rpm / ratio) * (mm * Math.PI * 60) / 1000000 * loadFactor * chassisFactor * ampFactor;
   }
   const now = speedAt(gear, tire);
   const liveGears = ["3.5:1", "3.7:1", "4.0:1", "4.2:1", "5:1"];
@@ -3910,7 +3963,8 @@ UI.loadFactorRange.addEventListener("input", () => {
 });
 function applyLoadToShown() {
   const loadPercent = parseFloat(UI.loadFactorRange.value) || 0;
-  const loadFactor = (1 - loadPercent / 100) * chassisLossFactor();
+  const ampFactor = (typeof window.ampMeasureFactor === "function") ? window.ampMeasureFactor() : 1;
+  const loadFactor = (1 - loadPercent / 100) * chassisLossFactor() * ampFactor;
   const showLoad = UI.showLoadValues && UI.showLoadValues.checked;
   const hasLoad = loadPercent !== 0;
   if (currentRpmRaw > 0) {
@@ -4513,7 +4567,7 @@ if (themeMeta) themeMeta.setAttribute("content", active ? "#0d0d0f" : "#f4f2ee")
 
 
 (function initBackup() {
-  const KEYS = ["rpmHistory","rpmFavorites","rpmTarget","rpmLockSnaps","rpmCmpVoltFine","rpmCmpSplit","rpmStableGate","rpmMachine","rpmSetupFavs","rpmMachineApplied","darkMode","rpmOnboardV2","rpmUiTheme","rpmUiThemeV2","rpmLang"];
+  const KEYS = ["rpmHistory","rpmFavorites","rpmTarget","rpmLockSnaps","rpmCmpVoltFine","rpmCmpSplit","rpmStableGate","rpmMachine","rpmSetupFavs","rpmMachineApplied","darkMode","rpmOnboardV3","rpmUiTheme","rpmUiThemeV2","rpmLang"];
   const exportBtn = document.getElementById("backupExportBtn");
   const importBtn = document.getElementById("backupImportBtn");
   const file = document.getElementById("backupImportFile");
@@ -5269,7 +5323,7 @@ function publishToMemory(showAlert) {
   }
   function closeOnboard() {
     backdrop.classList.remove("show");
-    try { localStorage.setItem("rpmOnboardV2", "1"); } catch (e) {}
+    try { localStorage.setItem("rpmOnboardV3", "1"); } catch (e) {}
   }
   window.openRpmOnboard = openOnboard;
   function openRestoreFromOnboard() {
@@ -5310,12 +5364,68 @@ function publishToMemory(showAlert) {
     openOnboard();
   });
   try {
-    if (localStorage.getItem("rpmOnboardV2") !== "1") openOnboard();
+    if (localStorage.getItem("rpmOnboardV3") !== "1") openOnboard();
   } catch (e) { openOnboard(); }
 })();
 
 
 
+
+
+(function initVa() {
+  const range = document.getElementById("vaAmpRange");
+  const label = document.getElementById("vaAmpLabel");
+  const power = document.getElementById("vaPower");
+  const table = document.getElementById("vaTable");
+  const use = document.getElementById("vaUseInMeasure");
+  const note = document.getElementById("vaFactorNote");
+  if (!range) return;
+  try { if (use) use.checked = localStorage.getItem("rpmUseAmp") === "1"; } catch (e) {}
+  function volt() {
+    const sel = document.getElementById("machineVoltSelect") || document.getElementById("voltageSelect");
+    const v = sel ? parseFloat(sel.value) : 2.8;
+    return isFinite(v) ? v : 2.8;
+  }
+  function amp() { return parseFloat(range.value) || 1; }
+  // 1.0A を基準。電流が増えるほど机上速度の係数を下げる。
+  function factorOf(a) { return 1 / (1 + Math.max(0, a - 1) * 0.04); }
+  window.ampMeasureFactor = function() {
+    if (!use || !use.checked) return 1;
+    return factorOf(amp());
+  };
+  function paint() {
+    const a = amp();
+    const v = volt();
+    const f = factorOf(a);
+    label.textContent = a.toFixed(1) + " A";
+    power.textContent = (v * a).toFixed(1) + " W";
+    const marks = [1, 2, 5, 10, 15, 20];
+    table.textContent = v.toFixed(1) + " V × " + marks.map(function(m){ return m + "A=" + (v*m).toFixed(1) + "W"; }).join(" / ");
+    const fold = document.getElementById("vaFold");
+    if (fold) fold.hidden = !(use && use.checked);
+    if (note) {
+      note.textContent = use && use.checked
+        ? ("オン。1.0Aを基準に、今の係数は " + f.toFixed(2) + " です。RPMは音の測定のままなので、アンペアの数値を変化させても音は変わりません。あくまで机上の数値と、実際の音での判断になります。")
+        : "オフのときは畳んでいます。チェックを入れると開きます。RPMは音の測定のままなので、アンペアの数値を変化させても音は変わりません。あくまで机上の数値と、実際の音での判断になります。";
+    }
+    if (typeof applyLoadToShown === "function") applyLoadToShown();
+    if (typeof paintGearLive === "function") paintGearLive();
+  }
+  range.addEventListener("input", paint);
+  document.querySelectorAll("#vaPresets button").forEach(function(b) {
+    b.addEventListener("click", function() {
+      range.value = b.getAttribute("data-a");
+      paint();
+    });
+  });
+  if (use) use.addEventListener("change", function() {
+    try { localStorage.setItem("rpmUseAmp", use.checked ? "1" : "0"); } catch (e) {}
+    paint();
+  });
+  const sel = document.getElementById("machineVoltSelect");
+  if (sel) sel.addEventListener("change", paint);
+  paint();
+})();
 
 /* ========== 外観テーマ切替 ========== */
 (function initUiTheme() {
@@ -5461,6 +5571,11 @@ function publishToMemory(showAlert) {
   if (ft) ft.addEventListener("click", function() {
     const classic = document.querySelector('.theme-pick[data-theme="classic"]');
     if (classic) classic.click();
+  });
+  const set2 = $("flareOpenSet2");
+  if (set2) set2.addEventListener("click", function() {
+    const b = document.getElementById("settingsBtn");
+    if (b) b.click();
   });
 
   function drawFlareRail() {
@@ -5832,6 +5947,7 @@ applyLang(window.APP_LANG);
 })();
 
 </script>
+
 
 
 
