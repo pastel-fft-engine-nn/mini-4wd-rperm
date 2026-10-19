@@ -2263,7 +2263,18 @@ body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top
 <h4>モーター</h4>
 <p>今載せている種類です。履歴やロック履歴では短い名前になります。例: ノーマルPRO は NMP、マッハPRO は MDP。</p>
 <h4>電圧</h4>
-<p>電池の目安です。速度の式には直接入りません。記録と比較のときのメモです。− と ＋ で隣の値に動きます。</p>
+<p>電池の目安です。速度の式には直接入りません。記録と比較のときのメモです。− と ＋ で隣の値に動きます。育成の電力計算では、この電圧を使います。</p>
+<h4>育成の電圧とアンペア</h4>
+<p>電圧の下にあります。育成時の電流を、机上の速度に関係づけるための欄です。RPMは音の測定のままなので、アンペアの数値を変化させても音は変わりません。あくまで机上の数値と、実際の音での判断になります。</p>
+<ul>
+<li>チェックがオフのときは畳んでいます。電力の表示も、速度への反映もありません。オフの係数は 1.00 で、オンにして 1.0A にしたときと同じです</li>
+<li>「アンペアを計測に使う」にチェックを入れると開きます。1.0A から 20.0A まで動かせます。1A、2A、5A、10A、15A、20A のボタンもあります</li>
+<li>電力は、マシン設定の電圧 × 電流です。例: 2.8V × 5.0A ＝ 14.0W</li>
+<li>オンのとき、速度の机上値に係数をかけます。1.0A を基準（1.00）に、電流が増えるほど係数は下がります。目安は 5A で 0.86、10A で 0.74、20A で 0.57 です</li>
+<li>RPMは変えません。変わるのは、ギヤ・タイヤ・負荷と同じ場所の机上速度です。比較表の速度も同じ係数です</li>
+<li>反映して閉じると、今の係数が速度に入ります。選んだ状態は残ります</li>
+</ul>
+<p class="onboard-en">Amp is a desk factor for speed only. RPM stays the sound reading. Off equals 1.0A on. Changing the amp does not change the sound.</p>
 <h4>ギヤ比</h4>
 <p>速度の計算に使います。モーター回転を、車軸の回転に直す比率です。</p>
 <h4>タイヤ径</h4>
@@ -3267,12 +3278,13 @@ function paintGearLive() {
     const loadPercent = parseFloat(UI.loadFactorRange.value);
     const loadFactor = 1 - (loadPercent / 100);
     const chassisFactor = chassisLossFactor();
+    const ampFactor = (typeof window.ampMeasureFactor === "function") ? window.ampMeasureFactor() : 1;
 
     const rawRpm = rpm * parseFloat(UI.rpmCalRange.value);
     const rawSpeed = (rawRpm / gearRatio) * (tire * Math.PI * 60) / 1000000;
 
     const adjustedRpm = rawRpm * loadFactor * chassisFactor;
-    const speed = rawSpeed * loadFactor * chassisFactor;
+    const speed = rawSpeed * loadFactor * chassisFactor * ampFactor;
 
     return { adjustedRpm, speed, rawRpm, rawSpeed };
 }
@@ -4386,6 +4398,7 @@ renderSetupFavs();
   function closeMachine() {
     persistMachine();
     if (typeof applyLoadToShown === "function") applyLoadToShown();
+    if (typeof paintGearLive === "function") paintGearLive();
     if (typeof refreshDisplayedSpeed === "function") refreshDisplayedSpeed();
     backdrop.style.display = "none";
     document.body.style.overflow = "";
