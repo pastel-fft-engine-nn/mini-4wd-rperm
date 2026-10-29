@@ -1787,10 +1787,10 @@ body.theme-avi #aviApp { display: block; }
 body.theme-avi .app-shell, body.theme-avi #dashApp { display: none; }
 .avi-top { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px; }
 .avi-box { background: #141414; border: 1px solid #2a2a2a; padding: 10px 6px; text-align: center; }
-.avi-box .lbl { font-size: 9px; letter-spacing: 0.1em; color: #888; }
+.avi-box .lbl { font-size: 8px; letter-spacing: 0.04em; color: #888; white-space: nowrap; }
 .avi-box .num { font-family: var(--num); font-size: 20px; font-weight: 700; color: #fff; }
-.avi-mid { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; }
-.avi-side { display: flex; flex-direction: column; gap: 4px; width: 72px; }
+.avi-mid { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; padding: 0 4px; }
+.avi-side { display: flex; flex-direction: column; gap: 4px; width: 80px; }
 .avi-side .avi-box { padding: 6px 4px; }
 .avi-side .num { font-size: 14px; }
 .avi-gauge { width: 160px; height: 160px; border-radius: 50%; border: 2px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #111; }
@@ -1812,7 +1812,7 @@ body.theme-avi .app-shell, body.theme-avi #dashApp { display: none; }
 
 <section class="card">
 <div class="brand-bar">
-  <div class="brand-name">RPM MEMORY <span style="color:#ff0;font-size:9px;">v53</span></div>
+  <div class="brand-name">RPM MEMORY <span style="color:#ff0;font-size:9px;">v55</span></div>
   <div class="brand-sub" data-i18n="brandSub">モーター音で回転数を測定</div>
 </div>
 <div class="wave-container">
@@ -6627,12 +6627,12 @@ applyLang(window.APP_LANG);
 </div>
 </div>
 <div class="avi-bot">
-<div class="avi-box"><div class="lbl">SPEED MAX BEFORE</div><div class="num" id="aviSpdMaxBef">--</div></div>
-<div class="avi-box"><div class="lbl">SPEED MEASURED</div><div class="num" id="aviSpdNow">--</div></div>
-<div class="avi-box"><div class="lbl">SPEED MIN BEFORE</div><div class="num" id="aviSpdMinBef">--</div></div>
-<div class="avi-box"><div class="lbl">SPEED MAX AFTER</div><div class="num" id="aviSpdMaxAft">--</div></div>
-<div class="avi-box"><div class="lbl">SPEED AVERAGE</div><div class="num" id="aviSpdAvg">--</div></div>
-<div class="avi-box"><div class="lbl">SPEED MIN AFTER</div><div class="num" id="aviSpdMinAft">--</div></div>
+<div class="avi-box"><div class="lbl">MAX BEFORE</div><div class="num" id="aviSpdMaxBef">--</div></div>
+<div class="avi-box"><div class="lbl">MEASURED</div><div class="num" id="aviSpdNow">--</div></div>
+<div class="avi-box"><div class="lbl">MIN BEFORE</div><div class="num" id="aviSpdMinBef">--</div></div>
+<div class="avi-box"><div class="lbl">MAX AFTER</div><div class="num" id="aviSpdMaxAft">--</div></div>
+<div class="avi-box"><div class="lbl">AVERAGE</div><div class="num" id="aviSpdAvg">--</div></div>
+<div class="avi-box"><div class="lbl">MIN AFTER</div><div class="num" id="aviSpdMinAft">--</div></div>
 </div>
 <div class="avi-btns">
 <button class="avi-btn blue" id="aviStartBtn">START</button>
