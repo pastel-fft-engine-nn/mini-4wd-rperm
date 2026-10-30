@@ -1760,7 +1760,7 @@ body.theme-list .primary-btn,
 body.theme-list .secondary-btn { border-radius: 0; }
 body.theme-list #conditionsCard { border-top: 1px solid var(--line); padding-top: 8px; }
 
-#dashApp { display: none; background: #0a0a0a; color: #fff; min-height: 100vh; padding: 16px 12px; }
+#dashApp { display: none; background: #0a0a0a; color: #fff; min-height: 100vh; padding: 60px 12px 16px; }
 body.theme-dash2 #dashApp { display: block; }
 body.theme-dash2 .app-shell { display: none; }
 .d-kicker { font-size: 11px; letter-spacing: 0.18em; color: #888; text-align: center; margin: 16px 0 4px; font-weight: 700; }
@@ -1782,7 +1782,7 @@ body.theme-dash2 .app-shell { display: none; }
 .d-links button { background: transparent; border: 0; color: #888; font-size: 12px; font-weight: 700; padding: 8px; cursor: pointer; }
 
 
-#aviApp { display: none; background: #0a0a0a; color: #fff; min-height: 100vh; padding: 12px; }
+#aviApp { display: none; background: #0a0a0a; color: #fff; min-height: 100vh; padding: 80px 12px 16px; }
 body.theme-avi #aviApp { display: block; }
 body.theme-avi .app-shell, body.theme-avi #dashApp { display: none; }
 .avi-top { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px; }
@@ -1790,14 +1790,19 @@ body.theme-avi .app-shell, body.theme-avi #dashApp { display: none; }
 .avi-box .lbl { font-size: 8px; letter-spacing: 0.04em; color: #888; white-space: nowrap; }
 .avi-box .num { font-family: var(--num); font-size: 20px; font-weight: 700; color: #fff; }
 .avi-mid { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; padding: 0 4px; }
-.avi-side { display: flex; flex-direction: column; gap: 4px; width: 80px; }
-.avi-side .avi-box { padding: 6px 4px; }
-.avi-side .num { font-size: 14px; }
-.avi-gauge { width: 160px; height: 160px; border-radius: 50%; border: 2px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #111; }
+.avi-side { display: flex; flex-direction: column; gap: 3px; width: 72px; }
+.avi-side .avi-box { padding: 5px 4px; }
+.avi-side .num { font-size: 13px; }
+.avi-gauge { width: 200px; height: 200px; border-radius: 50%; border: 2px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #111; position: relative; }
+.avi-gauge .ticks { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.avi-gauge .tick { position: absolute; background: #555; transform-origin: center bottom; }
+.avi-gauge .tick.major { background: #888; }
+.avi-gauge .arc { position: absolute; top: -8px; left: -8px; width: 216px; height: 216px; border-radius: 50%; background: conic-gradient(#333 0deg, #333 360deg); -webkit-mask: radial-gradient(transparent 90px, #000 94px); mask: radial-gradient(transparent 90px, #000 94px); }
 .avi-gauge .big { font-family: var(--num); font-size: 32px; font-weight: 700; }
 .avi-gauge .unit { font-size: 10px; color: #888; }
 .avi-bot { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 8px; }
-.avi-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 12px; }
+.avi-bot .avi-box { padding: 7px 6px; }
+.avi-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 24px; }
 .avi-btn { padding: 12px; font-size: 12px; font-weight: 800; border: 0; cursor: pointer; }
 .avi-btn.blue { background: #ff973d; color: #111; }
 .avi-btn.outline { background: transparent; color: #fff; border: 1px solid #fff; }
@@ -1812,7 +1817,7 @@ body.theme-avi .app-shell, body.theme-avi #dashApp { display: none; }
 
 <section class="card">
 <div class="brand-bar">
-  <div class="brand-name">RPM MEMORY <span style="color:#ff0;font-size:9px;">v55</span></div>
+  <div class="brand-name">RPM MEMORY <span style="color:#ff0;font-size:9px;">v64</span></div>
   <div class="brand-sub" data-i18n="brandSub">モーター音で回転数を測定</div>
 </div>
 <div class="wave-container">
@@ -6409,7 +6414,7 @@ applyLang(window.APP_LANG);
 <div class="d-side"><div class="d-label">アンペア / Ω</div><div class="d-small" id="dashAO">-- A<br>-- Ω</div></div>
 </div>
 <div class="d-btns">
-<button class="d-btn blue" id="dashStartBtn">計測開始</button>
+<button class="d-btn blue" id="dashStartBtn">START</button>
 <button class="d-btn outline" id="dashLockBtn">ロック</button>
 <button class="d-btn gray" id="dashSaveBtn">保存</button>
 </div>
@@ -6618,6 +6623,8 @@ applyLang(window.APP_LANG);
 <div class="avi-box"><div class="lbl">VOLT</div><div class="num" id="aviVolt">--</div></div>
 </div>
 <div class="avi-gauge">
+<div class="ticks" id="aviTicks"><div class="tick major" style="width: 3px; height: 18px; left: 60px; top: 169.282032px; transform: rotate(210deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 41.116507px; top: 165.396745px; transform: rotate(222deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 28.806504px; top: 151.725102px; transform: rotate(234deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 19.608px; top: 135.792825px; transform: rotate(246deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 13.923011px; top: 118.296229px; transform: rotate(258deg);"></div><div class="tick major" style="width: 3px; height: 18px; left: 20px; top: 100px; transform: rotate(270deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 13.923011px; top: 81.703771px; transform: rotate(282deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 19.608px; top: 64.207175px; transform: rotate(294deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 28.806504px; top: 48.274898px; transform: rotate(306deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 41.116507px; top: 34.603255px; transform: rotate(318deg);"></div><div class="tick major" style="width: 3px; height: 18px; left: 60px; top: 30.717968px; transform: rotate(330deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 72.806504px; top: 16.307027px; transform: rotate(342deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 90.801495px; top: 12.482073px; transform: rotate(354deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 109.198505px; top: 12.482073px; transform: rotate(366deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 127.193496px; top: 16.307027px; transform: rotate(378deg);"></div><div class="tick major" style="width: 3px; height: 18px; left: 140px; top: 30.717968px; transform: rotate(390deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 158.883493px; top: 34.603255px; transform: rotate(402deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 171.193496px; top: 48.274898px; transform: rotate(414deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 180.392px; top: 64.207175px; transform: rotate(426deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 186.076989px; top: 81.703771px; transform: rotate(438deg);"></div><div class="tick major" style="width: 3px; height: 18px; left: 180px; top: 100px; transform: rotate(450deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 186.076989px; top: 118.296229px; transform: rotate(462deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 180.392px; top: 135.792825px; transform: rotate(474deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 171.193496px; top: 151.725102px; transform: rotate(486deg);"></div><div class="tick" style="width: 2px; height: 10px; left: 158.883493px; top: 165.396745px; transform: rotate(498deg);"></div><div class="tick major" style="width: 3px; height: 18px; left: 140px; top: 169.282032px; transform: rotate(510deg);"></div></div>
+<div class="arc" id="aviArc"></div>
 <div class="big" id="aviRpmNow">--</div>
 <div class="unit">RPM</div>
 </div>
@@ -6653,7 +6660,28 @@ applyLang(window.APP_LANG);
   function c(f, t) { var a = document.getElementById(f), b = document.getElementById(t); if (a && b) b.textContent = a.textContent; }
   setInterval(function() {
     if (!document.body.classList.contains("theme-avi")) return;
-    c("rpmNow", "aviRpmNow"); c("rpmMax", "aviRpmMax"); c("rpmMin", "aviRpmMin"); c("rpmAvg", "aviRpmAvg");
+    c("rpmNow", "aviRpmNow");
+    var arc = document.getElementById("aviArc");
+    var rpmNow = parseFloat((document.getElementById("rpmNow").textContent || "").replace(/[^0-9.]/g, "")) || 0;
+    var running = document.getElementById("startBtn") && document.getElementById("startBtn").textContent.indexOf("停止") >= 0;
+    if (arc) {
+      if (!running || rpmNow <= 0) {
+        arc.style.background = "conic-gradient(#333 0deg, #333 360deg)";
+      } else {
+        var ratio = Math.min(1, rpmNow / 50000);
+        var deg = ratio * 300;
+        var color = "#9966cc";
+        if (rpmNow >= 40000) color = "#ff4444";
+        else if (rpmNow >= 35000) color = "#ff6600";
+        else if (rpmNow >= 30000) color = "#ff973d";
+        else if (rpmNow >= 25000) color = "#ffcc00";
+        else if (rpmNow >= 20000) color = "#66cc66";
+        else if (rpmNow >= 15000) color = "#33cc66";
+        else if (rpmNow >= 10000) color = "#3399ff";
+        else if (rpmNow >= 5000) color = "#6666cc";
+        arc.style.background = "conic-gradient(from 210deg, " + color + " 0deg, " + color + " " + deg + "deg, #333 " + deg + "deg, #333 360deg)";
+      }
+    } c("rpmMax", "aviRpmMax"); c("rpmMin", "aviRpmMin"); c("rpmAvg", "aviRpmAvg");
     c("speedNow", "aviSpdNow"); c("speedAvg", "aviSpdAvg");
     var rpmMax = parseFloat((document.getElementById("rpmMax").textContent || "").replace(/[^0-9.]/g, "")) || 0;
     var rpmMin = parseFloat((document.getElementById("rpmMin").textContent || "").replace(/[^0-9.]/g, "")) || 0;
@@ -6688,6 +6716,33 @@ applyLang(window.APP_LANG);
   bind("aviResetBtn", "resetBtn");
   bind("aviMachBtn", "machineBtn");
   bind("aviSetBtn", "settingsBtn");
+})();
+</script>
+
+<script>
+(function() {
+  var ticks = document.getElementById("aviTicks");
+  if (!ticks) return;
+  var gauge = ticks.parentElement;
+  var r = 100;
+  for (var rpm = 0; rpm <= 50000; rpm += 2000) {
+    var ratio = rpm / 50000;
+    var deg = 210 + ratio * 300;
+    var rad = deg * Math.PI / 180;
+    var isMajor = rpm % 10000 === 0;
+    var len = isMajor ? 18 : 10;
+    var thick = isMajor ? 3 : 2;
+    var tick = document.createElement("div");
+    tick.className = "tick" + (isMajor ? " major" : "");
+    tick.style.width = thick + "px";
+    tick.style.height = len + "px";
+    var x = r + Math.sin(rad) * (r - len - 2);
+    var y = r - Math.cos(rad) * (r - len - 2);
+    tick.style.left = x + "px";
+    tick.style.top = y + "px";
+    tick.style.transform = "rotate(" + deg + "deg)";
+    ticks.appendChild(tick);
+  }
 })();
 </script>
 
