@@ -4659,10 +4659,12 @@ renderSetupFavs();
     persistMachine();
   });
   function closeMachine() {
-    persistMachine();
-    if (typeof applyLoadToShown === "function") applyLoadToShown();
-    if (typeof paintGearLive === "function") paintGearLive();
-    if (typeof refreshDisplayedSpeed === "function") refreshDisplayedSpeed();
+    try {
+      persistMachine();
+      if (typeof applyLoadToShown === "function") applyLoadToShown();
+      if (typeof paintGearLive === "function") paintGearLive();
+      if (typeof refreshDisplayedSpeed === "function") refreshDisplayedSpeed();
+    } catch (e) {}
     backdrop.style.display = "none";
     document.body.style.overflow = "";
   }
@@ -4906,7 +4908,7 @@ if (themeMeta) themeMeta.setAttribute("content", active ? "#0d0d0f" : "#f4f2ee")
   const never = document.getElementById("restoreAskNever");
   if (ask) ask.style.display = "none";
   function markAsked() {
-    if (never && never.checked) localStorage.setItem("rpmRestoreNever", "1");
+    try { if (never && never.checked) localStorage.setItem("rpmRestoreNever", "1"); } catch (e) {}
   }
   if (yes) yes.addEventListener("click", function() {
     markAsked();
