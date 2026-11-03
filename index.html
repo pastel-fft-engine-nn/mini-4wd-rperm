@@ -2814,23 +2814,57 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">逆算電卓<button type="button" class="qmark" id="revNoteBtn" aria-label="逆算の説明">?</button></div><div class="speed-basis" id="revNotePanel" hidden="">ロックした数値が反映していますが、自由に数値の変更ができます。選んだ項目はグレーアウトします。残りの3つを入力してください。速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000。アンペアと抵抗はオンのときだけ掛けます。抵抗オンは実効電圧 V−I×R、アンペアだけオンは負荷係数です。</div></div><button class="modal-close" id="reverseCalcCloseTop">×</button></div>
 <div class="setting-item" style="margin-bottom:10px;">
 <div class="setting-label"><span>求めたいもの</span></div>
-<select class="cond-select" id="revSolve">
+<div style="display:flex;gap:8px;align-items:center;">
+<select class="cond-select" id="revSolve" style="flex:1;">
 <option value="speed" data-ja="速度 km/h">速度 km/h</option>
 <option value="tire" data-ja="必要なタイヤ径 mm">必要なタイヤ径 mm</option>
 <option value="rpm" data-ja="必要なモーター回転数 rpm">必要なモーター回転数 rpm</option>
 <option value="gear" data-ja="必要なギヤ比">必要なギヤ比</option>
+<option value="torque" data-ja="必要トルク mN・m">必要トルク mN・m</option>
 </select>
-
+<button type="button" class="qmark" id="revTorqueNoteBtn" aria-label="必要トルクの注意書き" style="display:none;">?</button>
+</div>
+<div class="speed-basis" id="revTorqueNotePanel" hidden="">比べられますが、同じものではありません。<br>・どちらもモーター軸トルク（mN・m）なので、この計算値（モーター軸に換算した値）とは直接比べられます。ホイール側トルクとは比べられません。<br>・計算で出るトルクは負荷側からの要求で、「この坂を登るにはモーターにこれだけ必要」という値です。推奨負荷トルクはモーター側の基準点で、タミヤが回転数・消費電流を公表するときの測定条件です。上限でも最大トルクでもありません。<br>・読み方：必要トルクが推奨範囲より小さい＝推奨点より軽い負荷／範囲内＝想定ど真ん中／超える＝推奨点より重く、回転が下がり電流と発熱が増える側（登れない、という意味ではありません）。<br>・この計算は坂・一定速度ぶんだけです。加速・転がり抵抗・壁摩擦は入っていないので、実際は余裕を見てください。<br>例：150g・15°・タイヤ23.0mm・3.5:1ではモーター必要トルクは約1.25 mN・mで、ハイパーダッシュ系の推奨1.4〜1.9の手前、トルクチューン2（片軸）の1.6〜2.0より小さめです。</div>
 </div>
 <div class="rev-row" data-field="rpm"><div><label>モーター回転数 (rpm)</label><input id="revRpm" type="number" inputmode="decimal" value="28000" step="100" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="rpm" data-d="-100">−</button><button type="button" data-rev="rpm" data-d="100">＋</button></div></div>
+<div class="rev-row" data-field="weight" id="revRowWeight" style="display:none;"><div><label>車重 (g)</label><input id="revWeight" type="number" inputmode="decimal" value="150" step="5" min="0" max="500" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="weight" data-d="-5">−</button><button type="button" data-rev="weight" data-d="5">＋</button></div></div>
+<div class="rev-row" data-field="angle" id="revRowAngle" style="display:none;"><div><label>坂の角度 (°)</label><input id="revAngle" type="number" inputmode="decimal" value="15" step="0.5" min="0" max="45" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="angle" data-d="-1">−</button><button type="button" data-rev="angle" data-d="1">＋</button></div></div>
 <div class="rev-row" data-field="gear"><div><label>ギヤ比</label><select id="revGear" class="cond-select"><option value="3.5" data-ja="3.5:1">3.5:1</option><option value="3.7" selected="" data-ja="3.7:1">3.7:1</option><option value="4.0" data-ja="4.0:1">4.0:1</option><option value="4.2" data-ja="4.2:1">4.2:1</option><option value="5" data-ja="5:1">5:1</option><option value="6.4" data-ja="6.4:1">6.4:1</option><option value="8.75" data-ja="8.75:1">8.75:1</option><option value="11.2" data-ja="11.2:1">11.2:1</option></select></div><div class="rev-step"><button type="button" id="revGearMinus">−</button><button type="button" id="revGearPlus">＋</button></div></div>
 <div class="rev-row" data-field="speed"><div><label>速度 (km/h)</label><input id="revSpeed" type="number" inputmode="decimal" value="32.00" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="speed" data-d="-0.1">−</button><button type="button" data-rev="speed" data-d="0.1">＋</button></div></div>
 <div class="rev-row" data-field="tire"><div><label>タイヤ径 (mm)</label><input id="revTire" type="number" inputmode="decimal" value="22.5" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="tire" data-d="-0.1">−</button><button type="button" data-rev="tire" data-d="0.1">＋</button></div></div>
-<div class="rev-row"><div><label>電圧 (V)</label><input id="revVolt" type="number" inputmode="decimal" value="2.8" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="volt" data-d="-0.1">−</button><button type="button" data-rev="volt" data-d="0.1">＋</button></div></div>
-<div class="rev-row"><div><label><input type="checkbox" id="revUseAmp"> アンペアを使う</label><input id="revAmp" type="number" inputmode="decimal" value="1.0" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="amp" data-d="-0.1">−</button><button type="button" data-rev="amp" data-d="0.1">＋</button></div></div>
-<div class="rev-row"><div><label><input type="checkbox" id="revUseOhm"> 抵抗を使う</label><input id="revOhm" type="number" inputmode="decimal" value="0.20" step="0.01" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="ohm" data-d="-0.01">−</button><button type="button" data-rev="ohm" data-d="0.01">＋</button></div></div>
+<div class="rev-row" id="revRowVolt"><div><label>電圧 (V)</label><input id="revVolt" type="number" inputmode="decimal" value="2.8" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="volt" data-d="-0.1">−</button><button type="button" data-rev="volt" data-d="0.1">＋</button></div></div>
+<div class="rev-row" id="revRowAmp"><div><label><input type="checkbox" id="revUseAmp"> アンペアを使う</label><input id="revAmp" type="number" inputmode="decimal" value="1.0" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="amp" data-d="-0.1">−</button><button type="button" data-rev="amp" data-d="0.1">＋</button></div></div>
+<div class="rev-row" id="revRowOhm"><div><label><input type="checkbox" id="revUseOhm"> 抵抗を使う</label><input id="revOhm" type="number" inputmode="decimal" value="0.20" step="0.01" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="ohm" data-d="-0.01">−</button><button type="button" data-rev="ohm" data-d="0.01">＋</button></div></div>
 <div class="rev-out"><div class="k" id="revOutKey">速度</div><div><span class="v" id="revOutVal">--</span><span class="u" id="revOutUnit"></span></div></div>
 <p id="revNote" style="font-size:12px;color:var(--mute);margin-top:8px;"></p>
+<div id="revTorqueMotorBox" style="display:none;margin-top:10px;">
+<div class="setting-label"><span>モーターを選ぶ（推奨負荷トルク・カタログ値）</span></div>
+<select class="cond-select" id="revTorqueMotor">
+<optgroup label="両軸（PRO）">
+<option value="ノーマルモーターPRO" data-ja="ノーマルモーターPRO">ノーマルモーターPRO</option>
+<option value="トルクチューン2モーターPRO" data-lo="1.7" data-hi="2.1" data-ja="トルクチューン2モーターPRO">トルクチューン2モーターPRO</option>
+<option value="アトミックチューン2モーターPRO" data-lo="1.6" data-hi="1.8" data-ja="アトミックチューン2モーターPRO">アトミックチューン2モーターPRO</option>
+<option value="レブチューン2モーターPRO" data-lo="1.2" data-hi="1.5" data-ja="レブチューン2モーターPRO">レブチューン2モーターPRO</option>
+<option value="ライトダッシュモーターPRO" data-lo="1.3" data-hi="1.9" data-ja="ライトダッシュモーターPRO">ライトダッシュモーターPRO</option>
+<option value="ハイパーダッシュモーターPRO" data-lo="1.4" data-hi="1.9" selected="" data-ja="ハイパーダッシュモーターPRO">ハイパーダッシュモーターPRO</option>
+<option value="マッハダッシュモーターPRO" data-lo="1.3" data-hi="1.8" data-ja="マッハダッシュモーターPRO">マッハダッシュモーターPRO</option>
+</optgroup>
+<optgroup label="片軸">
+<option value="ノーマルモーター" data-ja="ノーマルモーター">ノーマルモーター</option>
+<option value="トルクチューン2モーター" data-lo="1.6" data-hi="2.0" data-ja="トルクチューン2モーター">トルクチューン2モーター</option>
+<option value="アトミックチューン2モーター" data-lo="1.5" data-hi="1.8" data-ja="アトミックチューン2モーター">アトミックチューン2モーター</option>
+<option value="レブチューン2モーター" data-lo="1.2" data-hi="1.5" data-ja="レブチューン2モーター">レブチューン2モーター</option>
+<option value="ライトダッシュモーター" data-lo="1.3" data-hi="1.9" data-ja="ライトダッシュモーター">ライトダッシュモーター</option>
+<option value="ハイパーダッシュ3モーター" data-lo="1.4" data-hi="1.9" data-ja="ハイパーダッシュ3モーター">ハイパーダッシュ3モーター</option>
+<option value="パワーダッシュモーター" data-lo="1.5" data-hi="2.0" data-ja="パワーダッシュモーター">パワーダッシュモーター</option>
+<option value="スプリントダッシュモーター" data-lo="1.3" data-hi="1.8" data-ja="スプリントダッシュモーター">スプリントダッシュモーター</option>
+<option value="ウルトラダッシュモーター" data-lo="1.4" data-hi="1.9" data-ja="ウルトラダッシュモーター">ウルトラダッシュモーター</option>
+<option value="プラズマダッシュモーター" data-lo="1.4" data-hi="1.9" data-ja="プラズマダッシュモーター">プラズマダッシュモーター</option>
+</optgroup>
+</select>
+<p id="revTorqueRec" style="font-size:13px;margin-top:8px;"></p>
+<p id="revTorqueJudge" style="font-size:12px;color:var(--mute);margin-top:2px;"></p>
+</div>
 
 <button class="secondary-btn gray" id="reverseCalcCloseBtn" style="width:100%;margin-top:12px;">閉じる</button>
 </div>
@@ -4732,8 +4766,51 @@ renderSetupFavs();
       row.querySelectorAll("input, select, button").forEach(function(el) { el.disabled = lockedRow; });
     });
   }
+  let lastTorque = NaN;
+  function applyMode() {
+    const torqueMode = $("revSolve").value === "torque";
+    function show(el, on, disp) { if (el) el.style.display = on ? (disp || "") : "none"; }
+    show($("revRowWeight"), torqueMode);
+    show($("revRowAngle"), torqueMode);
+    show($("revRowVolt"), !torqueMode);
+    show($("revRowAmp"), !torqueMode);
+    show($("revRowOhm"), !torqueMode);
+    show(document.querySelector('.rev-row[data-field="rpm"]'), !torqueMode);
+    show(document.querySelector('.rev-row[data-field="speed"]'), !torqueMode);
+    show($("revTorqueMotorBox"), torqueMode, "block");
+    show($("revTorqueNoteBtn"), torqueMode, "inline-flex");
+    if (!torqueMode) {
+      const panel = $("revTorqueNotePanel"), btn = $("revTorqueNoteBtn");
+      if (panel) panel.hidden = true;
+      if (btn) btn.classList.remove("is-on");
+    }
+  }
+  function updateTorqueMotor() {
+    const sel = $("revTorqueMotor");
+    if (!sel) return;
+    const opt = sel.options[sel.selectedIndex];
+    const lo = parseFloat(opt.getAttribute("data-lo"));
+    const hi = parseFloat(opt.getAttribute("data-hi"));
+    const recEl = $("revTorqueRec"), judgeEl = $("revTorqueJudge");
+    if (isFinite(lo) && isFinite(hi)) {
+      recEl.textContent = "推奨負荷トルク：" + lo.toFixed(1) + "〜" + hi.toFixed(1) + " mN・m";
+      if (isFinite(lastTorque)) {
+        judgeEl.textContent = lastTorque < lo
+          ? "必要トルクは推奨範囲より小さい（推奨点より軽い負荷）"
+          : lastTorque > hi
+            ? "必要トルクは推奨範囲を超える（推奨点より重い負荷）"
+            : "必要トルクは推奨範囲の中";
+      } else {
+        judgeEl.textContent = "";
+      }
+    } else {
+      recEl.textContent = "推奨負荷トルク：タミヤの公表値がありません";
+      judgeEl.textContent = "";
+    }
+  }
   function calcRev() {
     applyLock();
+    applyMode();
     let rpm = n("revRpm"), gear = n("revGear"), speed = n("revSpeed"), tire = n("revTire");
     const solve = $("revSolve").value;
     const volt = n("revVolt") || 2.8;
@@ -4758,6 +4835,14 @@ renderSetupFavs();
       val = speed * gear / (tire * K);
       key = "必要なモーター回転数"; unit = "rpm";
       note = gear + ":1・" + tire.toFixed(1) + " mm で " + speed.toFixed(2) + " km/h";
+    } else if (solve === "torque") {
+      const weight = n("revWeight"), angle = n("revAngle");
+      const force = (weight / 1000) * 9.8 * Math.sin(angle * Math.PI / 180);
+      const wheelTorque = force * (tire / 2);
+      val = wheelTorque / gear;
+      lastTorque = val;
+      key = "モーター必要トルク"; unit = "mN・m";
+      note = "車重 " + weight + " g・角度 " + angle + "°・" + gear + ":1 / ホイール側 " + wheelTorque.toFixed(2) + " mN・m（坂・一定速度のみ、効率なしの理想値）";
     } else {
       val = rpm * tire * K / speed;
       key = "必要なギヤ比"; unit = ":1";
@@ -4767,10 +4852,11 @@ renderSetupFavs();
     $("revOutVal").textContent = isFinite(val) ? (solve === "rpm" ? Math.round(val).toLocaleString() : val.toFixed(2)) : "--";
     $("revOutUnit").textContent = unit;
     $("revNote").textContent = note;
-    if (isFinite(val) && solve !== "gear") {
+    if (isFinite(val) && (solve === "speed" || solve === "tire" || solve === "rpm")) {
       $(solve === "speed" ? "revSpeed" : solve === "tire" ? "revTire" : "revRpm").value =
         solve === "rpm" ? String(Math.round(val)) : val.toFixed(2);
     }
+    if (solve === "torque") updateTorqueMotor();
   }
   function openRev() {
     const rpmEl = $("revRpm"), gearEl = $("revGear"), tireEl = $("revTire"), speedEl = $("revSpeed");
@@ -4790,7 +4876,8 @@ renderSetupFavs();
   function closeRev() { modal.style.display = "none"; }
   $("reverseCalcCloseTop").addEventListener("click", closeRev);
   $("reverseCalcCloseBtn").addEventListener("click", closeRev);
-  ["revRpm","revGear","revSpeed","revTire","revSolve","revVolt","revAmp","revOhm","revUseAmp","revUseOhm"].forEach(function(id) {
+  bindHelpToggle("revTorqueNoteBtn", "revTorqueNotePanel");
+  ["revRpm","revGear","revSpeed","revTire","revSolve","revVolt","revAmp","revOhm","revUseAmp","revUseOhm","revWeight","revAngle","revTorqueMotor"].forEach(function(id) {
     $(id).addEventListener("input", calcRev);
     $(id).addEventListener("change", calcRev);
   });
@@ -4798,10 +4885,10 @@ renderSetupFavs();
     btn.addEventListener("click", function() {
       const t = btn.getAttribute("data-rev");
       const d = parseFloat(btn.getAttribute("data-d"));
-      const map = { rpm: "revRpm", speed: "revSpeed", tire: "revTire", volt: "revVolt", amp: "revAmp", ohm: "revOhm" };
+      const map = { rpm: "revRpm", speed: "revSpeed", tire: "revTire", volt: "revVolt", amp: "revAmp", ohm: "revOhm", weight: "revWeight", angle: "revAngle" };
       const el = $(map[t]);
       const next = (parseFloat(el.value) || 0) + d;
-      el.value = t === "rpm" ? String(Math.round(next)) : next.toFixed(1);
+      el.value = (t === "rpm" || t === "weight") ? String(Math.round(next)) : next.toFixed(1);
       calcRev();
     });
   });
