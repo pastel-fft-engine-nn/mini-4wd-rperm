@@ -2811,7 +2811,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 
 <div class="modal-backdrop" id="reverseCalcModalBackdrop">
 <div class="modal">
-<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">逆算電卓<button type="button" class="qmark" id="revNoteBtn" aria-label="逆算の説明">?</button></div><div class="speed-basis" id="revNotePanel" hidden="">ロックした数値が反映していますが、自由に数値の変更ができます。選んだ項目はグレーアウトします。残りの3つを入力してください。速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000。アンペアと抵抗はオンのときだけ掛けます。抵抗オンは実効電圧 V−I×R、アンペアだけオンは負荷係数です。</div></div><button class="modal-close" id="reverseCalcCloseTop">×</button></div>
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">逆算電卓<button type="button" class="qmark" id="revNoteBtn" aria-label="逆算の説明">?</button><span style="display:inline-block;margin-left:8px;padding:2px 8px;border:1.5px solid var(--ice);border-radius:999px;color:var(--ice);font-size:11px;font-weight:800;letter-spacing:.04em;vertical-align:2px;">机上の計算結果</span></div><div class="speed-basis" id="revNotePanel" hidden="">ロックした数値が反映していますが、自由に数値の変更ができます。選んだ項目はグレーアウトします。残りの3つを入力してください。速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000。アンペアと抵抗はオンのときだけ掛けます。抵抗オンは実効電圧 V−I×R、アンペアだけオンは負荷係数です。</div></div><button class="modal-close" id="reverseCalcCloseTop">×</button></div>
 <div class="setting-item" style="margin-bottom:10px;">
 <div class="setting-label"><span>求めたいもの</span></div>
 <div style="display:flex;gap:8px;align-items:center;">
@@ -2821,14 +2821,26 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <option value="rpm" data-ja="必要なモーター回転数 rpm">必要なモーター回転数 rpm</option>
 <option value="gear" data-ja="必要なギヤ比">必要なギヤ比</option>
 <option value="torque" data-ja="必要トルク mN・m">必要トルク mN・m</option>
+<option value="jump" data-ja="ジャンプ（飛距離）">ジャンプ（飛距離）</option>
 </select>
-<button type="button" class="qmark" id="revTorqueNoteBtn" aria-label="必要トルクの注意書き" style="display:none;">?</button>
+<button type="button" class="qmark" id="revTorqueNoteBtn" aria-label="必要トルクの注意書き" style="display:none;color:#e60012;border-color:#e60012;background:rgba(230,0,18,.10);font-weight:800;">?</button>
 </div>
 <div class="speed-basis" id="revTorqueNotePanel" hidden="">比べられますが、同じものではありません。<br>・どちらもモーター軸トルク（mN・m）なので、この計算値（モーター軸に換算した値）とは直接比べられます。ホイール側トルクとは比べられません。<br>・計算で出るトルクは負荷側からの要求で、「この坂を登るにはモーターにこれだけ必要」という値です。推奨負荷トルクはモーター側の基準点で、タミヤが回転数・消費電流を公表するときの測定条件です。上限でも最大トルクでもありません。<br>・読み方：必要トルクが推奨範囲より小さい＝推奨点より軽い負荷／範囲内＝想定ど真ん中／超える＝推奨点より重く、回転が下がり電流と発熱が増える側（登れない、という意味ではありません）。<br>・この計算は坂・一定速度ぶんだけです。加速・転がり抵抗・壁摩擦は入っていないので、実際は余裕を見てください。<br>例：150g・15°・タイヤ23.0mm・3.5:1ではモーター必要トルクは約1.25 mN・mで、ハイパーダッシュ系の推奨1.4〜1.9の手前、トルクチューン2（片軸）の1.6〜2.0より小さめです。</div>
 </div>
 <div class="rev-row" data-field="rpm"><div><label>モーター回転数 (rpm)</label><input id="revRpm" type="number" inputmode="decimal" value="28000" step="100" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="rpm" data-d="-100">−</button><button type="button" data-rev="rpm" data-d="100">＋</button></div></div>
 <div class="rev-row" data-field="weight" id="revRowWeight" style="display:none;"><div><label>車重 (g)</label><input id="revWeight" type="number" inputmode="decimal" value="150" step="5" min="0" max="500" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="weight" data-d="-5">−</button><button type="button" data-rev="weight" data-d="5">＋</button></div></div>
 <div class="rev-row" data-field="angle" id="revRowAngle" style="display:none;"><div><label>坂の角度 (°)</label><input id="revAngle" type="number" inputmode="decimal" value="15" step="0.5" min="0" max="45" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="angle" data-d="-1">−</button><button type="button" data-rev="angle" data-d="1">＋</button></div></div>
+<div class="rev-row" data-field="slope" id="revRowSlope" style="display:none;"><div><label>坂の距離 (cm)</label><input id="revSlopeDist" type="number" inputmode="decimal" value="100" step="10" min="0" max="1000" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="slope" data-d="-10">−</button><button type="button" data-rev="slope" data-d="10">＋</button></div></div>
+<div class="rev-row" data-field="drop" id="revRowDrop" style="display:none;"><div><label>落差 (cm)・着地が低い分</label><input id="revDrop" type="number" inputmode="decimal" value="0" step="5" min="-100" max="300" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="drop" data-d="-5">−</button><button type="button" data-rev="drop" data-d="5">＋</button></div></div>
+<div class="rev-row" id="revRowClimb" style="display:none;"><div><label>登り方の前提 <button type="button" class="qmark" id="revClimbNoteBtn" aria-label="登り方の前提の説明">?</button></label><select id="revClimb" class="cond-select"><option value="coast" selected="" data-ja="惰性のみ（駆動の助けなし）">惰性のみ（駆動の助けなし）</option><option value="const" data-ja="一定速度（モーターが重力を補う）">一定速度（モーターが重力を補う）</option></select></div></div>
+<div class="modal-note-panel" id="revClimbNotePanel" hidden="">
+<p style="margin:0 0 6px;"><strong>登り方の前提とは</strong></p>
+<p style="margin:0 0 6px;">坂を登ると、車は高さをもらう代わりに速度を失います。その「支払い」をどちらの前提で見積もるかの選択です。</p>
+<p style="margin:0 0 6px;"><strong>惰性のみ</strong>：支払いは車が持っている運動エネルギー（＝惰性）だけが担当し、登っている間にモーターが新たに生む仕事は計算に入れません。一番大きく落ちる側の見積もりです。</p>
+<p style="margin:0 0 6px;"><strong>一定速度</strong>：モーターの駆動が重力分を全部補って、速度が落ちない前提です。</p>
+<p style="margin:0;">どちらの前提でもモーターは回り続けます。「惰性のみ」はモーターが止まる意味ではありません。実際の落ち方は、この2つの間になります。</p>
+</div>
+<div class="rev-row" data-field="launch" id="revRowLaunch" style="display:none;"><div><label>射出角度 (°)・任意</label><input id="revLaunchAngle" type="number" inputmode="decimal" value="" step="0.5" min="0" max="60" placeholder="坂と同じ" class="tire-step-input" style="text-align:left;" data-ja-ph="坂と同じ"></div><div class="rev-step"><button type="button" data-rev="launch" data-d="-1">−</button><button type="button" data-rev="launch" data-d="1">＋</button></div></div>
 <div class="rev-row" data-field="gear"><div><label>ギヤ比</label><select id="revGear" class="cond-select"><option value="3.5" data-ja="3.5:1">3.5:1</option><option value="3.7" selected="" data-ja="3.7:1">3.7:1</option><option value="4.0" data-ja="4.0:1">4.0:1</option><option value="4.2" data-ja="4.2:1">4.2:1</option><option value="5" data-ja="5:1">5:1</option><option value="6.4" data-ja="6.4:1">6.4:1</option><option value="8.75" data-ja="8.75:1">8.75:1</option><option value="11.2" data-ja="11.2:1">11.2:1</option></select></div><div class="rev-step"><button type="button" id="revGearMinus">−</button><button type="button" id="revGearPlus">＋</button></div></div>
 <div class="rev-row" data-field="speed"><div><label>速度 (km/h)</label><input id="revSpeed" type="number" inputmode="decimal" value="32.00" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="speed" data-d="-0.1">−</button><button type="button" data-rev="speed" data-d="0.1">＋</button></div></div>
 <div class="rev-row" data-field="tire"><div><label>タイヤ径 (mm)</label><input id="revTire" type="number" inputmode="decimal" value="22.5" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="tire" data-d="-0.1">−</button><button type="button" data-rev="tire" data-d="0.1">＋</button></div></div>
@@ -2837,6 +2849,10 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="rev-row" id="revRowOhm"><div><label><input type="checkbox" id="revUseOhm"> 抵抗を使う</label><input id="revOhm" type="number" inputmode="decimal" value="0.20" step="0.01" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="ohm" data-d="-0.01">−</button><button type="button" data-rev="ohm" data-d="0.01">＋</button></div></div>
 <div class="rev-out"><div class="k" id="revOutKey">速度</div><div><span class="v" id="revOutVal">--</span><span class="u" id="revOutUnit"></span></div></div>
 <p id="revNote" style="font-size:12px;color:var(--mute);margin-top:8px;"></p>
+<div id="revJumpBox" style="display:none;margin-top:10px;">
+<p id="revJumpDetail" style="font-size:13px;line-height:1.7;white-space:pre-line;margin:0;"></p>
+<p style="font-size:11px;color:var(--mute);margin-top:6px;">車体を1つの点として扱う机上計算です。空気抵抗・車体の回転・跳ねは入れていません。入口速度は空転から出した机上速度で、着地側は平らな前提です。「惰性のみ」はモーターが止まる意味ではなく、登りの減速を車の運動エネルギーだけでまかなう前提です（駆動の助けを数えないので、一番大きく落ちる側の見積もりになります）。</p>
+</div>
 <div id="revTorqueMotorBox" style="display:none;margin-top:10px;">
 <div class="setting-label"><span>モーターを選ぶ（推奨負荷トルク・カタログ値）</span></div>
 <select class="cond-select" id="revTorqueMotor">
@@ -2867,6 +2883,16 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 
 <button class="secondary-btn gray" id="reverseCalcCloseBtn" style="width:100%;margin-top:12px;">閉じる</button>
+</div>
+<div id="revNoticePopup" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:5;">
+<div style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:20px 16px;margin:0 16px;max-width:340px;width:100%;text-align:center;">
+<p style="font-size:16px;font-weight:800;margin:0 0 6px;">あくまで机上の計算結果です</p>
+<p style="font-size:12px;color:var(--mute);margin:0 0 14px;">実測値ではありません。条件の置き方で結果は変わります。</p>
+<div style="display:flex;gap:8px;">
+<button type="button" class="secondary-btn" id="revNoticeCloseBtn" style="flex:1;">閉じる</button>
+<button type="button" class="secondary-btn gray" id="revNoticeNeverBtn" style="flex:1;">二度と表示しない</button>
+</div>
+</div>
 </div>
 </div>
 
@@ -4768,16 +4794,24 @@ renderSetupFavs();
   }
   let lastTorque = NaN;
   function applyMode() {
-    const torqueMode = $("revSolve").value === "torque";
+    const mode = $("revSolve").value;
+    const torqueMode = mode === "torque";
+    const jumpMode = mode === "jump";
+    const normalMode = !torqueMode && !jumpMode;
     function show(el, on, disp) { if (el) el.style.display = on ? (disp || "") : "none"; }
     show($("revRowWeight"), torqueMode);
-    show($("revRowAngle"), torqueMode);
-    show($("revRowVolt"), !torqueMode);
-    show($("revRowAmp"), !torqueMode);
-    show($("revRowOhm"), !torqueMode);
+    show($("revRowAngle"), torqueMode || jumpMode);
+    show($("revRowSlope"), jumpMode);
+    show($("revRowDrop"), jumpMode);
+    show($("revRowClimb"), jumpMode);
+    show($("revRowLaunch"), jumpMode);
+    show($("revRowVolt"), normalMode);
+    show($("revRowAmp"), normalMode);
+    show($("revRowOhm"), normalMode);
     show(document.querySelector('.rev-row[data-field="rpm"]'), !torqueMode);
-    show(document.querySelector('.rev-row[data-field="speed"]'), !torqueMode);
+    show(document.querySelector('.rev-row[data-field="speed"]'), normalMode);
     show($("revTorqueMotorBox"), torqueMode, "block");
+    show($("revJumpBox"), jumpMode, "block");
     show($("revTorqueNoteBtn"), torqueMode, "inline-flex");
     if (!torqueMode) {
       const panel = $("revTorqueNotePanel"), btn = $("revTorqueNoteBtn");
@@ -4812,6 +4846,7 @@ renderSetupFavs();
     applyLock();
     applyMode();
     let rpm = n("revRpm"), gear = n("revGear"), speed = n("revSpeed"), tire = n("revTire");
+    const rawRpm = rpm;
     const solve = $("revSolve").value;
     const volt = n("revVolt") || 2.8;
     const amp = n("revAmp") || 0;
@@ -4843,6 +4878,51 @@ renderSetupFavs();
       lastTorque = val;
       key = "モーター必要トルク"; unit = "mN・m";
       note = "車重 " + weight + " g・角度 " + angle + "°・" + gear + ":1 / ホイール側 " + wheelTorque.toFixed(2) + " mN・m（坂・一定速度のみ、効率なしの理想値）";
+    } else if (solve === "jump") {
+      const angle = n("revAngle");
+      const distCm = n("revSlopeDist") || 0;
+      const dropCm = n("revDrop") || 0;
+      const climb = $("revClimb").value;
+      const launchIn = parseFloat($("revLaunchAngle").value);
+      const launchDeg = isFinite(launchIn) ? launchIn : angle;
+      const entryKmh = (rawRpm / gear) * tire * K;
+      const detail = $("revJumpDetail");
+      let exitKmh = entryKmh, blocked = "";
+      if (climb === "coast") {
+        const vIn = entryKmh / 3.6;
+        const v2 = vIn * vIn - 2 * 9.8 * (distCm / 100) * Math.sin(angle * Math.PI / 180);
+        if (v2 <= 0) { blocked = "惰性のみでは坂を登り切れない計算です（入口の回転数・坂の距離・角度を見直してください）"; exitKmh = 0; }
+        else exitKmh = Math.sqrt(v2) * 3.6;
+      }
+      key = "飛距離"; unit = "m";
+      if (blocked) {
+        val = NaN;
+        note = "前提：惰性のみ・坂の距離 " + distCm + " cm・角度 " + angle + "°";
+        if (detail) detail.textContent = blocked;
+      } else {
+        const v0 = exitKmh / 3.6;
+        const th = launchDeg * Math.PI / 180;
+        const vx = v0 * Math.cos(th), vy = v0 * Math.sin(th);
+        const disc = vy * vy + 2 * 9.8 * (dropCm / 100);
+        if (disc < 0 || v0 <= 0) {
+          val = NaN;
+          note = "射出角度 " + launchDeg + "°・落差 " + dropCm + " cm";
+          if (detail) detail.textContent = "その着地点の高さには届かない計算です";
+        } else {
+          const t = (vy + Math.sqrt(disc)) / 9.8;
+          val = vx * t;
+          const hmax = (vy * vy) / (2 * 9.8);
+          const landDeg = Math.atan2(vy - 9.8 * t, vx) * 180 / Math.PI;
+          note = "入口 " + entryKmh.toFixed(1) + " km/h → 射出 " + exitKmh.toFixed(1) + " km/h（前提：" + (climb === "coast" ? "惰性のみ" : "一定速度") + "）";
+          if (detail) detail.textContent =
+            "射出速度：" + exitKmh.toFixed(1) + " km/h（入口 " + entryKmh.toFixed(1) + " km/h）\n" +
+            "射出角度：" + launchDeg + "°（" + (isFinite(launchIn) ? "入力値" : "坂の角度と同じ") + "）\n" +
+            "浮遊時間：" + t.toFixed(2) + " 秒\n" +
+            "最高到達点：射出点から +" + hmax.toFixed(2) + " m\n" +
+            "着地角度：" + landDeg.toFixed(1) + "°" +
+            (climb === "const" ? "\n※一定速度の前提では、坂の距離は射出速度に影響しません" : "");
+        }
+      }
     } else {
       val = rpm * tire * K / speed;
       key = "必要なギヤ比"; unit = ":1";
@@ -4865,19 +4945,39 @@ renderSetupFavs();
     const speedSrc = snap && snap.speed ? snap.speed : currentSpeed;
     if (rpmEl && rpmSrc) rpmEl.value = String(Math.round(Number(rpmSrc) || 0));
     if (speedEl && speedSrc) speedEl.value = Number(speedSrc).toFixed(2);
-    if (gearEl) gearEl.value = String(parseFloat((UI.gearLabel.textContent || "3.7").split(":")[0]));
+    if (gearEl) {
+      const gv = parseFloat((UI.gearLabel.textContent || "3.7").split(":")[0]);
+      let matched = false;
+      for (let k = 0; k < gearEl.options.length; k++) {
+        if (Math.abs(parseFloat(gearEl.options[k].value) - gv) < 0.001) { gearEl.value = gearEl.options[k].value; matched = true; break; }
+      }
+      if (!matched) gearEl.value = String(gv);
+    }
     if (tireEl && UI.tireRange) tireEl.value = parseFloat(UI.tireRange.value).toFixed(1);
     modal.style.display = "flex";
     calcRev();
+    showRevNotice();
   }
   document.getElementById("reverseCalcOpenBtn").addEventListener("click", openRev);
   const mainRev = document.getElementById("reverseCalcMainBtn");
   if (mainRev) mainRev.addEventListener("click", openRev);
-  function closeRev() { modal.style.display = "none"; }
+  function showRevNotice() {
+    let off = false;
+    try { off = localStorage.getItem("rpmRevNoticeOff") === "1"; } catch (e) {}
+    if (!off) { const p = $("revNoticePopup"); if (p) p.style.display = "flex"; }
+  }
+  function hideRevNotice() { const p = $("revNoticePopup"); if (p) p.style.display = "none"; }
+  function closeRev() { hideRevNotice(); modal.style.display = "none"; }
   $("reverseCalcCloseTop").addEventListener("click", closeRev);
   $("reverseCalcCloseBtn").addEventListener("click", closeRev);
+  if ($("revNoticeCloseBtn")) $("revNoticeCloseBtn").addEventListener("click", hideRevNotice);
+  if ($("revNoticeNeverBtn")) $("revNoticeNeverBtn").addEventListener("click", function() {
+    try { localStorage.setItem("rpmRevNoticeOff", "1"); } catch (e) {}
+    hideRevNotice();
+  });
   bindHelpToggle("revTorqueNoteBtn", "revTorqueNotePanel");
-  ["revRpm","revGear","revSpeed","revTire","revSolve","revVolt","revAmp","revOhm","revUseAmp","revUseOhm","revWeight","revAngle","revTorqueMotor"].forEach(function(id) {
+  bindHelpToggle("revClimbNoteBtn", "revClimbNotePanel");
+  ["revRpm","revGear","revSpeed","revTire","revSolve","revVolt","revAmp","revOhm","revUseAmp","revUseOhm","revWeight","revAngle","revTorqueMotor","revSlopeDist","revDrop","revLaunchAngle","revClimb"].forEach(function(id) {
     $(id).addEventListener("input", calcRev);
     $(id).addEventListener("change", calcRev);
   });
@@ -4885,21 +4985,28 @@ renderSetupFavs();
     btn.addEventListener("click", function() {
       const t = btn.getAttribute("data-rev");
       const d = parseFloat(btn.getAttribute("data-d"));
-      const map = { rpm: "revRpm", speed: "revSpeed", tire: "revTire", volt: "revVolt", amp: "revAmp", ohm: "revOhm", weight: "revWeight", angle: "revAngle" };
+      const map = { rpm: "revRpm", speed: "revSpeed", tire: "revTire", volt: "revVolt", amp: "revAmp", ohm: "revOhm", weight: "revWeight", angle: "revAngle", slope: "revSlopeDist", drop: "revDrop", launch: "revLaunchAngle" };
       const el = $(map[t]);
       const next = (parseFloat(el.value) || 0) + d;
-      el.value = (t === "rpm" || t === "weight") ? String(Math.round(next)) : next.toFixed(1);
+      el.value = (t === "rpm" || t === "weight" || t === "slope" || t === "drop") ? String(Math.round(next)) : next.toFixed(1);
       calcRev();
     });
   });
+  function setRevGear(g) {
+    const sel = $("revGear");
+    for (let k = 0; k < sel.options.length; k++) {
+      if (Math.abs(parseFloat(sel.options[k].value) - g) < 0.001) { sel.value = sel.options[k].value; return; }
+    }
+    sel.value = String(g);
+  }
   $("revGearMinus").addEventListener("click", function() {
     const i = Math.max(0, gears.indexOf(n("revGear")) - 1);
-    $("revGear").value = String(gears[i]);
+    setRevGear(gears[i]);
     calcRev();
   });
   $("revGearPlus").addEventListener("click", function() {
     const i = Math.min(gears.length - 1, gears.indexOf(n("revGear")) + 1);
-    $("revGear").value = String(gears[i]);
+    setRevGear(gears[i]);
     calcRev();
   });
 })();
