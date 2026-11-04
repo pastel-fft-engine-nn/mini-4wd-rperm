@@ -381,10 +381,10 @@ body.theme-classic:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fff
 body.theme-classic:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #fdeef2; }
 body.theme-classic:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #f3f8fc; }
 body.theme-classic:not(.dark-mode) .hist-card:nth-child(4n) { background: #fff5f7; }
-body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fbf7f0; }
-body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #f3ead8; }
-body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #f6f1e6; }
-body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n) { background: #efe6d6; }
+body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+1) { background: #fafaf8; }
+body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+2) { background: #f1f1ee; }
+body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n+3) { background: #f5f5f2; }
+body.theme-plain:not(.dark-mode) .hist-card:nth-child(4n) { background: #ececea; }
 body.theme-plain.dark-mode .hist-card:nth-child(4n+1) { background: #2a241c; }
 body.theme-plain.dark-mode .hist-card:nth-child(4n+2) { background: #3a3024; }
 body.theme-plain.dark-mode .hist-card:nth-child(4n+3) { background: #322a22; }
@@ -473,9 +473,9 @@ table td, table th { text-align: center !important; }
 .wave-container.is-folded canvas#spectrum { display: none; }
 .wave-container.is-folded { padding-bottom: 4px; margin-bottom: 4px; }
 .wave-fold {
-  border: 0; background: transparent; color: var(--mute);
-  font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
-  padding: 0 4px; cursor: pointer;
+  border: 2px solid #ff973d; background: transparent; color: #ff973d;
+  font-size: 13px; font-weight: 800; letter-spacing: 0.04em;
+  padding: 7px 14px; border-radius: 999px; cursor: pointer;
 }
 .wave-th { display: none; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; color: var(--ice); }
 .wave-container.is-folded .wave-th { display: inline; }
@@ -635,7 +635,7 @@ body.theme-plain.dark-mode .fav-name.is-fav { color: #ffb07a; }
 }
 #machineModalBackdrop .modal-title { font-size: 15px; }
 #machineModalBackdrop .modal-title-note { font-size: 10px; line-height: 1.3; }
-#machineModalBackdrop .machine-grid { gap: 6px; }
+#machineModalBackdrop .machine-grid { gap: 12px; }
 #machineModalBackdrop .setting-label { font-size: 11px; }
 #machineModalBackdrop .machine-item .hint { margin: 2px 0 0; font-size: 10px; line-height: 1.3; }
 #machineModalBackdrop .seg-btn,
@@ -1070,14 +1070,14 @@ body.theme-classic:not(.dark-mode) .dual-range-container input[type="range"]::-w
   background: #7eb6d8; border-color: #7eb6d8;
 }
 body.theme-plain:not(.dark-mode) {
-  --bg: #f6f1e6;
-  --bg2: #fbf7f0;
-  --ink: #5c5348;
-  --mute: #9a8f80;
-  --line: #e6dccb;
-  --hot: #a15a4e;
-  --ice: #8a7b68;
-  --soft: #efe6d6;
+  --bg: #f0f0ee;
+  --bg2: #f8f8f6;
+  --ink: #3d3d3b;
+  --mute: #8a8a86;
+  --line: #e2e2dc;
+  --hot: #6b6b66;
+  --ice: #55554f;
+  --soft: #e9e9e4;
 }
 
 .realtime-btn-row { grid-template-columns: 1.35fr 1fr 1fr 1fr !important; }
@@ -1162,14 +1162,14 @@ body.theme-sharp .cmp-machine-bar, body.theme-classic .cmp-machine-bar, body.dar
 body.theme-classic .theme-pick-row .theme-pick.is-on { outline-color: var(--accent-blue, #1f7aff); }
 #themePickRow { grid-template-columns: 1fr 1fr; }
 body.theme-plain {
-  --bg: #f6f1e6;
-  --bg2: #fbf7f0;
-  --ink: #5c5348;
-  --mute: #9a8f80;
-  --line: #e6dccb;
-  --hot: #a15a4e;
-  --ice: #8a7b68;
-  --soft: #efe6d6;
+  --bg: #f0f0ee;
+  --bg2: #f8f8f6;
+  --ink: #3d3d3b;
+  --mute: #8a8a86;
+  --line: #e2e2dc;
+  --hot: #6b6b66;
+  --ice: #55554f;
+  --soft: #e9e9e4;
 }
 body.theme-plain.dark-mode {
   --bg: #2a241c;
@@ -1211,7 +1211,11 @@ body.theme-classic .lang-pick.is-on { outline-color: var(--accent-blue, #1f7aff)
 .help-search button { min-height: 40px; padding: 0 12px; border: 1px solid var(--line); background: var(--soft); color: var(--ink); font-weight: 800; }
 .help-hit { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); padding: 8px 10px; font-size: 12px; line-height: 1.5; }
 .help-hit small { display: block; color: var(--mute); font-size: 10px; letter-spacing: 0.08em; }
-mark.help-mark { background: rgba(255,151,61,.35); color: inherit; padding: 0 1px; }
+mark.help-mark { background: transparent; color: #ff973d; font-weight: 700; padding: 0 1px; }
+.sh-status { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--mute); padding: 2px 4px; }
+.sh-spec { width: 100%; height: 36px; display: block; background: #0a0a0c; border-radius: 6px; margin-top: 6px; }
+.hist-btn-row { display: flex; gap: 8px; }
+.hist-btn-row .hist-fold-btn { flex: 1; min-width: 0; font-size: 12px; padding-left: 2px; padding-right: 2px; }
 .help-acc { border: 1px solid var(--line); margin: 0 0 8px; }
 .help-acc > button {
   width: 100%; text-align: left; background: transparent; color: var(--ink);
@@ -1250,11 +1254,11 @@ body.theme-classic .onboard-card { border-radius: 12px 12px 0 0; border-top: non
 body.theme-classic .help-acc { border: none; border-radius: 8px; background: var(--card-bg, #fff); }
 .privacy-box { font-size: 12px; line-height: 1.55; color: var(--mute); margin-top: 12px; }
 
-#dashApp { display: none; background: #0a0a0a; color: #fff; min-height: 100vh; padding: 60px 12px 16px; }
+#dashApp { display: none; background: #0a0a0a; color: #fff; min-height: 100vh; padding: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)) 12px 16px; }
 body.theme-dash2 #dashApp { display: block; }
 body.theme-dash2 .app-shell { display: none; }
 .d-kicker { font-size: 11px; letter-spacing: 0.18em; color: #888; text-align: center; margin: 16px 0 4px; font-weight: 700; }
-.d-big { font-family: var(--num); font-size: 52px; font-weight: 700; color: #fff; text-align: center; }
+.d-big { font-family: var(--num); font-size: 47px; font-weight: 700; color: #fff; text-align: center; }
 .d-avg { font-size: 13px; color: #aaa; text-align: center; margin-top: 6px; }
 .d-avg span { font-family: var(--num); font-size: 22px; color: #eee; font-weight: 700; }
 .d-sides { display: flex; justify-content: space-around; margin-top: 8px; padding-top: 8px; border-top: 1px solid #2a2a2a; }
@@ -1370,7 +1374,7 @@ body.theme-paper #paperApp{display:block;max-width:560px;margin:0 auto;padding:c
 .paper-gaugewrap{display:flex;justify-content:center;padding:8px 0 0;}
 #paperGauge{width:min(300px,80vw);height:min(300px,80vw);}
 .paper-speed{text-align:center;margin-top:0;}
-.paper-speed .v{font-size:38px;font-weight:900;color:#111;line-height:1;font-variant-numeric:tabular-nums;}
+.paper-speed .v{font-size:47px;font-weight:900;color:#111;line-height:1;font-variant-numeric:tabular-nums;}
 .paper-speed .u{font-size:11px;font-weight:800;color:#6E6A61;letter-spacing:.22em;}
 .paper-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;}
 .paper-box{background:#fff;border:1px solid #E4E1D8;padding:6px 8px;}
@@ -1394,7 +1398,7 @@ body.theme-material #matApp{display:block;max-width:560px;margin:0 auto;padding:
 .mat-chip.hold{background:#6750A4;color:#fff;}
 .mat-card{background:#fff;border-radius:28px;padding:18px 18px 14px;box-shadow:0 1px 3px rgba(20,24,28,.10);}
 .mat-card .k{font-size:11px;font-weight:600;letter-spacing:.14em;color:#5A6068;}
-.mat-card .v{font-size:52px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums;color:#006A6A;}
+.mat-card .v{font-size:47px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums;color:#006A6A;}
 .mat-bar{height:10px;border-radius:999px;background:#E3E7ED;overflow:hidden;margin-top:8px;}
 .mat-bar i{display:block;height:100%;width:0%;background:#006A6A;border-radius:999px;transition:width .12s linear;}
 .mat-card.spd{margin-top:10px;padding:12px 18px;}
@@ -1427,7 +1431,7 @@ body.theme-lcars #lcApp{display:block;max-width:560px;margin:0 auto;padding:calc
 .lc-main{flex:1;min-width:0;}
 .lc-read{border-left:6px solid #F2994A;padding:2px 0 2px 12px;margin-bottom:12px;}
 .lc-read .k{font-size:11px;letter-spacing:.3em;color:#CC99CC;font-weight:700;}
-.lc-read .v{font-size:48px;font-weight:300;line-height:1.05;color:#FFCC99;font-variant-numeric:tabular-nums;}
+.lc-read .v{font-size:47px;font-weight:300;line-height:1.05;color:#FFCC99;font-variant-numeric:tabular-nums;}
 .lc-read.spd{border-left-color:#9999FF;}
 .lc-read.spd .v{color:#BFD4FF;font-size:38px;}
 .lc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;}
@@ -1474,7 +1478,7 @@ body.theme-chrono #chApp{display:block;max-width:560px;margin:0 auto;padding:cal
 .ch-case{border-radius:50%;padding:12px;background:linear-gradient(145deg,#3A3F47,#14161A 55%,#2A2E35);box-shadow:0 10px 28px rgba(0,0,0,.55),inset 0 1px 2px rgba(255,255,255,.25);}
 #chCanvas{width:min(300px,78vw);height:min(300px,78vw);display:block;}
 .ch-speed{text-align:center;margin-top:2px;}
-.ch-speed .v{font-size:36px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;}
+.ch-speed .v{font-size:47px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;}
 .ch-speed .u{font-size:10px;font-weight:800;letter-spacing:.24em;color:#9AA0A8;}
 .ch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;}
 .ch-box{background:#17191E;border:1px solid #2A2E35;padding:6px 8px;border-radius:6px;}
@@ -1499,7 +1503,7 @@ body.theme-blueprint #bpApp{display:block;max-width:560px;margin:0 auto;padding:
 .bp-gaugewrap{display:flex;justify-content:center;padding:6px 0 0;}
 #bpGauge{width:min(300px,80vw);height:min(300px,80vw);}
 .bp-speed{text-align:center;}
-.bp-speed .v{font-size:36px;font-weight:700;font-variant-numeric:tabular-nums;}
+.bp-speed .v{font-size:47px;font-weight:700;font-variant-numeric:tabular-nums;}
 .bp-speed .u{font-size:10px;letter-spacing:.24em;color:#BFD9FF;}
 .bp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;}
 .bp-box{border:1px dashed rgba(255,255,255,.55);padding:6px 8px;}
@@ -1524,7 +1528,7 @@ body.theme-retro #gbApp{display:block;max-width:520px;margin:0 auto;padding:calc
 .gb-lcd:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(34,48,15,.06) 0 1px,transparent 1px 3px);pointer-events:none;}
 .gb-lcdhead{display:flex;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:.14em;}
 .gb-state.live{color:#7A1020;}
-.gb-rpm{font-size:56px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:.02em;}
+.gb-rpm{font-size:47px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:.02em;}
 .gb-rpm small{font-size:11px;letter-spacing:.2em;}
 #gbSpec{width:100%;height:92px;display:block;margin:2px 0;}
 .gb-row{display:flex;justify-content:space-between;font-size:13px;font-weight:700;border-top:2px solid rgba(34,48,15,.5);padding-top:6px;margin-top:7px;font-variant-numeric:tabular-nums;}
@@ -1565,7 +1569,7 @@ body.theme-ios #iosApp{display:block;max-width:560px;margin:0 auto;min-height:10
 .ios-hpill.purple .ios-hpill-fill{background:#AF52DE;}
 .ios-knob{position:absolute;top:50%;left:8%;transform:translate(-50%,-50%);width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(30,40,90,.35);pointer-events:none;}
 .ios-rpmtile{padding:16px 18px 13px;margin-top:12px;}
-.ios-rpmv{font-size:46px;font-weight:800;line-height:1.08;font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+.ios-rpmv{font-size:47px;font-weight:800;line-height:1.08;font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
 .ios-statsrow{display:flex;gap:8px;margin-top:10px;}
 .ios-rs{flex:1;display:flex;flex-direction:column;}
 .ios-rs .k{font-size:10px;font-weight:800;letter-spacing:.06em;color:#6E6E76;}
@@ -1574,7 +1578,7 @@ body.theme-ios #iosApp{display:block;max-width:560px;margin:0 auto;min-height:10
 .ios-bar-fill{height:100%;width:0%;border-radius:4px;background:#007AFF;transition:width .12s linear;}
 .ios-barcap{font-size:9px;font-weight:600;color:#8A8A91;margin-top:5px;}
 .ios-spdtile{padding:14px 18px 13px;margin-top:10px;}
-.ios-spdv{font-size:38px;font-weight:800;color:#0A64D8;font-variant-numeric:tabular-nums;line-height:1.12;}
+.ios-spdv{font-size:47px;font-weight:800;color:#0A64D8;font-variant-numeric:tabular-nums;line-height:1.12;}
 .ios-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
 .ios-bigbtn{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border:0;border-radius:26px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;padding:0 10px;box-shadow:0 3px 10px rgba(40,50,100,.22);}
 .ios-bigbtn svg{width:22px;height:22px;flex:none;}
@@ -1867,7 +1871,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 </div>
 <div class="dual-range-container">
 <div class="dual-range-track"></div>
-<div class="dual-range-fill" id="rangeFill" style="left: 8.333333%; width: 58.333333%;"></div>
+<div class="dual-range-fill" id="rangeFill" style="left: 8.333333%; width: 75%;"></div>
 <input type="range" id="rpmMinLimit" min="0" max="60000" step="500" value="5000">
 <input type="range" id="rpmMaxLimit" min="0" max="60000" step="500" value="50000">
 </div>
@@ -1876,7 +1880,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <div class="meter-row">
 <div id="rpmBlock">
 <div class="section-kicker kicker-rpm">MOTOR RPM<span id="rpmTargetMark"></span><button type="button" class="qmark" id="rpmHelpBtn" aria-label="回転の説明">?</button></div>
-<div class="speed-basis" id="rpmBasis" hidden="">下は回しているモーターが出す音を集音した数値です。平均値は、回してから計測開始を押してください。もしくは、回してるときにリセット押してください。</div>
+<div class="speed-basis" id="rpmBasis" hidden="">この数字は、回しているモーターが出す音を集音して出した回転数です。</div>
 <div class="realtime-stats">
 <div class="stat-block stat-current">
 <div class="stat-label">CURRENT</div>
@@ -1915,7 +1919,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 </div>
 <div class="stat-stack">
 <div class="stat-block stat-side">
-<div class="stat-label">TOP</div>
+<div class="stat-label">MAX</div>
 <div class="stat-value" id="speedTop">--</div>
 <div class="stat-value-sub" id="speedTopRaw"></div>
 </div>
@@ -1929,23 +1933,23 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 
 </div>
 </div>
-<div class="cmp-live" id="cmpLive" hidden>
+<div class="cmp-live" id="cmpLive" hidden="">
 <div class="cmp-live-row" id="gearLiveRow"></div>
 <div class="cmp-live-row" id="tireLiveRow"></div>
-<div class="cmp-live-row" id="vaLiveHead"></div>
-<div class="cmp-live-row" id="vaLiveRow"></div>
+<div class="cmp-live-row" id="vaLiveHead" hidden=""></div>
+<div class="cmp-live-row" id="vaLiveRow" hidden=""></div>
 </div>
 <div class="realtime-center" id="statusLine">計測待機中<span class="status-sub">マシン　未設定</span></div>
 
-<div id="tireStrip" hidden>
-<div class="tire-head">シャーシ <span id="tireChassisName">―</span></div>
+<div id="tireStrip" hidden="">
+<div class="tire-head">シャーシ <span id="tireChassisName">共通（指定なし）</span></div>
 <div class="tire-row">
 <button type="button" class="tire-cell" id="tireBaseCell"><span class="tire-k" id="tireBaseKey">単体（タップで取り直し）</span><span class="tire-v" id="tireBaseVal">―</span></button>
 <div class="tire-cell"><span class="tire-k">タイヤ付</span><span class="tire-v" id="tireNowVal">―</span></div>
 <div class="tire-cell"><span class="tire-k">駆動ロス</span><span class="tire-v loss" id="tireLossVal">―</span></div>
 </div>
 </div>
-<div id="abStrip" hidden>
+<div id="abStrip" hidden="">
 <div class="tire-head">A/B比較 ・ 基準 <button type="button" id="abNameBtn">（名前なし）</button></div>
 <div class="tire-row">
 <button type="button" class="tire-cell" id="abBaseCell"><span class="tire-k">基準（タップで今を基準に）</span><span class="tire-v" id="abBaseVal">―</span></button>
@@ -1955,7 +1959,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 </div>
 <div class="realtime-buttons">
 <div class="realtime-btn-row">
-<button class="primary-btn blue" id="startBtn" data-i18n="start">START</button>
+<button class="primary-btn blue" id="startBtn" data-i18n="start">計測開始</button>
 <button class="secondary-btn tire" id="tireBtn" type="button">タイヤ付</button>
 <button class="secondary-btn outline" id="lockBtn" data-i18n="lock">ロック</button>
 <button class="secondary-btn gray" id="saveBtn" data-i18n="save">保存</button>
@@ -2008,7 +2012,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 </div>
 </section>
 
-<section class="card" id="cmpSection" hidden>
+<section class="card" id="cmpSection" hidden="">
 <div class="card-header"><div class="card-title">電圧別比較表 <span id="cmpShaftMark">未</span><button type="button" class="qmark" id="cmpHelpBtn" aria-label="比較表の説明">?</button></div><label class="cmp-volt-prec"><input type="checkbox" id="cmpVoltFine"> 小数2位</label></div>
 <div class="cmp-summary" id="cmpSummary">未　2.8 V　ギヤ 3.7:1　タイヤ 22.5 mm。ロックすると速度が出ます。</div>
 <div id="cmpHelpNotes" hidden="">
@@ -2030,7 +2034,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 </table>
 </div>
 
-<div id="lockTune" hidden style="margin:6px 12px 10px;padding:6px 8px;border:1px solid var(--line);">
+<div id="lockTune" hidden="" style="margin:6px 12px 10px;padding:6px 8px;border:1px solid var(--line);">
   <div class="setting-item" style="gap:2px;">
     <div class="setting-label"><span>電圧</span><span class="setting-value" id="lockVoltLabel">2.8 V</span></div>
     <input type="range" id="lockVoltRange" min="2.2" max="3.5" step="0.1" value="2.8">
@@ -2073,7 +2077,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
 <input type="checkbox" id="stableGate" checked="" style="width:18px;height:18px;"><span>安定してから MAX / MIN / AVG を数える</span><button type="button" class="qmark" id="stableGateBtn" aria-label="安定後の説明">?</button>
 </label>
-<p class="speed-basis" id="stableGateNote" hidden="">CURRENT はすぐ動きます。8000rpm以上が0.6秒続いたら、そこからトップ・ミニマム・平均を記録します。オフにすると、数字が出た瞬間から記録します。</p>
+<p class="speed-basis" id="stableGateNote" hidden="">CURRENT はすぐ動きます。8000rpm以上が0.6秒続いたら、そこからMAX・MIN・AVG を記録します。オフにすると、数字が出た瞬間から記録します。</p>
 </div>
 <div class="pref-board">
 <div class="pref-group" id="lookGroup">
@@ -2099,11 +2103,11 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <button type="button" class="secondary-btn gray lang-pick" data-lang="en">English</button>
 </div>
 </div>
-<button class="secondary-btn gray pref-dark" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button>
+<div class="pref-group"><button class="secondary-btn gray" id="darkModeToggleBtn" data-i18n="darkOff">ダーク</button></div>
+<div class="pref-group"><button class="secondary-btn gray" id="settingsHelpBtn" data-i18n="help">使い方</button></div>
 </div>
 <button type="button" id="uiThemeToggleBtn" style="display:none" aria-hidden="true">外観: シンプル</button>
 <button type="button" id="reverseCalcOpenBtn" style="display:none" aria-hidden="true"></button>
-<div class="u-mt8"><button class="secondary-btn gray" id="settingsHelpBtn" style="width:100%;" data-i18n="help">使い方</button></div>
 <div style="display:flex;gap:8px;margin-top:12px;">
 <button class="secondary-btn gray u-flex1" id="backupExportBtn">書き出し</button>
 <button class="secondary-btn gray u-flex1" id="backupImportBtn">復元</button>
@@ -2129,7 +2133,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <div class="modal-header"><div class="modal-title" data-i18n="help">使い方</div><button class="modal-close" id="helpCloseTop">×</button></div>
 <div id="helpJa">
 <div class="help-search">
-  <input id="helpSearchInput" type="search" placeholder="使い方を検索" autocomplete="off">
+  <input id="helpSearchInput" type="search" placeholder="使い方を検索" autocomplete="off" data-ja-ph="使い方を検索">
   <button type="button" id="helpSearchBtn">検索</button>
 </div>
 <div id="helpHits"></div>
@@ -2146,9 +2150,9 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <h4>マイクの棒と READY</h4>
 <p>マイクが入っているかの印です。READY はまだ測っていない状態です。計測を始めると MEASURING — 解析中 に変わります。</p>
 <h4>MOTOR RPM</h4>
-<p>モーター回転の推定です。CURRENT が今の値、そのすぐ下の AVG が安定しているあいだの平均です。MAX がこの計測でいちばん高かった値、MIN がいちばん低かった値です。設定で「安定してから数える」がオンなら、MAX・MIN・AVG は 8000rpm 以上が 0.6秒続いたあとからです。平均値は、回してから計測開始を押してください。もしくは、回してるときにリセットを押してください。枠を押すと目標を入れられます。</p>
+<p>モーター回転の推定です。CURRENT が今の値、そのすぐ下の AVG が安定しているあいだの平均です。MAX がこの計測でいちばん高かった値、MIN がいちばん低かった値です。設定で「安定してから数える」がオンなら、MAX・MIN・AVG は 8000rpm 以上が 0.6秒続いたあとからです。枠を押すと目標を入れられます。</p>
 <h4>SPEED (km/h)</h4>
-<p>その回転から計算した机上の速度です。CURRENT のすぐ下の AVG が、同じ区間の平均速度です。TOP がこの計測の最高、MIN が最低です。安定してから数えるがオンなら、TOP・MIN・AVG も立ち上がりを入れません。実走の速度計ではありません。</p>
+<p>その回転から計算した机上の速度です。CURRENT のすぐ下の AVG が、同じ区間の平均速度です。MAX がこの計測の最高、MIN が最低です。安定してから数えるがオンなら、MAX・MIN・AVG も立ち上がりを入れません。実走の速度計ではありません。</p>
 <h4>状態の文字</h4>
 <p>数字の下の READY や MEASURING は、今が待機か計測中かを示す一行です。</p>
 <p class="onboard-en">Top of the screen: the spectrum is the live sound, MOTOR RPM is the estimate (current / max / min), SPEED is a desk calculation, not a track speed.</p>
@@ -2161,12 +2165,12 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <h4>計測開始 / 計測停止</h4>
 <p>計測開始でマイクを使い始めます。最初の一回だけ、マイクの許可を聞かれます。許可しないと数字は出ません。押したあとは計測停止になり、もう一度押すとマイクをやめます。</p>
 <h4>ロック</h4>
-<p>今の数字をその場で固定します。保存ではありません。比較表は、ロックした回転を起点にします。もう一度押すと解除です。ロックした瞬間の時刻・回転・モーター・ギヤ・電圧・タイヤ径は、マシン設定の「ロック履歴」に残ります。</p>
+<p>今の数字をその場で固定します。保存ではありません。比較表は、ロックした回転を起点にします。もう一度押すと解除です。ロックした瞬間の日付（月/日）・回転・モーター・ギヤ・電圧・タイヤ径は、マシン設定の「ロック履歴」に残ります。</p>
 <h4>保存</h4>
 <p>記録をこの端末の履歴に残します。残るのは、その計測の最高回転が基本です。保存モードが「毎回名前を聞いて保存」なら名前を聞きます。「前回の名前で上書き確認」なら、前回の名前で上書きしていいかを聞きます。</p>
 <h4>タイヤ付（駆動ロス）</h4>
-<p>このアプリは本来、モーター単体の音を拾って回転数を測るものです。タイヤ付はおまけの機能で、ギヤやタイヤを組み付けた状態では単体からどれくらい回転数が落ちるのか、その割合（駆動ロス）を % で見るために使います。</p><p>流れは、単体で測る → 「タイヤ付」ボタンを押す → 組み付けて測る → 落ちた割合が % で出る、です。ボタンを押すと、その時点の回転数を「単体」として取り込み、単体・タイヤ付・駆動ロス（落ちた割合 %）の帯が出て、ボタンが黄色く点灯します。タイヤ付の値は計測に合わせて動き、ロックするとその値で止まります。もう一度ボタンを押すと帯が消えます。</p><p>「単体」の値は端末に残るので、組み直している間に画面を閉じても、続きから測れます。取り直したいときは、帯に出ている「単体」の表示を押してください。そのとき画面に出ている回転数が、新しい「単体」として控え直されます。</p><p>帯が出ている状態で保存すると、単体・タイヤ付・ロス%も履歴に残ります。履歴のカードの「この記録でタイヤ付計測」を押すと、その記録の値（単体値がある記録は単体値、ない記録はRPM）が単体の基準になって帯が開きます。たとえば、慣らしをする前の記録を単体にして、今の落ち具合と比べることができます。単体のラベルに出典の日付と電圧が出て、保存すると新しい記録に出典も残ります。</p><p>なお、タイヤを空転させたときの負荷は駆動系の抵抗だけなので、実走の負荷とは別物です。また、組み付けた状態はモーター音が拾いにくくなることがあります。数値が大きく跳ねる場合は、集音フィルタの範囲を狭めると安定します。タイヤ付は、どの外観でもボタンと帯が出ます。</p><h4>A/B比較</h4><p>下の文字の並びにある「A/B比較」を押すと、基準・今・差の帯が出ます。基準の表示を押すと、そのとき画面に出ている回転数が基準になり、名前を付けられます（例：慣らし前、ギヤ交換前）。帯が出ている間、今の回転数と基準との差が % で出続けます。基準は端末に残ります。タイヤ付の帯とは同時には出ません（片方を開くと、もう片方は閉じます）。</p><p>履歴のカードの「この記録と比較」を押すと、その記録の RPM が基準になって帯が開きます。帯が出ている状態で保存すると、基準・今・差%・基準名も履歴に残り、カードの足に出ます。</p>
-<p class="onboard-en">Start uses the mic. Lock freezes the number for the chart. Save writes a record on this device only. Tire compares a motor-only reading with the assembled car and shows the drive loss %. If readings jump when assembled, narrow the mic filter band.</p>
+<p>このアプリは本来、モーター単体の音を拾って回転数を測るものです。タイヤ付はおまけの機能で、ギヤやタイヤを組み付けた状態では単体からどれくらい回転数が落ちるのか、その割合（駆動ロス）を % で見るために使います。</p><p>流れは、単体で測る → 「タイヤ付」ボタンを押す → 組み付けて測る → 落ちた割合が % で出る、です。ボタンを押すと、その時点の回転数を「単体」として取り込み、単体・タイヤ付・駆動ロス（落ちた割合 %）の帯が出て、ボタンが黄色く点灯します。タイヤ付の値は計測に合わせて動き、ロックするとその値で止まります。もう一度ボタンを押すと帯が消えます。</p><p>「単体」の値は端末に残るので、組み直している間に画面を閉じても、続きから測れます。取り直したいときは、帯に出ている「単体」の表示を押してください。そのとき画面に出ている回転数が、新しい「単体」として控え直されます。</p><p>帯が出ている状態で保存すると、単体・タイヤ付・ロス%も履歴に残ります。履歴のカードの「この記録でタイヤ付計測」を押すと、その記録の値（単体値がある記録は単体値、ない記録はRPM）が単体の基準になって帯が開きます。たとえば、慣らしをする前の記録を単体にして、今の落ち具合と比べることができます。単体のラベルに出典の日付と電圧が出て、保存すると新しい記録に出典も残ります。</p><p>なお、タイヤを空転させたときの負荷は駆動系の抵抗だけなので、実走の負荷とは別物です。また、組み付けた状態はモーター音が拾いにくくなることがあります。数値が大きく跳ねる場合は、集音フィルタの範囲を狭めると安定します。タイヤ付は、どの外観でもボタンと帯が出ます。</p><h4>A/B比較</h4><p>「基準」を1つ決めておいて、いまの回転数がそれより何 % 高いか・低いかを見続けるための機能です。下の文字の並びにある「A/B比較」を押すと、基準・今・差の帯が出ます。もう一度押すと帯が消えます。タイヤ付の帯とは同時には出ません（片方を開くと、もう片方は閉じます）。A/B比較も、どの外観でも下のほうにボタンと帯が出ます（中身は標準画面と同じです）。</p><p>使い方です。（1）基準にしたい状態で測ります。（2）帯の「基準」の表示を押すと、そのとき画面に出ている回転数が基準として控えられ、名前を聞かれるので付けます（例：慣らし前、ギヤ交換前）。（3）条件を変えて測ると、「今」がいまの回転数、「差」が基準との差 %（今 ÷ 基準 − 1）で動き続けます。プラスなら基準より高く、マイナスなら低く回っています。名前だけ変えたいときは、帯の名前のボタンを押します。基準は端末に残るので、帯を閉じて開き直しても続きから比べられます。</p><p>何に使うか：慣らしの前後、ギヤやタイヤを換える前後、電池を変えたときなど、「前と比べてどう変わったか」をその場で見るためのものです。タイヤ付が「単体 → 組み付け」専用の比べ方なのに対して、A/B は比べる相手を自由に決められます。過去の記録と比べたいときは、履歴のカードの「この記録と比較」を押すと、その記録の RPM が基準になって帯が開きます（名前は「M/Dの記録・x.xV」と自動で付きます）。</p><p>帯が出ている状態で保存すると、基準・今・差%・基準名も履歴に残り、カードの下の段に出ます。注意として、基準と今とで電圧やギヤ・負荷%が違うと、その違いも差 % に混ざります。比べたいもの以外は条件を揃えてください。</p>
+<p class="onboard-en">Start uses the mic. Lock freezes the number for the chart. Save writes a record on this device only. Tire compares a motor-only reading with the assembled car and shows the drive loss %. If readings jump when assembled, narrow the mic filter band. A/B keeps one named baseline RPM and shows the live difference % against it.</p>
 </div>
 </div>
 
@@ -2202,7 +2206,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <li>ロックすると止まる。停止しても値は残るので、そのあと保存できる</li>
 <li>次の計測開始とリセットで消える</li>
 </ul>
-<p>履歴では、速度のすぐ上に平均速度、RPM のすぐ上に平均RPMが残ります。単位は km/h Ave と RPA Ave です。</p>
+<p>履歴のカードでは、1行目の右に RPM AVG、2行目の右に速度 AVG として残ります。</p>
 <p class="onboard-en">AVG is the stable part of this run only. Spin-up and gaps are left out. It is not a lap average.</p>
 </div>
 </div>
@@ -2241,7 +2245,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <div class="help-acc">
 <button type="button">集音フィルタ</button>
 <div class="help-body">
-<p>スペクトラムの下にある、左右の丸いつまみです。左が下限、右が上限です。最初は 5,000 から 40,000 です。</p>
+<p>スペクトラムの下にある、左右の丸いつまみです。左が下限、右が上限です。最初は 5,000 から 50,000 です。</p>
 <p>この範囲の外にある山は、回転として使いません。見たい回転の近くだけに狭めると、別の大きな音に飛びにくくなります。広げると、関係ない音も候補になります。</p>
 <p>ノイズ閾値（TH）とは別です。フィルタはどの回転帯を見るか（左右）。TH はどれだけ強い山だけを採用するか（上下）。両方を同時に使います。</p>
 <p class="onboard-en">The two knobs set the RPM window. Sounds outside it are ignored. This is separate from the TH line.</p>
@@ -2249,9 +2253,9 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 </div>
 
 <div class="help-acc">
-<button type="button">設定の外観・言語・ダーク</button>
+<button type="button">設定の外観・言語・ダーク・使い方</button>
 <div class="help-body">
-<p>設定を開くと、スライダーの下に横3つだけあります。外観、言語、ダークです。</p>
+<p>設定を開くと、スライダーの下に4つあります。外観、言語、ダーク、使い方です（2つずつ2段）。</p>
 <h4>外観</h4>
 <p>押すと11こ出ます。もう一度押すと閉じます。どれかを選ぶと設定は閉じて、その見た目のトップに戻ります。</p>
 <ul>
@@ -2281,7 +2285,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <li>審査用デモ … ふだんは OFF。ON にするとマイクなしで見本の山が出ます。自分で測るときは必ず OFF に戻してください</li>
 </ul>
 <p>ノイズ閾値、校正係数、走行負荷の意味は、それぞれの項目に書いてあります。</p>
-<p class="onboard-en">Look has four themes. Language switches labels. Dark toggles the light and dark screen. Reset does not delete history.</p>
+<p class="onboard-en">Look has eleven themes. Language switches labels. Dark toggles the light and dark screen. Reset does not delete history.</p>
 </div>
 </div>
 
@@ -2303,7 +2307,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <div class="help-acc">
 <button type="button">マシン設定の項目</button>
 <div class="help-body">
-<p>上から順です。反映して閉じるまで、比較表と速度には入りません。</p>
+<p>上から順です。電圧・ギヤ・タイヤは、入力した時点でトップの表示に同期します（閉じる前でも変わります）。</p>
 <h4>駆動</h4>
 <p>指定なし、両軸、片軸。モーターの候補が変わります。指定なしのままなら、両方のモーターから選べます。</p>
 <h4>シャーシ</h4>
@@ -2311,11 +2315,11 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <h4>モーター</h4>
 <p>今載せている種類です。履歴やロック履歴では短い名前になります。例: ノーマルPRO は NMP、マッハPRO は MDP。</p>
 <h4>電圧</h4>
-<p>電池の目安です。速度の式には直接入りません。記録と比較のときのメモです。枠に直接、小数第2位まで入れられます。ボタンは −0.01 / −0.1 / ＋0.1 / ＋0.01 の4つで、範囲は 2.2〜3.5V です。育成の電力計算では、この電圧を使います。</p>
+<p>電池の目安です。トップで測る回転と速度の式には直接入りません（測った回転がそのまま出ます）。記録と比較のときのメモと、マシン設定の中や逆算での机上換算に使います。枠に直接、小数第2位まで入れられます。ボタンは −0.01 / −0.1 / ＋0.1 / ＋0.01 の4つで、範囲は 2.2〜3.5V です。育成の電力計算では、この電圧を使います。</p>
 <h4>育成の電圧とアンペア</h4>
 <p>電圧の下にあります。アプリでの位置づけは次のとおりです。</p>
 <ul>
-<li>電圧はスピードの上限です。マシン設定の電圧を上げると、机上の回転もその比で上がります</li>
+<li>電圧はスピードの上限です。マシン設定の電圧を上げると、机上換算の回転（マシン設定の中の見本や逆算の数字）もその比で上がります。トップで測っている回転そのものは変わりません</li>
 <li>抵抗は机上で出します。電圧 ÷ 電流です。2.8 V ÷ 5.0 A なら 0.56 Ω です。モーターの特性と、摩擦や負荷をまとめた邪魔もの、という扱いです</li>
 <li>電流は結果です。モーターが持つ固定の数字ではなく、負荷に合わせて電池から引く量です。空回しは低く、走行や坂では上がります</li>
 </ul>
@@ -2337,7 +2341,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <h4>ロック履歴</h4>
 <p>ロックを押した瞬間の一覧です。各行の名前欄に入れた文字は、その行だけに保存されます。この端末のロック履歴に残ります。トップの「履歴」には入りません。日付、表示回転、モーター、ギヤ比、電圧、タイヤ径も残ります。時間は残しません。</p>
 <h4>反映して閉じる</h4>
-<p>入れた電圧・ギヤ・タイヤを、トップの速度と比較表に反映して閉じます。</p>
+<p>今の値で確定して閉じます。電圧・ギヤ・タイヤは入力した時点ですでにトップに同期されているので、このボタンは「この値で決める」という確定で、マシン設定を反映した表示になります。</p>
 <h4>通常表示に戻す</h4>
 <p>開いた時点の値に戻して閉じます。電圧・ギヤ・タイヤ・走行負荷・アンペア・抵抗と、それぞれのチェックの状態が、開く前に戻ります。変えた値を残すときは「反映して閉じる」を押してください。</p>
 <p class="onboard-en">Back to normal restores the values from when the modal was opened (voltage, gear, tire, load, amp, ohm and their checkboxes). Use Apply and close to keep the edits.</p>
@@ -2349,7 +2353,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <button type="button">履歴の画面</button>
 <div class="help-body">
 <p>保存した行の一覧です。この端末の中だけに残ります。ほかの電話やクラウドとは共有されません。</p>
-<p>右の3段です。1段目がモーター、RPM、速さ。2段目がギヤ、平均RPM（RPA Ave）、平均速度（km/h Ave）。3段目がタイヤ、日付です。左のチェック、削除、名前、電圧はそのままです。平均が無い古い記録は — です。</p>
+<p>カード1件の中は、小さな表になっています。いちばん上にチェック・日付・名前と名変更・削除、その下が4行です。1行目が RPM と RPM AVG（平均の所に変動%も出ます）、2行目が速度と速度 AVG、3行目がタイヤ付（単体 → タイヤ付）とロス%、4行目がモーター種類・電圧・ギヤ比・タイヤ径です。いちばん下の段に、シャーシ、アンペア・抵抗、A/B比較の結果が出ます。平均が無い古い記録は — です。</p>
 <ul>
 <li>絞り込み・並び替え … 最初は閉じています。押すと、日付・名前・モーターなどのプルダウンと並び替えが開きます。もう一度で閉じます</li>
 <li>お気に入りの付け方 … 名前を押します。名前の色が変わります。もう一度押すと外れます</li>
@@ -2361,11 +2365,10 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <li>履歴をCSVで出す … 履歴の上のボタンです。全記録を CSV ファイル（rpm-history-日付.csv）で出します。列は日付・名前・モーター・RPM・平均RPM・変動%・生RPM・速度・平均速度・生速度・電圧・ギヤ・タイヤ・負荷・駆動・シャーシ・単体・タイヤ付・ロス%・単体の出典・比較の基準・比較の今・差%・基準名です。表計算アプリで開けます</li>
 <li>RPM 0 を削除 … 絞り込み・並び替えの中のボタンです。RPM が 0 の記録だけをまとめて消します。戻せません</li>
 <li>シャーシ別ロス集計 … RPM 0 を削除の下のボタンです。押すとシャーシのプルダウンが出て、選んだシャーシについて、ロス記録の総数と、ギヤ比ごとの件数・ロス%の平均が出ます。ギヤの行を押すと1件ずつのロス%が見られ、さらに押すとその時のマシン設定が見られます。対象はロス%が記録されているものだけです。絞り込みにもシャーシのプルダウンがあります。保存の画面でもシャーシを選べます（記録に入るシャーシはそちらが優先です）</li>
-<li>モーター別グラフ … その下のボタンです。モーターを選ぶと、そのモーターの記録だけが時系列の折れ線になります（線の色はギヤ比、点の芯の色は電圧）。下には1件ずつの前回比と初回比（%）が出ます。同じモーターの推移なので、慣らしの進み具合やコンディションの変化を見るのに使えます。電圧やギヤが違う記録同士の % は参考値です</li>
+<li>モーター別グラフ … その下のボタンです。押すとモーターのプルダウンが出て、選んだモーターの記録だけが時系列の折れ線になります。横軸が記録の順番、縦が RPM で、線の色はギヤ比ごと（ギヤが違う記録は別の線になります）、点の芯の色は電圧の目安（2.95V以上は赤、2.75V以上は青、それ以外はグレー）です。あわせて、最初の記録 → 最新の記録の変化（%）と、1件ずつの前回比（同じモーターの1つ前の記録と）と初回比（最初の記録と）が出ます。同じモーターの推移を見るものなので、慣らしの進み具合やコンディションの変化を見るのに使えます。記録が1件しかないモーターはグラフにならず、その旨が出ます。電圧やギヤ、負荷%が違う記録同士の % は、条件の違いも含むので参考値です</li>
 <li>閉じる … 履歴をしまいます</li>
 </ul>
 <p>あとで見比べるときは、電圧、ギヤ、負荷%が同じかを先に見てください。違う条件の数字をそのまま並べないでください。</p>
-<p>名前の横の★は、いま出している履歴の中で RPM が一番高い行です。お気に入りではありません。</p>
 <p class="onboard-en">The star marks the highest RPM in the list now shown. It is not a favorite. Tap the name to favorite. Delete removes that one row.</p>
 </div>
 </div>
@@ -2401,7 +2404,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <li>必要なら保存</li>
 </ul>
 <p>CURRENT は今の推定。MAX / MIN はこの計測中の最高と最低。SPEED は机上換算で、実走速度ではありません。</p>
-<p>ロックは数字を固定する操作で、保存ではありません。リセットはトップの CURRENT・MAX・MIN と速度だけ消します。設定、マシン設定、比較表、ロック、履歴はそのままです。</p>
+<p>ロックは数字を固定する操作で、保存ではありません。リセットはトップの CURRENT・MAX・MIN と速度を消します。ロック中ならロックも外れて、比較表も消えます。設定、マシン設定、履歴はそのままです。</p>
 </div>
 </div>
 
@@ -2503,7 +2506,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <div class="help-acc">
 <button type="button">マシン設定と比較表の違い</button>
 <div class="help-body">
-<p>マシン設定は、今の車のメモです。駆動、シャーシ、モーター、保存モード、ロック履歴はここだけです。シャーシを選ぶと駆動と使えるギヤが揃います。速度の主表示には伝達を掛けません。括弧だけが仮定です。「反映して閉じる」と、電圧・ギヤ比・タイヤ径が比較表の計算にコピーされます。その入力欄はトップには出しません。</p>
+<p>マシン設定は、今の車のメモです。駆動、シャーシ、モーター、保存モード、ロック履歴はここだけです。シャーシを選ぶと駆動と使えるギヤが揃います。速度の主表示には伝達を掛けません。括弧だけが仮定です。電圧・ギヤ比・タイヤ径は、入力した時点でトップと比較表の計算に同期されます。その入力欄はトップには出しません。</p>
 <p>比較表の上に、駆動・モーター・電圧・ギヤ・タイヤが出ます。片軸か両軸かで、使えるギヤの列が違います。薄い列は、今の駆動では使わないギヤです。選んだ電圧の行と、選んだギヤの列が強調されます。</p>
 <p class="onboard-en">Machine settings copy voltage, gear and tire into the table. The top page no longer shows those inputs. Pale columns are gears that shaft does not use.</p>
 </div>
@@ -2525,6 +2528,7 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <li>ジャンプ（飛距離） … 坂を登った先の飛距離の見積もり</li>
 <li>ギヤ×タイヤ一覧表 … 今の回転数・電圧のまま、ギヤ比とタイヤ径の全組み合わせの机上速度を表にしたもの。セルを押すと、そのギヤとタイヤが入力にセットされます。電圧を変えた速度の並びを見たいときは、ロックしたときの電圧別比較表の方が向いています</li>
 </ul>
+<h4>ギヤ×タイヤ一覧表</h4><p>逆算で「ギヤ×タイヤ一覧表」を選ぶと出ます。縦がギヤ比（8種）、横がタイヤ径（21.0〜28.0mm、0.5mm刻み）で、セル1つ1つが、その組み合わせでの机上速度です。もとになる回転数は逆算の「モーター回転数」の欄、電圧は逆算の電圧（アンペア・抵抗の補正込み）です。今選んでいるギヤとタイヤのセルは色が付いていて、画面の大きな数字もその組み合わせの速度です。表は横にスクロールできます。</p><p>セルを押すと、そのギヤ比とタイヤ径が逆算の入力にセットされます（試し計算を切り替えるためで、マシン設定や実際の車は変わりません）。例：28,000rpm・電圧そのままでは、3.7:1／22.5mm が 32.1 km/h、5:1／26mm が 27.44 km/h といった具合に、「換えたらどれくらいになるか」を並べて見られます。</p><p>ロックしたときに出る電圧別比較表とは別物です。あちらはタイヤ固定で「電圧 × ギヤ」、こちらは電圧固定で「ギヤ × タイヤ」です。ギヤを変えると実際の回転数も変わるので、この表の数字は「今の回転数のまま換えたら」の机上値です。</p>
 <p>どれもロスなしの理論値です。実走の答えではありません。</p>
 <p>必要トルクとジャンプの詳しくは、次の「逆算の必要トルクとジャンプ」を見てください。</p>
 </div>
@@ -2611,11 +2615,11 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 </div>
 
-<div id="onboardBackdrop">
+<div id="onboardBackdrop" class="show">
   <div class="onboard-card">
-    <div class="onboard-k" id="onboardKicker">1 / 3</div>
-    <h2 class="onboard-h" id="onboardTitle"></h2>
-    <div id="onboardBody"></div>
+    <div class="onboard-k" id="onboardKicker">1 / 4</div>
+    <h2 class="onboard-h" id="onboardTitle">回転数を測定します</h2>
+    <div id="onboardBody"><p class="onboard-p">RPM Memory は、モーターの音の高さから回転数（RPM）を推定する測定アプリです。会話の録音アプリではありません。</p><p class="onboard-p">音声は端末の中だけで処理し、サーバーには送りません。</p></div>
     <div class="onboard-dots" id="onboardDots"><i class="on"></i><i></i><i></i><i></i></div>
     <div class="onboard-nav">
       <button class="secondary-btn gray u-flex1" id="onboardSkip">とばす</button>
@@ -2647,7 +2651,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <button type="button">History</button>
 <div class="help-body">
 <p>Each card is a saved measurement, laid out as a small table. Row 1 is RPM and RPM average. Row 2 is speed and speed average. Row 3 is the tire-on figures (alone, then with tires) and the loss %. Row 4 is motor, voltage, gear and tire size. The top line holds the check, date, name and delete.</p>
-<p>Filter and sort is closed until you tap it. Delete RPM 0 removes records whose RPM is 0. The button above the list exports all records as a CSV file.</p>
+<p>Filter and sort is closed until you tap it. Delete RPM 0 removes records whose RPM is 0. The button above the list exports all records as a CSV file. The motor graph button charts one motor's records over time (line colour = gear, point core = voltage band), with the change from the first to the latest record and per-record change vs the previous and the first record.</p>
 </div>
 </div>
 <div class="help-acc">
@@ -2660,7 +2664,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="help-acc">
 <button type="button">Torque and jump</button>
 <div class="help-body">
-<p>Reverse calc also solves for required torque and jump distance. Required torque estimates the motor torque needed to climb a slope at steady speed from weight, angle, tire and gear, and compares it with the catalog recommended load torque of the motor you pick. Jump estimates the flight distance from the desk entry speed, slope distance, drop and a climbing assumption (coasting only, or constant speed), with an optional launch angle. Both are desk calculations, not measurements.</p>
+<p>Reverse calc also solves for required torque and jump distance. Required torque estimates the motor torque needed to climb a slope at steady speed from weight, angle, tire and gear, and compares it with the catalog recommended load torque of the motor you pick. Jump estimates the flight distance from the desk entry speed, slope distance, drop and a climbing assumption (coasting only, or constant speed), with an optional launch angle. Both are desk calculations, not measurements. The matrix mode lists desk speeds for every gear x tire pair at the current RPM and voltage; tap a cell to set that gear and tire in the calculator.</p>
 </div>
 </div>
 <div class="help-acc">
@@ -2687,7 +2691,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 
 <div class="modal-backdrop" id="machineModalBackdrop">
 <div class="modal">
-<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">マシン設定<button type="button" class="qmark" id="machineNoteBtn" aria-label="マシン設定の説明">?</button></div><div class="speed-basis" id="machineNote" hidden="">計測中にロックを押した際に出現する比較表に反映されます。机上での計算なので、実際と差異があります。</div></div><button class="modal-close" id="machineCloseTop">×</button></div>
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">マシン設定<button type="button" class="qmark" id="machineNoteBtn" aria-label="マシン設定の説明">?</button></div><div class="speed-basis" id="machineNote" hidden="">ここで選んだ内容は、トップの速度表示や簡易比較、計測中にロックを押したときの比較表に反映されます。机上での計算なので、実際と差異があります。</div></div><button class="modal-close" id="machineCloseTop">×</button></div>
 <div class="machine-grid">
 <div class="machine-item">
 <div class="setting-label"><span>駆動</span><span class="setting-value" id="shaftLabel">指定なし</span></div>
@@ -2706,7 +2710,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 <div class="machine-item">
 <div class="setting-label"><span>モーター</span><span class="setting-value" id="machineMotorLabel">未選択</span></div>
-<select class="cond-select" id="machineMotorSelect"><option value="" selected="" data-ja="選択なし">選択なし</option><option value="NMP" data-ja="NMP">NMP</option><option value="TT2" data-ja="TT2P">TT2P</option><option value="AT2" data-ja="AT2P">AT2P</option><option value="RT2" data-ja="RT2P">RT2P</option><option value="LDP" data-ja="LDP">LDP</option><option value="HDP" data-ja="HDP">HDP</option><option value="MDP" data-ja="MDP">MDP</option></select>
+<select class="cond-select" id="machineMotorSelect"><option value="" selected="" data-ja="選択なし">選択なし</option><option value="NMP" data-ja="NMP">NMP</option><option value="TT2" data-ja="TT2P">TT2P</option><option value="AT2" data-ja="AT2P">AT2P</option><option value="RT2" data-ja="RT2P">RT2P</option><option value="LDP" data-ja="LDP">LDP</option><option value="HDP" data-ja="HDP">HDP</option><option value="MDP" data-ja="MDP">MDP</option><option value="NM" data-ja="NM">NM</option><option value="RT2" data-ja="RT2">RT2</option><option value="TT2S" data-ja="TT2">TT2</option><option value="AT2S" data-ja="AT2">AT2</option><option value="LD" data-ja="LD">LD</option><option value="HD3" data-ja="HD3">HD3</option><option value="PD" data-ja="PD">PD</option><option value="SD" data-ja="SD">SD</option><option value="UD" data-ja="UD">UD</option><option value="JD" data-ja="JD">JD</option></select>
 </div>
 <div class="machine-item">
 <div class="setting-label"><span>電圧 (V)</span><span class="setting-value" id="machineVoltLabel">2.8 V</span></div>
@@ -2722,7 +2726,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="setting-label"><span>ギヤ比</span><span class="setting-value" id="machineGearLabel">3.7:1</span></div>
 <div class="tire-step-row step-row-3">
 <button type="button" class="tire-step-btn" id="gearMinus">−</button>
-<select class="cond-select" id="machineGearSelect"><option value="3.5:1" data-ja="3.5:1">3.5:1</option><option value="3.7:1" selected="" data-ja="3.7:1">3.7:1</option><option value="4.0:1" data-ja="4.0:1">4.0:1</option><option value="4.2:1" data-ja="4.2:1">4.2:1</option><option value="5:1" data-ja="5:1">5:1</option><option value="6.4:1" data-ja="6.4:1">6.4:1</option><option value="8.75:1" data-ja="8.75:1">8.75:1</option><option value="11.2:1" data-ja="11.2:1">11.2:1</option></select>
+<select class="cond-select" id="machineGearSelect"><option value="3.5:1" data-ja="3.5:1">3.5:1</option><option value="3.7:1" selected="" data-ja="3.7:1">3.7:1</option><option value="4.0:1" data-ja="4.0:1">4.0:1</option><option value="4.2:1" data-ja="4.2:1">4.2:1</option><option value="5:1" data-ja="5:1">5:1</option><option value="6.4:1" data-ja="6.4:1">6.4:1</option><option value="11.2:1" data-ja="11.2:1">11.2:1</option></select>
 <button type="button" class="tire-step-btn" id="gearPlus">＋</button>
 </div>
 </div>
@@ -2740,37 +2744,39 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <div class="setting-label"><span>走行負荷 (%)</span><span class="setting-value" id="loadFactorLabel">0%</span></div>
 <input type="range" id="loadFactorRange" min="-100" max="100" step="1" value="0">
 </div>
+<div style="display:flex;gap:8px;margin-top:10px;">
+<label style="flex:1;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;"><input type="checkbox" id="vaUseInMeasure"> アンペアを計測に使う</label>
+<label style="flex:1;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;"><input type="checkbox" id="vaUseOhm"> 抵抗を計算に使う<button type="button" class="qmark" id="ohmHintBtn" aria-label="抵抗の目安">?</button></label>
+</div>
+<p class="speed-basis" id="ohmHint" hidden="">抵抗（Ω）の目安です。ノーマル 0.15 / トルク・アトミック 0.30 / レブ 0.35 / ライト 0.22 / ハイパー 0.15 / ハイパーPRO 0.12 / パワー 0.18 / スプリント 0.16 / マッハ 0.12 / ウルトラ・プラズマ 0.13。選んだ値は好みで動かせます。</p>
 <div style="display:flex;gap:8px;margin-top:8px;">
 <button class="secondary-btn gray u-flex1" id="machineNormalBtn">通常表示に戻す</button>
 <button class="primary-btn blue u-flex1" id="machineCloseBtn">反映して閉じる</button>
 </div>
+<div style="display:flex;gap:8px;margin-top:10px;">
+<div class="setting-label" style="flex:1;margin:0;"><span>育成の電圧とアンペア<button type="button" class="qmark" id="vaNoteBtn" aria-label="電圧とアンペアの説明">?</button></span><span class="setting-value" id="vaPower"></span></div>
+<div class="setting-label" style="flex:1;margin:0;"><span>参考：状態と電流<button type="button" class="qmark" id="refTableBtn" aria-label="参考表">?</button></span></div>
+</div>
+<div style="display:flex;gap:8px;margin-top:8px;">
+<button type="button" class="secondary-btn gray u-flex1" id="setupFavSave">この設定を登録</button>
+</div>
 <div id="vaCard" class="machine-item" style="margin-top:4px;">
-  <div class="setting-label"><span>育成の電圧とアンペア<button type="button" class="qmark" id="vaNoteBtn" aria-label="電圧とアンペアの説明">?</button></span><span class="setting-value" id="vaPower">— W</span></div>
-<p class="speed-basis" id="vaNotePanel" hidden>オフのときは抵抗を使いません。アンペアも抵抗もオフなら、音のRPMと、それに合う速度だけです。オフのときは畳んでいます。電圧は上限、抵抗は電圧÷電流、電流は負荷の結果です。チェックを入れると開きます。</p>
-<label style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;font-weight:700;">
-<input type="checkbox" id="vaUseInMeasure"> アンペアを計測に使う
-</label>
-<label style="display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:12px;font-weight:700;">
-<input type="checkbox" id="vaUseOhm"> 抵抗を計算に使う
-<button type="button" class="qmark" id="ohmHintBtn" aria-label="抵抗の目安">?</button>
-</label>
-<p class="speed-basis" id="ohmHint" hidden>目安です。ノーマル 0.15 / トルク・アトミック 0.30 / レブ 0.35 / ライト 0.22 / ハイパー 0.15 / ハイパーPRO 0.12 / パワー 0.18 / スプリント 0.16 / マッハ 0.12 / ウルトラ・プラズマ 0.13。選んだ値は好みで動かせます。</p>
-<div id="vaFold" hidden>
+<p class="speed-basis" id="vaNotePanel" hidden="" data-base="電圧は上限、電流は負荷の結果、抵抗は電圧÷電流の関係です。チェックを入れると、それぞれの設定が開きます。アンペアも抵抗もオフなら、音のRPMと、それに合う速度だけが計算に入ります。">電圧は上限、電流は負荷の結果、抵抗は電圧÷電流の関係です。チェックを入れると、それぞれの設定が開きます。アンペアも抵抗もオフなら、音のRPMと、それに合う速度だけが計算に入ります。</p>
+<div id="vaFold" hidden="">
   <div class="setting-label" style="margin-top:4px;"><span>電流</span><span class="setting-value" id="vaAmpLabel">0.9 A</span></div>
   <input type="range" id="vaAmpRange" min="0.1" max="5.0" step="0.1" value="0.9">
   
-  <div id="vaRelation" style="margin-top:8px;font-size:11px;line-height:1.45;color:var(--mute);"></div>
-  <div id="vaTable" style="margin-top:6px;font-size:11px;color:var(--mute);line-height:1.5;"></div>
+  <div id="vaRelation" style="margin-top:8px;font-size:11px;line-height:1.45;color:var(--mute);">机上の関係。電圧はスピードの上限、電流は負荷の結果です。電流が上がると机上回転は下がります。</div>
+  <div id="vaTable" style="margin-top:6px;font-size:11px;color:var(--mute);line-height:1.5;">2.8 V × 1A=2.8W / 2A=5.6W / 5A=14.0W / 10A=28.0W / 15A=42.0W / 20A=56.0W</div>
 </div>
-<div id="ohmFold" hidden>
+<div id="ohmFold" hidden="">
   <div class="setting-label" style="margin-top:4px;"><span>抵抗 (Ω)</span><span class="setting-value" id="ohmLabel">0.20 Ω</span></div>
   <input type="range" id="ohmRange" min="0.05" max="0.50" step="0.01" value="0.20">
 </div>
 
 </div>
 <div class="machine-item">
-<div class="setting-label"><span>参考：状態と電流<button type="button" class="qmark" id="refTableBtn" aria-label="参考表">?</button></span></div>
-<div id="refTablePanel" hidden>
+<div id="refTablePanel" hidden="">
 <p class="speed-basis" style="margin:4px 0 6px;">あくまで持論と机上の一覧です。あしからず。計算には入りません。</p>
 <table class="ref-state-table" style="width:100%;max-width:none;min-width:0;margin:0;border-collapse:collapse;font-size:9px;text-align:center;table-layout:fixed;">
 <colgroup>
@@ -2816,17 +2822,10 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-<div class="machine-item">
-<div class="setting-label"><span>名前の聞き方<button type="button" class="qmark" id="saveModeNoteBtn" aria-label="保存の説明">?</button></span></div>
-<p class="speed-basis" id="saveModeNote" hidden="">名前は、トップの「保存」を押したときに聞きます。ここには名前欄はありません。ロック履歴の名前欄は、ロックした瞬間のメモ用です。計測履歴とは別です。</p>
-</div>
+<div style="margin-top:8px;">
 <div class="machine-item">
 <div class="setting-label"><span>設定のお気に入り<button type="button" class="qmark" id="favNoteBtn" aria-label="お気に入りの説明">?</button></span></div>
-<p class="speed-basis" id="favNote" hidden="">駆動、シャーシ、モーター、電圧、ギヤ、タイヤ、閾値、集音範囲、走行負荷、校正をまとめて残します。電圧と走行負荷も保存されます。登録するとき名前を聞きます。</p>
-<div style="display:flex;gap:8px;margin-top:8px;">
-<button type="button" class="secondary-btn gray u-flex1" id="setupFavSave">この設定を登録</button>
-</div>
+<p class="speed-basis" id="favNote" hidden="">今のマシン設定をまとめて残します。登録するとき名前を聞きます。最大5件までです。</p>
 <div id="setupFavList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;"><p class="hint">まだありません。登録するとき名前を聞きます。電圧と走行負荷も残ります。</p></div>
 </div>
 </div>
@@ -2837,7 +2836,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 
 <div class="modal-backdrop" id="reverseCalcModalBackdrop">
 <div class="modal">
-<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">逆算電卓<button type="button" class="qmark" id="revNoteBtn" aria-label="逆算の説明">?</button><span style="display:inline-block;margin-left:8px;padding:2px 8px;border:1.5px solid var(--ice);border-radius:999px;color:var(--ice);font-size:11px;font-weight:800;letter-spacing:.04em;vertical-align:2px;">机上の計算結果</span></div><div class="speed-basis" id="revNotePanel" hidden="">ロックした数値が反映していますが、自由に数値の変更ができます。選んだ項目はグレーアウトします。残りの3つを入力してください。速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000。アンペアと抵抗はオンのときだけ掛けます。抵抗オンは実効電圧 V−I×R、アンペアだけオンは負荷係数です。</div></div><button class="modal-close" id="reverseCalcCloseTop">×</button></div>
+<div class="modal-header"><div class="modal-title-wrap"><div class="modal-title">逆算電卓<button type="button" class="qmark" id="revNoteBtn" aria-label="逆算の説明">?</button><span style="display:inline-block;margin-left:8px;padding:2px 8px;border:1.5px solid var(--ice);border-radius:999px;color:var(--ice);font-size:11px;font-weight:800;letter-spacing:.04em;vertical-align:2px;">机上の計算結果</span></div><div class="speed-basis" id="revNotePanel" hidden="">ロックした数値が反映していますが、自由に数値の変更ができます。選んだ項目はグレーアウトします。求めたいものに合わせて、必要な項目を入力してください。速度 km/h ＝ (rpm ÷ ギヤ比) × (タイヤ径mm × π × 60) ÷ 1,000,000。アンペアと抵抗はオンのときだけ掛けます。抵抗オンは実効電圧 V−I×R、アンペアだけオンは負荷係数です。</div></div><button class="modal-close" id="reverseCalcCloseTop">×</button></div>
 <div class="setting-item" style="margin-bottom:10px;">
 <div class="setting-label"><span>求めたいもの</span></div>
 <div style="display:flex;gap:8px;align-items:center;">
@@ -2867,7 +2866,7 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <p style="margin:0 0 6px;"><strong>一定速度</strong>：モーターの駆動が重力分を全部補って、速度が落ちない前提です。</p>
 <p style="margin:0;">どちらの前提でもモーターは回り続けます。「惰性のみ」はモーターが止まる意味ではありません。実際の落ち方は、この2つの間になります。</p>
 </div>
-<div class="rev-row" data-field="launch" id="revRowLaunch" style="display:none;"><div><label>射出角度 (°)・任意</label><input id="revLaunchAngle" type="number" inputmode="decimal" value="" step="0.5" min="0" max="60" placeholder="坂と同じ" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="launch" data-d="-1">−</button><button type="button" data-rev="launch" data-d="1">＋</button></div></div>
+<div class="rev-row" data-field="launch" id="revRowLaunch" style="display:none;"><div><label>射出角度 (°)・任意</label><input id="revLaunchAngle" type="number" inputmode="decimal" value="" step="0.5" min="0" max="60" placeholder="坂と同じ" class="tire-step-input" style="text-align:left;" data-ja-ph="坂と同じ"></div><div class="rev-step"><button type="button" data-rev="launch" data-d="-1">−</button><button type="button" data-rev="launch" data-d="1">＋</button></div></div>
 <div class="rev-row" data-field="gear"><div><label>ギヤ比</label><select id="revGear" class="cond-select"><option value="3.5" data-ja="3.5:1">3.5:1</option><option value="3.7" selected="" data-ja="3.7:1">3.7:1</option><option value="4.0" data-ja="4.0:1">4.0:1</option><option value="4.2" data-ja="4.2:1">4.2:1</option><option value="5" data-ja="5:1">5:1</option><option value="6.4" data-ja="6.4:1">6.4:1</option><option value="8.75" data-ja="8.75:1">8.75:1</option><option value="11.2" data-ja="11.2:1">11.2:1</option></select></div><div class="rev-step"><button type="button" id="revGearMinus">−</button><button type="button" id="revGearPlus">＋</button></div></div>
 <div class="rev-row" data-field="speed"><div><label>速度 (km/h)</label><input id="revSpeed" type="number" inputmode="decimal" value="32.00" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="speed" data-d="-0.1">−</button><button type="button" data-rev="speed" data-d="0.1">＋</button></div></div>
 <div class="rev-row" data-field="tire"><div><label>タイヤ径 (mm)</label><input id="revTire" type="number" inputmode="decimal" value="22.5" step="0.1" class="tire-step-input" style="text-align:left;"></div><div class="rev-step"><button type="button" data-rev="tire" data-d="-0.1">−</button><button type="button" data-rev="tire" data-d="0.1">＋</button></div></div>
@@ -2968,16 +2967,18 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 <span style="color:var(--mute);font-size:11px;">行を2つ選ぶと差分表示</span>
 </div>
 </div>
+<div class="hist-btn-row">
 <button type="button" class="hist-fold-btn" id="histDeleteZeroBtn">RPM 0 を削除</button>
 <button type="button" class="hist-fold-btn" id="lossAggBtn">シャーシ別ロス集計</button>
-<div id="lossAggPanel" hidden>
-<div class="filter-item"><label>シャーシ</label><select id="lossAggChassis"><option value="">選んでください</option></select></div>
+<button type="button" class="hist-fold-btn" id="histGraphBtn">モーター別グラフ</button>
+</div>
+<div id="lossAggPanel" hidden="">
+<div class="filter-item"><label>シャーシ</label><select id="lossAggChassis"><option value="" data-ja="選んでください">選んでください</option></select></div>
 <div id="lossAggMain"></div>
 <div id="lossAggDetail"></div>
 </div>
-<button type="button" class="hist-fold-btn" id="histGraphBtn">モーター別グラフ</button>
-<div id="histGraphPanel" hidden>
-<div class="filter-item"><label>モーター</label><select id="histGraphMotor"><option value="">選んでください</option></select></div>
+<div id="histGraphPanel" hidden="">
+<div class="filter-item"><label>モーター</label><select id="histGraphMotor"><option value="" data-ja="選んでください">選んでください</option></select></div>
 <canvas id="histGraphCanvas" style="width:100%;display:block;"></canvas>
 <div id="histGraphLegend"></div>
 <div id="histGraphList"></div>
@@ -3915,7 +3916,7 @@ bindHelpToggle("machineNoteBtn", "machineNote");
 bindHelpToggle("chassisHintBtn", "chassisHint");
 bindHelpToggle("revNoteBtn", "revNotePanel");
 bindHelpToggle("targetNoteBtn", "targetNote");
-bindHelpToggle("saveModeNoteBtn", "saveModeNote");
+
 bindHelpToggle("favNoteBtn", "favNote");
 
 function refreshMachineStatusUI() {
@@ -4787,6 +4788,7 @@ function renderSetupFavs() {
   });
 }
 document.getElementById("setupFavSave") && document.getElementById("setupFavSave").addEventListener("click", function() {
+  if (loadSetupFavs().length >= 5) { window.alert("お気に入りは5件までです。いらないものを消してから登録してください。"); return; }
   const fav = captureSetupFav();
   if (!fav) return;
   const list = loadSetupFavs();
@@ -5641,11 +5643,11 @@ card.innerHTML = `
   <div class="hist-grid">
     <div class="hg-row">
       ${hgCell("RPM", rpmMain, rpmSub)}
-      ${hgCell("RPM AVE", hgStrip(avgRpmDisplay, "RPA Ave"), (h.stab != null && isFinite(Number(h.stab))) ? ((enH ? "var " : "変動 ") + Number(h.stab).toFixed(1) + "%") : "")}
+      ${hgCell("RPM AVG", hgStrip(avgRpmDisplay, "RPA Ave"), (h.stab != null && isFinite(Number(h.stab))) ? ((enH ? "var " : "変動 ") + Number(h.stab).toFixed(1) + "%") : "")}
     </div>
     <div class="hg-row">
       ${hgCell(enH ? "SPEED" : "\u901f\u5ea6", spdMain, spdSub)}
-      ${hgCell(enH ? "SPEED AVE" : "\u901f\u5ea6 AVE", hgStrip(avgSpeedDisplay, "km/h Ave"), "")}
+      ${hgCell(enH ? "SPEED AVG" : "\u901f\u5ea6 AVG", hgStrip(avgSpeedDisplay, "km/h Ave"), "")}
     </div>
     <div class="hg-row">
       ${hgCell(enH ? "TIRE (ALONE \u2192 TIRES)" : "\u30bf\u30a4\u30e4\u4ed8\uff08\u5358\u4f53 \u2192 \u30bf\u30a4\u30e4\u4ed8\uff09", tireVal, "")}
@@ -6152,7 +6154,7 @@ const vaNoteBtn = document.getElementById("vaNoteBtn");
     if (meta) meta.setAttribute("content", COLOR[theme]);
   }
   const saved = localStorage.getItem("rpmUiThemeV2") || null;
-  apply(ORDER.indexOf(saved) >= 0 ? saved : "classic");
+  apply(saved === null ? "sharp" : (ORDER.indexOf(saved) >= 0 ? saved : "classic"));
   document.querySelectorAll(".theme-pick").forEach(function(b) {
     b.addEventListener("click", function() {
       apply(b.getAttribute("data-theme"));
@@ -6258,6 +6260,26 @@ const vaNoteBtn = document.getElementById("vaNoteBtn");
       else app.appendChild(wrap);
       tapBind($(P + "TireBtn"), "tireBtn");
       tapBind($(P + "TireBaseCell"), "tireBaseCell");
+      var wrap2 = document.createElement("div");
+      wrap2.className = "sh-extra";
+      var specHtml = (P === "dash" || P === "mat" || P === "lc" || P === "ios") ? '<canvas class="sh-spec" id="' + P + 'Spec" width="300" height="36"></canvas>' : '';
+      wrap2.innerHTML = '<div class="sh-status"><span id="' + P + 'Status"></span><span id="' + P + 'Th"></span></div>'
+        + '<div class="sh-tire">'
+        + '<button type="button" class="sh-tire-btn" id="' + P + 'AbBtn">A/B比較</button>'
+        + '<div class="sh-tire-strip" id="' + P + 'AbStrip" hidden>'
+        + '<div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="' + P + 'AbName">（名前なし）</button></div>'
+        + '<div class="sh-tire-cells">'
+        + '<button type="button" class="sh-tire-cell" id="' + P + 'AbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="' + P + 'AbBase">―</span></button>'
+        + '<div class="sh-tire-cell"><span class="k">今</span><span class="v" id="' + P + 'AbNow">―</span></div>'
+        + '<div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="' + P + 'AbDiff">―</span></div>'
+        + '</div></div></div>' + specHtml;
+      if (anchorEl && anchorEl.parentNode) anchorEl.parentNode.insertBefore(wrap2, anchorEl);
+      else app.appendChild(wrap2);
+      tapBind($(P + "AbBtn"), "abBtn");
+      tapBind($(P + "AbBaseCell"), "abBaseCell");
+      tapBind($(P + "AbName"), "abNameBtn");
+      var rpmEl = $(P + "RpmNow") || app.querySelector("canvas");
+      if (rpmEl) { rpmEl.style.cursor = "pointer"; tapBind(rpmEl, "rpmBlock"); }
     });
     var lastKey = "";
     setInterval(function() {
@@ -6283,16 +6305,29 @@ const vaNoteBtn = document.getElementById("vaNoteBtn");
         var _tl = $("tireLossVal"), _sl = $(P + "TireLoss"); if (_tl && _sl) _sl.textContent = _tl.textContent;
         var _tb = $(P + "TireBtn"); if (_tb) _tb.classList.toggle("on", document.body.classList.contains("tire-on"));
       }
+      var aStrip = $("abStrip"), sAb = $(P + "AbStrip");
+      if (aStrip && sAb) {
+        sAb.hidden = aStrip.hidden;
+        var _ab = $("abBaseVal"), _sb = $(P + "AbBase"); if (_ab && _sb) _sb.textContent = _ab.textContent;
+        var _an = $("abNowVal"), _sn = $(P + "AbNow"); if (_an && _sn) _sn.textContent = _an.textContent;
+        var _ad = $("abDiffVal"), _sd = $(P + "AbDiff"); if (_ad && _sd) _sd.textContent = _ad.textContent;
+        var _anm = $("abNameBtn"), _snm = $(P + "AbName"); if (_anm && _snm) _snm.textContent = _anm.textContent;
+        var _abb = $(P + "AbBtn"); if (_abb) _abb.classList.toggle("on", document.body.classList.contains("ab-on"));
+      }
+      var _st = $(P + "Status"), _ms = $("statusLine"); if (_st && _ms) _st.textContent = _ms.textContent;
+      var _th = $(P + "Th"), _mt = $("waveThMark"); if (_th && _mt) _th.textContent = _mt.textContent;
+      var _sp = (P === "dash" || P === "mat" || P === "lc" || P === "ios") ? $(P + "Spec") : null, _sm = $("spectrum");
+      if (_sp && _sm) { try { var _cx = _sp.getContext("2d"); if (_cx) _cx.drawImage(_sm, 0, 0, _sp.width, _sp.height); } catch (e) {} }
       var lb = $("lockBtn");
       var lockedNow = lb && lb.textContent.indexOf("解除") >= 0;
       var box = $(P + "Cmp");
       if (!box) return;
-      if (!lockedNow) { box.hidden = true; lastKey = ""; return; }
+      if (!lockedNow) { box.hidden = true; box.dataset.k = ""; return; }
       box.hidden = false;
       var body = $("comparisonBody"), sum = $("cmpSummary"), tbl = $("cmpTable");
       var key = (body ? body.innerHTML : "") + "|" + (sum ? sum.textContent : "");
-      if (key !== lastKey) {
-        lastKey = key;
+      if (key !== (box.dataset.k || "")) {
+        box.dataset.k = key;
         var sEl = $(P + "CmpSum");
         if (sEl && sum) sEl.textContent = sum.textContent;
         var host = $(P + "CmpBody");
@@ -7297,7 +7332,7 @@ window.I18N = {
     history:"履歴", reset:"リセット", settings:"設定", machine:"マシン設定",
     revShort:"逆算", revTitle:"逆算電卓", revNote:"ロスなしの机上値です",
     settingsTitle:"測定設定", settingsLead:"回転は音からの推定、速度は机上の理論値です。公式計測器の代替ではありません。",
-    machineNote:"計測中にロックを押した際に出現する比較表に反映されます。机上での計算なので、実際と差異があります。",
+    machineNote:"ここで選んだ内容は、トップの速度表示や簡易比較、計測中にロックを押したときの比較表に反映されます。机上での計算なので、実際と差異があります。",
     histTitle:"計測履歴", cmpTitle:"電圧別比較表",
     themeSharp:"シャープ", themeClassic:"丸み", themePlain:"シンプル",
     darkOn:"ダーク", darkOff:"ダーク",
@@ -7598,7 +7633,7 @@ applyLang(window.APP_LANG);
 </div>
 </div>
 <div class="d-kicker">CURRENT MOTOR RPM</div>
-<div class="d-big" id="dashRpmNow">--</div>
+<div class="d-big" id="dashRpmNow" style="cursor: pointer;">--</div>
 <div class="d-avg">AVG <span id="dashRpmAvg">--</span></div>
 <div class="d-sides">
 <div class="d-side"><div class="d-label">MAX</div><div class="d-num" id="dashRpmMax">--</div></div>
@@ -7619,7 +7654,7 @@ applyLang(window.APP_LANG);
 <button class="d-btn outline" id="dashLockBtn">ロック</button>
 <button class="d-btn gray" id="dashSaveBtn">保存</button>
 </div>
-<div class="d-links">
+<div class="sh-extra"><div class="sh-tire"><button type="button" class="sh-tire-btn" id="dashTireBtn">タイヤ付</button><div class="sh-tire-strip" id="dashTireStrip" hidden=""><div class="sh-tire-chassis">シャーシ <span id="dashTireChassis">―</span></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="dashTireBaseCell"><span class="k" id="dashTireBaseKey">単体（タップで取り直し）</span><span class="v" id="dashTireBase">―</span></button><div class="sh-tire-cell"><span class="k">タイヤ付</span><span class="v" id="dashTireNow">―</span></div><div class="sh-tire-cell"><span class="k">駆動ロス</span><span class="v loss" id="dashTireLoss">―</span></div></div></div></div></div><div class="sh-extra"><div class="sh-status"><span id="dashStatus"></span><span id="dashTh"></span></div><div class="sh-tire"><button type="button" class="sh-tire-btn" id="dashAbBtn">A/B比較</button><div class="sh-tire-strip" id="dashAbStrip" hidden=""><div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="dashAbName">（名前なし）</button></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="dashAbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="dashAbBase">―</span></button><div class="sh-tire-cell"><span class="k">今</span><span class="v" id="dashAbNow">―</span></div><div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="dashAbDiff">―</span></div></div></div></div><canvas class="sh-spec" id="dashSpec" width="300" height="36"></canvas></div><div class="d-links">
 <button id="dashHistBtn">履歴</button>
 <button id="dashResetBtn">リセット</button>
 <button id="dashMachBtn">マシン設定</button>
@@ -7813,13 +7848,13 @@ applyLang(window.APP_LANG);
 
 <div id="paperApp">
 <div class="paper-head"><div class="paper-title">RPM MEMORY</div><div class="paper-state" id="paperState">READY</div></div>
-<div class="paper-gaugewrap"><canvas id="paperGauge"></canvas></div>
+<div class="paper-gaugewrap"><canvas id="paperGauge" style="cursor: pointer;"></canvas></div>
 <div class="paper-speed"><span class="v" id="paperSpdNow">--</span> <span class="u">KM/H</span></div>
 <div class="paper-grid">
 <div class="paper-box"><div class="k">RPM MAX</div><div class="n" id="paperRpmMax">--</div></div>
 <div class="paper-box"><div class="k">RPM MIN</div><div class="n" id="paperRpmMin">--</div></div>
 <div class="paper-box"><div class="k">RPM AVG</div><div class="n" id="paperRpmAvg">--</div></div>
-<div class="paper-box"><div class="k">SPD TOP</div><div class="n" id="paperSpdTop">--</div></div>
+<div class="paper-box"><div class="k">SPD MAX</div><div class="n" id="paperSpdTop">--</div></div>
 <div class="paper-box"><div class="k">SPD MIN</div><div class="n" id="paperSpdMin">--</div></div>
 <div class="paper-box"><div class="k">SPD AVG</div><div class="n" id="paperSpdAvg">--</div></div>
 </div>
@@ -7828,23 +7863,23 @@ applyLang(window.APP_LANG);
 <button type="button" class="paper-btn" id="paperLock">ロック</button>
 <button type="button" class="paper-btn save" id="paperSave">保存</button>
 </div>
-<div class="paper-links">
+<div class="sh-extra"><div class="sh-filt"><div class="sh-filt-head"><span>集音フィルタ (RPM範囲)</span><span id="paperFiltVal">5000 — 50000</span></div><div class="sh-dual"><div class="sh-dual-track"></div><div class="sh-dual-fill" id="paperFiltFill"></div><input type="range" id="paperFiltMin" min="0" max="60000" step="500" value="5000"><input type="range" id="paperFiltMax" min="0" max="60000" step="500" value="50000"></div></div></div><div class="sh-extra"><div class="sh-tire"><button type="button" class="sh-tire-btn" id="paperTireBtn">タイヤ付</button><div class="sh-tire-strip" id="paperTireStrip" hidden=""><div class="sh-tire-chassis">シャーシ <span id="paperTireChassis">―</span></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="paperTireBaseCell"><span class="k" id="paperTireBaseKey">単体（タップで取り直し）</span><span class="v" id="paperTireBase">―</span></button><div class="sh-tire-cell"><span class="k">タイヤ付</span><span class="v" id="paperTireNow">―</span></div><div class="sh-tire-cell"><span class="k">駆動ロス</span><span class="v loss" id="paperTireLoss">―</span></div></div></div></div></div><div class="sh-extra"><div class="sh-status"><span id="paperStatus"></span><span id="paperTh"></span></div><div class="sh-tire"><button type="button" class="sh-tire-btn" id="paperAbBtn">A/B比較</button><div class="sh-tire-strip" id="paperAbStrip" hidden=""><div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="paperAbName">（名前なし）</button></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="paperAbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="paperAbBase">―</span></button><div class="sh-tire-cell"><span class="k">今</span><span class="v" id="paperAbNow">―</span></div><div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="paperAbDiff">―</span></div></div></div></div></div><div class="paper-links">
 <button type="button" id="paperHist">履歴</button>
 <button type="button" id="paperReset">リセット</button>
 <button type="button" id="paperMachine">マシン設定</button>
 <button type="button" id="paperRev">逆算</button>
 <button type="button" id="paperSet">設定</button>
-</div>
+</div><div class="sh-extra"><div class="sh-cmp" id="paperCmp" hidden=""><div class="sh-cmp-title">電圧別比較表</div><div class="sh-cmp-sum" id="paperCmpSum"></div><div class="sh-cmp-body" id="paperCmpBody"></div></div></div>
 </div>
 <div id="matApp">
 <div class="mat-head"><div class="mat-title">RPM Memory</div><div class="mat-chip" id="matState">Ready</div></div>
-<div class="mat-card"><div class="k">MOTOR RPM</div><div class="v" id="matRpmNow">--</div><div class="mat-bar"><i id="matBar"></i></div></div>
+<div class="mat-card"><div class="k">MOTOR RPM</div><div class="v" id="matRpmNow" style="cursor: pointer;">--</div><div class="mat-bar"><i id="matBar"></i></div></div>
 <div class="mat-card spd"><div class="k">SPEED KM/H</div><div class="v" id="matSpdNow">--</div></div>
 <div class="mat-grid">
 <div class="mat-stat"><div class="k">RPM MAX</div><div class="n" id="matRpmMax">--</div></div>
 <div class="mat-stat"><div class="k">RPM MIN</div><div class="n" id="matRpmMin">--</div></div>
 <div class="mat-stat"><div class="k">RPM AVG</div><div class="n" id="matRpmAvg">--</div></div>
-<div class="mat-stat"><div class="k">SPD TOP</div><div class="n" id="matSpdTop">--</div></div>
+<div class="mat-stat"><div class="k">SPD MAX</div><div class="n" id="matSpdTop">--</div></div>
 <div class="mat-stat"><div class="k">SPD MIN</div><div class="n" id="matSpdMin">--</div></div>
 <div class="mat-stat"><div class="k">SPD AVG</div><div class="n" id="matSpdAvg">--</div></div>
 </div>
@@ -7853,13 +7888,13 @@ applyLang(window.APP_LANG);
 <button type="button" class="mat-pill lock" id="matLock">ロック</button>
 <button type="button" class="mat-pill" id="matSave">保存</button>
 </div>
-<div class="mat-nav">
+<div class="sh-extra"><div class="sh-filt"><div class="sh-filt-head"><span>集音フィルタ (RPM範囲)</span><span id="matFiltVal">5000 — 50000</span></div><div class="sh-dual"><div class="sh-dual-track"></div><div class="sh-dual-fill" id="matFiltFill"></div><input type="range" id="matFiltMin" min="0" max="60000" step="500" value="5000"><input type="range" id="matFiltMax" min="0" max="60000" step="500" value="50000"></div></div></div><div class="sh-extra"><div class="sh-tire"><button type="button" class="sh-tire-btn" id="matTireBtn">タイヤ付</button><div class="sh-tire-strip" id="matTireStrip" hidden=""><div class="sh-tire-chassis">シャーシ <span id="matTireChassis">―</span></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="matTireBaseCell"><span class="k" id="matTireBaseKey">単体（タップで取り直し）</span><span class="v" id="matTireBase">―</span></button><div class="sh-tire-cell"><span class="k">タイヤ付</span><span class="v" id="matTireNow">―</span></div><div class="sh-tire-cell"><span class="k">駆動ロス</span><span class="v loss" id="matTireLoss">―</span></div></div></div></div></div><div class="sh-extra"><div class="sh-status"><span id="matStatus"></span><span id="matTh"></span></div><div class="sh-tire"><button type="button" class="sh-tire-btn" id="matAbBtn">A/B比較</button><div class="sh-tire-strip" id="matAbStrip" hidden=""><div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="matAbName">（名前なし）</button></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="matAbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="matAbBase">―</span></button><div class="sh-tire-cell"><span class="k">今</span><span class="v" id="matAbNow">―</span></div><div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="matAbDiff">―</span></div></div></div></div><canvas class="sh-spec" id="matSpec" width="300" height="36"></canvas></div><div class="mat-nav">
 <button type="button" id="matHist">履歴</button>
 <button type="button" id="matReset">リセット</button>
 <button type="button" id="matMachine">マシン設定</button>
 <button type="button" id="matRev">逆算</button>
 <button type="button" id="matSet">設定</button>
-</div>
+</div><div class="sh-extra"><div class="sh-cmp" id="matCmp" hidden=""><div class="sh-cmp-title">電圧別比較表</div><div class="sh-cmp-sum" id="matCmpSum"></div><div class="sh-cmp-body" id="matCmpBody"></div></div></div>
 </div>
 <div id="lcApp">
 <div class="lc-top"><div class="lc-topbar"><span>RPM MEMORY</span><span class="lc-state" id="lcState">STANDBY</span></div></div>
@@ -7868,13 +7903,13 @@ applyLang(window.APP_LANG);
 <div class="lc-pill o">MOTOR</div><div class="lc-pill p">DATA</div><div class="lc-pill b">SPEED</div><div class="lc-pill pe">LOG</div><div class="lc-pill r">SYS 64</div>
 </div>
 <div class="lc-main">
-<div class="lc-read"><div class="k">MOTOR RPM</div><div class="v" id="lcRpmNow">--</div></div>
+<div class="lc-read"><div class="k">MOTOR RPM</div><div class="v" id="lcRpmNow" style="cursor: pointer;">--</div></div>
 <div class="lc-read spd"><div class="k">SPEED KM/H</div><div class="v" id="lcSpdNow">--</div></div>
 <div class="lc-grid">
 <div class="lc-stat"><span class="k">RPM MAX</span><span class="n" id="lcRpmMax">--</span></div>
 <div class="lc-stat"><span class="k">RPM MIN</span><span class="n" id="lcRpmMin">--</span></div>
 <div class="lc-stat"><span class="k">RPM AVG</span><span class="n" id="lcRpmAvg">--</span></div>
-<div class="lc-stat"><span class="k">SPD TOP</span><span class="n" id="lcSpdTop">--</span></div>
+<div class="lc-stat"><span class="k">SPD MAX</span><span class="n" id="lcSpdTop">--</span></div>
 <div class="lc-stat"><span class="k">SPD MIN</span><span class="n" id="lcSpdMin">--</span></div>
 <div class="lc-stat"><span class="k">SPD AVG</span><span class="n" id="lcSpdAvg">--</span></div>
 </div>
@@ -7883,26 +7918,26 @@ applyLang(window.APP_LANG);
 <button type="button" class="lc-btn lock" id="lcLock">ロック</button>
 <button type="button" class="lc-btn save" id="lcSave">保存</button>
 </div>
-<div class="lc-links">
+<div class="sh-extra"><div class="sh-filt"><div class="sh-filt-head"><span>集音フィルタ (RPM範囲)</span><span id="lcFiltVal">5000 — 50000</span></div><div class="sh-dual"><div class="sh-dual-track"></div><div class="sh-dual-fill" id="lcFiltFill"></div><input type="range" id="lcFiltMin" min="0" max="60000" step="500" value="5000"><input type="range" id="lcFiltMax" min="0" max="60000" step="500" value="50000"></div></div></div><div class="sh-extra"><div class="sh-tire"><button type="button" class="sh-tire-btn" id="lcTireBtn">タイヤ付</button><div class="sh-tire-strip" id="lcTireStrip" hidden=""><div class="sh-tire-chassis">シャーシ <span id="lcTireChassis">―</span></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="lcTireBaseCell"><span class="k" id="lcTireBaseKey">単体（タップで取り直し）</span><span class="v" id="lcTireBase">―</span></button><div class="sh-tire-cell"><span class="k">タイヤ付</span><span class="v" id="lcTireNow">―</span></div><div class="sh-tire-cell"><span class="k">駆動ロス</span><span class="v loss" id="lcTireLoss">―</span></div></div></div></div></div><div class="sh-extra"><div class="sh-status"><span id="lcStatus"></span><span id="lcTh"></span></div><div class="sh-tire"><button type="button" class="sh-tire-btn" id="lcAbBtn">A/B比較</button><div class="sh-tire-strip" id="lcAbStrip" hidden=""><div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="lcAbName">（名前なし）</button></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="lcAbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="lcAbBase">―</span></button><div class="sh-tire-cell"><span class="k">今</span><span class="v" id="lcAbNow">―</span></div><div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="lcAbDiff">―</span></div></div></div></div><canvas class="sh-spec" id="lcSpec" width="300" height="36"></canvas></div><div class="lc-links">
 <button type="button" id="lcHist">履歴</button>
 <button type="button" id="lcReset">リセット</button>
 <button type="button" id="lcMachine">マシン設定</button>
 <button type="button" id="lcRev">逆算</button>
 <button type="button" id="lcSet">設定</button>
-</div>
+</div><div class="sh-extra"><div class="sh-cmp" id="lcCmp" hidden=""><div class="sh-cmp-title">電圧別比較表</div><div class="sh-cmp-sum" id="lcCmpSum"></div><div class="sh-cmp-body" id="lcCmpBody"></div></div></div>
 </div>
 </div>
 <div class="lc-bottom"></div>
 </div>
 <div id="chApp">
 <div class="ch-head"><div class="ch-title">RPM MEMORY • CHRONO</div><div class="ch-state" id="chState">READY</div></div>
-<div class="ch-casewrap"><div class="ch-case"><canvas id="chCanvas"></canvas></div></div>
+<div class="ch-casewrap"><div class="ch-case"><canvas id="chCanvas" style="cursor: pointer;"></canvas></div></div>
 <div class="ch-speed"><span class="v" id="chSpdNow">--</span> <span class="u">KM/H</span></div>
 <div class="ch-grid">
 <div class="ch-box"><div class="k">RPM MAX</div><div class="n" id="chRpmMax">--</div></div>
 <div class="ch-box"><div class="k">RPM MIN</div><div class="n" id="chRpmMin">--</div></div>
 <div class="ch-box"><div class="k">RPM AVG</div><div class="n" id="chRpmAvg">--</div></div>
-<div class="ch-box"><div class="k">SPD TOP</div><div class="n" id="chSpdTop">--</div></div>
+<div class="ch-box"><div class="k">SPD MAX</div><div class="n" id="chSpdTop">--</div></div>
 <div class="ch-box"><div class="k">SPD MIN</div><div class="n" id="chSpdMin">--</div></div>
 <div class="ch-box"><div class="k">SPD AVG</div><div class="n" id="chSpdAvg">--</div></div>
 </div>
@@ -7911,24 +7946,24 @@ applyLang(window.APP_LANG);
 <button type="button" class="ch-btn" id="chLock">ロック</button>
 <button type="button" class="ch-btn" id="chSave">保存</button>
 </div>
-<div class="ch-links">
+<div class="sh-extra"><div class="sh-filt"><div class="sh-filt-head"><span>集音フィルタ (RPM範囲)</span><span id="chFiltVal">5000 — 50000</span></div><div class="sh-dual"><div class="sh-dual-track"></div><div class="sh-dual-fill" id="chFiltFill"></div><input type="range" id="chFiltMin" min="0" max="60000" step="500" value="5000"><input type="range" id="chFiltMax" min="0" max="60000" step="500" value="50000"></div></div></div><div class="sh-extra"><div class="sh-tire"><button type="button" class="sh-tire-btn" id="chTireBtn">タイヤ付</button><div class="sh-tire-strip" id="chTireStrip" hidden=""><div class="sh-tire-chassis">シャーシ <span id="chTireChassis">―</span></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="chTireBaseCell"><span class="k" id="chTireBaseKey">単体（タップで取り直し）</span><span class="v" id="chTireBase">―</span></button><div class="sh-tire-cell"><span class="k">タイヤ付</span><span class="v" id="chTireNow">―</span></div><div class="sh-tire-cell"><span class="k">駆動ロス</span><span class="v loss" id="chTireLoss">―</span></div></div></div></div></div><div class="sh-extra"><div class="sh-status"><span id="chStatus"></span><span id="chTh"></span></div><div class="sh-tire"><button type="button" class="sh-tire-btn" id="chAbBtn">A/B比較</button><div class="sh-tire-strip" id="chAbStrip" hidden=""><div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="chAbName">（名前なし）</button></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="chAbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="chAbBase">―</span></button><div class="sh-tire-cell"><span class="k">今</span><span class="v" id="chAbNow">―</span></div><div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="chAbDiff">―</span></div></div></div></div></div><div class="ch-links">
 <button type="button" id="chHist">履歴</button>
 <button type="button" id="chReset">リセット</button>
 <button type="button" id="chMachine">マシン設定</button>
 <button type="button" id="chRev">逆算</button>
 <button type="button" id="chSet">設定</button>
-</div>
+</div><div class="sh-extra"><div class="sh-cmp" id="chCmp" hidden=""><div class="sh-cmp-title">電圧別比較表</div><div class="sh-cmp-sum" id="chCmpSum"></div><div class="sh-cmp-body" id="chCmpBody"></div></div></div>
 </div>
 <div id="bpApp">
 <div class="bp-frame">
 <div class="bp-head"><div class="bp-title">RPM MEMORY — DWG.64</div><div class="bp-state" id="bpState">READY</div></div>
-<div class="bp-gaugewrap"><canvas id="bpGauge"></canvas></div>
+<div class="bp-gaugewrap"><canvas id="bpGauge" style="cursor: pointer;"></canvas></div>
 <div class="bp-speed"><span class="v" id="bpSpdNow">--</span> <span class="u">KM/H</span></div>
 <div class="bp-grid">
 <div class="bp-box"><div class="k">RPM MAX</div><div class="n" id="bpRpmMax">--</div></div>
 <div class="bp-box"><div class="k">RPM MIN</div><div class="n" id="bpRpmMin">--</div></div>
 <div class="bp-box"><div class="k">RPM AVG</div><div class="n" id="bpRpmAvg">--</div></div>
-<div class="bp-box"><div class="k">SPD TOP</div><div class="n" id="bpSpdTop">--</div></div>
+<div class="bp-box"><div class="k">SPD MAX</div><div class="n" id="bpSpdTop">--</div></div>
 <div class="bp-box"><div class="k">SPD MIN</div><div class="n" id="bpSpdMin">--</div></div>
 <div class="bp-box"><div class="k">SPD AVG</div><div class="n" id="bpSpdAvg">--</div></div>
 </div>
@@ -7937,13 +7972,13 @@ applyLang(window.APP_LANG);
 <button type="button" class="bp-btn" id="bpLock">ロック</button>
 <button type="button" class="bp-btn" id="bpSave">保存</button>
 </div>
-<div class="bp-links">
+<div class="sh-extra"><div class="sh-filt"><div class="sh-filt-head"><span>集音フィルタ (RPM範囲)</span><span id="bpFiltVal">5000 — 50000</span></div><div class="sh-dual"><div class="sh-dual-track"></div><div class="sh-dual-fill" id="bpFiltFill"></div><input type="range" id="bpFiltMin" min="0" max="60000" step="500" value="5000"><input type="range" id="bpFiltMax" min="0" max="60000" step="500" value="50000"></div></div></div><div class="sh-extra"><div class="sh-tire"><button type="button" class="sh-tire-btn" id="bpTireBtn">タイヤ付</button><div class="sh-tire-strip" id="bpTireStrip" hidden=""><div class="sh-tire-chassis">シャーシ <span id="bpTireChassis">―</span></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="bpTireBaseCell"><span class="k" id="bpTireBaseKey">単体（タップで取り直し）</span><span class="v" id="bpTireBase">―</span></button><div class="sh-tire-cell"><span class="k">タイヤ付</span><span class="v" id="bpTireNow">―</span></div><div class="sh-tire-cell"><span class="k">駆動ロス</span><span class="v loss" id="bpTireLoss">―</span></div></div></div></div></div><div class="sh-extra"><div class="sh-status"><span id="bpStatus"></span><span id="bpTh"></span></div><div class="sh-tire"><button type="button" class="sh-tire-btn" id="bpAbBtn">A/B比較</button><div class="sh-tire-strip" id="bpAbStrip" hidden=""><div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="bpAbName">（名前なし）</button></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="bpAbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="bpAbBase">―</span></button><div class="sh-tire-cell"><span class="k">今</span><span class="v" id="bpAbNow">―</span></div><div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="bpAbDiff">―</span></div></div></div></div></div><div class="bp-links">
 <button type="button" id="bpHist">履歴</button>
 <button type="button" id="bpReset">リセット</button>
 <button type="button" id="bpMachine">マシン設定</button>
 <button type="button" id="bpRev">逆算</button>
 <button type="button" id="bpSet">設定</button>
-</div>
+</div><div class="sh-extra"><div class="sh-cmp" id="bpCmp" hidden=""><div class="sh-cmp-title">電圧別比較表</div><div class="sh-cmp-sum" id="bpCmpSum"></div><div class="sh-cmp-body" id="bpCmpBody"></div></div></div>
 <div class="bp-titleblock"><div>TITLE: RPM GAUGE</div><div>SCALE 1:1</div><div>UNIT: RPM / KM/H</div><div>SHEET 01</div></div>
 </div>
 </div>
@@ -7951,9 +7986,9 @@ applyLang(window.APP_LANG);
 <div class="gb-body">
 <div class="gb-bezel"><div class="gb-lcd">
 <div class="gb-lcdhead"><span>RPM MEMORY</span><span class="gb-state" id="gbState">READY</span></div>
-<div class="gb-rpm"><span id="gbRpmNow">--</span> <small>RPM</small></div>
+<div class="gb-rpm"><span id="gbRpmNow" style="cursor: pointer;">--</span> <small>RPM</small></div>
 <canvas id="gbSpec"></canvas>
-<div class="gb-row"><span>SPD <span id="gbSpdNow">--</span></span><span>TOP <span id="gbSpdTop">--</span></span><span>AVG <span id="gbRpmAvg">--</span></span></div>
+<div class="gb-row"><span>SPD <span id="gbSpdNow">--</span></span><span>MAX <span id="gbSpdTop">--</span></span><span>AVG <span id="gbRpmAvg">--</span></span></div>
 <div class="gb-row"><span>MAX <span id="gbRpmMax">--</span></span><span>MIN <span id="gbRpmMin">--</span></span><span>S-MIN <span id="gbSpdMin">--</span></span></div>
 <div class="gb-row"><span>S-AVG <span id="gbSpdAvg">--</span></span><span>DOT MATRIX</span><span>64KB</span></div>
 </div></div>
@@ -7969,13 +8004,14 @@ applyLang(window.APP_LANG);
 <button type="button" class="gb-pillbtn" id="gbSave">保存</button>
 <button type="button" class="gb-pillbtn" id="gbReset">リセット</button>
 </div>
-<div class="gb-links">
+<div class="sh-extra"><div class="sh-filt"><div class="sh-filt-head"><span>集音フィルタ (RPM範囲)</span><span id="gbFiltVal">5000 — 50000</span></div><div class="sh-dual"><div class="sh-dual-track"></div><div class="sh-dual-fill" id="gbFiltFill"></div><input type="range" id="gbFiltMin" min="0" max="60000" step="500" value="5000"><input type="range" id="gbFiltMax" min="0" max="60000" step="500" value="50000"></div></div></div><div class="sh-extra"><div class="sh-tire"><button type="button" class="sh-tire-btn" id="gbTireBtn">タイヤ付</button><div class="sh-tire-strip" id="gbTireStrip" hidden=""><div class="sh-tire-chassis">シャーシ <span id="gbTireChassis">―</span></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="gbTireBaseCell"><span class="k" id="gbTireBaseKey">単体（タップで取り直し）</span><span class="v" id="gbTireBase">―</span></button><div class="sh-tire-cell"><span class="k">タイヤ付</span><span class="v" id="gbTireNow">―</span></div><div class="sh-tire-cell"><span class="k">駆動ロス</span><span class="v loss" id="gbTireLoss">―</span></div></div></div></div></div><div class="sh-extra"><div class="sh-status"><span id="gbStatus"></span><span id="gbTh"></span></div><div class="sh-tire"><button type="button" class="sh-tire-btn" id="gbAbBtn">A/B比較</button><div class="sh-tire-strip" id="gbAbStrip" hidden=""><div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="gbAbName">（名前なし）</button></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="gbAbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="gbAbBase">―</span></button><div class="sh-tire-cell"><span class="k">今</span><span class="v" id="gbAbNow">―</span></div><div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="gbAbDiff">―</span></div></div></div></div></div><div class="gb-links">
 <button type="button" id="gbHist">履歴</button>
 <button type="button" id="gbMachine">マシン設定</button>
 <button type="button" id="gbRev">逆算</button>
 <button type="button" id="gbSet">設定</button>
+</div><div class="sh-extra"><div class="sh-cmp" id="gbCmp" hidden=""><div class="sh-cmp-title">電圧別比較表</div><div class="sh-cmp-sum" id="gbCmpSum"></div><div class="sh-cmp-body" id="gbCmpBody"></div></div></div>
 </div>
 </div>
-</div>
-<div id="iosApp"><div class="ios-statusbar"><span class="ios-sb-time">9:41</span><span class="ios-sb-icons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1" opacity=".35"/></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 4a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.8" r="1.1" fill="currentColor" stroke="none"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="14" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"/></svg></span></div><div class="ios-head"><div class="ios-title">RPM Memory</div><div class="ios-state" id="iosState">READY</div></div><div class="ios-filhead">集音フィルタ</div><div class="ios-filrow"><div class="ios-hunit"><div class="ios-hcap"><span>下限</span><span id="iosPillMinVal">5,000</span></div><div class="ios-hpill blue" id="iosPillMin"><div class="ios-hpill-fill" id="iosPillMinFill"></div><span class="ios-knob" id="iosPillMinKnob"></span></div></div><div class="ios-hunit"><div class="ios-hcap"><span>上限</span><span id="iosPillMaxVal">50,000</span></div><div class="ios-hpill purple" id="iosPillMax"><div class="ios-hpill-fill" id="iosPillMaxFill"></div><span class="ios-knob" id="iosPillMaxKnob"></span></div></div></div><div class="ios-tile ios-rpmtile"><div class="ios-tlabel">RPM</div><div class="ios-rpmv" id="iosRpmNow">--</div><div class="ios-statsrow"><div class="ios-rs"><span class="k">MAX</span><span class="v" id="iosRpmMax">--</span></div><div class="ios-rs"><span class="k">MIN</span><span class="v" id="iosRpmMin">--</span></div><div class="ios-rs"><span class="k">AVE</span><span class="v" id="iosRpmAvg">--</span></div></div><div class="ios-bar"><div class="ios-bar-fill" id="iosBarFill"></div></div><div class="ios-barcap">50,000 までの割合</div></div><div class="ios-tile ios-spdtile"><div class="ios-tlabel">速度 km/h</div><div class="ios-spdv" id="iosSpdNow">--</div><div class="ios-statsrow"><div class="ios-rs"><span class="k">最高</span><span class="v" id="iosSpdTop">--</span></div><div class="ios-rs"><span class="k">最低</span><span class="v" id="iosSpdMin">--</span></div><div class="ios-rs"><span class="k">平均</span><span class="v" id="iosSpdAvg">--</span></div></div></div><div class="ios-btns"><button type="button" class="ios-bigbtn start" id="iosStart"><svg viewBox="0 0 24 24"><g id="iosIcoPlay"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></g><g id="iosIcoPause" style="display:none"><rect x="6.8" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor"/><rect x="13.6" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor"/></g></svg><span id="iosStartLab">開始</span></button><button type="button" class="ios-bigbtn lock" id="iosLock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><rect x="5.6" y="10.4" width="12.8" height="9.2" rx="2.6" fill="currentColor" stroke="none"/><path d="M8.4 10.4V7.8a3.6 3.6 0 0 1 7.2 0v2.6"/></svg><span id="iosLockLab">ロック</span></button><button type="button" class="ios-bigbtn save" id="iosSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10.2M12 14.2l-3.8-3.8M12 14.2l3.8-3.8"/><path d="M4.8 15.4v1.9A2.7 2.7 0 0 0 7.5 20h9a2.7 2.7 0 0 0 2.7-2.7v-1.9"/></svg><span>保存</span></button><button type="button" class="ios-bigbtn tire" id="iosTireJump"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/></svg><span>タイヤ付</span></button></div><div class="ios-links"><button type="button" id="iosHist"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.6V12l3 1.8"/></svg></span>履歴</button><button type="button" id="iosReset"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 5.2v4.6h4.6"/><path d="M5.1 9.6a8.2 8.2 0 1 1-.7 4.9"/></svg></span>リセット</button><button type="button" id="iosMachine"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8M18 7h2M4 12h2M12 12h8M4 17h10M20 17h0"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></svg></span>マシン設定</button><button type="button" id="iosRev"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9.2 7.4h5.6"/><circle cx="9.4" cy="11.8" r=".5" fill="currentColor" stroke="none"/><circle cx="12" cy="11.8" r=".5" fill="currentColor" stroke="none"/><circle cx="14.6" cy="11.8" r=".5" fill="currentColor" stroke="none"/><circle cx="9.4" cy="15.8" r=".5" fill="currentColor" stroke="none"/><circle cx="12" cy="15.8" r=".5" fill="currentColor" stroke="none"/><circle cx="14.6" cy="15.8" r=".5" fill="currentColor" stroke="none"/></svg></span>逆算</button><button type="button" id="iosSet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M12 3.8v3M12 17.2v3M3.8 12h3M17.2 12h3M6.2 6.2l2.1 2.1M15.7 15.7l2.1 2.1M17.8 6.2l-2.1 2.1M8.3 15.7l-2.1 2.1"/></svg></span>設定</button><div class="ios-home"></div></div></div>
+<div id="iosApp"><div class="ios-statusbar"><span class="ios-sb-time">9:41</span><span class="ios-sb-icons"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"></rect><rect x="4.5" y="5" width="3" height="6" rx="1"></rect><rect x="9" y="2.5" width="3" height="8.5" rx="1"></rect><rect x="13.5" y="0" width="3" height="11" rx="1" opacity=".35"></rect></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 4a10 10 0 0 1 13 0"></path><path d="M4 6.8a6.4 6.4 0 0 1 8 0"></path><circle cx="8" cy="9.8" r="1.1" fill="currentColor" stroke="none"></circle></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="20" height="11" rx="3.5" stroke="currentColor" opacity=".4"></rect><rect x="2" y="2" width="14" height="8" rx="2" fill="currentColor"></rect><path d="M23 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity=".4"></path></svg></span></div><div class="ios-head"><div class="ios-title">RPM Memory</div><div class="ios-state" id="iosState">READY</div></div><div class="ios-filhead">集音フィルタ</div><div class="ios-filrow"><div class="ios-hunit"><div class="ios-hcap"><span>下限</span><span id="iosPillMinVal">5,000</span></div><div class="ios-hpill blue" id="iosPillMin"><div class="ios-hpill-fill" id="iosPillMinFill"></div><span class="ios-knob" id="iosPillMinKnob"></span></div></div><div class="ios-hunit"><div class="ios-hcap"><span>上限</span><span id="iosPillMaxVal">50,000</span></div><div class="ios-hpill purple" id="iosPillMax"><div class="ios-hpill-fill" id="iosPillMaxFill"></div><span class="ios-knob" id="iosPillMaxKnob"></span></div></div></div><div class="ios-tile ios-rpmtile"><div class="ios-tlabel">RPM</div><div class="ios-rpmv" id="iosRpmNow" style="cursor: pointer;">--</div><div class="ios-statsrow"><div class="ios-rs"><span class="k">MAX</span><span class="v" id="iosRpmMax">--</span></div><div class="ios-rs"><span class="k">MIN</span><span class="v" id="iosRpmMin">--</span></div><div class="ios-rs"><span class="k">AVE</span><span class="v" id="iosRpmAvg">--</span></div></div><div class="ios-bar"><div class="ios-bar-fill" id="iosBarFill"></div></div><div class="ios-barcap">50,000 までの割合</div></div><div class="ios-tile ios-spdtile"><div class="ios-tlabel">速度 km/h</div><div class="ios-spdv" id="iosSpdNow">--</div><div class="ios-statsrow"><div class="ios-rs"><span class="k">MAX</span><span class="v" id="iosSpdTop">--</span></div><div class="ios-rs"><span class="k">MIN</span><span class="v" id="iosSpdMin">--</span></div><div class="ios-rs"><span class="k">AVE</span><span class="v" id="iosSpdAvg">--</span></div></div></div><div class="ios-btns"><button type="button" class="ios-bigbtn start" id="iosStart"><svg viewBox="0 0 24 24"><g id="iosIcoPlay"><path d="M8 5.5v13l11-6.5z" fill="currentColor"></path></g><g id="iosIcoPause" style="display:none"><rect x="6.8" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor"></rect><rect x="13.6" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor"></rect></g></svg><span id="iosStartLab">開始</span></button><button type="button" class="ios-bigbtn lock" id="iosLock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><rect x="5.6" y="10.4" width="12.8" height="9.2" rx="2.6" fill="currentColor" stroke="none"></rect><path d="M8.4 10.4V7.8a3.6 3.6 0 0 1 7.2 0v2.6"></path></svg><span id="iosLockLab">ロック</span></button><button type="button" class="ios-bigbtn save" id="iosSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10.2M12 14.2l-3.8-3.8M12 14.2l3.8-3.8"></path><path d="M4.8 15.4v1.9A2.7 2.7 0 0 0 7.5 20h9a2.7 2.7 0 0 0 2.7-2.7v-1.9"></path></svg><span>保存</span></button><button type="button" class="ios-bigbtn tire" id="iosTireJump"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" stroke-width="2.6"></circle><circle cx="12" cy="12" r="2.4" fill="currentColor"></circle></svg><span>タイヤ付</span></button></div><div class="sh-extra"><div class="sh-tire"><button type="button" class="sh-tire-btn" id="iosTireBtn">タイヤ付</button><div class="sh-tire-strip" id="iosTireStrip" hidden=""><div class="sh-tire-chassis">シャーシ <span id="iosTireChassis">―</span></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="iosTireBaseCell"><span class="k" id="iosTireBaseKey">単体（タップで取り直し）</span><span class="v" id="iosTireBase">―</span></button><div class="sh-tire-cell"><span class="k">タイヤ付</span><span class="v" id="iosTireNow">―</span></div><div class="sh-tire-cell"><span class="k">駆動ロス</span><span class="v loss" id="iosTireLoss">―</span></div></div></div></div></div><div class="sh-extra"><div class="sh-status"><span id="iosStatus"></span><span id="iosTh"></span></div><div class="sh-tire"><button type="button" class="sh-tire-btn" id="iosAbBtn">A/B比較</button><div class="sh-tire-strip" id="iosAbStrip" hidden=""><div class="sh-tire-chassis">A/B比較 ・ 基準 <button type="button" id="iosAbName">（名前なし）</button></div><div class="sh-tire-cells"><button type="button" class="sh-tire-cell" id="iosAbBaseCell"><span class="k">基準（タップで今を基準に）</span><span class="v" id="iosAbBase">―</span></button><div class="sh-tire-cell"><span class="k">今</span><span class="v" id="iosAbNow">―</span></div><div class="sh-tire-cell"><span class="k">差</span><span class="v loss" id="iosAbDiff">―</span></div></div></div></div><canvas class="sh-spec" id="iosSpec" width="300" height="36"></canvas></div><div class="ios-links"><button type="button" id="iosHist"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"></circle><path d="M12 7.6V12l3 1.8"></path></svg></span>履歴</button><button type="button" id="iosReset"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 5.2v4.6h4.6"></path><path d="M5.1 9.6a8.2 8.2 0 1 1-.7 4.9"></path></svg></span>リセット</button><button type="button" id="iosMachine"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8M18 7h2M4 12h2M12 12h8M4 17h10M20 17h0"></path><circle cx="15" cy="7" r="2"></circle><circle cx="9" cy="12" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg></span>マシン設定</button><button type="button" id="iosRev"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9.2 7.4h5.6"></path><circle cx="9.4" cy="11.8" r=".5" fill="currentColor" stroke="none"></circle><circle cx="12" cy="11.8" r=".5" fill="currentColor" stroke="none"></circle><circle cx="14.6" cy="11.8" r=".5" fill="currentColor" stroke="none"></circle><circle cx="9.4" cy="15.8" r=".5" fill="currentColor" stroke="none"></circle><circle cx="12" cy="15.8" r=".5" fill="currentColor" stroke="none"></circle><circle cx="14.6" cy="15.8" r=".5" fill="currentColor" stroke="none"></circle></svg></span>逆算</button><button type="button" id="iosSet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"></circle><path d="M12 3.8v3M12 17.2v3M3.8 12h3M17.2 12h3M6.2 6.2l2.1 2.1M15.7 15.7l2.1 2.1M17.8 6.2l-2.1 2.1M8.3 15.7l-2.1 2.1"></path></svg></span>設定</button><div class="ios-home"></div></div><div class="sh-extra"><div class="sh-cmp" id="iosCmp" hidden=""><div class="sh-cmp-title">電圧別比較表</div><div class="sh-cmp-sum" id="iosCmpSum"></div><div class="sh-cmp-body" id="iosCmpBody"></div></div></div></div>
+
 </body></html>
