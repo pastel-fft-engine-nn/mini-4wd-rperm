@@ -1216,6 +1216,11 @@ mark.help-mark { background: transparent; color: #ff973d; font-weight: 700; padd
 .sh-spec { width: 100%; height: 36px; display: block; background: #0a0a0c; border-radius: 6px; margin-top: 6px; }
 .hist-btn-row { display: flex; gap: 8px; }
 .sh-ab-link.on { color: #ff973d; font-weight: 800; }
+.help-group { display: flex; justify-content: space-between; align-items: center; color: #fff; font-weight: 800; font-size: 15px; padding: 9px 14px; border-radius: 10px; margin: 16px 0 8px; }
+.help-group .hg-sub { font-size: 12px; font-weight: 600; opacity: 0.9; }
+.help-group.hg1 { background: #ff973d; }
+.help-group.hg2 { background: #5a78a0; }
+.help-group.hg3 { background: #46464e; }
 .sh-btnrow { display: grid !important; grid-template-columns: 1.35fr 1fr 1fr 1fr !important; gap: 6px !important; margin: 8px 0; }
 .sh-btnrow > button { width: 100%; min-width: 0; margin: 0; }
 .sh-btnrow > .mat-fab { width: 72px; height: 72px; justify-self: center; align-self: center; }
@@ -2094,9 +2099,34 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
   <button type="button" id="helpSearchBtn">検索</button>
 </div>
 <div id="helpHits"></div>
-<p class="help-note">RPM Memory はモーター音の高さから回転数を推定する測定アプリです。値は推定と机上計算です。公式回転計の代替ではありません。下の項目は、閉じたまま並んでいます。知りたい名前を押すと、その場で開きます。</p>
+<p class="help-note">RPM Memory はモーター音の高さから回転数を推定する測定アプリです。値は推定と机上計算です。公式回転計の代替ではありません。下の項目は「基本情報」「応用情報」「発展情報」の順に並んでいます。閉じたまま並んでいて、知りたい名前を押すと、その場で開きます。</p>
 
+
+<div class="help-group hg1">基本情報<span class="hg-sub">まずここから</span></div>
 <div class="help-acc open">
+<button type="button">このアプリは何をするか</button>
+<div class="help-body">
+<p>モーターは回転すると、回転に比例した周波数の音を出します。マイクでその音を取り込み、強い山の周波数を RPM に換算します。</p>
+<p>RPM ＝ 周波数(Hz) × 60。例: 400Hz なら 24,000 rpm。</p>
+<p>実機の音にはギア音・ブラシ音・走行音・声が混ざります。アプリは集音窓の中で一番強い山を見るので、別の音が山になると数字が飛びます。</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">測り方</button>
+<div class="help-body">
+<ul>
+<li>電圧・ギヤ・タイヤを今の車両に近づける</li>
+<li>集音範囲を想定回転に合わせる</li>
+<li>計測開始（ここでマイク許可）</li>
+<li>マイクをモーターへ近づける</li>
+<li>数字が数秒安定したらロック</li>
+<li>必要なら保存</li>
+</ul>
+<p>CURRENT は今の推定。MAX / MIN はこの計測中の最高と最低。SPEED は机上換算で、実走速度ではありません。</p>
+<p>ロックは数字を固定する操作で、保存ではありません。リセットはトップの CURRENT・MAX・MIN と速度を消します。ロック中ならロックも外れて、比較表も消えます。設定、マシン設定、履歴はそのままです。</p>
+</div>
+</div>
+<div class="help-acc">
 <button type="button">トップ画面の名前</button>
 <div class="help-body">
 <p>上から順に、画面に出ているものの意味です。</p>
@@ -2115,7 +2145,6 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <p class="onboard-en">Top of the screen: the spectrum is the live sound, MOTOR RPM is the estimate (current / max / min), SPEED is a desk calculation, not a track speed.</p>
 </div>
 </div>
-
 <div class="help-acc">
 <button type="button">上の4つのボタン</button>
 <div class="help-body">
@@ -2130,7 +2159,6 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <p class="onboard-en">Start uses the mic. Lock freezes the number for the chart. Save writes a record on this device only. Tire compares a motor-only reading with the assembled car and shows the drive loss %. If readings jump when assembled, narrow the mic filter band. A/B keeps one named baseline RPM and shows the live difference % against it.</p>
 </div>
 </div>
-
 <div class="help-acc">
 <button type="button">下の文字</button>
 <div class="help-body">
@@ -2148,7 +2176,6 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <p class="onboard-en">The text row is history, reset, machine, reverse calc, and settings. Reset clears only the live numbers.</p>
 </div>
 </div>
-
 <div class="help-acc">
 <button type="button">平均</button>
 <div class="help-body">
@@ -2167,22 +2194,6 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <p class="onboard-en">AVG is the stable part of this run only. Spin-up and gaps are left out. It is not a lap average.</p>
 </div>
 </div>
-
-<div class="help-acc">
-<button type="button">設定のお気に入り</button>
-<div class="help-body">
-<p>マシン設定の「設定のお気に入り」です。今の車の条件を、名前つきでまとめて残せます。</p>
-<ul>
-<li>「この設定を登録」を押すと名前を聞かれる。それがお気に入りの名前になる</li>
-<li>この設定を登録、で残る。駆動、シャーシ、モーター、電圧、ギヤ、タイヤ、閾値、集音範囲、負荷、校正</li>
-<li>名前を押すと、その一式に戻る</li>
-<li>削除で、その登録だけ消える。履歴の記録は消えない</li>
-<li>この端末の中だけに残る。最大 12 件</li>
-</ul>
-<p class="onboard-en">Setup favorites store the whole machine and measure setup under the record name. Tap a name to restore it.</p>
-</div>
-</div>
-
 <div class="help-acc">
 <button type="button">目標回転</button>
 <div class="help-body">
@@ -2198,69 +2209,43 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <p class="onboard-en">Tap the MOTOR RPM block to set a target. Only MAX turns red when it reaches that number.</p>
 </div>
 </div>
-
 <div class="help-acc">
-<button type="button">集音フィルタ</button>
+<button type="button">うまく測れないとき</button>
 <div class="help-body">
-<p>スペクトラムの下にある、左右の丸いつまみです。左が下限、右が上限です。最初は 5,000 から 50,000 です。</p>
-<p>この範囲の外にある山は、回転として使いません。見たい回転の近くだけに狭めると、別の大きな音に飛びにくくなります。広げると、関係ない音も候補になります。</p>
-<p>ノイズ閾値（TH）とは別です。フィルタはどの回転帯を見るか（左右）。TH はどれだけ強い山だけを採用するか（上下）。両方を同時に使います。</p>
-<p class="onboard-en">The two knobs set the RPM window. Sounds outside it are ignored. This is separate from the TH line.</p>
+<ul>
+<li>数字が出ない → マイク許可、計測開始、モーターが回っているか</li>
+<li>暴れる → 窓が広い、TH が低い、周囲がうるさい</li>
+<li>低すぎ / 高すぎ → 倍音、窓の位置、校正が残っている</li>
+<li>速度だけおかしい → ギヤとタイヤが実車と違う</li>
+<li>比較表が空 → まだロックしていない</li>
+</ul>
 </div>
 </div>
 
+<div class="help-group hg2">応用情報<span class="hg-sub">慣れてきたら</span></div>
 <div class="help-acc">
-<button type="button">設定の外観・言語・ダーク・使い方</button>
+<button type="button">履歴の画面</button>
 <div class="help-body">
-<p>設定を開くと、スライダーの下に4つあります。外観、言語、ダーク、使い方です（2つずつ2段）。</p>
-<h4>外観</h4>
-<p>押すと10こ出ます。もう一度押すと閉じます。どれかを選ぶと設定は閉じて、その見た目のトップに戻ります。</p>
+<p>保存した行の一覧です。この端末の中だけに残ります。ほかの電話やクラウドとは共有されません。</p>
+<p>カード1件の中は、小さな表になっています。いちばん上にチェック・日付・名前と名変更・削除、その下が4行です。1行目が RPM と RPM AVG（平均の所に変動%も出ます）、2行目が速度と速度 AVG、3行目がタイヤ付（単体 → タイヤ付）とロス%、4行目がモーター種類・電圧・ギヤ比・タイヤ径です。いちばん下の段に、シャーシ、アンペア・抵抗、A/B比較の結果が出ます。平均が無い古い記録は — です。</p>
 <ul>
-<li>シャープ … 角が直角。項目の大きさの基準</li>
-<li>丸み … シャープと同じ大きさで、角だけ丸い</li>
-<li>シンプル … 白、黒、グレーだけ。グラフの中だけ暗い</li>
-<li>ダッシュ … 別のデザインの画面。測る機能は同じ</li>
-<li>ペーパー … 紙のように明るい画面に、墨黒の円弧メーター。測る機能は同じ</li>
-<li>Android … 大きな丸いカードと丸いボタンの、スマホアプリのような画面。測る機能は同じ</li>
-
-<li>クロノグラフ … 腕時計のような丸い画面に、小さなサブダイヤル。測る機能は同じ</li>
-<li>ブループリント … 設計図のような、青地に白線の画面。測る機能は同じ</li>
-<li>レトロLCD … 携帯ゲーム機のような、ドット液晶の画面。測る機能は同じ</li>
-<li>iOS … コントロールセンター風。RPMの上に横ピルの集音フィルタ、大きな横長ボタン。測る機能は同じ</li>
+<li>絞り込み・並び替え … 最初は閉じています。押すと、日付・名前・モーターなどのプルダウンと並び替えが開きます。もう一度で閉じます</li>
+<li>お気に入りの付け方 … 名前を押します。名前の色が変わります。もう一度押すと外れます</li>
+<li>お気に入りだけ見る … 「お気に入りのみ」を押します。もう一度押すと全部に戻ります</li>
+<li>削除 … その行の「削除」を押し、確認すると消えます。戻せません。お気に入りも一緒に外れます</li>
+<li>名前の横の★ … いま出している履歴の中で、RPM が一番高い行です。お気に入りではありません</li>
+<li>検索 … 名前や条件で行を絞ります</li>
+<li>リセット … 絞り込みを戻します。保存そのものは消えません</li>
+<li>履歴をCSVで出す … 履歴の上のボタンです。全記録を CSV ファイル（rpm-history-日付.csv）で出します。列は日付・名前・モーター・RPM・平均RPM・変動%・生RPM・速度・平均速度・生速度・電圧・ギヤ・タイヤ・負荷・駆動・シャーシ・単体・タイヤ付・ロス%・単体の出典・比較の基準・比較の今・差%・基準名です。表計算アプリで開けます</li>
+<li>RPM 0 を削除 … 絞り込み・並び替えの中のボタンです。RPM が 0 の記録だけをまとめて消します。戻せません</li>
+<li>シャーシ別ロス集計 … RPM 0 を削除の下のボタンです。押すとシャーシのプルダウンが出て、選んだシャーシについて、ロス記録の総数と、ギヤ比ごとの件数・ロス%の平均が出ます。ギヤの行を押すと1件ずつのロス%が見られ、さらに押すとその時のマシン設定が見られます。対象はロス%が記録されているものだけです。絞り込みにもシャーシのプルダウンがあります。保存の画面でもシャーシを選べます（記録に入るシャーシはそちらが優先です）</li>
+<li>モーター別グラフ … その下のボタンです。押すとモーターのプルダウンが出て、選んだモーターの記録だけが時系列の折れ線になります。横軸が記録の順番、縦が RPM で、線の色はギヤ比ごと（ギヤが違う記録は別の線になります）、点の芯の色は電圧の目安（2.95V以上は赤、2.75V以上は青、それ以外はグレー）です。あわせて、最初の記録 → 最新の記録の変化（%）と、1件ずつの前回比（同じモーターの1つ前の記録と）と初回比（最初の記録と）が出ます。同じモーターの推移を見るものなので、慣らしの進み具合やコンディションの変化を見るのに使えます。記録が1件しかないモーターはグラフにならず、その旨が出ます。電圧やギヤ、負荷%が違う記録同士の % は、条件の違いも含むので参考値です</li>
+<li>閉じる … 履歴をしまいます</li>
 </ul>
-<h4>言語</h4>
-<p>押すと日本語と English が出ます。ボタンの言葉が切り替わります。測定の数字や、この説明文の本文は日本語のままです。</p>
-<h4>ダーク</h4>
-<p>暗い画面と明るい画面を切り替えます。オンのときはボタンに枠が付きます。最初はオンです。</p>
-<h4>その下</h4>
-<ul>
-<li>安定してから MAX / MIN / AVG を数える … オンだと、8000rpm以上が0.6秒続くまで MAX・MIN・AVG を記録しません。CURRENT はすぐ動きます。オフだと、数字が出た瞬間から MAX・MIN を記録します。最初はオンです</li>
-<li>負荷適用値を並べて表示 … オンだと、負荷を掛けた数字の下に、掛ける前の生の数字も出ます</li>
-<li>設定リセット … ノイズ閾値を 20、校正を 1.00、負荷を 0% に戻します。履歴、外観、目標は消しません</li>
-<li>閉じる … 設定をしまいます</li>
-<li>使い方 … この説明です</li>
-<li>審査用デモ … ふだんは OFF。ON にするとマイクなしで見本の山が出ます。自分で測るときは必ず OFF に戻してください</li>
-</ul>
-<p>ノイズ閾値、校正係数、走行負荷の意味は、それぞれの項目に書いてあります。</p>
-<p class="onboard-en">Look has ten themes. Language switches labels. Dark toggles the light and dark screen. Reset does not delete history.</p>
+<p>あとで見比べるときは、電圧、ギヤ、負荷%が同じかを先に見てください。違う条件の数字をそのまま並べないでください。</p>
+<p class="onboard-en">The star marks the highest RPM in the list now shown. It is not a favorite. Tap the name to favorite. Delete removes that one row.</p>
 </div>
 </div>
-
-<div class="help-acc">
-<button type="button">書き出しと復元</button>
-<div class="help-body">
-<p>設定の下の方にある、書き出しと復元のボタンです。</p>
-<ul>
-<li>書き出し … 履歴、設定、お気に入りなどを、1つのファイル（rpm-memory-日付.json）にします。端末の外に控えを残せます</li>
-<li>復元 … そのファイルを選ぶと、今の内容をファイルの中身に置き換えて、読み直します。置き換えた内容は戻せないので、先に今の書き出しを残しておくと安全です</li>
-<li>iPhone でも Android でも、同じファイルで戻せます</li>
-<li>初回案内の最後でも、復元するかどうかを聞かれます</li>
-</ul>
-<p>履歴の CSV とは別です。CSV は見るための表で、こちらはアプリに戻すための控えです。</p>
-<p class="onboard-en">Export saves history, settings and favorites into one JSON file. Import replaces the current data with that file and reloads.</p>
-</div>
-</div>
-
 <div class="help-acc">
 <button type="button">マシン設定の項目</button>
 <div class="help-body">
@@ -2305,170 +2290,45 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <p class="onboard-en">Machine settings store shaft, chassis, motor, voltage, gear and tire. Choosing a chassis sets the shaft and the gear list. It does not add a separate chassis loss. Apply and close copies voltage, gear and tire into the speed math.</p>
 </div>
 </div>
-
 <div class="help-acc">
-<button type="button">履歴の画面</button>
+<button type="button">簡易比較と保存の名前</button>
 <div class="help-body">
-<p>保存した行の一覧です。この端末の中だけに残ります。ほかの電話やクラウドとは共有されません。</p>
-<p>カード1件の中は、小さな表になっています。いちばん上にチェック・日付・名前と名変更・削除、その下が4行です。1行目が RPM と RPM AVG（平均の所に変動%も出ます）、2行目が速度と速度 AVG、3行目がタイヤ付（単体 → タイヤ付）とロス%、4行目がモーター種類・電圧・ギヤ比・タイヤ径です。いちばん下の段に、シャーシ、アンペア・抵抗、A/B比較の結果が出ます。平均が無い古い記録は — です。</p>
+<p>マシン設定を反映して閉じると、トップに簡易比較表が出ます。上の行がギヤ比、下の行がタイヤ径です。</p>
+<h4>ギヤの行</h4>
+<p>今の回転のまま、3.5:1、3.7:1、4.0:1、4.2:1、5:1 にした机上速度です。使っているギヤの欄が色づきます。ギヤを変えると実回転も変わるので、必ずその速度になる、ではありません。</p>
+<h4>タイヤの行</h4>
+<p>今のギヤのまま、タイヤ径を 0.5 mm 小さくした速度、今の径、0.5 mm 大きくした速度です。</p>
+<h4>ロック後のスライダー</h4>
+<p>ロックして電圧別比較表が出ると、表の下に電圧とギヤ比のスライダーが静かに出ます。動かした電圧の行が光ります。</p>
+<h4>保存の名前</h4>
+<p>保存を押すと、名前欄にモーター1と入ります。次に保存するとモーター2、その次はモーター3と増えます。保存する前に、手で名前を変えられます。</p>
+<h4>スペクトラム</h4>
+<p>スペクトラムの表は、たたんで小さくできます。たたんだときは、そのときの TH の数字が残ります。</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">設定のお気に入り</button>
+<div class="help-body">
+<p>マシン設定の「設定のお気に入り」です。今の車の条件を、名前つきでまとめて残せます。</p>
 <ul>
-<li>絞り込み・並び替え … 最初は閉じています。押すと、日付・名前・モーターなどのプルダウンと並び替えが開きます。もう一度で閉じます</li>
-<li>お気に入りの付け方 … 名前を押します。名前の色が変わります。もう一度押すと外れます</li>
-<li>お気に入りだけ見る … 「お気に入りのみ」を押します。もう一度押すと全部に戻ります</li>
-<li>削除 … その行の「削除」を押し、確認すると消えます。戻せません。お気に入りも一緒に外れます</li>
-<li>名前の横の★ … いま出している履歴の中で、RPM が一番高い行です。お気に入りではありません</li>
-<li>検索 … 名前や条件で行を絞ります</li>
-<li>リセット … 絞り込みを戻します。保存そのものは消えません</li>
-<li>履歴をCSVで出す … 履歴の上のボタンです。全記録を CSV ファイル（rpm-history-日付.csv）で出します。列は日付・名前・モーター・RPM・平均RPM・変動%・生RPM・速度・平均速度・生速度・電圧・ギヤ・タイヤ・負荷・駆動・シャーシ・単体・タイヤ付・ロス%・単体の出典・比較の基準・比較の今・差%・基準名です。表計算アプリで開けます</li>
-<li>RPM 0 を削除 … 絞り込み・並び替えの中のボタンです。RPM が 0 の記録だけをまとめて消します。戻せません</li>
-<li>シャーシ別ロス集計 … RPM 0 を削除の下のボタンです。押すとシャーシのプルダウンが出て、選んだシャーシについて、ロス記録の総数と、ギヤ比ごとの件数・ロス%の平均が出ます。ギヤの行を押すと1件ずつのロス%が見られ、さらに押すとその時のマシン設定が見られます。対象はロス%が記録されているものだけです。絞り込みにもシャーシのプルダウンがあります。保存の画面でもシャーシを選べます（記録に入るシャーシはそちらが優先です）</li>
-<li>モーター別グラフ … その下のボタンです。押すとモーターのプルダウンが出て、選んだモーターの記録だけが時系列の折れ線になります。横軸が記録の順番、縦が RPM で、線の色はギヤ比ごと（ギヤが違う記録は別の線になります）、点の芯の色は電圧の目安（2.95V以上は赤、2.75V以上は青、それ以外はグレー）です。あわせて、最初の記録 → 最新の記録の変化（%）と、1件ずつの前回比（同じモーターの1つ前の記録と）と初回比（最初の記録と）が出ます。同じモーターの推移を見るものなので、慣らしの進み具合やコンディションの変化を見るのに使えます。記録が1件しかないモーターはグラフにならず、その旨が出ます。電圧やギヤ、負荷%が違う記録同士の % は、条件の違いも含むので参考値です</li>
-<li>閉じる … 履歴をしまいます</li>
+<li>「この設定を登録」を押すと名前を聞かれる。それがお気に入りの名前になる</li>
+<li>この設定を登録、で残る。駆動、シャーシ、モーター、電圧、ギヤ、タイヤ、閾値、集音範囲、負荷、校正</li>
+<li>名前を押すと、その一式に戻る</li>
+<li>削除で、その登録だけ消える。履歴の記録は消えない</li>
+<li>この端末の中だけに残る。最大 12 件</li>
 </ul>
-<p>あとで見比べるときは、電圧、ギヤ、負荷%が同じかを先に見てください。違う条件の数字をそのまま並べないでください。</p>
-<p class="onboard-en">The star marks the highest RPM in the list now shown. It is not a favorite. Tap the name to favorite. Delete removes that one row.</p>
+<p class="onboard-en">Setup favorites store the whole machine and measure setup under the record name. Tap a name to restore it.</p>
 </div>
 </div>
-
 <div class="help-acc">
-<button type="button">引き下げて更新</button>
+<button type="button">集音フィルタ</button>
 <div class="help-body">
-<p>iPhone のホーム画面に追加して、そのアイコンから開いたときだけ使えます。</p>
-<p>画面の一番上で、下へ引きます。「引き下げて更新」と出ます。十分に引いて指を離すと、ページを読み直します。</p>
-<p>Safari のタブで開いているときは入りません。ブラウザ自身の更新を使ってください。設定やマシン設定を開いているとき、ボタンやスライダーを触っているときは動きません。</p>
-<p class="onboard-en">Pull down from the top to reload, only when opened from the Home Screen icon.</p>
+<p>スペクトラムの下にある、左右の丸いつまみです。左が下限、右が上限です。最初は 5,000 から 50,000 です。</p>
+<p>この範囲の外にある山は、回転として使いません。見たい回転の近くだけに狭めると、別の大きな音に飛びにくくなります。広げると、関係ない音も候補になります。</p>
+<p>ノイズ閾値（TH）とは別です。フィルタはどの回転帯を見るか（左右）。TH はどれだけ強い山だけを採用するか（上下）。両方を同時に使います。</p>
+<p class="onboard-en">The two knobs set the RPM window. Sounds outside it are ignored. This is separate from the TH line.</p>
 </div>
 </div>
-
-<div class="help-acc">
-<button type="button">このアプリは何をするか</button>
-<div class="help-body">
-<p>モーターは回転すると、回転に比例した周波数の音を出します。マイクでその音を取り込み、強い山の周波数を RPM に換算します。</p>
-<p>RPM ＝ 周波数(Hz) × 60。例: 400Hz なら 24,000 rpm。</p>
-<p>実機の音にはギア音・ブラシ音・走行音・声が混ざります。アプリは集音窓の中で一番強い山を見るので、別の音が山になると数字が飛びます。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">測り方</button>
-<div class="help-body">
-<ul>
-<li>電圧・ギヤ・タイヤを今の車両に近づける</li>
-<li>集音範囲を想定回転に合わせる</li>
-<li>計測開始（ここでマイク許可）</li>
-<li>マイクをモーターへ近づける</li>
-<li>数字が数秒安定したらロック</li>
-<li>必要なら保存</li>
-</ul>
-<p>CURRENT は今の推定。MAX / MIN はこの計測中の最高と最低。SPEED は机上換算で、実走速度ではありません。</p>
-<p>ロックは数字を固定する操作で、保存ではありません。リセットはトップの CURRENT・MAX・MIN と速度を消します。ロック中ならロックも外れて、比較表も消えます。設定、マシン設定、履歴はそのままです。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">スペクトルの TH</button>
-<div class="help-body">
-<p>グラフの横点線と「TH 20」が Threshold（閾値）です。スライダーの目盛りが、そのまま線の高さです。初期値は 20 です。</p>
-<ul>
-<li>線より上の山だけを回転の候補にする</li>
-<li>線より下の小さな揺れは使わない</li>
-<li>山の頂点が TH を超えなければ表示は --</li>
-</ul>
-<p>TH は「この高さ未満は騒音とみなす」線です。集音フィルタ（回転の上下限）とは別です。</p>
-<ul>
-<li>集音フィルタ … どの回転帯を見るか（左右）</li>
-<li>TH … どれだけ強い山だけを採用するか（上下）</li>
-</ul>
-<p>両方を同時に使います。窓を狭めても TH が低ければ、その窓の中の小さなノイズを拾います。TH を上げても窓が広ければ、別の強い音に飛びます。</p>
-<p>見るタイミング: 数字が飛ぶ、消える、山がいくつもあるとき。線と山の位置を先に見てください。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">ノイズ閾値</button>
-<div class="help-body">
-<p>周波数ごとの強さに対する採用ラインです。スライダーは 0〜100 を 1 刻み。初期値は 20 で、線の高さも 20 です。表示の数字が線の高さです。</p>
-<p><strong>上げるとき:</strong> 声・空調・他車・机の振動を切りたい。代償としてモーター自身も拾いにくくなる。少し離しただけ、電圧が落ちて音が細くなっただけで -- になりやすい。「測れているのに急に消える」は TH が高すぎることが多い。</p>
-<p><strong>下げるとき:</strong> 弱いモーター音でも数字を出したい。代償として無関係な音でも山になり、回転が跳ぶ・倍になる・測っていないのに動く。</p>
-<p><strong>合わせ方:</strong></p>
-<ul>
-<li>モーターを止めて計測を始める</li>
-<li>小さなギザギザだけなら、その少し上に TH を置く</li>
-<li>回して、山が TH をはっきり超えるか見る</li>
-<li>超えないときは、閾値を下げるより先にマイクを近づける。それでも弱いときだけ下げる</li>
-</ul>
-<p>サーキットで上げたくなったら、集音範囲も同時に狭めてください。閾値だけ上げると自分のモーターまで消えます。自宅の静かな机なら 20 のままで足りることが多いです。暴れるときだけ動かし、リセットで目盛り 20 に戻ります。</p>
-<p>線が上にあるほど厳しい、下にあるほど甘い。山が線から少し出る程度が扱いやすいです。山が線に埋まっているなら上げすぎ、線の近くに小さな山がいくつもあるなら下げすぎか窓が広いです。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">RPM校正係数</button>
-<div class="help-body">
-<p>音から出した回転に掛ける倍率です。初期値 1.00、範囲 0.50〜1.50。<br>表示のもと ＝ 周波数から出した回転 × 校正係数。</p>
-<p><strong>使うとき:</strong> この端末・この測り方で、いつも同じ方向にずれると分かったときだけ。普段は 1.00 のまま。モーターの性能そのものではありません。</p>
-<ul>
-<li>光学式などで 30,000 と分かっているのに 28,500 と出る → 30000 ÷ 28500 ≒ 1.05</li>
-<li>いつも高く出る → 0.95 など</li>
-</ul>
-<p>1回のずれでは合わせないでください。距離や電圧を変えても同じ比率か見てから動かします。友人の記録や以前の履歴と混ぜるなら、係数を揃えるかすべて 1.00 に戻します。</p>
-<p>負荷と同時に動かすと原因が分からなくなります。校正を触るときは負荷を 0% にしてください。リセットで 1.00。普段は触らない設定です。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">走行負荷</button>
-<div class="help-body">
-<p>無負荷で測った回転を、車載の落ち込みに近づける見積もりです。初期値 0%、範囲 −100〜+100。<br>負荷後の回転 ＝ 校正後の回転 × (1 − 走行負荷%/100)。速度も同じ比率です。</p>
-<p>校正 1.00 のとき、30,000 rpm は 0% で 30,000、+10% で 27,000、+20% で 24,000、−10% で 33,000 と出ます。プラスにすると画面の回転と机上速度は小さくなります。「走行中はこれくらい落ちるだろう」という仮定です。</p>
-<p>シャーシの実ロス、タイヤの潰れ、ギヤの噛み、コーナー、接地、電圧降下は自動では入りません。20% にしたから実走が 20% 遅くなる、という意味ではありません。</p>
-<p><strong>使うとき:</strong> 机上の単体測定は 0%。車に載せて落ちる分を記録に残したいときだけ、10〜20% などを試し、生の値も見てください。分からなければ 0% のまま生の値で比較するのが誤解が少ないです。</p>
-<p>「負荷適用値を並べて表示」をオンにすると、主表示が負荷後、小さく生の値が出ます。履歴にも負荷%が残るので、あとで比べるときは % を揃えるか生 RPM で揃えてください。</p>
-<p>マイナス%は表示を上げます。校正の代わりに使わないでください。校正は端末のずれ、負荷は走行の見積もりです。主表示・MAX / MIN・ロック・比較表は負荷後基準です。議論するときは「負荷何%の値か」を先に確認してください。リセットで 0% です。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">3つの設定の違い</button>
-<div class="help-body">
-<ul>
-<li>ノイズ閾値 / TH … どの強さの山を回転と認めるか。普段は 20。暴れる・消えるときだけ</li>
-<li>RPM校正係数 … 測定値全体の倍率。普段は 1.00。基準があるときだけ</li>
-<li>走行負荷 … 車載で落ちると仮定して表示を落とす。普段は 0%。記録のメモ用</li>
-</ul>
-<p>先に測る条件を揃える（距離、電圧、無負荷か車載か）方が、スライダーをいじるより効きます。数値はどれも推定と机上計算です。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">速度が机上値である理由</button>
-<div class="help-body">
-<p>速度(km/h) ＝ (モーターrpm ÷ ギヤ比) × タイヤ径(mm) × (π × 60 / 1,000,000)</p>
-<p>モーター回転をギヤで軸回転に直し、タイヤ円周で進む距離にしています。スリップ、接地、ロス、電圧降下、発熱は入っていません。実走より速く出ることがほとんどです。</p>
-<p>電圧は式に直接入りません。測った電源のメモと比較表の列分けに使います。</p>
-<p>比較表の上の数字はロスなしです。片軸か両軸のとき、下の括弧だけが伝達込みの仮定です。トップの SPEED はロスなしのままです。公式の摩擦値はありません。詳しくは「伝達ロスの仮定」。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">伝達ロスの仮定</button>
-<div class="help-body">
-<p>比較表の上の km/h はロスなしです。括弧の中だけ、駆動ごとの残り割合を掛けています。トップの SPEED と回転数は変えません。測った音には、すでにその場の摩擦が入っていることがあります。そこへさらに掛けると、二重に引くことになります。</p>
-<p>両軸は 98% です。</p>
-<p>片軸は 87.5% です。98% に、以前の 86.6 ÷ 97 を掛けています。</p>
-<p>これは公式の測定値ではありません。グリス、傾き、トルクで変わります。効率は本来、速度ではなくトルクと動力の残りです。同じ割合で速度が落ちるとは限りません。見比べ用の仮定です。駆動が未選択のときは 100% で、掛けません。</p>
-</div>
-</div>
-
-<div class="help-acc">
-<button type="button">マシン設定と比較表の違い</button>
-<div class="help-body">
-<p>マシン設定は、今の車のメモです。駆動、シャーシ、モーター、保存モード、ロック履歴はここだけです。シャーシを選ぶと駆動と使えるギヤが揃います。速度の主表示には伝達を掛けません。括弧だけが仮定です。電圧・ギヤ比・タイヤ径は、入力した時点でトップと比較表の計算に同期されます。その入力欄はトップには出しません。</p>
-<p>比較表の上に、駆動・モーター・電圧・ギヤ・タイヤが出ます。片軸か両軸かで、使えるギヤの列が違います。薄い列は、今の駆動では使わないギヤです。選んだ電圧の行と、選んだギヤの列が強調されます。</p>
-<p class="onboard-en">Machine settings copy voltage, gear and tire into the table. The top page no longer shows those inputs. Pale columns are gears that shaft does not use.</p>
-</div>
-</div>
-
 <div class="help-acc">
 <button type="button">比較表・履歴・逆算</button>
 <div class="help-body">
@@ -2490,8 +2350,163 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 <p>必要トルクとジャンプの詳しくは、次の「逆算の必要トルクとジャンプ」を見てください。</p>
 </div>
 </div>
+<div class="help-acc">
+<button type="button">設定の外観・言語・ダーク・使い方</button>
+<div class="help-body">
+<p>設定を開くと、スライダーの下に4つあります。外観、言語、ダーク、使い方です（2つずつ2段）。</p>
+<h4>外観</h4>
+<p>押すと10こ出ます。もう一度押すと閉じます。どれかを選ぶと設定は閉じて、その見た目のトップに戻ります。</p>
+<ul>
+<li>シャープ … 角が直角。項目の大きさの基準</li>
+<li>丸み … シャープと同じ大きさで、角だけ丸い</li>
+<li>シンプル … 白、黒、グレーだけ。グラフの中だけ暗い</li>
+<li>ダッシュ … 別のデザインの画面。測る機能は同じ</li>
+<li>ペーパー … 紙のように明るい画面に、墨黒の円弧メーター。測る機能は同じ</li>
+<li>Android … 大きな丸いカードと丸いボタンの、スマホアプリのような画面。測る機能は同じ</li>
 
+<li>クロノグラフ … 腕時計のような丸い画面に、小さなサブダイヤル。測る機能は同じ</li>
+<li>ブループリント … 設計図のような、青地に白線の画面。測る機能は同じ</li>
+<li>レトロLCD … 携帯ゲーム機のような、ドット液晶の画面。測る機能は同じ</li>
+<li>iOS … コントロールセンター風。RPMの上に横ピルの集音フィルタ、大きな横長ボタン。測る機能は同じ</li>
+</ul>
+<h4>言語</h4>
+<p>押すと日本語と English が出ます。ボタンの言葉が切り替わります。測定の数字や、この説明文の本文は日本語のままです。</p>
+<h4>ダーク</h4>
+<p>暗い画面と明るい画面を切り替えます。オンのときはボタンに枠が付きます。最初はオンです。</p>
+<h4>その下</h4>
+<ul>
+<li>安定してから MAX / MIN / AVG を数える … オンだと、8000rpm以上が0.6秒続くまで MAX・MIN・AVG を記録しません。CURRENT はすぐ動きます。オフだと、数字が出た瞬間から MAX・MIN を記録します。最初はオンです</li>
+<li>負荷適用値を並べて表示 … オンだと、負荷を掛けた数字の下に、掛ける前の生の数字も出ます</li>
+<li>設定リセット … ノイズ閾値を 20、校正を 1.00、負荷を 0% に戻します。履歴、外観、目標は消しません</li>
+<li>閉じる … 設定をしまいます</li>
+<li>使い方 … この説明です</li>
+<li>審査用デモ … ふだんは OFF。ON にするとマイクなしで見本の山が出ます。自分で測るときは必ず OFF に戻してください</li>
+</ul>
+<p>ノイズ閾値、校正係数、走行負荷の意味は、それぞれの項目に書いてあります。</p>
+<p class="onboard-en">Look has ten themes. Language switches labels. Dark toggles the light and dark screen. Reset does not delete history.</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">書き出しと復元</button>
+<div class="help-body">
+<p>設定の下の方にある、書き出しと復元のボタンです。</p>
+<ul>
+<li>書き出し … 履歴、設定、お気に入りなどを、1つのファイル（rpm-memory-日付.json）にします。端末の外に控えを残せます</li>
+<li>復元 … そのファイルを選ぶと、今の内容をファイルの中身に置き換えて、読み直します。置き換えた内容は戻せないので、先に今の書き出しを残しておくと安全です</li>
+<li>iPhone でも Android でも、同じファイルで戻せます</li>
+<li>初回案内の最後でも、復元するかどうかを聞かれます</li>
+</ul>
+<p>履歴の CSV とは別です。CSV は見るための表で、こちらはアプリに戻すための控えです。</p>
+<p class="onboard-en">Export saves history, settings and favorites into one JSON file. Import replaces the current data with that file and reloads.</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">引き下げて更新</button>
+<div class="help-body">
+<p>iPhone のホーム画面に追加して、そのアイコンから開いたときだけ使えます。</p>
+<p>画面の一番上で、下へ引きます。「引き下げて更新」と出ます。十分に引いて指を離すと、ページを読み直します。</p>
+<p>Safari のタブで開いているときは入りません。ブラウザ自身の更新を使ってください。設定やマシン設定を開いているとき、ボタンやスライダーを触っているときは動きません。</p>
+<p class="onboard-en">Pull down from the top to reload, only when opened from the Home Screen icon.</p>
+</div>
+</div>
 
+<div class="help-group hg3">発展情報<span class="hg-sub">仕組みと仮定</span></div>
+<div class="help-acc">
+<button type="button">スペクトルの TH</button>
+<div class="help-body">
+<p>グラフの横点線と「TH 20」が Threshold（閾値）です。スライダーの目盛りが、そのまま線の高さです。初期値は 20 です。</p>
+<ul>
+<li>線より上の山だけを回転の候補にする</li>
+<li>線より下の小さな揺れは使わない</li>
+<li>山の頂点が TH を超えなければ表示は --</li>
+</ul>
+<p>TH は「この高さ未満は騒音とみなす」線です。集音フィルタ（回転の上下限）とは別です。</p>
+<ul>
+<li>集音フィルタ … どの回転帯を見るか（左右）</li>
+<li>TH … どれだけ強い山だけを採用するか（上下）</li>
+</ul>
+<p>両方を同時に使います。窓を狭めても TH が低ければ、その窓の中の小さなノイズを拾います。TH を上げても窓が広ければ、別の強い音に飛びます。</p>
+<p>見るタイミング: 数字が飛ぶ、消える、山がいくつもあるとき。線と山の位置を先に見てください。</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">ノイズ閾値</button>
+<div class="help-body">
+<p>周波数ごとの強さに対する採用ラインです。スライダーは 0〜100 を 1 刻み。初期値は 20 で、線の高さも 20 です。表示の数字が線の高さです。</p>
+<p><strong>上げるとき:</strong> 声・空調・他車・机の振動を切りたい。代償としてモーター自身も拾いにくくなる。少し離しただけ、電圧が落ちて音が細くなっただけで -- になりやすい。「測れているのに急に消える」は TH が高すぎることが多い。</p>
+<p><strong>下げるとき:</strong> 弱いモーター音でも数字を出したい。代償として無関係な音でも山になり、回転が跳ぶ・倍になる・測っていないのに動く。</p>
+<p><strong>合わせ方:</strong></p>
+<ul>
+<li>モーターを止めて計測を始める</li>
+<li>小さなギザギザだけなら、その少し上に TH を置く</li>
+<li>回して、山が TH をはっきり超えるか見る</li>
+<li>超えないときは、閾値を下げるより先にマイクを近づける。それでも弱いときだけ下げる</li>
+</ul>
+<p>サーキットで上げたくなったら、集音範囲も同時に狭めてください。閾値だけ上げると自分のモーターまで消えます。自宅の静かな机なら 20 のままで足りることが多いです。暴れるときだけ動かし、リセットで目盛り 20 に戻ります。</p>
+<p>線が上にあるほど厳しい、下にあるほど甘い。山が線から少し出る程度が扱いやすいです。山が線に埋まっているなら上げすぎ、線の近くに小さな山がいくつもあるなら下げすぎか窓が広いです。</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">RPM校正係数</button>
+<div class="help-body">
+<p>音から出した回転に掛ける倍率です。初期値 1.00、範囲 0.50〜1.50。<br>表示のもと ＝ 周波数から出した回転 × 校正係数。</p>
+<p><strong>使うとき:</strong> この端末・この測り方で、いつも同じ方向にずれると分かったときだけ。普段は 1.00 のまま。モーターの性能そのものではありません。</p>
+<ul>
+<li>光学式などで 30,000 と分かっているのに 28,500 と出る → 30000 ÷ 28500 ≒ 1.05</li>
+<li>いつも高く出る → 0.95 など</li>
+</ul>
+<p>1回のずれでは合わせないでください。距離や電圧を変えても同じ比率か見てから動かします。友人の記録や以前の履歴と混ぜるなら、係数を揃えるかすべて 1.00 に戻します。</p>
+<p>負荷と同時に動かすと原因が分からなくなります。校正を触るときは負荷を 0% にしてください。リセットで 1.00。普段は触らない設定です。</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">走行負荷</button>
+<div class="help-body">
+<p>無負荷で測った回転を、車載の落ち込みに近づける見積もりです。初期値 0%、範囲 −100〜+100。<br>負荷後の回転 ＝ 校正後の回転 × (1 − 走行負荷%/100)。速度も同じ比率です。</p>
+<p>校正 1.00 のとき、30,000 rpm は 0% で 30,000、+10% で 27,000、+20% で 24,000、−10% で 33,000 と出ます。プラスにすると画面の回転と机上速度は小さくなります。「走行中はこれくらい落ちるだろう」という仮定です。</p>
+<p>シャーシの実ロス、タイヤの潰れ、ギヤの噛み、コーナー、接地、電圧降下は自動では入りません。20% にしたから実走が 20% 遅くなる、という意味ではありません。</p>
+<p><strong>使うとき:</strong> 机上の単体測定は 0%。車に載せて落ちる分を記録に残したいときだけ、10〜20% などを試し、生の値も見てください。分からなければ 0% のまま生の値で比較するのが誤解が少ないです。</p>
+<p>「負荷適用値を並べて表示」をオンにすると、主表示が負荷後、小さく生の値が出ます。履歴にも負荷%が残るので、あとで比べるときは % を揃えるか生 RPM で揃えてください。</p>
+<p>マイナス%は表示を上げます。校正の代わりに使わないでください。校正は端末のずれ、負荷は走行の見積もりです。主表示・MAX / MIN・ロック・比較表は負荷後基準です。議論するときは「負荷何%の値か」を先に確認してください。リセットで 0% です。</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">速度が机上値である理由</button>
+<div class="help-body">
+<p>速度(km/h) ＝ (モーターrpm ÷ ギヤ比) × タイヤ径(mm) × (π × 60 / 1,000,000)</p>
+<p>モーター回転をギヤで軸回転に直し、タイヤ円周で進む距離にしています。スリップ、接地、ロス、電圧降下、発熱は入っていません。実走より速く出ることがほとんどです。</p>
+<p>電圧は式に直接入りません。測った電源のメモと比較表の列分けに使います。</p>
+<p>比較表の上の数字はロスなしです。片軸か両軸のとき、下の括弧だけが伝達込みの仮定です。トップの SPEED はロスなしのままです。公式の摩擦値はありません。詳しくは「伝達ロスの仮定」。</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">3つの設定の違い</button>
+<div class="help-body">
+<ul>
+<li>ノイズ閾値 / TH … どの強さの山を回転と認めるか。普段は 20。暴れる・消えるときだけ</li>
+<li>RPM校正係数 … 測定値全体の倍率。普段は 1.00。基準があるときだけ</li>
+<li>走行負荷 … 車載で落ちると仮定して表示を落とす。普段は 0%。記録のメモ用</li>
+</ul>
+<p>先に測る条件を揃える（距離、電圧、無負荷か車載か）方が、スライダーをいじるより効きます。数値はどれも推定と机上計算です。</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">マシン設定と比較表の違い</button>
+<div class="help-body">
+<p>マシン設定は、今の車のメモです。駆動、シャーシ、モーター、保存モード、ロック履歴はここだけです。シャーシを選ぶと駆動と使えるギヤが揃います。速度の主表示には伝達を掛けません。括弧だけが仮定です。電圧・ギヤ比・タイヤ径は、入力した時点でトップと比較表の計算に同期されます。その入力欄はトップには出しません。</p>
+<p>比較表の上に、駆動・モーター・電圧・ギヤ・タイヤが出ます。片軸か両軸かで、使えるギヤの列が違います。薄い列は、今の駆動では使わないギヤです。選んだ電圧の行と、選んだギヤの列が強調されます。</p>
+<p class="onboard-en">Machine settings copy voltage, gear and tire into the table. The top page no longer shows those inputs. Pale columns are gears that shaft does not use.</p>
+</div>
+</div>
+<div class="help-acc">
+<button type="button">伝達ロスの仮定</button>
+<div class="help-body">
+<p>比較表の上の km/h はロスなしです。括弧の中だけ、駆動ごとの残り割合を掛けています。トップの SPEED と回転数は変えません。測った音には、すでにその場の摩擦が入っていることがあります。そこへさらに掛けると、二重に引くことになります。</p>
+<p>両軸は 98% です。</p>
+<p>片軸は 87.5% です。98% に、以前の 86.6 ÷ 97 を掛けています。</p>
+<p>これは公式の測定値ではありません。グリス、傾き、トルクで変わります。効率は本来、速度ではなくトルクと動力の残りです。同じ割合で速度が落ちるとは限りません。見比べ用の仮定です。駆動が未選択のときは 100% で、掛けません。</p>
+</div>
+</div>
 <div class="help-acc">
 <button type="button">逆算の必要トルクとジャンプ</button>
 <div class="help-body">
@@ -2534,34 +2549,6 @@ body[data-conf="low"] #rpmNow{opacity:.55}</style>
 </div>
 </div>
 
-<div class="help-acc">
-<button type="button">簡易比較と保存の名前</button>
-<div class="help-body">
-<p>マシン設定を反映して閉じると、トップに簡易比較表が出ます。上の行がギヤ比、下の行がタイヤ径です。</p>
-<h4>ギヤの行</h4>
-<p>今の回転のまま、3.5:1、3.7:1、4.0:1、4.2:1、5:1 にした机上速度です。使っているギヤの欄が色づきます。ギヤを変えると実回転も変わるので、必ずその速度になる、ではありません。</p>
-<h4>タイヤの行</h4>
-<p>今のギヤのまま、タイヤ径を 0.5 mm 小さくした速度、今の径、0.5 mm 大きくした速度です。</p>
-<h4>ロック後のスライダー</h4>
-<p>ロックして電圧別比較表が出ると、表の下に電圧とギヤ比のスライダーが静かに出ます。動かした電圧の行が光ります。</p>
-<h4>保存の名前</h4>
-<p>保存を押すと、名前欄にモーター1と入ります。次に保存するとモーター2、その次はモーター3と増えます。保存する前に、手で名前を変えられます。</p>
-<h4>スペクトラム</h4>
-<p>スペクトラムの表は、たたんで小さくできます。たたんだときは、そのときの TH の数字が残ります。</p>
-</div>
-</div>
-<div class="help-acc">
-<button type="button">うまく測れないとき</button>
-<div class="help-body">
-<ul>
-<li>数字が出ない → マイク許可、計測開始、モーターが回っているか</li>
-<li>暴れる → 窓が広い、TH が低い、周囲がうるさい</li>
-<li>低すぎ / 高すぎ → 倍音、窓の位置、校正が残っている</li>
-<li>速度だけおかしい → ギヤとタイヤが実車と違う</li>
-<li>比較表が空 → まだロックしていない</li>
-</ul>
-</div>
-</div>
 
 <p class="privacy-box">マイク許可: モーター音の周波数から回転数（RPM）を測定するためにマイクを使います。音声は端末内だけで処理し、サーバーへ送信しません。<br>
 The microphone is used to measure motor RPM from sound frequency. Audio is processed on this device only and is not sent to any server.<br>
@@ -6177,7 +6164,8 @@ const vaNoteBtn = document.getElementById("vaNoteBtn");
 
 /* ========== 全シェル共通: 集音フィルタ＋ロック比較表 ========== */
 (function initShellExtras() {
-  function boot() {
+  function dedupeExtras() { var PFX = ["paper", "mat", "ch", "bp", "gb", "ios", "dash"]; var SUF = ["Filt", "FiltMin", "FiltMax", "FiltVal", "FiltFill", "TireBtn", "TireStrip", "AbBtn", "AbStrip", "Cmp", "CmpBody", "Status", "Th"]; PFX.forEach(function(P) { SUF.forEach(function(s) { var els = document.querySelectorAll('[id="' + P + s + '"]'); for (var i = 1; i < els.length; i++) els[i].remove(); }); }); var seenParents = []; document.querySelectorAll(".sh-ab-link").forEach(function(b) { if (seenParents.indexOf(b.parentElement) >= 0) b.remove(); else seenParents.push(b.parentElement); }); document.querySelectorAll(".sh-extra").forEach(function(w) { if (!w.querySelector("[id]") && !w.querySelector("canvas")) w.remove(); }); }
+  function boot() { if (window.__rpmExtrasBooted) { dedupeExtras(); return; } window.__rpmExtrasBooted = true;
     function $(id) { return document.getElementById(id); }
     var CFG = [
       ["paperApp", "paper", "theme-paper"], ["matApp", "mat", "theme-material"],
