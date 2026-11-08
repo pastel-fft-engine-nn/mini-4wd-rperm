@@ -2559,11 +2559,11 @@ The microphone is used to measure motor RPM from sound frequency. Audio is proce
 </div>
 </div>
 
-<div id="onboardBackdrop" class="show">
+<div id="onboardBackdrop">
   <div class="onboard-card">
-    <div class="onboard-k" id="onboardKicker">1 / 4</div>
-    <h2 class="onboard-h" id="onboardTitle">回転数を測定します</h2>
-    <div id="onboardBody"><p class="onboard-p">RPM Memory は、モーターの音の高さから回転数（RPM）を推定する測定アプリです。会話の録音アプリではありません。</p><p class="onboard-p">音声は端末の中だけで処理し、サーバーには送りません。</p></div>
+    <div class="onboard-k" id="onboardKicker">1 / 3</div>
+    <h2 class="onboard-h" id="onboardTitle"></h2>
+    <div id="onboardBody"></div>
     <div class="onboard-dots" id="onboardDots"><i class="on"></i><i></i><i></i><i></i></div>
     <div class="onboard-nav">
       <button class="secondary-btn gray u-flex1" id="onboardSkip">とばす</button>
@@ -5203,7 +5203,7 @@ if (themeMeta) themeMeta.setAttribute("content", active ? "#0d0d0f" : "#f4f2ee")
 
 
 (function initBackup() {
-  const KEYS = ["rpmHistory","rpmFavorites","rpmTarget","rpmLockSnaps","rpmCmpVoltFine","rpmCmpSplit","rpmStableGate","rpmMachine","rpmSetupFavs","rpmMachineApplied","darkMode","rpmOnboardV4","rpmUiTheme","rpmUiThemeV2","rpmLang"];
+  const KEYS = ["rpmHistory","rpmFavorites","rpmTarget","rpmLockSnaps","rpmCmpVoltFine","rpmCmpSplit","rpmStableGate","rpmMachine","rpmSetupFavs","rpmMachineApplied","darkMode","rpmOnboardV4","rpmIntroV1","rpmUiTheme","rpmUiThemeV2","rpmLang"];
   const exportBtn = document.getElementById("backupExportBtn");
   const importBtn = document.getElementById("backupImportBtn");
   const file = document.getElementById("backupImportFile");
@@ -5942,11 +5942,10 @@ document.addEventListener('touchmove', function(e) {
   const again = document.getElementById("settingsOnboardBtn");
   if (again) again.addEventListener("click", function() {
     if (UI.settingsModal) UI.settingsModal.style.display = "none";
-    openOnboard();
+    if (window.openRpmIntro) window.openRpmIntro(); else openOnboard();
   });
-  try {
-    if (localStorage.getItem("rpmOnboardV4") !== "1") openOnboard();
-  } catch (e) { openOnboard(); }
+  /* fix61: the old sheet no longer auto-opens. First-run display is
+     handled by the new intro popup (rpmIntroV1) at the end of body. */
 })();
 
 
@@ -8748,6 +8747,77 @@ if(sv)sv.addEventListener("click",function(){
   try{if(typeof saveHistory==="function")saveHistory();else localStorage.setItem("rpmHistory",JSON.stringify(list));}catch(e){}
   try{if(typeof renderHistory==="function")renderHistory();}catch(e){}
   closeEdit();
+});
+})();</script><div id="introBackdrop" style="display: flex;">
+<div class="onboard-card intro-card">
+<div class="onboard-k" id="introKicker">1 / 5</div>
+<h2 class="onboard-h" id="introTitle">回転数を測定します</h2>
+<div id="introBody"><p class="onboard-p">RPM Memory は、モーターの音の高さから回転数（RPM）を推定する測定アプリです。会話の録音アプリではありません。</p><p class="onboard-p">音声は端末の中だけで処理し、サーバーには送りません。</p></div>
+<div class="onboard-dots" id="introDots"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+<div class="onboard-nav">
+<button class="secondary-btn gray u-flex1" id="introSkip" type="button">とばす</button>
+<button class="primary-btn blue u-flex1" id="introNext" type="button">つぎへ</button>
+</div>
+</div>
+</div>
+<style>#introBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:220;padding:18px;box-sizing:border-box}#introBackdrop .intro-card{border-radius:14px;border:1px solid var(--line);width:100%;max-width:480px;max-height:92dvh;overflow-y:auto}</style>
+<script>(function(){
+var PAGES = [
+    {
+      k: "1 / 5",
+      t: "回転数を測定します", te: "Measure RPM from sound",
+      html: "<p class=\"onboard-p\">RPM Memory は、モーターの音の高さから回転数（RPM）を推定する測定アプリです。会話の録音アプリではありません。</p><p class=\"onboard-p\">音声は端末の中だけで処理し、サーバーには送りません。</p>",
+      htmle: "<p class=\"onboard-p\">RPM Memory estimates motor RPM from the pitch of its sound. It is not a voice recorder.</p><p class=\"onboard-p\">Audio is processed on this device only and is never sent to a server.</p>"
+    },
+    {
+      k: "2 / 5",
+      t: "マイクを近づけて測る", te: "Bring the mic close",
+      html: "<p class=\"onboard-p\">「計測開始」を押し、マイクをモーターに近づけます。グラフの山が回転の目安です。</p><p class=\"onboard-p\">周囲がうるさいときは集音範囲を絞ってください。点線の TH はノイズ閾値です。上げすぎるとモーター自身も拾いにくくなります。</p><p class=\"onboard-p\">スペクトラムの表は、たたんで小さくできます。</p>",
+      htmle: "<p class=\"onboard-p\">Press START and hold the microphone near the motor. The peak of the graph is your guide.</p><p class=\"onboard-p\">In a noisy place, narrow the pickup window. The dotted TH line is the noise threshold; too high and the motor itself gets missed.</p><p class=\"onboard-p\">The spectrum panel can be folded smaller.</p>"
+    },
+    {
+      k: "3 / 5",
+      t: "安定したらロック", te: "Lock when it settles",
+      html: "<p class=\"onboard-p\">数字が落ち着いたらロックします。その値で机上速度・比較表・保存が使えます。値は目安です。</p><p class=\"onboard-p\">マシン設定を行えば、簡易比較表が表れます。</p><p class=\"onboard-p\">マイクを使います / Microphone access</p><p class=\"onboard-p\">モーター音の周波数から回転数（RPM）を測定するためにマイクを使います。音声は端末内だけで処理し、サーバーへ送信しません。</p><p class=\"onboard-en\">The microphone is used to measure motor RPM from sound frequency. Audio is processed on this device only and is not sent to any server.</p>",
+      htmle: "<p class=\"onboard-p\">When the number settles, lock it. The locked value drives desk speed, the chart and saving. Values are a guide.</p><p class=\"onboard-p\">Set up the machine to reveal the quick comparison chart.</p><p class=\"onboard-p\">Uses the microphone: motor RPM is measured from sound frequency. Audio is processed on this device only and is not sent to any server.</p>"
+    },
+    {
+      k: "4 / 5",
+      t: "長押しで説明が出ます", te: "Long-press for help",
+      html: "<p class=\"onboard-p\">「タイヤ付き」と「A/B比較」のボタンは、長押し（約0.6秒）すると、その機能の説明がポップアップで出ます。</p><p class=\"onboard-p\">普通にタップすれば今まで通り開きます。分からなくなったら、まず長押ししてみてください。</p>",
+      htmle: "<p class=\"onboard-p\">Long-press (about 0.6 seconds) the WITH-TIRES and A/B COMPARE buttons and a popup explains that feature.</p><p class=\"onboard-p\">A normal tap opens them as usual. When in doubt, try a long-press first.</p>"
+    },
+    {
+      k: "5 / 5",
+      t: "復元しますか", te: "Restore a backup?",
+      html: "<p class=\"onboard-p\">前の端末やサイトのバックアップがあれば、復元できます。</p><p class=\"onboard-p\">ここでしなくても大丈夫です。設定から、いつでも書き出しと復元ができます。</p>",
+      htmle: "<p class=\"onboard-p\">If you have a backup from a previous device or site, you can restore it.</p><p class=\"onboard-p\">You can skip this. Export and restore are always available in Settings.</p>"
+    }
+  ];
+var step=0;
+function en(){return (window.APP_LANG||(function(){try{return localStorage.getItem("rpmLang");}catch(e){return null;}})())==="en";}
+function render(){
+  var p=PAGES[step],E=en();
+  document.getElementById("introKicker").textContent=p.k;
+  document.getElementById("introTitle").textContent=(E&&p.te)?p.te:p.t;
+  document.getElementById("introBody").innerHTML=(E&&p.htmle)?p.htmle:p.html;
+  document.querySelectorAll("#introDots i").forEach(function(d,i){d.classList.toggle("on",i===step);});
+  var last=step>=PAGES.length-1;
+  document.getElementById("introNext").textContent=last?(E?"LATER":"\u3042\u3068\u3067"):(E?"NEXT":"\u3064\u304E\u3078");
+  document.getElementById("introSkip").textContent=last?(E?"RESTORE":"\u5FA9\u5143\u3059\u308B"):(E?"SKIP":"\u3068\u3070\u3059");
+}
+function markSeen(){try{localStorage.setItem("rpmIntroV1","1");}catch(e){}try{localStorage.setItem("rpmOnboardV4","1");}catch(e){}}
+function openIntro(){step=0;render();var bd=document.getElementById("introBackdrop");if(bd)bd.style.display="flex";}
+function closeIntro(){var bd=document.getElementById("introBackdrop");if(bd)bd.style.display="none";markSeen();}
+window.openRpmIntro=openIntro;
+function openRestore(){var ask=document.getElementById("restoreAskBackdrop");if(ask){ask.style.display="flex";}else{var f=document.getElementById("backupImportFile");if(f)f.click();}}
+function ready(f){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f();}
+ready(function(){
+  var skip=document.getElementById("introSkip"),next=document.getElementById("introNext");
+  if(skip)skip.addEventListener("click",function(){if(step>=PAGES.length-1){closeIntro();openRestore();}else closeIntro();});
+  if(next)next.addEventListener("click",function(){if(step>=PAGES.length-1){closeIntro();return;}step+=1;render();});
+  var seen=null;try{seen=localStorage.getItem("rpmIntroV1");}catch(e){}
+  if(seen!=="1"){setTimeout(openIntro,350);}
 });
 })();</script>
 </body></html>
